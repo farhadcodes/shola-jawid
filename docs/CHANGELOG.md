@@ -238,3 +238,22 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Reason: same as above — a structural permalink decision that's costly to
   reverse later, caught before implementation rather than after.
   Approved by: Farhad, in this session (2026-08-05).
+
+## 2026-08-06
+- **Added:** Phase 3.2 (taxonomies) implemented native `post` single
+  permalinks as `/topics/{topic}/{slug}` (a custom rewrite rule + tag +
+  `post_type_link` filter in `class-taxonomies.php`, the same technique
+  already approved for `issue`/`document` in Phase 3.1), rather than
+  leaving posts on the site's default `/%postname%/` structure. Proceeded
+  without a separate stop-and-confirm, unlike the `/fa/` prefix and
+  `has_archive` calls above, because this one isn't ambiguous: the IA doc
+  §4 single-view table states `/topics/{topic}/{slug}` explicitly, and the
+  mechanism is identical to the pattern already reviewed and approved for
+  issue/document — applying it to `topic`/`post` is direct execution of an
+  already-settled decision, not a new judgment call. Noting it here anyway
+  since it does change how all posts permalink, for traceability.
+  Posts with no `topic` term assigned fall back to a `بدون-موضوع`
+  placeholder slug, mirroring the `بدون-نشریه`/`بدون-مجموعه` fallback
+  pattern from Phase 3.1 (verified working as intended, not a bug, in
+  Farhad's 3.1 testing).
+  Approved by: Farhad, in this session (2026-08-06).

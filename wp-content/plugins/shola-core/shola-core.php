@@ -48,18 +48,22 @@ function shcore_autoload( $class ) {
 spl_autoload_register( 'shcore_autoload' );
 
 \SholaCore\Post_Types::init();
+\SholaCore\Taxonomies::init();
 
 /**
- * On activation: ensure post types are registered, then flush rewrite
- * rules once so the new /publications/%publication%/... and
- * /library/%collection%/... permalink structures take effect immediately
- * without requiring a manual visit to Settings → Permalinks.
+ * On activation: register post types and taxonomies, seed the fixed term
+ * vocabularies (idempotent — safe on repeat activation), then flush
+ * rewrite rules once so the new permalink structures take effect
+ * immediately without a manual visit to Settings → Permalinks.
  *
  * @return void
  */
 function shcore_activate() {
 	\SholaCore\Post_Types::register_post_types();
 	\SholaCore\Post_Types::register_rewrite_tags();
+	\SholaCore\Taxonomies::register_taxonomies();
+	\SholaCore\Taxonomies::register_topic_rewrite();
+	\SholaCore\Taxonomies::create_default_terms();
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'shcore_activate' );

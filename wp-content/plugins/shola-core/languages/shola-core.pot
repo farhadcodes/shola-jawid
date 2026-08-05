@@ -4,10 +4,218 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shola Core 1.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/farhadcodes/shola-jawid/issues\n"
-"POT-Creation-Date: 2026-08-05T00:00:00+00:00\n"
+"POT-Creation-Date: 2026-08-06T00:00:00+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-08-05T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-08-06T00:00:00+00:00\n"
 "X-Generator: manual\n"
 "X-Domain: shola-core\n"
+
+#: includes/class-post-types.php
+msgid "شماره‌های نشریه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "شمارهٔ نشریه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن شماره"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن شمارهٔ جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "ویرایش شماره"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "شمارهٔ جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "مشاهدهٔ شماره"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "جست‌وجوی شماره‌ها"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "شماره‌ای یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "شماره‌ای در زباله‌دان یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "همهٔ شماره‌ها"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اسناد کتابخانه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "سند کتابخانه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن سند"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن سند جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "ویرایش سند"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "سند جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "مشاهدهٔ سند"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "جست‌وجوی اسناد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "سندی یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "سندی در زباله‌دان یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "همهٔ اسناد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "کتابخانه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اطلاعیه‌ها"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اطلاعیه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن اطلاعیه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "افزودن اطلاعیهٔ جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "ویرایش اطلاعیه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اطلاعیهٔ جدید"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "مشاهدهٔ اطلاعیه"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "جست‌وجوی اطلاعیه‌ها"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اطلاعیه‌ای یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "اطلاعیه‌ای در زباله‌دان یافت نشد"
+msgstr ""
+
+#: includes/class-post-types.php
+msgid "همهٔ اطلاعیه‌ها"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "موضوعات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "موضوع"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "جست‌وجوی موضوعات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "همهٔ موضوعات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "ویرایش موضوع"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "مشاهدهٔ موضوع"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "نشریات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "نشریه"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "جست‌وجوی نشریات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "همهٔ نشریات"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "ویرایش نشریه"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "مشاهدهٔ نشریه"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "مجموعه‌ها"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "مجموعه"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "جست‌وجوی مجموعه‌ها"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "همهٔ مجموعه‌ها"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "ویرایش مجموعه"
+msgstr ""
+
+#: includes/class-taxonomies.php
+msgid "مشاهدهٔ مجموعه"
+msgstr ""
