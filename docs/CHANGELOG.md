@@ -200,3 +200,41 @@ trail of *why* the build deviated from — or newly applied — a rule in
   sequencing question (skeleton-before-templates), not a project-specific
   judgment call — WP's own two-required-files rule settles it.
   Approved by: Farhad, in this session (2026-08-05).
+
+## 2026-08-05 (continued)
+- **Changed:** `docs/EXECUTION_PLAN.md` §3.1's rewrite-slug guidance
+  amended to drop the `/fa/` locale prefix that the IA doc's §4 URL table
+  uses literally (confirmed by extracting the doc's actual text, not
+  relying on memory/summary). The IA doc's own §2.2 states the `/fa/` /
+  `/en/` prefixes are part of a locale-routing strategy; building the
+  `/fa/` half now, with no `/en/` counterpart going live this phase, would
+  mean committing to a specific future i18n URL scheme (subdirectory vs.
+  subdomain vs. domain — Polylang and WPML default to different ones)
+  before that decision has been made — exactly what `CLAUDE.md` §1
+  prohibits ("do not scaffold... `en/` routing... speculatively").
+  Corrected: clean slugs now (`/publications/...`, `/library/...`,
+  `/announcements`); a locale prefix can be layered on via rewrite rules
+  whenever the i18n strategy is actually chosen, without touching CPT
+  registration.
+  Reason: rewrite slugs are painful to change once URLs are indexed or
+  bookmarked, so this was worth stopping on rather than guessing — flagged
+  to Farhad before any code was written with the prefix baked in.
+  Approved by: Farhad, in this session (2026-08-05).
+
+- **Changed:** `issue` and `document` CPTs will be registered with
+  `has_archive => false`, not the default post-type archive. Both
+  `/publications` and `/library` are static Pages per the IA doc §4
+  (`page-publications.php`/`page-library.php`), so enabling a CPT archive
+  at either of those same slugs would create a rewrite-rule collision with
+  the static Page. Single-item permalinks for both CPTs still nest under
+  their parent term (`/publications/{publication}/{issue}`,
+  `/library/{collection}/{slug}`) via a custom `%publication%`/
+  `%collection%` rewrite tag + `post_type_link` filter, not via
+  `has_archive`; the "listing" views come from the taxonomy archive
+  templates in Phase 3.2 instead. `announcement` keeps
+  `has_archive => 'announcements'` since the IA doc treats `/announcements`
+  as a real listing template (`archive-announcement.php`), not a static
+  Page — no collision there.
+  Reason: same as above — a structural permalink decision that's costly to
+  reverse later, caught before implementation rather than after.
+  Approved by: Farhad, in this session (2026-08-05).

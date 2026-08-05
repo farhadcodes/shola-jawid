@@ -46,3 +46,31 @@ function shcore_autoload( $class ) {
 	}
 }
 spl_autoload_register( 'shcore_autoload' );
+
+\SholaCore\Post_Types::init();
+
+/**
+ * On activation: ensure post types are registered, then flush rewrite
+ * rules once so the new /publications/%publication%/... and
+ * /library/%collection%/... permalink structures take effect immediately
+ * without requiring a manual visit to Settings → Permalinks.
+ *
+ * @return void
+ */
+function shcore_activate() {
+	\SholaCore\Post_Types::register_post_types();
+	\SholaCore\Post_Types::register_rewrite_tags();
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'shcore_activate' );
+
+/**
+ * On deactivation: flush rewrite rules so the custom permalink structures
+ * don't linger after the plugin (and its post types) are gone.
+ *
+ * @return void
+ */
+function shcore_deactivate() {
+	flush_rewrite_rules();
+}
+register_deactivation_hook( __FILE__, 'shcore_deactivate' );

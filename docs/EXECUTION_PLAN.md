@@ -186,10 +186,33 @@ Goal: build the data layer in `shola-core` that the IA document's §4–§6 desc
 
 - `includes/class-post-types.php` registers: `issue` (شمارهٔ نشریه), `document` (سند کتابخانه), `announcement` (اطلاعیه) — per IA doc §5.
 - Regular posts (native post type) continue to serve مقاله / یادداشت (article/note) per the IA doc's content model — no new CPT needed for articles themselves, only a topic taxonomy applied to them.
-- Rewrite slugs match the IA doc §4 URL table exactly: `/library/{collection}/{slug}`, `/publications/{publication}/{issue}`, etc.
+- Rewrite slugs match the IA doc §4 URL table's *structure* — `/library/{collection}/{slug}`, `/publications/{publication}/{issue}`, `/announcements` — but **without** the doc's literal `/fa/` locale prefix (see correction below).
+
+> **Correction (Phase 3.1, logged in `docs/CHANGELOG.md` 2026-08-05):** the
+> IA doc's own URL table is written with locale-prefixed routing
+> (`/fa/...`, mirrored by `/en/...` — its §2.2 states this explicitly).
+> Building that now would mean choosing a specific future i18n URL
+> strategy (subdirectory vs. subdomain vs. domain — Polylang/WPML support
+> different ones) that hasn't been decided, which `CLAUDE.md` §1 explicitly
+> prohibits ("do not scaffold... `en/` routing... speculatively").
+> Corrected: clean slugs with no `/fa/` prefix for now; a prefix can be
+> layered on via rewrite rules later without touching CPT registration.
+>
+> Also: `/publications` and `/library` are **static Pages**
+> (`page-publications.php`/`page-library.php`, §4.2), so `issue` and
+> `document` are registered with `has_archive => false` to avoid the CPT
+> archive rewrite fighting the static Page at the same slug — their
+> single-item permalinks still nest correctly via a custom
+> `%publication%`/`%collection%` rewrite tag + `post_type_link` filter, and
+> per-publication/per-collection listings come from the taxonomy archive
+> templates (Phase 3.2) instead of a post-type archive. `announcement` is
+> registered with `has_archive => 'announcements'` since the IA doc treats
+> `/announcements` itself as a real listing template
+> (`archive-announcement.php`, not a static Page).
 
 **Checklist:**
-- ☐ issue, document, announcement CPTs registered with correct labels (Persian), supports, and rewrite slugs matching IA doc §4
+- ☐ issue, document, announcement CPTs registered with correct labels (Persian), supports, and rewrite slugs matching the (prefix-corrected) IA doc §4 structure
+- ☐ No archive-slug collision between `issue`/`document` CPT archives and the `page-publications.php`/`page-library.php` static Pages (verify `/publications` and `/library` render the static Page, not an empty CPT archive)
 
 ### 3.2 — Taxonomies
 
