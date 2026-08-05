@@ -1,0 +1,30 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer
+
+      - name: Install PHPCS + WPCS
+        run: |
+          composer global require --dev squizlabs/php_codesniffer:"^3.9" wp-coding-standards/wpcs:"^3.1" phpcompatibility/phpcompatibility-wp:"^2.1"
+          echo "$HOME/.composer/vendor/bin" >> "$GITHUB_PATH"
+
+      - name: Register WPCS ruleset
+        run: phpcs --config-set installed_paths "$HOME/.composer/vendor/wp-coding-standards/wpcs,$HOME/.composer/vendor/phpcompatibility/php-compatibility,$HOME/.composer/vendor/phpcompatibility/phpcompatibility-wp"
+
+      - name: Run PHPCS
+        run: phpcs --standard=phpcs.xml.dist

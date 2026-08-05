@@ -1,0 +1,33 @@
+# WordPress
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+*.sql
+*.sql.gz
+
+# Environment / secrets
+.env
+.env.*
+wp-config.php
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# LocalWP / local dev
+.ddev/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHP tooling
+vendor/
+composer.lock

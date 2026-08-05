@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shola Jawid — Brand Guidelines v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F0F0F; --paper:#FFFFFF;
+  --crimson:#8E1B1B; --crimson-deep:#6B1414; --crimson-tint:#F5DCDC;
+  --ink-80:#2A2A2A; --stone:#6E6E6A; --line:#E6E5E1; --cream:#FAF8F3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased}
+.page{max-width:1240px;margin:0 auto;padding:0 64px}
+@media (max-width:768px){.page{padding:0 24px}}
+
+section{padding:96px 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:none}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:20px;display:block;font-weight:500}
+.sec-title{font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1.05;margin-bottom:28px;letter-spacing:-.02em}
+.sec-lede{font-family:'Newsreader',serif;font-size:22px;line-height:1.55;color:var(--ink-80);max-width:720px;margin-bottom:72px;font-weight:300}
+
+/* HERO */
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;border-top:none!important;padding:80px 0 64px}
+.hero-mark{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.18em;margin-bottom:40px}
+.hero-mark .dot{display:inline-block;width:8px;height:8px;background:var(--crimson);margin-right:10px;vertical-align:1px}
+.hero-title{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(56px,8vw,104px);line-height:.95;letter-spacing:-.035em;margin-bottom:40px;max-width:1100px}
+.hero-title em{color:var(--crimson);font-style:normal}
+.hero-sub{font-family:'Newsreader',serif;font-size:24px;line-height:1.55;color:var(--ink-80);max-width:680px;margin-bottom:72px;font-weight:300}
+.hero-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:32px;padding-top:32px;border-top:2px solid var(--ink)}
+.hero-meta dt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--stone);letter-spacing:.15em;margin-bottom:6px}
+.hero-meta dd{font-size:15px;font-weight:500}
+
+/* TOC */
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.toc a{display:block;padding:28px 24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;transition:background .15s}
+.toc a:hover{background:var(--cream)}
+.toc-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:8px;display:block}
+.toc-label{font-size:17px;font-weight:500;font-family:'Newsreader',serif}
+
+/* SWATCH */
+.swatch-grid{display:grid;gap:24px}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.swatch{border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
+.swatch-head{height:220px;display:flex;align-items:flex-end;padding:22px;position:relative}
+.swatch-head .num{position:absolute;top:18px;right:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;font-weight:500}
+.swatch-head .name{font-family:'Newsreader',serif;font-size:30px;font-weight:500;line-height:1.05;letter-spacing:-.01em}
+.swatch-body{padding:20px;border-top:1px solid var(--line);flex:1;display:flex;flex-direction:column}
+.swatch-codes{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2}
+.swatch-codes div{display:flex;justify-content:space-between;gap:12px}
+.swatch-codes .lbl{color:var(--stone);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.swatch-usage{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-80);line-height:1.6}
+.swatch-usage strong{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--stone);font-weight:500;margin-bottom:8px}
+
+/* HIERARCHY */
+.hierarchy-stack{display:flex;flex-direction:column;gap:16px}
+.h-bar{display:grid;grid-template-columns:60fr 30fr 10fr;height:140px;border:1px solid var(--line)}
+.h-bar>div{display:flex;flex-direction:column;justify-content:flex-end;padding:18px}
+.h-bar .pct{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;margin-bottom:6px;letter-spacing:.05em}
+.h-bar .role{font-size:13px;line-height:1.4}
+
+/* MATRIX */
+.matrix-wrap{border:1px solid var(--line);overflow-x:auto}
+.matrix{width:100%;border-collapse:collapse;font-size:14px;min-width:680px}
+.matrix th{text-align:left;padding:16px 18px;background:var(--ink);color:var(--paper);font-weight:500;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase}
+.matrix td{padding:18px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+.matrix tr:last-child td{border-bottom:none}
+.matrix td:first-child{font-weight:500;width:24%}
+.matrix .chip{display:inline-block;width:14px;height:14px;border:1px solid var(--line);vertical-align:-2px;margin-right:8px}
+.matrix code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--cream);padding:2px 6px;color:var(--ink-80)}
+
+/* DO/DONT */
+.dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.dd-card{border:1px solid var(--line);display:flex;flex-direction:column}
+.dd-head{padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;font-weight:500;text-transform:uppercase}
+.dd-do .dd-head{background:var(--ink);color:var(--paper)}
+.dd-dont .dd-head{background:var(--crimson);color:var(--paper)}
+.dd-vis{height:160px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:20px}
+.dd-body{padding:20px;flex:1}
+.dd-body p{font-size:14px;line-height:1.65;color:var(--ink-80)}
+
+/* TYPOGRAPHY */
+.typespec{display:grid;grid-template-columns:220px 1fr;gap:40px;padding:32px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.typespec:last-child{border-bottom:none}
+.typespec-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--stone);line-height:1.8}
+.typespec-label strong{display:block;color:var(--ink);margin-bottom:4px;font-weight:500;font-size:12px}
+.typespec-sample{overflow:hidden}
+
+/* CONTRAST */
+.contrast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.contrast-card{border:1px solid var(--line);overflow:hidden}
+.contrast-demo{padding:24px;font-family:'Newsreader',serif;font-size:20px;line-height:1.4;height:120px;display:flex;align-items:center}
+.contrast-info{padding:14px 18px;border-top:1px solid var(--line);background:var(--paper);display:flex;justify-content:space-between;align-items:center}
+.contrast-info .ratio{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500}
+.contrast-info .grade{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--stone);letter-spacing:.1em;padding:3px 8px;border:1px solid var(--line)}
+.grade-aaa{background:var(--ink);color:var(--paper);border-color:var(--ink)!important}
+
+/* PREVIEW */
+.preview-shell{border:1px solid var(--line);overflow:hidden}
+.preview-mast{background:var(--ink);color:var(--paper);padding:20px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--crimson)}
+.preview-mast .lockup{font-family:'Newsreader',serif;font-size:24px;display:flex;align-items:center;gap:12px}
+.preview-mast .lockup .mk{width:11px;height:11px;background:var(--crimson);transform:rotate(45deg);display:inline-block}
+.preview-mast .nav{display:flex;gap:20px;font-size:13px;color:rgba(255,255,255,.7)}
+.preview-mast .nav .on{color:#fff;border-bottom:2px solid var(--crimson);padding-bottom:2px}
+.preview-body{padding:40px 28px}
+.preview-tag{display:inline-block;background:var(--crimson-tint);color:var(--crimson-deep);font-size:11px;padding:4px 12px;letter-spacing:.05em;margin-bottom:14px;font-weight:500}
+.preview-h{font-family:'Newsreader',serif;font-size:36px;line-height:1.18;margin-bottom:14px;letter-spacing:-.01em}
+.preview-deck{font-family:'Newsreader',serif;font-size:18px;color:var(--ink-80);line-height:1.6;margin-bottom:18px;font-weight:300}
+.preview-meta{font-size:12px;color:var(--stone);font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+
+/* COMPONENT BAR */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;padding:32px 0}
+.comp-cell{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.comp-cell .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--stone);font-weight:500;text-transform:uppercase}
+
+.btn-primary{background:var(--crimson);color:#fff;padding:12px 24px;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.01em}
+.btn-primary:hover{background:var(--crimson-deep)}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--ink);padding:12px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-ghost{background:transparent;color:var(--crimson);border:none;padding:12px 0;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--crimson)}
+
+.tag-current{background:var(--crimson);color:#fff;font-size:11px;padding:4px 12px;letter-spacing:.05em;font-weight:500}
+.tag-cat{background:var(--cream);color:var(--ink-80);font-size:11px;padding:4px 12px;letter-spacing:.05em;border:1px solid var(--line);font-weight:500}
+.tag-pdf{background:var(--ink);color:#fff;font-size:11px;padding:4px 12px;letter-spacing:.05em;font-weight:500;font-family:'JetBrains Mono',monospace}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--paper);padding:64px 0;margin-top:96px}
+footer .page{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px}
+footer .mark{font-family:'Newsreader',serif;font-size:36px}
+footer .mark .mk{display:inline-block;width:14px;height:14px;background:var(--crimson);transform:rotate(45deg);margin-right:12px;vertical-align:3px}
+footer .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.15em;line-height:2}
+
+/* Inline */
+.inline-chip{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:6px;border:1px solid var(--line)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-80)}
+.fa{font-family:'Vazirmatn',sans-serif}
+
+@media print{
+  section{page-break-inside:avoid;padding:48px 0;border-top:1px solid #ccc}
+  .hero{min-height:auto;padding:48px 0}
+  footer{background:#fff;color:#000;border-top:2px solid #8E1B1B}
+  footer .meta{color:#666}
+  body{font-size:11pt}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="page">
+    <div class="hero-mark"><span class="dot"></span>BRAND GUIDELINES · VERSION 1.0 · JUNE 2026</div>
+    <h1 class="hero-title">Shola Jawid<br><em>Brand &amp; Visual System</em></h1>
+    <p class="hero-sub">The visual identity for a bilingual publishing platform — disciplined, heavyweight, and built for the long archive. This document defines the colour, typography, and application rules that keep the brand coherent across every page, issue, and document.</p>
+    <dl class="hero-meta">
+      <div><dt>PROJECT</dt><dd>Bilingual Publishing Site</dd></div>
+      <div><dt>DIRECTION</dt><dd>Modern Press · Crimson</dd></div>
+      <div><dt>VERSION</dt><dd>1.0 · Draft for client</dd></div>
+      <div><dt>SCOPE</dt><dd>Digital · Web · Mobile</dd></div>
+      <div><dt>LANGUAGES</dt><dd>Persian (RTL) · English (LTR)</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- TOC -->
+<div class="page">
+  <nav class="toc">
+    <a href="#foundation"><span class="toc-num">01</span><span class="toc-label">Brand foundation</span></a>
+    <a href="#primary"><span class="toc-num">02</span><span class="toc-label">Primary palette</span></a>
+    <a href="#extended"><span class="toc-num">03</span><span class="toc-label">Extended palette</span></a>
+    <a href="#functional"><span class="toc-num">04</span><span class="toc-label">Functional colours</span></a>
+    <a href="#hierarchy"><span class="toc-num">05</span><span class="toc-label">Colour hierarchy</span></a>
+    <a href="#application"><span class="toc-num">06</span><span class="toc-label">Application matrix</span></a>
+    <a href="#dodont"><span class="toc-num">07</span><span class="toc-label">Do &amp; don't</span></a>
+    <a href="#accessibility"><span class="toc-num">08</span><span class="toc-label">Accessibility</span></a>
+    <a href="#typography"><span class="toc-num">09</span><span class="toc-label">Typography</span></a>
+    <a href="#components"><span class="toc-num">10</span><span class="toc-label">Components in action</span></a>
+  </nav>
+</div>
+
+<!-- 01 FOUNDATION -->
+<section id="foundation">
+  <div class="page">
+    <span class="sec-num">01 — BRAND FOUNDATION</span>
+    <h2 class="sec-title">A publication of record,<br>not a website.</h2>
+    <p class="sec-lede">The brand reads as a serious editorial institution: a journal with a point of view and a long archive. Three principles govern every visual decision below.</p>
+
+    <div class="swatch-grid grid-3">
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500">PRINCIPLE 01</div>
+        <h3 style="font-family:'Newsreader',serif;font-size:24px;line-height:1.2;margin-bottom:14px;font-weight:500">Restraint</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.65">Three colours, two typefaces, generous whitespace. The brand earns its presence by leaving things out, not adding them.</p>
+      </div>
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500">PRINCIPLE 02</div>
+        <h3 style="font-family:'Newsreader',serif;font-size:24px;line-height:1.2;margin-bottom:14px;font-weight:500">Weight</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.65">Heavy black mastheads, serif headlines at scale, strong typographic rules. Visual weight signals editorial seriousness.</p>
+      </div>
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500">PRINCIPLE 03</div>
+        <h3 style="font-family:'Newsreader',serif;font-size:24px;line-height:1.2;margin-bottom:14px;font-weight:500">Meaning</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.65">Crimson is the eternal flame of the publication's name made visual. Every accent should mean something, never decorate.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PRIMARY -->
+<section id="primary">
+  <div class="page">
+    <span class="sec-num">02 — PRIMARY PALETTE</span>
+    <h2 class="sec-title">Three colours.<br>No more.</h2>
+    <p class="sec-lede">The entire brand runs on three colours. Anything outside this set is a special case (functional feedback only). Discipline here is what makes the system feel premium.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#0F0F0F;color:#fff"><span class="num">01 / 03</span><span class="name">Ink Black</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#0F0F0F</span></div>
+            <div><span class="lbl">RGB</span><span>15, 15, 15</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 0%, 6%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 0, 0, 94</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>Body type, headlines, masthead, footer, primary structure. The dominant ink of the publication.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#FFFFFF;color:var(--ink);border-bottom:1px solid var(--line)"><span class="num" style="color:var(--stone)">02 / 03</span><span class="name">Paper White</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#FFFFFF</span></div>
+            <div><span class="lbl">RGB</span><span>255, 255, 255</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 0%, 100%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 0, 0, 0</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>The canvas. Always the dominant surface — at least 60% of any view. Never tinted, never textured.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#8E1B1B;color:#fff"><span class="num">03 / 03</span><span class="name">Crimson</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#8E1B1B</span></div>
+            <div><span class="lbl">RGB</span><span>142, 27, 27</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 68%, 33%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 81, 81, 44</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>The brand colour. Links, "current" markers, primary buttons, section accents. Never decorative — always carries meaning.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 EXTENDED -->
+<section id="extended">
+  <div class="page">
+    <span class="sec-num">03 — EXTENDED PALETTE</span>
+    <h2 class="sec-title">Support tones.</h2>
+    <p class="sec-lede">Five supporting values handle the in-between work — interaction states, secondary type, borders, and quiet surfaces. They are derivatives of the primary three and never compete with them.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#6B1414;color:#fff"><span class="num">01 / 05</span><span class="name">Crimson Deep</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#6B1414</span></div>
+            <div><span class="lbl">RGB</span><span>107, 20, 20</span></div>
+            <div><span class="lbl">USE</span><span>Hover / active</span></div>
+          </div>
+          <div class="swatch-usage"><strong>INTERACTION STATE</strong>Hover and pressed states for any element using Crimson. Also acceptable for crimson text on tinted backgrounds where contrast must increase.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#F5DCDC;color:#6B1414"><span class="num">02 / 05</span><span class="name">Crimson Tint</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#F5DCDC</span></div>
+            <div><span class="lbl">RGB</span><span>245, 220, 220</span></div>
+            <div><span class="lbl">USE</span><span>Tag fills</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SOFT SURFACE</strong>Background for category tags, soft highlights, and "current issue" pills. Pair only with Crimson Deep for text — never with black.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#2A2A2A;color:#fff"><span class="num">03 / 05</span><span class="name">Ink 80</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#2A2A2A</span></div>
+            <div><span class="lbl">RGB</span><span>42, 42, 42</span></div>
+            <div><span class="lbl">USE</span><span>Secondary type</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SECONDARY TYPE</strong>Decks, ledes, sub-headlines. Slightly lighter than Ink Black so headlines retain visual primacy.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#6E6E6A;color:#fff"><span class="num">04 / 05</span><span class="name">Stone</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#6E6E6A</span></div>
+            <div><span class="lbl">RGB</span><span>110, 110, 106</span></div>
+            <div><span class="lbl">USE</span><span>Meta · captions</span></div>
+          </div>
+          <div class="swatch-usage"><strong>TERTIARY TYPE</strong>Bylines, dates, read-time, footer text, captions, file metadata. Never used for content the reader must follow.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#E6E5E1;color:var(--ink)"><span class="num">05 / 05</span><span class="name">Line</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#E6E5E1</span></div>
+            <div><span class="lbl">RGB</span><span>230, 229, 225</span></div>
+            <div><span class="lbl">USE</span><span>Borders · dividers</span></div>
+          </div>
+          <div class="swatch-usage"><strong>STRUCTURAL</strong>Hairline borders, card edges, table dividers, list separators. Default border colour for any neutral container.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#FAF8F3;color:var(--ink);border-bottom:1px solid var(--line)"><span class="num" style="color:var(--stone)">+ 01</span><span class="name">Cream <em style="font-size:13px;font-style:normal;color:var(--stone)">opt.</em></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#FAF8F3</span></div>
+            <div><span class="lbl">RGB</span><span>250, 248, 243</span></div>
+            <div><span class="lbl">USE</span><span>Alt section bg</span></div>
+          </div>
+          <div class="swatch-usage"><strong>OPTIONAL SURFACE</strong>Quiet alternate background for archive sections or library shelves. Use sparingly — Paper White should always dominate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 FUNCTIONAL -->
+<section id="functional">
+  <div class="page">
+    <span class="sec-num">04 — FUNCTIONAL COLOURS</span>
+    <h2 class="sec-title">Reserved for system feedback.</h2>
+    <p class="sec-lede">These three values appear only in interface feedback — form validation, system messages, status indicators. They are not editorial colours and never appear in the content layer.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#1E7B4F;color:#fff"><span class="num">FN / 01</span><span class="name">Success</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#1E7B4F</span></div>
+            <div><span class="lbl">RGB</span><span>30, 123, 79</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SYSTEM ONLY</strong>Form-submission confirmation, file-upload success, save confirmations. Never in editorial content.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#B5871F;color:#fff"><span class="num">FN / 02</span><span class="name">Warning</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#B5871F</span></div>
+            <div><span class="lbl">RGB</span><span>181, 135, 31</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SYSTEM ONLY</strong>Form-validation warnings, unsaved-changes prompts, deprecation notices. Never in editorial content.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#8E1B1B;color:#fff"><span class="num">FN / 03</span><span class="name">Error</span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#8E1B1B</span></div>
+            <div><span class="lbl">RGB</span><span>142, 27, 27</span></div>
+            <div><span class="lbl">NOTE</span><span>= Crimson</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SHARED WITH BRAND</strong>Error states reuse the primary Crimson — context (icon, label, position) makes the meaning clear. Avoids palette inflation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 HIERARCHY -->
+<section id="hierarchy">
+  <div class="page">
+    <span class="sec-num">05 — COLOUR HIERARCHY</span>
+    <h2 class="sec-title">The 60 / 30 / 10 rule.</h2>
+    <p class="sec-lede">Every screen — whether a homepage, an article, or a library shelf — should distribute the three primary colours in this ratio. It is the single most important rule in the system and the one that prevents the brand from drifting.</p>
+
+    <div class="hierarchy-stack">
+      <div class="h-bar">
+        <div style="background:#FFFFFF;color:var(--ink);border-right:1px solid var(--line)"><div class="pct">60% · PAPER WHITE</div><div class="role">Dominant canvas. Reading surface. Never less than the majority of any view.</div></div>
+        <div style="background:#0F0F0F;color:#fff"><div class="pct">30% · INK BLACK</div><div class="role">Typography, mastheads, footers, structural rules.</div></div>
+        <div style="background:#8E1B1B;color:#fff"><div class="pct">10% · CRIMSON</div><div class="role">Accents, links, action.</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500">60% — CANVAS</div>
+        <p style="font-size:14px;line-height:1.65;color:var(--ink-80)">Paper White carries the brand. It is the reader's resting state and the surface against which black type and crimson accents earn their weight.</p>
+      </div>
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500">30% — STRUCTURE</div>
+        <p style="font-size:14px;line-height:1.65;color:var(--ink-80)">Ink Black is the workhorse — body type, masthead, footer, decisive rules. It must dominate the typographic layer without overwhelming the canvas.</p>
+      </div>
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500">10% — ACCENT</div>
+        <p style="font-size:14px;line-height:1.65;color:var(--ink-80)">Crimson is rationed. It signals action and identity in small, deliberate doses. The moment crimson begins to feel decorative, the system is broken.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 APPLICATION MATRIX -->
+<section id="application">
+  <div class="page">
+    <span class="sec-num">06 — APPLICATION MATRIX</span>
+    <h2 class="sec-title">Where each colour goes.</h2>
+    <p class="sec-lede">A non-negotiable reference for the build. When in doubt, this table is the source of truth — not designer judgement, not stylistic preference.</p>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead><tr><th>UI element</th><th>Colour</th><th>Hex</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Page background</td><td><span class="chip" style="background:#FFFFFF"></span>Paper White</td><td><code>#FFFFFF</code></td><td>Pure white. No tints, no textures.</td></tr>
+          <tr><td>Masthead background</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>With a 2px Crimson rule along the bottom edge.</td></tr>
+          <tr><td>Footer background</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>Mirrors the masthead. White type at 70% opacity.</td></tr>
+          <tr><td>Headline (H1/H2)</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>Newsreader 500. Never Crimson.</td></tr>
+          <tr><td>Body type</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>Highest legibility. Never softened.</td></tr>
+          <tr><td>Deck / sub-headline</td><td><span class="chip" style="background:#2A2A2A"></span>Ink 80</td><td><code>#2A2A2A</code></td><td>Slightly recessive so headlines lead.</td></tr>
+          <tr><td>Meta / byline / date</td><td><span class="chip" style="background:#6E6E6A"></span>Stone</td><td><code>#6E6E6A</code></td><td>Mono or sans. Always small.</td></tr>
+          <tr><td>Section / topic label</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>11–12px mono, uppercase, letter-spaced.</td></tr>
+          <tr><td>Inline link</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>1px underline. Hover → Crimson Deep.</td></tr>
+          <tr><td>Primary button (fill)</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>White text. Hover → <code>#6B1414</code>.</td></tr>
+          <tr><td>Secondary button</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black border</td><td><code>#0F0F0F</code></td><td>Transparent fill, black border, black text.</td></tr>
+          <tr><td>"Current issue" tag</td><td><span class="chip" style="background:#F5DCDC"></span>Crimson Tint</td><td><code>#F5DCDC</code></td><td>Crimson Deep text (<code>#6B1414</code>).</td></tr>
+          <tr><td>Category tag (neutral)</td><td><span class="chip" style="background:#FAF8F3"></span>Cream</td><td><code>#FAF8F3</code></td><td>1px Line border. Ink 80 text.</td></tr>
+          <tr><td>Card border / hairline</td><td><span class="chip" style="background:#E6E5E1"></span>Line</td><td><code>#E6E5E1</code></td><td>0.5–1px. Default for all neutral edges.</td></tr>
+          <tr><td>Section divider (heavy)</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>2px. Used to anchor major page breaks.</td></tr>
+          <tr><td>Section divider (light)</td><td><span class="chip" style="background:#E6E5E1"></span>Line</td><td><code>#E6E5E1</code></td><td>1px. Default between cards.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 07 DO/DONT -->
+<section id="dodont">
+  <div class="page">
+    <span class="sec-num">07 — DO &amp; DON'T</span>
+    <h2 class="sec-title">Rules with teeth.</h2>
+    <p class="sec-lede">The system breaks the moment Crimson is used decoratively, or whitespace gets crowded. These are the rules most likely to be violated under deadline pressure — protect them.</p>
+
+    <div class="dodont">
+      <div class="dd-card dd-do">
+        <div class="dd-head">DO · Crimson as accent only</div>
+        <div class="dd-vis" style="background:#fff">
+          <div style="text-align:left">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8E1B1B;letter-spacing:.15em;font-weight:500;margin-bottom:6px">TOPICS · ECONOMY</div>
+            <div style="font-family:'Newsreader',serif;font-size:20px;color:#0F0F0F;line-height:1.3">A serious editorial headline reads like this</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>Crimson appears only at small scale — labels, links, "current" markers. Black carries the headline.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">DON'T · Crimson headlines</div>
+        <div class="dd-vis" style="background:#fff">
+          <div style="text-align:left">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#0F0F0F;letter-spacing:.15em;font-weight:500;margin-bottom:6px">TOPICS · ECONOMY</div>
+            <div style="font-family:'Newsreader',serif;font-size:20px;color:#8E1B1B;line-height:1.3;text-decoration:line-through;text-decoration-color:#8E1B1B">A serious editorial headline reads like this</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>Never use Crimson for body text or headlines. It loses its signalling power and the page reads as decorative.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">DO · Black masthead, crimson rule</div>
+        <div class="dd-vis" style="background:#fff;padding:0">
+          <div style="width:100%">
+            <div style="background:#0F0F0F;color:#fff;padding:14px 18px;border-bottom:2px solid #8E1B1B;font-family:'Newsreader',serif;font-size:18px">شعله جاوید</div>
+            <div style="padding:14px 18px;font-size:12px;color:#6E6E6A">Editorial content sits below.</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>The signature lock-up: black masthead anchored by a single crimson rule. Stable, weighty, recognisable.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">DON'T · Crimson masthead</div>
+        <div class="dd-vis" style="background:#fff;padding:0">
+          <div style="width:100%">
+            <div style="background:#8E1B1B;color:#fff;padding:14px 18px;font-family:'Newsreader',serif;font-size:18px;position:relative">شعله جاوید<span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;color:#8E1B1B;padding:2px 8px;letter-spacing:.1em">AVOID</span></div>
+            <div style="padding:14px 18px;font-size:12px;color:#6E6E6A">Loses gravitas; reads as agitational.</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>A red masthead breaks the heavyweight-press read. Crimson must always sit against black or white, never become the surface.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">DO · Generous whitespace</div>
+        <div class="dd-vis" style="background:#fff;padding:30px 24px">
+          <div style="font-family:'Newsreader',serif;font-size:18px;line-height:1.4">Air around the type<br><span style="font-size:13px;color:#6E6E6A">does the heavy lifting.</span></div>
+        </div>
+        <div class="dd-body"><p>Whitespace is structural, not empty. It carries the seriousness the brand promises and lets type lead.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">DON'T · Crowd the page</div>
+        <div class="dd-vis" style="background:#fff;padding:8px 8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+            <div style="background:#F5DCDC;height:20px"></div><div style="background:#0F0F0F;height:20px"></div><div style="background:#8E1B1B;height:20px"></div>
+            <div style="background:#0F0F0F;height:20px"></div><div style="background:#8E1B1B;height:20px"></div><div style="background:#F5DCDC;height:20px"></div>
+            <div style="background:#8E1B1B;height:20px"></div><div style="background:#F5DCDC;height:20px"></div><div style="background:#0F0F0F;height:20px"></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#8E1B1B;font-family:'JetBrains Mono',monospace;letter-spacing:.1em">AVOID PATTERNED COLOUR BLOCKS</div>
+        </div>
+        <div class="dd-body"><p>Never tile or pattern the brand colours. This is editorial design, not corporate identity — patterns kill the read.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">DO · Approved colour pairings only</div>
+        <div class="dd-vis" style="background:#fff;display:block;padding:14px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="background:#0F0F0F;color:#fff;padding:3px 10px;font-size:11px">Ink + White</span>
+            <span style="background:#8E1B1B;color:#fff;padding:3px 10px;font-size:11px">Crimson + White</span>
+            <span style="background:#F5DCDC;color:#6B1414;padding:3px 10px;font-size:11px">Tint + Deep</span>
+            <span style="background:#fff;color:#0F0F0F;padding:3px 10px;font-size:11px;border:1px solid #E6E5E1">White + Ink</span>
+          </div>
+        </div>
+        <div class="dd-body"><p>Four pairings cover every UI need. Stick to them and the brand stays unmistakable.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">DON'T · Introduce new colours</div>
+        <div class="dd-vis" style="background:#fff;padding:14px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span style="background:#3F5BCA;color:#fff;padding:3px 10px;font-size:11px">Blue?</span>
+            <span style="background:#1D9E75;color:#fff;padding:3px 10px;font-size:11px">Teal?</span>
+            <span style="background:#E89400;color:#fff;padding:3px 10px;font-size:11px">Gold?</span>
+          </div>
+          <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8E1B1B;letter-spacing:.15em">NOT IN SYSTEM</div>
+        </div>
+        <div class="dd-body"><p>Off-palette colour is the fastest way to weaken the brand. If a use case appears to require one, the use case is wrong.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 ACCESSIBILITY -->
+<section id="accessibility">
+  <div class="page">
+    <span class="sec-num">08 — ACCESSIBILITY</span>
+    <h2 class="sec-title">Contrast pairs.</h2>
+    <p class="sec-lede">Every approved pairing in the system clears WCAG 2.1 AA at body-text size, and most clear AAA. Pairings below are the only ones cleared for text. Anything else requires testing.</p>
+
+    <div class="contrast-grid">
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#0F0F0F">Ink on Paper</div>
+        <div class="contrast-info"><span class="ratio">19.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#0F0F0F;color:#FFFFFF">Paper on Ink</div>
+        <div class="contrast-info"><span class="ratio">19.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#8E1B1B">Crimson on Paper</div>
+        <div class="contrast-info"><span class="ratio">7.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#8E1B1B;color:#FFFFFF">Paper on Crimson</div>
+        <div class="contrast-info"><span class="ratio">7.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#F5DCDC;color:#6B1414">Crimson Deep on Tint</div>
+        <div class="contrast-info"><span class="ratio">9.2 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#6E6E6A;font-size:14px">Stone on Paper<br><span style="font-size:11px">(small text only — meta)</span></div>
+        <div class="contrast-info"><span class="ratio">4.9 : 1</span><span class="grade">AA</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:24px;border-left:2px solid var(--crimson);background:var(--cream)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:8px;font-weight:500">NOTE</div>
+      <p style="font-size:14px;line-height:1.65;max-width:720px">Stone (<code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#fff;padding:2px 6px;border:1px solid var(--line)">#6E6E6A</code>) clears AA at body sizes but should not be used for content the reader must follow — only for meta, captions, and bylines. Never use Stone for links, calls to action, or important labels.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 TYPOGRAPHY -->
+<section id="typography">
+  <div class="page">
+    <span class="sec-num">09 — TYPOGRAPHY</span>
+    <h2 class="sec-title">Two families.<br>Two scripts.</h2>
+    <p class="sec-lede">A serif for the editorial voice. A sans for the interface. The Persian family is treated as a peer of the English — not a fallback — with its own scale tuned for RTL reading.</p>
+
+    <div>
+      <div class="typespec">
+        <div class="typespec-label"><strong>EN · DISPLAY</strong>Newsreader<br>500 · Medium<br>—<br>Headlines<br>Hero · H1 · H2</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Newsreader',serif;font-size:56px;font-weight:500;line-height:1;letter-spacing:-.02em">A heavyweight headline.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">56px · 500 · -0.02em tracking · 1.0 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>EN · DECK</strong>Newsreader<br>300 · Light<br>—<br>Standfirsts<br>Article ledes</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Newsreader',serif;font-size:22px;font-weight:300;line-height:1.55;color:var(--ink-80)">A lighter deck sits below the headline and prepares the reader for the argument that follows. The serif quality carries editorial gravitas.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">22px · 300 · 1.55 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>EN · BODY</strong>Newsreader<br>400 · Regular<br>—<br>Article body<br>Long-form</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Newsreader',serif;font-size:17px;font-weight:400;line-height:1.7;max-width:560px">The body of an article reads at 17 pixels with comfortable leading. The serif is chosen for sustained reading and for the editorial register the brand is committed to.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">17px · 400 · 1.7 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>FA · DISPLAY</strong>Vazirmatn<br>600 · Semi-bold<br>—<br>Persian headlines</div>
+        <div class="typespec-sample">
+          <div class="fa" dir="rtl" style="font-size:48px;font-weight:600;line-height:1.3;letter-spacing:0">یک تیتر سنگین فارسی</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">48px · 600 · 1.3 leading (Persian needs more line-height)</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>FA · BODY</strong>Vazirmatn<br>400 · Regular<br>—<br>Persian article body</div>
+        <div class="typespec-sample">
+          <div class="fa" dir="rtl" style="font-size:17px;font-weight:400;line-height:1.95;max-width:560px;color:var(--ink-80)">متن فارسی با لِدینگ بازتر نسبت به انگلیسی تنظیم می‌شود تا حروف کشیده و نقطه‌گذاری راحت‌تر خوانده شوند. این تنظیم بخشی از احترام به متن فارسی است، نه نسخه‌ای تنزل‌یافته از تنظیمات انگلیسی.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">17px · 400 · 1.95 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>UI · LABELS</strong>Inter<br>500 · Medium<br>—<br>Buttons · nav<br>Form labels</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:.005em">Inline UI labels, buttons, and navigation use Inter at 14px medium.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">14px · 500 · neutral tracking</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>META · MONO</strong>JetBrains Mono<br>500 · Medium<br>—<br>Section labels<br>Issue numbers · meta</div>
+        <div class="typespec-sample">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.15em;color:var(--crimson)">TOPICS · ECONOMY · ISSUE 07</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em">12px · 500 · +0.15em tracking · uppercase</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:24px;border:1px solid var(--line)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500">TYPE SCALE (8PT BASELINE)</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;color:var(--ink-80)">Display 56px · H1 40px · H2 32px · H3 24px · H4 20px · Body 17px · Small 14px · Caption 12px · Micro 11px</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 COMPONENTS -->
+<section id="components">
+  <div class="page">
+    <span class="sec-num">10 — COMPONENTS IN ACTION</span>
+    <h2 class="sec-title">The system, applied.</h2>
+    <p class="sec-lede">Three live applications of the palette and type system — the masthead, an article header, and the supporting components. Use them as a fidelity reference for the build.</p>
+
+    <div class="preview-shell">
+      <div class="preview-mast">
+        <div class="lockup"><span class="mk"></span>شعله جاوید</div>
+        <div class="nav"><span class="on">نشرات</span><span>موضوعات</span><span>کتابخانه</span><span>اطلاعیه‌ها</span><span>ارتباط با حزب</span></div>
+      </div>
+      <div class="preview-body" dir="rtl">
+        <span class="preview-tag">شمارهٔ جاری · شمارهٔ ۷</span>
+        <h3 class="preview-h fa">بحران اقتصادی و آیندهٔ کار در جهان</h3>
+        <p class="preview-deck fa">نگاهی به دگرگونی‌های ساختاری اقتصاد جهانی و پیامدهای آن برای نیروی کار و جنبش‌های اجتماعی.</p>
+        <div class="preview-meta">۱۲ خرداد ۱۴۰۵ · ۸ دقیقه مطالعه</div>
+      </div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-cell">
+        <span class="lbl">PRIMARY BUTTON</span>
+        <button class="btn-primary">دانلود PDF · Download</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">SECONDARY BUTTON</span>
+        <button class="btn-secondary">ادامهٔ مطلب · Read on</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">GHOST LINK</span>
+        <button class="btn-ghost">آرشیو شماره‌ها ←</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">CURRENT TAG</span>
+        <span class="tag-current">CURRENT ISSUE</span>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">CATEGORY TAG</span>
+        <span class="tag-cat">ECONOMY · اقتصاد</span>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">FILE TAG</span>
+        <span class="tag-pdf">PDF · 2.4 MB</span>
+      </div>
+    </div>
+
+    <div style="margin-top:64px;padding:32px;border:1px solid var(--line);background:var(--cream)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:14px;font-weight:500">HAND-OFF · DEVELOPER NOTES</div>
+      <ul style="list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;font-size:14px;line-height:1.65;color:var(--ink-80)">
+        <li><strong style="display:block;color:var(--ink);margin-bottom:4px">CSS variables</strong>Declare all eleven tokens as CSS custom properties on <code class="mono">:root</code>. Never inline hex values in components.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:4px">RTL flip</strong>The masthead nav, body padding, and meta order mirror under <code class="mono">[dir="rtl"]</code>. Crimson rule stays at the bottom edge in both directions.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:4px">Hover states</strong>Crimson → Crimson Deep on every interactive element. No opacity tricks.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:4px">Focus ring</strong>2px solid Crimson, 2px offset. Required for accessibility — non-negotiable.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="page">
+    <div class="mark"><span class="mk"></span>Shola Jawid</div>
+    <div class="meta">BRAND GUIDELINES · V 1.0<br>JUNE 2026 · DRAFT FOR CLIENT</div>
+  </div>
+</footer>
+
+</body>
+</html>

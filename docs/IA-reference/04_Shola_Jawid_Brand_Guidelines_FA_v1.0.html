@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شعله جاوید — راهنمای برند نسخهٔ ۱.۰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F0F0F; --paper:#FFFFFF;
+  --crimson:#8E1B1B; --crimson-deep:#6B1414; --crimson-tint:#F5DCDC;
+  --ink-80:#2A2A2A; --stone:#6E6E6A; --line:#E6E5E1; --cream:#FAF8F3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Vazirmatn',sans-serif;
+  color:var(--ink);background:var(--paper);
+  line-height:1.85;font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  direction:rtl;
+}
+.page{max-width:1240px;margin:0 auto;padding:0 64px}
+@media (max-width:768px){.page{padding:0 24px}}
+
+/* ensure technical/Latin content reads LTR */
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.mono-ltr{font-family:'JetBrains Mono',monospace;direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+section{padding:96px 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:none}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:20px;display:block;font-weight:500;direction:ltr;text-align:right}
+.sec-title{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:54px;line-height:1.3;margin-bottom:32px;letter-spacing:-.005em}
+.sec-lede{font-family:'Vazirmatn',sans-serif;font-size:21px;line-height:1.85;color:var(--ink-80);max-width:780px;margin-bottom:72px;font-weight:300}
+
+/* HERO */
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;border-top:none!important;padding:80px 0 64px}
+.hero-mark{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.18em;margin-bottom:40px;direction:ltr;text-align:right}
+.hero-mark .dot{display:inline-block;width:8px;height:8px;background:var(--crimson);margin-left:10px;vertical-align:1px}
+.hero-title{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:clamp(64px,8vw,108px);line-height:1.15;letter-spacing:-.02em;margin-bottom:32px;max-width:1100px}
+.hero-title em{color:var(--crimson);font-style:normal;font-weight:600}
+.hero-sub{font-family:'Vazirmatn',sans-serif;font-size:22px;line-height:1.95;color:var(--ink-80);max-width:720px;margin-bottom:72px;font-weight:300}
+.hero-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:32px;padding-top:32px;border-top:2px solid var(--ink)}
+.hero-meta dt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--stone);letter-spacing:.15em;margin-bottom:8px;direction:ltr;text-align:right}
+.hero-meta dd{font-size:15px;font-weight:500;line-height:1.6}
+
+/* TOC */
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border-top:1px solid var(--line);border-right:1px solid var(--line)}
+.toc a{display:block;padding:28px 24px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;transition:background .15s}
+.toc a:hover{background:var(--cream)}
+.toc-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:8px;display:block;direction:ltr;text-align:right}
+.toc-label{font-size:17px;font-weight:600;font-family:'Vazirmatn',sans-serif}
+
+/* SWATCH */
+.swatch-grid{display:grid;gap:24px}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.swatch{border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
+.swatch-head{height:220px;display:flex;align-items:flex-end;padding:22px;position:relative}
+.swatch-head .num{position:absolute;top:18px;left:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;font-weight:500;direction:ltr}
+.swatch-head .name{font-family:'Vazirmatn',sans-serif;font-size:28px;font-weight:600;line-height:1.3;letter-spacing:-.005em}
+.swatch-head .name-en{display:block;font-family:'Newsreader',serif;font-size:16px;font-weight:400;opacity:.7;margin-top:2px;direction:ltr;font-style:italic}
+.swatch-body{padding:20px;border-top:1px solid var(--line);flex:1;display:flex;flex-direction:column}
+.swatch-codes{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;direction:ltr}
+.swatch-codes div{display:flex;justify-content:space-between;gap:12px}
+.swatch-codes .lbl{color:var(--stone);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.swatch-usage{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-80);line-height:1.85}
+.swatch-usage strong{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--stone);font-weight:500;margin-bottom:10px;direction:ltr;text-align:right}
+
+/* HIERARCHY */
+.h-bar{display:grid;grid-template-columns:60fr 30fr 10fr;height:140px;border:1px solid var(--line)}
+.h-bar>div{display:flex;flex-direction:column;justify-content:flex-end;padding:18px}
+.h-bar .pct{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;margin-bottom:6px;letter-spacing:.05em;direction:ltr;text-align:right}
+.h-bar .role{font-size:13px;line-height:1.6}
+
+/* MATRIX */
+.matrix-wrap{border:1px solid var(--line);overflow-x:auto}
+.matrix{width:100%;border-collapse:collapse;font-size:14px;min-width:680px}
+.matrix th{text-align:right;padding:16px 18px;background:var(--ink);color:var(--paper);font-weight:500;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;direction:ltr}
+.matrix th:first-child{text-align:right;font-family:'Vazirmatn',sans-serif;font-size:11px;letter-spacing:.05em;direction:rtl}
+.matrix td{padding:18px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.75}
+.matrix tr:last-child td{border-bottom:none}
+.matrix td:first-child{font-weight:600;width:28%}
+.matrix .chip{display:inline-block;width:14px;height:14px;border:1px solid var(--line);vertical-align:-2px;margin-left:8px}
+.matrix code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--cream);padding:2px 6px;color:var(--ink-80);direction:ltr;display:inline-block}
+
+/* DO/DONT */
+.dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.dd-card{border:1px solid var(--line);display:flex;flex-direction:column}
+.dd-head{padding:14px 20px;font-family:'Vazirmatn',sans-serif;font-size:13px;letter-spacing:.02em;font-weight:600}
+.dd-do .dd-head{background:var(--ink);color:var(--paper)}
+.dd-dont .dd-head{background:var(--crimson);color:var(--paper)}
+.dd-vis{height:160px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:20px}
+.dd-body{padding:20px;flex:1}
+.dd-body p{font-size:14px;line-height:1.85;color:var(--ink-80)}
+
+/* TYPOGRAPHY */
+.typespec{display:grid;grid-template-columns:240px 1fr;gap:40px;padding:32px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.typespec:last-child{border-bottom:none}
+.typespec-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--stone);line-height:1.85;direction:ltr;text-align:right}
+.typespec-label strong{display:block;color:var(--ink);margin-bottom:4px;font-weight:500;font-size:12px}
+.typespec-sample{overflow:hidden}
+
+/* CONTRAST */
+.contrast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.contrast-card{border:1px solid var(--line);overflow:hidden}
+.contrast-demo{padding:24px;font-family:'Vazirmatn',sans-serif;font-size:18px;line-height:1.5;height:120px;display:flex;align-items:center;font-weight:500}
+.contrast-info{padding:14px 18px;border-top:1px solid var(--line);background:var(--paper);display:flex;justify-content:space-between;align-items:center}
+.contrast-info .ratio{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;direction:ltr}
+.contrast-info .grade{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--stone);letter-spacing:.1em;padding:3px 8px;border:1px solid var(--line)}
+.grade-aaa{background:var(--ink);color:var(--paper);border-color:var(--ink)!important}
+
+/* PREVIEW */
+.preview-shell{border:1px solid var(--line);overflow:hidden}
+.preview-mast{background:var(--ink);color:var(--paper);padding:20px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--crimson)}
+.preview-mast .lockup{font-family:'Vazirmatn',sans-serif;font-size:24px;font-weight:600;display:flex;align-items:center;gap:12px}
+.preview-mast .lockup .mk{width:11px;height:11px;background:var(--crimson);transform:rotate(45deg);display:inline-block}
+.preview-mast .nav{display:flex;gap:20px;font-size:13px;color:rgba(255,255,255,.7)}
+.preview-mast .nav .on{color:#fff;border-bottom:2px solid var(--crimson);padding-bottom:2px}
+.preview-body{padding:40px 28px}
+.preview-tag{display:inline-block;background:var(--crimson-tint);color:var(--crimson-deep);font-size:11px;padding:4px 12px;letter-spacing:.02em;margin-bottom:14px;font-weight:600}
+.preview-h{font-family:'Vazirmatn',sans-serif;font-size:36px;line-height:1.45;margin-bottom:14px;letter-spacing:-.01em;font-weight:700}
+.preview-deck{font-family:'Vazirmatn',sans-serif;font-size:18px;color:var(--ink-80);line-height:1.9;margin-bottom:18px;font-weight:300}
+.preview-meta{font-size:12px;color:var(--stone);font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+
+/* COMPONENT BAR */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;padding:32px 0}
+.comp-cell{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.comp-cell .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--stone);font-weight:500;text-transform:uppercase;direction:ltr;text-align:right}
+
+.btn-primary{background:var(--crimson);color:#fff;padding:12px 24px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.005em}
+.btn-primary:hover{background:var(--crimson-deep)}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--ink);padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-ghost{background:transparent;color:var(--crimson);border:none;padding:12px 0;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--crimson)}
+
+.tag-current{background:var(--crimson);color:#fff;font-size:11px;padding:4px 12px;letter-spacing:.02em;font-weight:600}
+.tag-cat{background:var(--cream);color:var(--ink-80);font-size:11px;padding:4px 12px;letter-spacing:.02em;border:1px solid var(--line);font-weight:600}
+.tag-pdf{background:var(--ink);color:#fff;font-size:11px;padding:4px 12px;letter-spacing:.02em;font-weight:500;font-family:'JetBrains Mono',monospace;direction:ltr}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--paper);padding:64px 0;margin-top:96px}
+footer .page{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px}
+footer .mark{font-family:'Vazirmatn',sans-serif;font-size:36px;font-weight:600}
+footer .mark .mk{display:inline-block;width:14px;height:14px;background:var(--crimson);transform:rotate(45deg);margin-left:12px;vertical-align:3px}
+footer .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.15em;line-height:2;direction:ltr;text-align:left}
+
+.inline-chip{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-left:6px;border:1px solid var(--line)}
+
+@media print{
+  section{page-break-inside:avoid;padding:48px 0;border-top:1px solid #ccc}
+  .hero{min-height:auto;padding:48px 0}
+  footer{background:#fff;color:#000;border-top:2px solid #8E1B1B}
+  footer .meta{color:#666}
+  body{font-size:11pt}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="page">
+    <div class="hero-mark"><span class="dot"></span>BRAND GUIDELINES · VERSION 1.0 · JUNE 2026</div>
+    <h1 class="hero-title">شعله جاوید<br><em>سامانهٔ برند و هویت بصری</em></h1>
+    <p class="hero-sub">هویت بصری یک پلتفرم نشر دوزبانه — منضبط، وزین، و ساخته‌شده برای آرشیوی ماندگار. این سند قواعد رنگ، تایپوگرافی، و کاربرد را تعریف می‌کند تا برند در هر صفحه، هر شماره، و هر سند، یکدست بماند.</p>
+    <dl class="hero-meta">
+      <div><dt>PROJECT</dt><dd>وب‌سایت دوزبانهٔ نشر</dd></div>
+      <div><dt>DIRECTION</dt><dd>Modern Press · Crimson</dd></div>
+      <div><dt>VERSION</dt><dd>۱٫۰ · پیش‌نویس کارفرما</dd></div>
+      <div><dt>SCOPE</dt><dd>دیجیتال · وب · موبایل</dd></div>
+      <div><dt>LANGUAGES</dt><dd>فارسی (RTL) · انگلیسی (LTR)</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- TOC -->
+<div class="page">
+  <nav class="toc">
+    <a href="#foundation"><span class="toc-num">01</span><span class="toc-label">بنیاد برند</span></a>
+    <a href="#primary"><span class="toc-num">02</span><span class="toc-label">پالت اصلی</span></a>
+    <a href="#extended"><span class="toc-num">03</span><span class="toc-label">پالت گسترده</span></a>
+    <a href="#functional"><span class="toc-num">04</span><span class="toc-label">رنگ‌های کارکردی</span></a>
+    <a href="#hierarchy"><span class="toc-num">05</span><span class="toc-label">سلسله‌مراتب رنگ</span></a>
+    <a href="#application"><span class="toc-num">06</span><span class="toc-label">جدول کاربرد رنگ</span></a>
+    <a href="#dodont"><span class="toc-num">07</span><span class="toc-label">بایدها و نبایدها</span></a>
+    <a href="#accessibility"><span class="toc-num">08</span><span class="toc-label">دسترس‌پذیری</span></a>
+    <a href="#typography"><span class="toc-num">09</span><span class="toc-label">تایپوگرافی</span></a>
+    <a href="#components"><span class="toc-num">10</span><span class="toc-label">اجزا در عمل</span></a>
+  </nav>
+</div>
+
+<!-- 01 FOUNDATION -->
+<section id="foundation">
+  <div class="page">
+    <span class="sec-num">01 — BRAND FOUNDATION</span>
+    <h2 class="sec-title">یک نشریهٔ معتبر،<br>نه یک وب‌سایت.</h2>
+    <p class="sec-lede">این برند همچون یک نهاد ویراستاری جدّی خوانده می‌شود — نشریه‌ای با موضع و آرشیوی دیرپا. سه اصل، بنیادِ هر تصمیم بصریِ زیر است.</p>
+
+    <div class="swatch-grid grid-3">
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500;direction:ltr;text-align:right">PRINCIPLE 01</div>
+        <h3 style="font-family:'Vazirmatn',sans-serif;font-size:26px;line-height:1.4;margin-bottom:14px;font-weight:700">خویشتن‌داری</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.85">سه رنگ، دو خانوادهٔ قلم، فضای سفید سخاوتمندانه. برند با کم‌گویی حضورش را تثبیت می‌کند، نه با شلوغی.</p>
+      </div>
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500;direction:ltr;text-align:right">PRINCIPLE 02</div>
+        <h3 style="font-family:'Vazirmatn',sans-serif;font-size:26px;line-height:1.4;margin-bottom:14px;font-weight:700">وزن</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.85">ماستهد سیاه و سنگین، تیترهای سریف در مقیاسی بزرگ، خطوط تایپوگرافیک محکم. وزن بصری نشانهٔ جدّیت ویراستاری است.</p>
+      </div>
+      <div style="padding:32px;border:1px solid var(--line)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:16px;font-weight:500;direction:ltr;text-align:right">PRINCIPLE 03</div>
+        <h3 style="font-family:'Vazirmatn',sans-serif;font-size:26px;line-height:1.4;margin-bottom:14px;font-weight:700">معنا</h3>
+        <p style="font-size:14px;color:var(--ink-80);line-height:1.85">سرخ‌فام، تجسّم بصریِ «شعلهٔ جاودان» در نام نشریه است. هر تأکید رنگی باید معنایی داشته باشد، نه آنکه صرفاً تزئین کند.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PRIMARY -->
+<section id="primary">
+  <div class="page">
+    <span class="sec-num">02 — PRIMARY PALETTE</span>
+    <h2 class="sec-title">سه رنگ.<br>نه بیشتر.</h2>
+    <p class="sec-lede">تمام برند بر پایهٔ سه رنگ پیش می‌رود. هر چیزی بیرون از این مجموعه، استثناست (و فقط برای بازخورد سیستمی به کار می‌رود). انضباط در همین‌جاست که نظام را ممتاز نشان می‌دهد.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#0F0F0F;color:#fff"><span class="num">01 / 03</span><span class="name">سیاه مرکّب<span class="name-en">Ink Black</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#0F0F0F</span></div>
+            <div><span class="lbl">RGB</span><span>15, 15, 15</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 0%, 6%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 0, 0, 94</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>بدنهٔ متن، تیترها، ماستهد، و فوتر. مرکّب اصلیِ نشریه.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#FFFFFF;color:var(--ink);border-bottom:1px solid var(--line)"><span class="num" style="color:var(--stone)">02 / 03</span><span class="name">سفید کاغذی<span class="name-en">Paper White</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#FFFFFF</span></div>
+            <div><span class="lbl">RGB</span><span>255, 255, 255</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 0%, 100%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 0, 0, 0</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>بوم اصلی. همواره سطح غالب — دست‌کم ۶۰٪ هر صفحه. هرگز رنگی یا بافت‌دار نمی‌شود.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#8E1B1B;color:#fff"><span class="num">03 / 03</span><span class="name">سرخ‌فام<span class="name-en">Crimson</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#8E1B1B</span></div>
+            <div><span class="lbl">RGB</span><span>142, 27, 27</span></div>
+            <div><span class="lbl">HSL</span><span>0°, 68%, 33%</span></div>
+            <div><span class="lbl">CMYK</span><span>0, 81, 81, 44</span></div>
+          </div>
+          <div class="swatch-usage"><strong>PRIMARY USE</strong>رنگ برند. لینک‌ها، نشانه‌های «جاری»، دکمه‌های اصلی، تأکیدهای بخش. هرگز تزئینی نیست — همیشه معنا حمل می‌کند.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 EXTENDED -->
+<section id="extended">
+  <div class="page">
+    <span class="sec-num">03 — EXTENDED PALETTE</span>
+    <h2 class="sec-title">تُن‌های مکمّل.</h2>
+    <p class="sec-lede">پنج مقدار مکمّل، کار میانی را برعهده می‌گیرند — وضعیت‌های تعامل، تایپ ثانویه، حاشیه‌ها، و سطوح آرام. این‌ها مشتقاتی از سه رنگ اصلی‌اند و هرگز با آن‌ها رقابت نمی‌کنند.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#6B1414;color:#fff"><span class="num">01 / 05</span><span class="name">سرخ‌فام تیره<span class="name-en">Crimson Deep</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#6B1414</span></div>
+            <div><span class="lbl">RGB</span><span>107, 20, 20</span></div>
+            <div><span class="lbl">USE</span><span>Hover / Active</span></div>
+          </div>
+          <div class="swatch-usage"><strong>INTERACTION STATE</strong>وضعیت‌های هاور و فشرده برای هر عنصری که از سرخ‌فام استفاده می‌کند. همچنین برای متنِ سرخ روی پس‌زمینهٔ روشن، در جایی که کنتراست باید بالاتر برود.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#F5DCDC;color:#6B1414"><span class="num">02 / 05</span><span class="name">سرخ‌فام روشن<span class="name-en">Crimson Tint</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#F5DCDC</span></div>
+            <div><span class="lbl">RGB</span><span>245, 220, 220</span></div>
+            <div><span class="lbl">USE</span><span>Tag fills</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SOFT SURFACE</strong>پس‌زمینهٔ برچسب‌های دسته، تأکیدهای نرم، و حبه‌های «شمارهٔ جاری». فقط با متنِ سرخ‌فام تیره جفت می‌شود — هرگز با سیاه.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#2A2A2A;color:#fff"><span class="num">03 / 05</span><span class="name">سیاه ۸۰<span class="name-en">Ink 80</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#2A2A2A</span></div>
+            <div><span class="lbl">RGB</span><span>42, 42, 42</span></div>
+            <div><span class="lbl">USE</span><span>Secondary type</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SECONDARY TYPE</strong>معرّف‌ها، زیرتیترها، و شرح‌های ابتدایی مقاله. اندکی روشن‌تر از سیاه مرکّب، تا تیتر اصلی برتری بصری خود را حفظ کند.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#6E6E6A;color:#fff"><span class="num">04 / 05</span><span class="name">سنگی<span class="name-en">Stone</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#6E6E6A</span></div>
+            <div><span class="lbl">RGB</span><span>110, 110, 106</span></div>
+            <div><span class="lbl">USE</span><span>Meta · captions</span></div>
+          </div>
+          <div class="swatch-usage"><strong>TERTIARY TYPE</strong>نام نویسنده، تاریخ، زمان مطالعه، متن فوتر، شرح تصویر، فرامتنِ فایل‌ها. هرگز برای محتوایی که خواننده باید دنبال کند، استفاده نمی‌شود.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#E6E5E1;color:var(--ink)"><span class="num">05 / 05</span><span class="name">خط<span class="name-en">Line</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#E6E5E1</span></div>
+            <div><span class="lbl">RGB</span><span>230, 229, 225</span></div>
+            <div><span class="lbl">USE</span><span>Borders · dividers</span></div>
+          </div>
+          <div class="swatch-usage"><strong>STRUCTURAL</strong>حاشیه‌های موی‌نازک، لبهٔ کارت‌ها، جداکنندهٔ جدول‌ها، خط فاصلِ فهرست‌ها. رنگ پیش‌فرض هر حاشیهٔ خنثی.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#FAF8F3;color:var(--ink);border-bottom:1px solid var(--line)"><span class="num" style="color:var(--stone)">+ 01</span><span class="name">کرم <em style="font-size:13px;font-style:normal;color:var(--stone);font-weight:400">اختیاری</em><span class="name-en">Cream · optional</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#FAF8F3</span></div>
+            <div><span class="lbl">RGB</span><span>250, 248, 243</span></div>
+            <div><span class="lbl">USE</span><span>Alt section bg</span></div>
+          </div>
+          <div class="swatch-usage"><strong>OPTIONAL SURFACE</strong>پس‌زمینهٔ جایگزینِ آرام برای بخش آرشیو یا قفسه‌های کتابخانه. کم استفاده شود — سفید کاغذی باید همواره غالب بماند.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 FUNCTIONAL -->
+<section id="functional">
+  <div class="page">
+    <span class="sec-num">04 — FUNCTIONAL COLOURS</span>
+    <h2 class="sec-title">ویژهٔ بازخورد سیستمی.</h2>
+    <p class="sec-lede">این سه مقدار فقط در بازخورد رابط ظاهر می‌شوند — اعتبارسنجی فرم‌ها، پیام‌های سیستمی، و نشانگرهای وضعیت. این‌ها رنگ‌های ویراستاری نیستند و هرگز در لایهٔ محتوا دیده نمی‌شوند.</p>
+
+    <div class="swatch-grid grid-3">
+      <div class="swatch">
+        <div class="swatch-head" style="background:#1E7B4F;color:#fff"><span class="num">FN / 01</span><span class="name">موفقیت<span class="name-en">Success</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#1E7B4F</span></div>
+            <div><span class="lbl">RGB</span><span>30, 123, 79</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SYSTEM ONLY</strong>تأیید ارسال فرم، موفقیت بارگذاری فایل، تأیید ذخیره‌سازی. هرگز در محتوای ویراستاری دیده نمی‌شود.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#B5871F;color:#fff"><span class="num">FN / 02</span><span class="name">هشدار<span class="name-en">Warning</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#B5871F</span></div>
+            <div><span class="lbl">RGB</span><span>181, 135, 31</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SYSTEM ONLY</strong>هشدارهای اعتبارسنجی فرم، پرسش‌های «تغییرات ذخیره نشده»، اعلان‌های منسوخ. هرگز در محتوای ویراستاری دیده نمی‌شود.</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-head" style="background:#8E1B1B;color:#fff"><span class="num">FN / 03</span><span class="name">خطا<span class="name-en">Error</span></span></div>
+        <div class="swatch-body">
+          <div class="swatch-codes">
+            <div><span class="lbl">HEX</span><span>#8E1B1B</span></div>
+            <div><span class="lbl">RGB</span><span>142, 27, 27</span></div>
+            <div><span class="lbl">NOTE</span><span>= Crimson</span></div>
+          </div>
+          <div class="swatch-usage"><strong>SHARED WITH BRAND</strong>وضعیت‌های خطا از سرخ‌فام اصلی استفاده مجدد می‌کنند. زمینهٔ نمایش (آیکن، برچسب، موقعیت) معنا را روشن می‌کند و از تورّم پالت جلوگیری می‌شود.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 HIERARCHY -->
+<section id="hierarchy">
+  <div class="page">
+    <span class="sec-num">05 — COLOUR HIERARCHY</span>
+    <h2 class="sec-title">قاعدهٔ ۶۰ / ۳۰ / ۱۰.</h2>
+    <p class="sec-lede">هر صفحه — خانه، مقاله، یا قفسهٔ کتابخانه — باید سه رنگ اصلی را در همین نسبت توزیع کند. این مهم‌ترین قاعدهٔ نظام است، و همان قاعده‌ای که از انحراف برند جلوگیری می‌کند.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="h-bar">
+        <div style="background:#FFFFFF;color:var(--ink);border-left:1px solid var(--line)"><div class="pct">60% · PAPER WHITE</div><div class="role">بومِ غالب. سطح خواندن. هرگز کمتر از اکثریتِ هر صفحه نیست.</div></div>
+        <div style="background:#0F0F0F;color:#fff"><div class="pct">30% · INK BLACK</div><div class="role">تایپوگرافی، ماستهد، فوتر، خطوط ساختاری.</div></div>
+        <div style="background:#8E1B1B;color:#fff"><div class="pct">10% · CRIMSON</div><div class="role">تأکیدها، لینک‌ها، کنش.</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500;direction:ltr;text-align:right">60% — CANVAS</div>
+        <p style="font-size:14px;line-height:1.85;color:var(--ink-80)">سفید کاغذی، حاملِ برند است. این سطحْ حالت استراحت خواننده است، و همان سطحی که در برابرش، سیاهِ تایپ و سرخ‌فامِ تأکیدها وزن خود را پیدا می‌کنند.</p>
+      </div>
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500;direction:ltr;text-align:right">30% — STRUCTURE</div>
+        <p style="font-size:14px;line-height:1.85;color:var(--ink-80)">سیاه مرکّب، کارگرِ اصلی است — بدنهٔ متن، ماستهد، فوتر، خطوط قاطع. باید بر لایهٔ تایپوگرافیک غالب باشد، بی‌آنکه بوم را زیر بگیرد.</p>
+      </div>
+      <div style="padding:24px;border:1px solid var(--line);background:#fff">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500;direction:ltr;text-align:right">10% — ACCENT</div>
+        <p style="font-size:14px;line-height:1.85;color:var(--ink-80)">سرخ‌فام، جیره‌بندی شده است. کنش و هویت را در دوزهای کوچک و حساب‌شده نشان می‌دهد. لحظه‌ای که سرخ‌فام به نظرتان تزئینی برسد، نظام شکسته است.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 APPLICATION MATRIX -->
+<section id="application">
+  <div class="page">
+    <span class="sec-num">06 — APPLICATION MATRIX</span>
+    <h2 class="sec-title">هر رنگ، کجا می‌رود.</h2>
+    <p class="sec-lede">مرجعِ غیرقابل‌مذاکره برای ساخت سایت. در شک، این جدول منبعِ حقیقت است — نه قضاوت طراح، نه ترجیح سلیقه‌ای.</p>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead><tr><th>عنصر رابط</th><th>UI ELEMENT</th><th>COLOUR</th><th>HEX</th><th>NOTES</th></tr></thead>
+        <tbody>
+          <tr><td>پس‌زمینهٔ صفحه</td><td>Page background</td><td><span class="chip" style="background:#FFFFFF"></span>Paper White</td><td><code>#FFFFFF</code></td><td>سفید خالص. بدون تینت، بدون بافت.</td></tr>
+          <tr><td>پس‌زمینهٔ ماستهد</td><td>Masthead</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>به همراه یک خط ۲px سرخ‌فام در لبهٔ پایین.</td></tr>
+          <tr><td>پس‌زمینهٔ فوتر</td><td>Footer</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>آینهٔ ماستهد. متن سفید با شفافیت ۷۰٪.</td></tr>
+          <tr><td>تیتر (H1, H2)</td><td>Headline</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>Vazirmatn ۷۰۰. هرگز سرخ‌فام.</td></tr>
+          <tr><td>بدنهٔ متن</td><td>Body type</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>بالاترین خوانایی. هرگز نرم نمی‌شود.</td></tr>
+          <tr><td>معرّف / زیرتیتر</td><td>Deck / sub-head</td><td><span class="chip" style="background:#2A2A2A"></span>Ink 80</td><td><code>#2A2A2A</code></td><td>اندکی عقب‌نشسته، تا تیتر اصلی پیش‌رو باشد.</td></tr>
+          <tr><td>فرامتن / نویسنده / تاریخ</td><td>Meta / byline / date</td><td><span class="chip" style="background:#6E6E6A"></span>Stone</td><td><code>#6E6E6A</code></td><td>مونو یا سَن. همیشه کوچک.</td></tr>
+          <tr><td>برچسب بخش / موضوع</td><td>Section label</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>۱۱–۱۲px مونو، حروف بزرگ، با فاصله‌گذاری.</td></tr>
+          <tr><td>لینک درون‌متنی</td><td>Inline link</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>زیرخط ۱px. در هاور: سرخ‌فام تیره.</td></tr>
+          <tr><td>دکمهٔ اصلی (پُر)</td><td>Primary button</td><td><span class="chip" style="background:#8E1B1B"></span>Crimson</td><td><code>#8E1B1B</code></td><td>متن سفید. در هاور: <code>#6B1414</code>.</td></tr>
+          <tr><td>دکمهٔ ثانویه</td><td>Secondary button</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black border</td><td><code>#0F0F0F</code></td><td>پُر شفّاف، حاشیهٔ سیاه، متن سیاه.</td></tr>
+          <tr><td>برچسب «شمارهٔ جاری»</td><td>Current-issue tag</td><td><span class="chip" style="background:#F5DCDC"></span>Crimson Tint</td><td><code>#F5DCDC</code></td><td>متن سرخ‌فام تیره (<code>#6B1414</code>).</td></tr>
+          <tr><td>برچسب دسته (خنثی)</td><td>Category tag</td><td><span class="chip" style="background:#FAF8F3"></span>Cream</td><td><code>#FAF8F3</code></td><td>حاشیهٔ ۱px Line. متن Ink 80.</td></tr>
+          <tr><td>حاشیهٔ کارت / خط نازک</td><td>Card border</td><td><span class="chip" style="background:#E6E5E1"></span>Line</td><td><code>#E6E5E1</code></td><td>۰٫۵–۱px. پیش‌فرض هر لبهٔ خنثی.</td></tr>
+          <tr><td>جداکنندهٔ بخش (سنگین)</td><td>Section divider (heavy)</td><td><span class="chip" style="background:#0F0F0F"></span>Ink Black</td><td><code>#0F0F0F</code></td><td>۲px. برای شکست‌های اصلی صفحه.</td></tr>
+          <tr><td>جداکنندهٔ بخش (سبک)</td><td>Section divider (light)</td><td><span class="chip" style="background:#E6E5E1"></span>Line</td><td><code>#E6E5E1</code></td><td>۱px. پیش‌فرض بین کارت‌ها.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 07 DO/DONT -->
+<section id="dodont">
+  <div class="page">
+    <span class="sec-num">07 — DO & DON'T</span>
+    <h2 class="sec-title">قواعد قاطع.</h2>
+    <p class="sec-lede">نظام به محض اینکه سرخ‌فام به‌صورت تزئینی به کار رود، یا فضای سفید شلوغ شود، می‌شکند. این‌ها قواعدی هستند که زیر فشار ضرب‌الاجل بیشترین احتمال نقض را دارند — حفظشان کنید.</p>
+
+    <div class="dodont">
+      <div class="dd-card dd-do">
+        <div class="dd-head">✓ بایـد · سرخ‌فام فقط به‌عنوان تأکید</div>
+        <div class="dd-vis" style="background:#fff">
+          <div style="text-align:right">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8E1B1B;letter-spacing:.15em;font-weight:500;margin-bottom:6px;direction:ltr;text-align:right">TOPICS · ECONOMY</div>
+            <div style="font-family:'Vazirmatn',sans-serif;font-size:22px;color:#0F0F0F;line-height:1.5;font-weight:700">یک تیتر ویراستاری جدّی، این‌طور خوانده می‌شود</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>سرخ‌فام فقط در مقیاس کوچک ظاهر می‌شود — برچسب‌ها، لینک‌ها، نشانه‌های «جاری». تیتر را سیاه می‌نویسد.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">✕ نبایـد · تیترهای سرخ‌فام</div>
+        <div class="dd-vis" style="background:#fff">
+          <div style="text-align:right">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#0F0F0F;letter-spacing:.15em;font-weight:500;margin-bottom:6px;direction:ltr;text-align:right">TOPICS · ECONOMY</div>
+            <div style="font-family:'Vazirmatn',sans-serif;font-size:22px;color:#8E1B1B;line-height:1.5;text-decoration:line-through;text-decoration-color:#8E1B1B;font-weight:700">یک تیتر ویراستاری جدّی، این‌طور خوانده می‌شود</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>هرگز از سرخ‌فام برای متن یا تیتر اصلی استفاده نکنید. قدرت نشانه‌بخشی‌اش از بین می‌رود و صفحه تزئینی به نظر می‌رسد.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">✓ بایـد · ماستهد سیاه با خط سرخ‌فام</div>
+        <div class="dd-vis" style="background:#fff;padding:0">
+          <div style="width:100%">
+            <div style="background:#0F0F0F;color:#fff;padding:14px 18px;border-bottom:2px solid #8E1B1B;font-family:'Vazirmatn',sans-serif;font-size:20px;font-weight:600">شعله جاوید</div>
+            <div style="padding:14px 18px;font-size:12px;color:#6E6E6A">محتوای ویراستاری در زیر می‌نشیند.</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>نشانهٔ امضای نظام: ماستهد سیاه که با یک خط سرخ‌فام به وزن می‌رسد. پایدار، وزین، شناختنی.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">✕ نبایـد · ماستهد سرخ‌فام</div>
+        <div class="dd-vis" style="background:#fff;padding:0">
+          <div style="width:100%">
+            <div style="background:#8E1B1B;color:#fff;padding:14px 18px;font-family:'Vazirmatn',sans-serif;font-size:20px;font-weight:600;position:relative">شعله جاوید<span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;color:#8E1B1B;padding:2px 8px;letter-spacing:.1em">AVOID</span></div>
+            <div style="padding:14px 18px;font-size:12px;color:#6E6E6A">وزن «نشریهٔ معتبر» را از دست می‌دهد؛ تحریک‌آمیز به نظر می‌رسد.</div>
+          </div>
+        </div>
+        <div class="dd-body"><p>ماستهد سرخ، خوانش «نشریهٔ سنگین» را می‌شکند. سرخ‌فام همیشه روی سیاه یا سفید می‌نشیند، هرگز خودش سطح نمی‌شود.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">✓ بایـد · فضای سفید سخاوتمندانه</div>
+        <div class="dd-vis" style="background:#fff;padding:30px 24px">
+          <div style="font-family:'Vazirmatn',sans-serif;font-size:18px;line-height:1.7;font-weight:600">هوای اطراف متن<br><span style="font-size:13px;color:#6E6E6A;font-weight:400">کار سنگین را انجام می‌دهد.</span></div>
+        </div>
+        <div class="dd-body"><p>فضای سفید، ساختاری است نه خالی. وزن ویراستاری‌ای را که برند وعده داده، حمل می‌کند و اجازه می‌دهد تایپ پیش‌رو باشد.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">✕ نبایـد · شلوغ‌کردن صفحه</div>
+        <div class="dd-vis" style="background:#fff;padding:8px 8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+            <div style="background:#F5DCDC;height:20px"></div><div style="background:#0F0F0F;height:20px"></div><div style="background:#8E1B1B;height:20px"></div>
+            <div style="background:#0F0F0F;height:20px"></div><div style="background:#8E1B1B;height:20px"></div><div style="background:#F5DCDC;height:20px"></div>
+            <div style="background:#8E1B1B;height:20px"></div><div style="background:#F5DCDC;height:20px"></div><div style="background:#0F0F0F;height:20px"></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#8E1B1B;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;direction:ltr;text-align:right">AVOID PATTERNED COLOUR BLOCKS</div>
+        </div>
+        <div class="dd-body"><p>هرگز رنگ‌های برند را به شکل کاشی یا الگو تکرار نکنید. این طراحی ویراستاری است، نه هویت سازمانی — الگو، خوانش را می‌کشد.</p></div>
+      </div>
+
+      <div class="dd-card dd-do">
+        <div class="dd-head">✓ بایـد · فقط جفت‌های مجاز</div>
+        <div class="dd-vis" style="background:#fff;display:block;padding:14px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="background:#0F0F0F;color:#fff;padding:3px 10px;font-size:11px;font-weight:600">سیاه + سفید</span>
+            <span style="background:#8E1B1B;color:#fff;padding:3px 10px;font-size:11px;font-weight:600">سرخ + سفید</span>
+            <span style="background:#F5DCDC;color:#6B1414;padding:3px 10px;font-size:11px;font-weight:600">روشن + تیره</span>
+            <span style="background:#fff;color:#0F0F0F;padding:3px 10px;font-size:11px;font-weight:600;border:1px solid #E6E5E1">سفید + سیاه</span>
+          </div>
+        </div>
+        <div class="dd-body"><p>چهار جفت، تمام نیازهای رابط را پوشش می‌دهد. به آن‌ها بچسبید و برند بی‌نظیر می‌ماند.</p></div>
+      </div>
+      <div class="dd-card dd-dont">
+        <div class="dd-head">✕ نبایـد · افزودن رنگ تازه</div>
+        <div class="dd-vis" style="background:#fff;padding:14px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span style="background:#3F5BCA;color:#fff;padding:3px 10px;font-size:11px;font-weight:600">آبی؟</span>
+            <span style="background:#1D9E75;color:#fff;padding:3px 10px;font-size:11px;font-weight:600">فیروزه‌ای؟</span>
+            <span style="background:#E89400;color:#fff;padding:3px 10px;font-size:11px;font-weight:600">طلایی؟</span>
+          </div>
+          <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8E1B1B;letter-spacing:.15em;direction:ltr;text-align:right">NOT IN SYSTEM</div>
+        </div>
+        <div class="dd-body"><p>رنگِ خارج از پالت، سریع‌ترین راه ضعیف‌کردن برند است. اگر موردی به رنگ تازه نیاز داشت، آن موردْ اشتباه است.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 ACCESSIBILITY -->
+<section id="accessibility">
+  <div class="page">
+    <span class="sec-num">08 — ACCESSIBILITY</span>
+    <h2 class="sec-title">جفت‌های کنتراست.</h2>
+    <p class="sec-lede">هر جفت تأییدشده در این نظام، استاندارد <span class="ltr">WCAG 2.1</span> سطح <span class="ltr">AA</span> را در اندازهٔ بدنهٔ متن می‌گذراند، و بیشترشان به <span class="ltr">AAA</span> می‌رسند. این جفت‌ها تنها ترکیب‌های تأییدشده برای متن‌اند. هر ترکیب دیگری، نیازمند آزمون است.</p>
+
+    <div class="contrast-grid">
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#0F0F0F">مرکّب روی کاغذ</div>
+        <div class="contrast-info"><span class="ratio">19.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#0F0F0F;color:#FFFFFF">کاغذ روی مرکّب</div>
+        <div class="contrast-info"><span class="ratio">19.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#8E1B1B">سرخ‌فام روی کاغذ</div>
+        <div class="contrast-info"><span class="ratio">7.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#8E1B1B;color:#FFFFFF">کاغذ روی سرخ‌فام</div>
+        <div class="contrast-info"><span class="ratio">7.6 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#F5DCDC;color:#6B1414">سرخ تیره روی روشن</div>
+        <div class="contrast-info"><span class="ratio">9.2 : 1</span><span class="grade grade-aaa">AAA</span></div>
+      </div>
+      <div class="contrast-card">
+        <div class="contrast-demo" style="background:#FFFFFF;color:#6E6E6A;font-size:15px">سنگی روی کاغذ<br><span style="font-size:11px">(فقط متن کوچک — فرامتن)</span></div>
+        <div class="contrast-info"><span class="ratio">4.9 : 1</span><span class="grade">AA</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:24px;border-right:2px solid var(--crimson);background:var(--cream)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:8px;font-weight:500;direction:ltr;text-align:right">NOTE</div>
+      <p style="font-size:14px;line-height:1.85;max-width:720px">رنگ سنگی (<code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#fff;padding:2px 6px;border:1px solid var(--line);direction:ltr;display:inline-block">#6E6E6A</code>) در اندازهٔ بدنه استاندارد <span class="ltr">AA</span> را می‌گذراند، اما نباید برای محتوایی که خواننده باید دنبال کند به کار رود — فقط برای فرامتن، شرح تصویر، و نام نویسنده. هرگز از سنگی برای لینک، دکمهٔ کنش، یا برچسب‌های مهم استفاده نکنید.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 TYPOGRAPHY -->
+<section id="typography">
+  <div class="page">
+    <span class="sec-num">09 — TYPOGRAPHY</span>
+    <h2 class="sec-title">دو خانواده.<br>دو رسم‌الخط.</h2>
+    <p class="sec-lede">یک سَن‌سریف برای صدای ویراستاری فارسی. یک سریف برای صدای انگلیسی. خانوادهٔ فارسی به‌عنوان همتای انگلیسی شناخته می‌شود، نه جایگزین — با مقیاسی مخصوصِ خواندنِ راست‌چین.</p>
+
+    <div>
+      <div class="typespec">
+        <div class="typespec-label"><strong>FA · DISPLAY</strong>Vazirmatn<br>700 · Bold<br>—<br>تیترهای فارسی<br>Hero · H1 · H2</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Vazirmatn',sans-serif;font-size:54px;font-weight:700;line-height:1.3;letter-spacing:-.02em">یک تیتر سنگین فارسی.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">54px · 700 · -0.02em tracking · 1.3 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>FA · DECK</strong>Vazirmatn<br>300 · Light<br>—<br>معرّف‌ها<br>زیرتیتر مقاله</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Vazirmatn',sans-serif;font-size:22px;font-weight:300;line-height:1.85;color:var(--ink-80)">معرّفی سبک‌تر زیر تیتر اصلی می‌نشیند، و خواننده را برای دنبال‌کردنِ استدلالی که در پی می‌آید آماده می‌کند. این لایه، وزنِ ویراستاری را حمل می‌کند.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">22px · 300 · 1.85 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>FA · BODY</strong>Vazirmatn<br>400 · Regular<br>—<br>بدنهٔ مقاله<br>متن بلند</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Vazirmatn',sans-serif;font-size:17px;font-weight:400;line-height:1.95;max-width:560px">بدنهٔ یک مقاله در ۱۷ پیکسل خوانده می‌شود، با لِدینگ راحت. فاصلهٔ خطوط در فارسی به‌اندازهٔ کافی باز است تا حروف کشیده و نقاط راحت‌تر خوانده شوند. این یک تنظیمِ احترام‌آمیز است، نه نسخه‌ای تنزل‌یافته از تنظیمات انگلیسی.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">17px · 400 · 1.95 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>EN · DISPLAY</strong>Newsreader<br>500 · Medium<br>—<br>English headlines</div>
+        <div class="typespec-sample">
+          <div dir="ltr" style="font-family:'Newsreader',serif;font-size:48px;font-weight:500;line-height:1.05;letter-spacing:-.02em">A heavyweight headline.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">48px · 500 · -0.02em tracking · 1.05 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>EN · BODY</strong>Newsreader<br>400 · Regular<br>—<br>English article body</div>
+        <div class="typespec-sample">
+          <div dir="ltr" style="font-family:'Newsreader',serif;font-size:17px;font-weight:400;line-height:1.7;max-width:560px;color:var(--ink-80)">The English body reads in Newsreader at 17 pixels. The serif quality carries the editorial register the brand is committed to, and the comfortable leading supports sustained reading.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">17px · 400 · 1.7 leading</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>UI · LABELS</strong>Vazirmatn / Inter<br>500 · Medium<br>—<br>دکمه‌ها · ناوبری<br>برچسب فرم‌ها</div>
+        <div class="typespec-sample">
+          <div style="font-family:'Vazirmatn',sans-serif;font-size:15px;font-weight:600">برچسب‌های رابط، دکمه‌ها، و ناوبری در Vazirmatn ۶۰۰، اندازهٔ ۱۵px.</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">15px · 600 · neutral tracking</div>
+        </div>
+      </div>
+
+      <div class="typespec">
+        <div class="typespec-label"><strong>META · MONO</strong>JetBrains Mono<br>500 · Medium<br>—<br>برچسب‌های بخش<br>شمارهٔ نشریه · فرامتن</div>
+        <div class="typespec-sample">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.15em;color:var(--crimson);direction:ltr;text-align:right">TOPICS · ECONOMY · ISSUE 07</div>
+          <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stone);letter-spacing:.1em;direction:ltr;text-align:right">12px · 500 · +0.15em tracking · uppercase</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:24px;border:1px solid var(--line)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:12px;font-weight:500;direction:ltr;text-align:right">TYPE SCALE — 8PT BASELINE</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;color:var(--ink-80);direction:ltr;text-align:right">Display 54px · H1 40px · H2 32px · H3 24px · H4 20px · Body 17px · Small 14px · Caption 12px · Micro 11px</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 COMPONENTS -->
+<section id="components">
+  <div class="page">
+    <span class="sec-num">10 — COMPONENTS IN ACTION</span>
+    <h2 class="sec-title">نظام، در عمل.</h2>
+    <p class="sec-lede">سه کاربرد زندهٔ پالت و سیستم تایپ — ماستهد، سرتیتر مقاله، و اجزای پشتیبان. این را به‌عنوان مرجعِ وفاداری برای ساخت سایت در نظر بگیرید.</p>
+
+    <div class="preview-shell">
+      <div class="preview-mast">
+        <div class="lockup"><span class="mk"></span>شعله جاوید</div>
+        <div class="nav"><span class="on">نشرات</span><span>موضوعات</span><span>کتابخانه</span><span>اطلاعیه‌ها</span><span>ارتباط با حزب</span></div>
+      </div>
+      <div class="preview-body">
+        <span class="preview-tag">شمارهٔ جاری · شمارهٔ ۷</span>
+        <h3 class="preview-h">بحران اقتصادی و آیندهٔ کار در جهان</h3>
+        <p class="preview-deck">نگاهی به دگرگونی‌های ساختاریِ اقتصاد جهانی و پیامدهای آن برای نیروی کار و جنبش‌های اجتماعی.</p>
+        <div class="preview-meta">۱۲ خرداد ۱۴۰۵ · ۸ دقیقه مطالعه</div>
+      </div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-cell">
+        <span class="lbl">PRIMARY BUTTON</span>
+        <button class="btn-primary">دانلود PDF</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">SECONDARY BUTTON</span>
+        <button class="btn-secondary">ادامهٔ مطلب</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">GHOST LINK</span>
+        <button class="btn-ghost">آرشیو شماره‌ها ←</button>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">CURRENT TAG</span>
+        <span class="tag-current">شمارهٔ جاری</span>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">CATEGORY TAG</span>
+        <span class="tag-cat">اقتصاد · ECONOMY</span>
+      </div>
+      <div class="comp-cell">
+        <span class="lbl">FILE TAG</span>
+        <span class="tag-pdf">PDF · 2.4 MB</span>
+      </div>
+    </div>
+
+    <div style="margin-top:64px;padding:32px;border:1px solid var(--line);background:var(--cream)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);letter-spacing:.15em;margin-bottom:14px;font-weight:500;direction:ltr;text-align:right">HAND-OFF · DEVELOPER NOTES</div>
+      <ul style="list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;font-size:14px;line-height:1.85;color:var(--ink-80)">
+        <li><strong style="display:block;color:var(--ink);margin-bottom:6px;font-weight:600">متغیرهای CSS</strong>هر یازده توکن را به‌صورت CSS custom properties در <code style="font-family:'JetBrains Mono',monospace;direction:ltr;display:inline-block">:root</code> تعریف کنید. هرگز مقدار هگز را به‌صورت inline در اجزا قرار ندهید.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:6px;font-weight:600">چرخش راست‌چین</strong>ناوبری ماستهد، حاشیهٔ بدنه، و ترتیب فرامتن زیر <code style="font-family:'JetBrains Mono',monospace;direction:ltr;display:inline-block">[dir="rtl"]</code> آینه می‌شوند. خط سرخ‌فام در هر دو جهت در لبهٔ پایین می‌ماند.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:6px;font-weight:600">وضعیت هاور</strong>سرخ‌فام → سرخ‌فام تیره روی هر عنصر تعاملی. بدون ترفند شفافیت.</li>
+        <li><strong style="display:block;color:var(--ink);margin-bottom:6px;font-weight:600">حلقهٔ فوکوس</strong>۲px تو پُر سرخ‌فام، با فاصلهٔ ۲px. الزامی برای دسترس‌پذیری — غیرقابل‌مذاکره.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="page">
+    <div class="mark"><span class="mk"></span>شعله جاوید</div>
+    <div class="meta">BRAND GUIDELINES · V 1.0<br>JUNE 2026 · DRAFT FOR CLIENT</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ruleset name="Shola Jawid">
+	<description>WPCS ruleset for the Shola Jawid theme and Shola Core plugin.</description>
+
+	<file>./wp-content/themes/shola-jawid</file>
+	<file>./wp-content/plugins/shola-core</file>
+
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<rule ref="WordPress-Extra">
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="shola-jawid"/>
+				<element value="shola-core"/>
+			</property>
+		</properties>
+	</rule>
+
+	<config name="minimum_supported_wp_version" value="6.4"/>
+	<config name="testVersion" value="8.1-"/>
+
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>
