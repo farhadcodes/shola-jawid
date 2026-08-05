@@ -225,11 +225,23 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 - Convert `_shell.html` → the `<head>` section split across `header.php` (opening) and `footer.php` (closing), using `wp_head()` / `wp_footer()` hooks correctly placed (never omitted).
 - Convert `_header.html` → `header.php`, using `wp_nav_menu()` for the registered nav location, preserving the exact crimson masthead + maroon 2px anchor line treatment pixel-for-pixel.
 - Convert `_footer.html` → `footer.php`, thin paper-white per brand guide, footer nav matching the IA doc footer list (شبکه‌های اجتماعی / درباره ما / جست‌وجو).
-- Build `template-parts/cards/card.php` as the single shared card partial (per Phase 1.2's confirmation) accepting a type parameter ("article" | "issue" | "document") to swap only the tag/label.
+- Build `template-parts/cards/card.php` as the shared card partial for **articles only** (no `type` param — see correction below).
+
+> **Correction (Phase 1.2, logged in `docs/CHANGELOG.md` 2026-08-05):** this
+> step originally called for one `card.php` partial swapping a type
+> parameter across article/issue/document. Line-by-line comparison of the
+> v6 prototype's CSS showed that's not what v6 built: `.issue-card`
+> (`main.css:997-1005`) is a deliberately distinct anatomy — 3:4 portrait
+> image, `box-shadow` (breaking §09's own no-shadow rule on purpose), no
+> dek/byline — not a relabeled `.card`. Documents never render as cards at
+> all; they're always `.doc-row` list rows. Corrected plan: `card.php`
+> (articles only, no type param), a separate `issue-card.php` for issue
+> covers, and separate row/list partials outside `template-parts/cards/`
+> for `.doc-row`, `.announce-list`, and `.topic-list`.
 
 **Checklist:**
 - ☐ header.php, footer.php built, wp_head()/wp_footer() present and firing
-- ☐ Single shared card partial in use everywhere a card appears (grep templates for any duplicated card markup — there should be none)
+- ☐ `card.php` (articles) and `issue-card.php` (issue covers) each in use everywhere their respective markup appears; `.doc-row`/`.announce-list`/`.topic-list` each have their own row/list partial (grep templates for any duplicated markup within each pattern — there should be none)
 
 ### 4.2 — Page-to-template map (work through in this order)
 

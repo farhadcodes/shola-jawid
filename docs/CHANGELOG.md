@@ -104,3 +104,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `README.md` with Credits section, and `.github/workflows/lint.yml`
   (installs WPCS via Composer, runs phpcs on push/PR to `main`).
   Approved by: Farhad, in this session (2026-08-05).
+
+## 2026-08-05 (continued)
+- **Changed:** `docs/EXECUTION_PLAN.md` §4.1's card-partial description was
+  wrong and has been corrected (see matching note added directly in that
+  section). The plan originally called for one shared
+  `template-parts/cards/card.php` partial "accepting a type parameter
+  (`article` | `issue` | `document`) to swap only the tag/label." Phase 1.2's
+  markup/CSS comparison across the v6 prototype's five card/list patterns
+  (`.card`, `.issue-card`, `.doc-row`, `.announce-list`, `.topic-list`)
+  showed this doesn't match what v6 actually built:
+  - `.issue-card` (`assets/css/main.css:997-1005` in
+    `03_UI_Design/shola-jawid-ui/`) uses a 3:4 portrait image and, critically,
+    `box-shadow: 0 10px 25px -12px rgba(15,15,15,.25)` at line 1002 —
+    deliberately breaking CSS §09's own "no borders, no shadow,
+    whitespace-only" rule that governs `.card`. It also carries no
+    type-label, dek, or byline field. This is a second, intentionally
+    distinct card anatomy (issue covers read as physical shelved objects),
+    not a type-swapped variant of `.card`.
+  - `.doc-row`, `.announce-list`, and `.topic-list` have no image field at
+    all and are flex/list rows, not cards under any definition — documents
+    render exclusively as `.doc-row` list rows in v6; there is no
+    document-type card anywhere in the prototype.
+  Corrected plan (per Farhad's approval): `template-parts/cards/card.php`
+  serves articles only, with no `type` param (nothing else uses this
+  anatomy); a separate `template-parts/cards/issue-card.php` serves issue
+  covers; `.doc-row`, `.announce-list`, and `.topic-list` each get their own
+  row/list partial outside `template-parts/cards/`, since they are not
+  cards.
+  Reason: the plan's "single shared card partial" wording was written
+  against the Aeon design-system analysis's general card-discipline
+  principle before the actual v6 CSS/HTML was line-by-line compared; the
+  build must follow what v6 actually shipped (per `CLAUDE.md` §9 faithful-
+  port rule), not the plan's a-priori assumption. This is a build-structure
+  correction only — no visual output changes.
+  Approved by: Farhad, in this session (2026-08-05).
