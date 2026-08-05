@@ -169,3 +169,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Farhad set for this phase — is confirmed as the carried-forward source
   of truth into Phase 2 onward.
   Approved by: Farhad, in this session (2026-08-05).
+
+## 2026-08-05 (continued)
+- **Changed:** Added a minimal `index.php` to Phase 2.1's theme-skeleton
+  scope (`docs/EXECUTION_PLAN.md` §2.1). It was missing: Phase 2.1's file
+  list, ported from `CLAUDE.md` §4's tree, didn't include it, and
+  attempting to activate the theme in wp-admin surfaced WordPress core's
+  "Broken Theme — Template is missing" error, since `index.php` (with
+  `style.css`) is one of the two files WP core requires for a theme to be
+  non-broken (`WP_Theme::errors()`), independent of the template hierarchy
+  and independent of `front-page.php` etc. existing later in Phase 4.
+  Considered two options before deciding: (1) add a minimal `index.php`
+  now, or (2) accept activation can't be verified until Phase 4 and reword
+  Phase 2's Definition of Done to check "no PHP errors" via WP-CLI/debug
+  log instead of literal wp-admin activation. Rejected option 2 on
+  inspection — it doesn't actually work, since a theme WP considers
+  "broken" can't be activated via WP-CLI either (`wp theme activate` fails
+  the same structural check `switch_theme()` does); there's no route to
+  verifying "no PHP errors on activation" without first satisfying WP's
+  baseline file requirement. Chose option 1: `index.php` is standard,
+  required WP theme scaffolding — not Phase-4 template/design work — so
+  adding it doesn't blur the phase boundary. Kept deliberately minimal
+  (bare loop, inline `wp_head()`/`wp_footer()`, no styling) and does not
+  call `get_header()`/`get_footer()` since those partials don't exist
+  until Phase 4.1 (calling them earlier triggers a `_doing_it_wrong`
+  notice under `WP_DEBUG`, which would itself violate the "zero PHP
+  errors/warnings" checklist item this is meant to satisfy). Will be
+  refactored to call `get_header()`/`get_footer()` once Phase 4.1 lands.
+  Reason: this is a standard, well-known WordPress theme-development
+  sequencing question (skeleton-before-templates), not a project-specific
+  judgment call — WP's own two-required-files rule settles it.
+  Approved by: Farhad, in this session (2026-08-05).

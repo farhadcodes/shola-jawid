@@ -1,0 +1,26 @@
+# Copyright (C) 2026 Farhad Farhaad
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Shola Jawid 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/farhadcodes/shola-jawid/issues\n"
+"POT-Creation-Date: 2026-08-05T00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-08-05T00:00:00+00:00\n"
+"X-Generator: manual\n"
+"X-Domain: shola-jawid\n"
+
+#: inc/setup.php
+msgid "منوی اصلی"
+msgstr ""
+
+#. translators: %s: linked author name, not translatable.
+#: inc/setup.php
+msgid "ساخته‌شده با قالب شعله جاوید، توسط %s"
+msgstr ""
+
+#: inc/setup.php
+msgid "برای عملکرد کامل نشریه (شماره‌ها، اسناد، اطلاعیه‌ها)، افزونهٔ «Shola Core» باید نصب و فعال باشد."
+msgstr ""

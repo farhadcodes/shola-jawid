@@ -151,6 +151,7 @@ Goal: create the two installable WordPress packages — `shola-jawid` (theme) an
 - `inc/setup.php`: add the `admin_footer_text` filter per `CLAUDE.md` §7.6 (light-touch credit line).
 - Add a placeholder `screenshot.png` (1200×900) — final version with credit strip produced in Phase 3 QC once real UI is rendering.
 - Add `readme.txt` (WordPress.org-style) with Contributors field and full Credits section per `CLAUDE.md` §7.4.
+- Add a minimal `index.php` — WP core requires `style.css` + `index.php` for a theme to register as non-broken (`WP_Theme::errors()`), independent of the template hierarchy and independent of `front-page.php` etc. existing. This is scaffolding, not Phase-4 template design: no real markup/styling, and it calls `wp_head()`/`wp_footer()` directly rather than `get_header()`/`get_footer()` (those partials don't exist until Phase 4.1 — calling them earlier triggers a `_doing_it_wrong` notice under `WP_DEBUG`). Gets refactored to call `get_header()`/`get_footer()` once Phase 4.1 lands, as normal iteration.
 
 **Checklist:**
 - ☐ Theme activates in wp-admin with zero PHP errors/warnings
