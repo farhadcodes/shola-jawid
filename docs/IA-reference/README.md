@@ -35,3 +35,14 @@ confirming the eleven token names/values); they do not independently govern
 any visual decision where they conflict with the v6 prototype.
 
 Logged as resolved in `docs/CHANGELOG.md`.
+
+## Typography: brand-guide fonts vs. actual fonts
+
+The brand-guide documents above (v1.0 and v2.0) specify Vazirmatn,
+Newsreader, Markazi Text, Inter, and JetBrains Mono as the typography
+system. **These are historical/reference-only, same as the rest of this
+folder.** The actual, final, Farhad-confirmed fonts are **Farhang2** and
+**ModamPro**, exactly as used (and already self-hosted, woff/woff2) in the
+v6 prototype's `assets/fonts/`. Per the pixel-faithful-port rule above, the
+CSS tokens and font files that ship with v6 govern — not the brand-guide
+document's font list.
