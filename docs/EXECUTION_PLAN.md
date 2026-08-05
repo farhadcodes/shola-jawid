@@ -127,11 +127,14 @@ Goal: per Farhad's request, evaluate and refactor the v6 static prototype before
 - ☐ main.js confirmed progressive-enhancement-only
 - ☐ Zero physical-direction CSS properties remain in main.css
 
-### Phase 1 — Definition of Done
+### Phase 1 — Definition of Done — ✅ complete (2026-08-05)
 
-- A short refactor note (`docs/screenshots/phase1-refactor-notes.md`) exists, listing what was changed in the static prototype and why, cross-referenced to which Phase-4 template-part it de-risks.
-- The refactored static HTML/CSS/JS — not the original zip — is the one and only source of truth carried into Phase 2 onward.
-- No known inline-style, physical-CSS-property, or duplicated-card-markup issues remain.
+- ☑ A short refactor note (`docs/screenshots/phase1-refactor-notes.md`) exists, listing what was changed/found in the static prototype and why, cross-referenced to which Phase-4 template-part it de-risks.
+- ☑ The audited v6 prototype at `03_UI_Design/shola-jawid-ui/` — not the original zip, and not a modified copy — is the one and only source of truth carried into Phase 2 onward. Phase 1 was an audit pass; nothing in the prototype's files was changed. `docs/screenshots/phase1-inventory.md` and `docs/screenshots/phase1-refactor-notes.md` are the record of what was checked.
+- ☑ Physical-CSS-property check: zero violations found (main.css + all inline styles), confirmed in `phase1-refactor-notes.md` §1.
+- ☑ Duplicated-card-markup check: resolved via Phase 1.2 — `.card` (articles) and `.issue-card` (issue covers) are genuinely distinct anatomies by design, not duplication; `.doc-row`/`.announce-list`/`.topic-list` are row/list patterns, not cards. Logged in `docs/CHANGELOG.md`, `EXECUTION_PLAN.md` §4.1 corrected accordingly.
+- ⚠ **Inline-style check: 440 instances found, not fixed in Phase 1** — explicitly deferred to Phase 4, template-by-template, per Farhad's approval (session 2026-08-05): fixing 440 call sites in static files about to be rewritten as PHP anyway is double-work with avoidable regression risk. The deferral is now a checkable Phase 4 Definition-of-Done item (§4.2/§4's DoD) — not just a note here.
+- ⚠ **One unplanned finding, also deferred to Phase 4:** invalid nested-interactive markup at `_header.html:6-12` (search link inside `#menu-open` button) — not fixed in the static prototype, fix required during `header.php` conversion instead. Also now a checkable Phase 4 DoD item.
 
 ---
 
@@ -224,6 +227,7 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 
 - Convert `_shell.html` → the `<head>` section split across `header.php` (opening) and `footer.php` (closing), using `wp_head()` / `wp_footer()` hooks correctly placed (never omitted).
 - Convert `_header.html` → `header.php`, using `wp_nav_menu()` for the registered nav location, preserving the exact crimson masthead + maroon 2px anchor line treatment pixel-for-pixel.
+- **Fix, don't port, the invalid nested-interactive markup found in Phase 1.3** (logged in `docs/CHANGELOG.md` and `docs/screenshots/phase1-refactor-notes.md` §5): `_header.html:6-12` nests the search `<a href="search.html">` inside `<button id="menu-open">`, which is invalid HTML5 (button content model excludes interactive descendants) and produces undefined keyboard/screen-reader behavior. `header.php` must render `#menu-open` and the search link as adjacent siblings in the same flex row instead — same visual result, valid markup. This is a markup-hygiene fix, not a visual change; do not port the nesting as-is.
 - Convert `_footer.html` → `footer.php`, thin paper-white per brand guide, footer nav matching the IA doc footer list (شبکه‌های اجتماعی / درباره ما / جست‌وجو).
 - Build `template-parts/cards/card.php` as the shared card partial for **articles only** (no `type` param — see correction below).
 
@@ -242,8 +246,23 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 **Checklist:**
 - ☐ header.php, footer.php built, wp_head()/wp_footer() present and firing
 - ☐ `card.php` (articles) and `issue-card.php` (issue covers) each in use everywhere their respective markup appears; `.doc-row`/`.announce-list`/`.topic-list` each have their own row/list partial (grep templates for any duplicated markup within each pattern — there should be none)
+- ☐ `header.php`'s menu-open button and search link are sibling elements, not nested — verify by inspecting rendered markup, not just visual output
 
 ### 4.2 — Page-to-template map (work through in this order)
+
+> **Carried over from Phase 1.3 (logged in `docs/CHANGELOG.md` and
+> `docs/screenshots/phase1-refactor-notes.md` §2):** the v6 prototype has
+> 440 inline `style="..."` attributes across its 23 pages. Fixing all of
+> them in the static HTML was explicitly deferred to this phase to avoid
+> double-work and regression risk on files about to be rewritten as PHP
+> anyway. **That deferral ends here.** For each template converted below,
+> zero inline `style="..."` attributes may remain in the finished PHP —
+> per `CLAUDE.md` §5, every inline style becomes either an existing
+> `main.css` §20 utility class (`.center`, `.row-between`, `.stack`, etc.),
+> a new small utility class added to §20, or a scoped rule in that
+> template's own CSS section — decided per template as it's converted, not
+> as a blind find-and-replace. This is not optional polish; it's part of
+> this phase's Definition of Done (see below).
 
 | IA ID | Page | WP Template | Notes |
 |---|---|---|---|
@@ -290,6 +309,8 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 
 - Every page in the IA doc's page list (§4) exists, renders real dynamic WordPress content (not static placeholder text), and visually matches the v6 prototype.
 - Site is fully navigable end-to-end (nav → topic archive → single article → related content) using only real WP data, no leftover static HTML files being referenced.
+- ☐ **Zero inline `style="..."` attributes remain in any finished PHP template** (`grep -r 'style="' wp-content/themes/shola-jawid --include=*.php` returns nothing), per `CLAUDE.md` §5 and the Phase 1.3 deferral above.
+- ☐ **`header.php` does not reproduce the `_header.html:6-12` nested-button/link markup bug** — `#menu-open` and the search link are siblings, verified in rendered output, not just visually.
 
 ---
 

@@ -139,3 +139,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   port rule), not the plan's a-priori assumption. This is a build-structure
   correction only — no visual output changes.
   Approved by: Farhad, in this session (2026-08-05).
+
+## 2026-08-05 (continued)
+- **Deferred:** Phase 1.3's two hygiene findings — 440 inline `style="..."`
+  attributes across the v6 prototype's 23 pages, and invalid
+  nested-interactive markup at `_header.html:6-12` (search `<a>` nested
+  inside `#menu-open` `<button>`) — are not fixed in the static prototype.
+  Both are explicitly deferred to Phase 4, to be resolved template-by-
+  template as each PHP template is converted, rather than patched in the
+  static HTML now. `docs/EXECUTION_PLAN.md` §4.1/§4.2 and Phase 4's
+  Definition of Done were amended with concrete, checkable items for both
+  (not just a note in Phase 1's writeup): zero inline styles may remain in
+  any finished PHP template (`CLAUDE.md` §5), and `header.php` must render
+  `#menu-open` and the search link as siblings, not nested.
+  Reason: fixing 440 call sites and one markup bug in files about to be
+  entirely rewritten as PHP is double-work with avoidable visual-regression
+  risk; doing it once, correctly, during the real conversion is safer and
+  faster than a static-HTML patch pass that gets thrown away at Phase 4
+  anyway.
+  Approved by: Farhad, in this session (2026-08-05).
+
+- **Resolved:** Phase 1 (Prototype audit & refactor-before-convert) is
+  complete. `docs/EXECUTION_PLAN.md`'s Phase 1 Definition of Done updated
+  to reflect actual findings (audit-only, no prototype files modified;
+  physical-CSS and card-duplication checks clean; inline-styles and
+  header markup findings explicitly deferred to Phase 4 per above, not
+  silently dropped). The audited v6 prototype at
+  `03_UI_Design/shola-jawid-ui/` — unmodified, per the audit-only scope
+  Farhad set for this phase — is confirmed as the carried-forward source
+  of truth into Phase 2 onward.
+  Approved by: Farhad, in this session (2026-08-05).
