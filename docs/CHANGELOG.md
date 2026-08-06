@@ -1172,3 +1172,36 @@ trail of *why* the build deviated from — or newly applied — a rule in
   errors — none found. `page-contact.php` is now fully closed: form,
   labels, RTL direction, and the editable subject list all verified.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Decided:** `page-about.php`'s long-form prose (mission statement,
+  editorial board, submission guidelines, republishing policy, support
+  model, writer's-guide text — 7 sections from `body-about.html`) is
+  stored as the `about` WP Page's own `post_content`, edited via the
+  block editor, output through `the_content()` — not hardcoded as
+  `__()` PHP strings like every other Phase 4.2 template's short
+  structural labels. Flagged as a genuine fork before building rather
+  than defaulting to the established pattern: this content is
+  substantive editorial copy a client should be able to edit without a
+  code change, unlike a page-header dek or a nav label. Each section is
+  a Heading block with its Anchor field set to match the existing tab
+  nav's fragment targets (#about, #team, #contact, #guidelines,
+  #republish, #support, #write), so the tabs keep working without any
+  JS (v6 has no scroll-spy JS for this component either — confirmed by
+  grepping its `main.js`, pure CSS/anchor-link behavior). The tab nav
+  itself stays in the template as structural chrome, not page content,
+  since it's tightly coupled to the fixed section structure.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `page-about.php` built and closed. Tab nav and page
+  header ported from `body-about.html` (using the existing
+  `.page-header--tight` variant, matching v6's `margin-bottom:1rem`
+  exactly). Seeded the `about` WP Page (id 73) with the 7 sections as
+  proper Gutenberg heading+paragraph blocks (anchors set per the
+  decision above) via a throwaway script, deleted after running. Same
+  placeholder-email substitution as `page-contact.php`
+  (`info.sholajawid@gmail.com`, not v6's hardcoded personal address) in
+  the تماس section. Verified live via `curl`: `200`, zero PHP
+  errors/warnings/notices, zero inline styles, all 7 `id=` anchors
+  present and matching the tab nav's `href="#..."` targets, correct
+  placeholder email.
+  Approved by: Farhad, in this session (2026-08-06).
