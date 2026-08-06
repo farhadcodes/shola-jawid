@@ -723,7 +723,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .hero-body .type-label { margin-bottom: 1rem; font-size: 0.65rem; color: rgba(255, 255, 255, .85); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
 .hero-body .type-label .glyph { color: var(--paper); }
 .hero-body .type-label a { color: var(--paper); }
-.hero-body .h-display { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--paper); text-shadow: 0 2px 20px rgba(0, 0, 0, .75), 0 1px 3px rgba(0, 0, 0, .9); }
+.hero-body .h-display { margin-top: 1rem; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--paper); text-shadow: 0 2px 20px rgba(0, 0, 0, .75), 0 1px 3px rgba(0, 0, 0, .9); }
 .hero-body .h-display a { transition: color var(--dur) var(--ease); }
 .hero-body .h-display a:hover { color: var(--crimson-tint); }
 .hero-body .dek { margin-top: 1.25rem; max-width: 640px; font-size: clamp(0.9rem, 1.28vw, 1.05rem); color: rgba(255, 255, 255, .94); text-shadow: 0 1px 10px rgba(0, 0, 0, .65); }
@@ -971,6 +971,15 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 @media (min-width: 800px) {
   .issue-hero { grid-template-columns: 380px 1fr; gap: 4rem; }
 }
+
+/* WP conversion (Phase 4.2): front-page.php's "Current Issue" module
+   embeds .issue-hero inside an already-padded section (.sect-cream.sect),
+   so it needs its own wrapper grid without the standalone page's
+   padding-block. Replaces two inline style="" attributes from
+   body-index.html. */
+.issue-lead { display: grid; gap: 3rem; grid-template-columns: 1fr; }
+.issue-hero--embedded { padding-block: 0; }
+
 .issue-cover {
   aspect-ratio: 3 / 4;
   overflow: hidden;
@@ -1183,6 +1192,9 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   .newsletter-inner { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
 }
 .newsletter h2 { color: var(--crimson-deep); }
+/* WP conversion (Phase 4.2): replaces an inline style="" on
+   body-index.html's newsletter dek. */
+.newsletter .dek { margin-top: 1rem; max-width: 500px; }
 .newsletter-form {
   display: flex; gap: .75rem; flex-direction: column;
 }

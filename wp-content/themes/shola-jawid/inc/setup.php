@@ -35,6 +35,18 @@ function shola_setup() {
 	add_theme_support( 'responsive-embeds' );
 
 	/*
+	 * The IA doc's content model treats مقاله/یادداشت (article/note) as one
+	 * native `post` type with no distinguishing field of its own (Phase
+	 * 3.3 didn't define one). v6's card component displays "یادداشت"
+	 * instead of "مقاله" for shorter/lighter dispatch-style posts
+	 * (main.css §09 .type-label) — mapped onto WP's native `aside` post
+	 * format rather than a new custom meta field, since that's exactly
+	 * what this format is for and avoids adding content-model surface for
+	 * a single display-label distinction.
+	 */
+	add_theme_support( 'post-formats', array( 'aside' ) );
+
+	/*
 	 * The v6 popup menu (main.css §06) has four columns: Topics and
 	 * Publications are generated from the `topic`/`publication` taxonomy
 	 * terms directly (Phase 3.2), not editor-managed menus — only

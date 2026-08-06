@@ -479,3 +479,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   history of how this was actually figured out (two passes, not one)
   stays visible.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `front-page.php` (converted from `body-index.html`):
+  hero (latest article), "Latest" grid (articles + the confirmed
+  document-in-card mix via `card.php`'s new `$type` param), "Current
+  Issue" module (latest published issue), topics table (real per-term
+  post counts, not placeholder numbers), latest documents, announcements,
+  newsletter band. `template-parts/cards/card.php` built per the revised
+  Phase 1.2/4.2 decision above. `issue-card.php` deliberately not built
+  this session — front-page.php's Current Issue module uses the
+  single-item `.issue-hero`/`.issue-cover` markup, not the grid
+  `.issue-card` component; that partial will be built when
+  `taxonomy-publication.php` (which actually needs it) is converted, per
+  Farhad's "seed content alongside each template as it's built" approach
+  — building unconsumed partials ahead of need was avoided.
+  Also added `add_theme_support('post-formats', ['aside'])` — the IA
+  doc's مقاله/یادداشت (article/note) distinction had no field of its own
+  from Phase 3.3; mapped onto WP's native `aside` format rather than a new
+  meta field, since that's exactly what it's for.
+  Three inline `style="..."` attributes from `body-index.html` turned out
+  to be fully redundant with CSS rules that already existed in
+  `main.css` (`.section-head .h-section`'s `margin-top:.5rem` already
+  matched 6 of them; `.rule` already matched the `<hr>`'s inline style) —
+  dropped outright rather than replaced. The remaining few got small
+  scoped classes (`.issue-lead`, `.issue-hero--embedded`,
+  `.newsletter .dek`) or reused the existing `.mt-sm` utility, following
+  the same per-template approach as Phase 4.1.
+  Seeded realistic sample content (5 articles across 5 different topics,
+  one with the `aside` format; 1 issue with a real PDF, cover image, and
+  publication term; 4 documents across 3 collections; 3 announcements) via
+  a throwaway dev-only script, deleted immediately after running — same
+  discipline as the diagnostic scripts used throughout Phase 3, not a
+  permanent seeding feature shipped in the theme/plugin.
+  Verified via `curl`: `200`, zero PHP errors, zero inline styles, all
+  seven homepage sections present, hero/grid/current-issue/topics all
+  showing real dynamic data (accurate per-topic post counts, real PDF file
+  size computed from the actual uploaded file, correct term links).
+  Approved by: Farhad, in this session (2026-08-06).
