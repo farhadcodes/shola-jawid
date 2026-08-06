@@ -1120,3 +1120,55 @@ trail of *why* the build deviated from — or newly applied — a rule in
   zero CF7 default CSS requests, labels and RTL direction both correct
   after the two fixes above.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Contact form's "موضوع پیام" subject dropdown was hardcoded
+  as 5 literal pipe-values inside CF7 form #71's own stored form
+  markup — meaning changing an option meant editing raw CF7 tag syntax,
+  not something to hand to an editorial team. Fixed by adding
+  `shcore_contact_topics`, a `shola-core`-owned option (array of
+  strings, default = the original 5 v6 values), following the §2 split:
+  this is a piece of site configuration, not content (no CPT/taxonomy
+  involved), so it lives in the plugin rather than the theme, and
+  survives a theme switch like everything else the plugin owns. New
+  file `includes/class-contact-settings.php`
+  (`SholaCore\Contact_Settings`), wired into `shola-core.php` alongside
+  the other `::init()` calls. Adds one settings screen (Settings →
+  موضوعات فرم تماس), a single RTL textarea, one topic per line,
+  sanitized per-line via `sanitize_text_field` on save
+  (`register_setting`'s callback) — no CPT/taxonomy/custom capability
+  involved, just a plain option and the Settings API.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** First implementation attempt used CF7's `"dynamic:name"`
+  tag syntax and a `wpcf7_form_tag_data_option_{name}`-suffixed filter —
+  both invented from a wrong assumption about CF7's actual API, not
+  verified against this install's source first. Live-verified the
+  result before trusting it: the dropdown rendered the literal string
+  `dynamic:contact_topics` as its only option, proving the mechanism
+  didn't exist. Read CF7's actual `modules/select.php` and
+  `includes/form-tag.php` in the live plugin install to find the real
+  mechanism: an unquoted `data:xxx` option token (quoted strings are
+  select *values*, not options — a second wrong assumption caught the
+  same way, by testing rather than trusting the syntax) resolved via
+  the single generic `wpcf7_form_tag_data_option` filter, which
+  receives the tag's data-option names as its second argument. Fixed
+  `Contact_Settings::filter_data_option()` to hook that filter and
+  check `in_array( 'contact_topics', $options, true )` before
+  responding, so it can't affect any other form/tag. Updated form #71's
+  `your-topic` tag to `[select your-topic class:field id:c-topic
+  data:contact_topics]` (unquoted, no other options list) via a
+  throwaway script, deleted after running.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** End-to-end loop verified live, not just read as
+  correct-looking code: confirmed the dropdown renders the same 5
+  default options with the option unset (falls back to
+  `get_default_topics()`), then wrote a throwaway script that called
+  `update_option( 'shcore_contact_topics', [...2 test values...] )` and
+  re-fetched `/contact/` via `curl` — dropdown changed to exactly those
+  2 values. Restored the default 5 afterward via another throwaway
+  script; both scripts deleted and confirmed unreachable (`404`) after
+  running. `debug.log` checked for any `shola-core`/`Contact_Settings`
+  errors — none found. `page-contact.php` is now fully closed: form,
+  labels, RTL direction, and the editable subject list all verified.
+  Approved by: Farhad, in this session (2026-08-06).

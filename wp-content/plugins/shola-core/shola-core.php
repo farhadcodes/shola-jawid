@@ -50,6 +50,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Post_Types::init();
 \SholaCore\Taxonomies::init();
 \SholaCore\Meta_Fields::init();
+\SholaCore\Contact_Settings::init();
 
 /**
  * On activation: register post types and taxonomies, seed the fixed term
