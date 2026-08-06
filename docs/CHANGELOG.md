@@ -898,3 +898,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Verified via `curl` on both pages: `200`, zero PHP errors, zero inline
   styles.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Verified (not assumed):** two follow-up questions on
+  `document-row.php`'s PDF metadata, raised by Farhad after the
+  `page-library.php` review.
+  1. **File size is genuinely dynamic, not stale/hardcoded.** All 5
+     seeded documents showing identical `509 KB` is explained entirely by
+     them sharing the same placeholder PDF attachment (`shcore_pdf_id =
+     14`) — not a bug. Proved this empirically rather than by code
+     review alone: uploaded a synthetic 2,267-byte test PDF, temporarily
+     swapped one document's `shcore_pdf_id` to it via a throwaway
+     script, confirmed `document-row.php`'s exact size-computation logic
+     now rendered `2 KB` instead of `509 KB`, then restored the original
+     value and deleted the test attachment. Confirmed live afterward:
+     the document shows `509 KB` again, no PHP errors. (The
+     `get_page_by_title()` deprecation notices that briefly appeared in
+     `debug.log` came from the throwaway test script itself, which is
+     already deleted — confirmed via `grep` that function is not used
+     anywhere in the actual theme/plugin code.)
+  2. **Page count ("ص") is confirmed not tracked anywhere** — `grep`
+     across `class-meta-fields.php` found no page-count field registered
+     in the Phase 3.3 content model. This is a genuine content-model gap,
+     not a display bug; flagging for a decision on whether to add a
+     `shcore_page_count` meta field (Farhad's call — not added
+     speculatively here).
+  Approved by: Farhad, in this session (2026-08-06).
