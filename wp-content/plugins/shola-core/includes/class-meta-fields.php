@@ -141,6 +141,17 @@ class Meta_Fields {
 		);
 		register_post_meta(
 			'post',
+			'shcore_author_note',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'post',
 			'shcore_language',
 			array(
 				'type'              => 'string',
@@ -292,12 +303,17 @@ class Meta_Fields {
 	public static function render_article_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
 		$byline         = get_post_meta( $post->ID, 'shcore_byline', true );
+		$author_note    = get_post_meta( $post->ID, 'shcore_author_note', true );
 		$language       = get_post_meta( $post->ID, 'shcore_language', true );
 		$translation_id = get_post_meta( $post->ID, 'shcore_translation_id', true );
 		?>
 		<p>
 			<label for="shcore_byline"><strong><?php esc_html_e( 'نام مستعار نویسنده (اختیاری — در صورت خالی بودن، نام کاربر وردپرس نمایش داده می‌شود)', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_byline" name="shcore_byline" class="regular-text" value="<?php echo esc_attr( $byline ); ?>">
+		</p>
+		<p>
+			<label for="shcore_author_note"><strong><?php esc_html_e( 'توضیح همکاری (اختیاری — مثلاً «کاری از میز اقتصاد؛ در همکاری با...»)', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_author_note" name="shcore_author_note" class="large-text" value="<?php echo esc_attr( $author_note ); ?>">
 		</p>
 		<?php self::render_language_field( $language ); ?>
 		<p>
@@ -378,7 +394,7 @@ class Meta_Fields {
 		$fields_by_type = array(
 			'issue'    => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
 			'document' => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
-			'post'     => array( 'shcore_byline', 'shcore_language', 'shcore_translation_id' ),
+			'post'     => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {

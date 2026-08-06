@@ -390,6 +390,42 @@ function shola_get_publication_meta_line( $term ) {
 }
 
 /**
+ * "سردبیر مسئول" credit shown on single.php — a fixed masthead-level
+ * role (same person named on page-about.php's هیئت تحریریه section),
+ * not a per-article value, so this is a filterable constant like
+ * shola_get_masthead_code() rather than a new post-meta field.
+ *
+ * @return string
+ */
+function shola_get_managing_editor() {
+	return apply_filters( 'shola_managing_editor', 'م. صالح' );
+}
+
+/**
+ * Word count + estimated reading time for single.php's sidebar
+ * ("۳٬۴۰۰ واژه · ۱۲ دقیقه خواندن" in v6). Computed from post_content
+ * rather than stored as meta, so it can never go stale after an edit.
+ * 250 words/minute is a standard editorial reading-speed baseline —
+ * not measured against this specific audience, a reasonable default
+ * like issue-card.php's month+year date simplification.
+ *
+ * @param WP_Post|null $post Post object. Defaults to the global $post.
+ * @return array{words: int, minutes: int}
+ */
+function shola_get_reading_stats( $post = null ) {
+	$post = $post ? $post : get_post();
+
+	$text  = wp_strip_all_tags( strip_shortcodes( $post->post_content ) );
+	$words = preg_split( '/\s+/u', trim( $text ), -1, PREG_SPLIT_NO_EMPTY );
+	$count = $words ? count( $words ) : 0;
+
+	return array(
+		'words'   => $count,
+		'minutes' => max( 1, (int) ceil( $count / 250 ) ),
+	);
+}
+
+/**
  * Wraps every case-insensitive occurrence of the search query in a <mark>,
  * matching body-search.html's highlighted result titles. Takes and returns
  * already-escaped HTML (the caller passes esc_html()'d text) so the <mark>

@@ -960,6 +960,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   gap: 1.5rem;
 }
 .article-footer .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+.article-footer .meta-mono { margin-bottom: .5rem; }
 
 /* Related essays rail — reuses card anatomy */
 .related-rail {

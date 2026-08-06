@@ -1357,3 +1357,56 @@ trail of *why* the build deviated from — or newly applied — a rule in
   masthead-width fix confirmed, functional filter tabs confirmed and
   approved by Farhad.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `single.php` (article/note view) built, converted from
+  `body-article-single.html`. Reuses existing Phase 4.1 CSS
+  (`.article-hero`, `.article-sidebar`, `.related-rail`, etc. — all
+  already ported, no new sections needed) and the existing
+  `shola_article_hero` image size. Two new pieces of content model in
+  `shola-core`: `shcore_author_note` (optional, the sidebar's
+  "کاری از میز اقتصاد؛ در همکاری با..." collaboration line — genuinely
+  per-article, unlike the fields below) and, in the theme,
+  `shola_get_managing_editor()` (`inc/template-tags.php`) — "سردبیر
+  مسئول" is the same fixed masthead-level role named on
+  `page-about.php`'s هیئت تحریریه section, not a per-post value, so
+  it's a filterable constant like `shola_get_masthead_code()` rather
+  than a new meta field on every article. Word count + reading time are
+  computed from `post_content` (`shola_get_reading_stats()`), not
+  stored, so they can never go stale after an edit — 250 words/minute
+  is a standard editorial baseline, the same kind of stated
+  simplification as `issue-card.php`'s month+year date. Hero caption
+  reuses the featured image's native WP attachment caption
+  (`wp_get_attachment_caption()`) instead of a new meta field. Related
+  essays reuse `template-parts/cards/card.php` directly (its one
+  confirmed context beyond front-page.php's Latest grid) via a
+  `tax_query` on the post's primary topic, excluding the current post.
+  Save/share links kept as v6's inert `href="#"` — no real destination
+  exists for either (no bookmarking/accounts, no chosen share target),
+  same reasoning as the announcement-detail precedent.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** real bug found during live verification, not visible from
+  source review — `array_shift( $terms )` (used to pull the primary
+  topic for the breadcrumb) mutates the array in place, silently
+  removing that term from `$terms` before the sidebar/footer tag lists
+  render from the same variable. Invisible with 2+ topics (the list
+  just looked one item short); with exactly one topic — the common
+  case — `$terms` became an empty array, which is falsy, so the entire
+  tag-list block silently vanished. Caught by testing against a real
+  seeded article rather than trusting the code: curl showed zero
+  `tag-outline` matches on a single-topic article, breadcrumb otherwise
+  correct. Fixed by normalizing `$terms` to a plain array once up top
+  and reading the primary topic via `reset( $terms )` (non-mutating)
+  instead of `array_shift()`. Re-verified live: both sidebar and footer
+  tag lists render correctly on a single-topic article.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `single.php` verified live against two real seeded
+  articles: `200`, zero PHP errors/warnings/notices, zero inline
+  styles, correct breadcrumb/title/dek, correct word count/reading
+  time, correct tag lists (sidebar + footer, after the fix above),
+  hero caption correctly absent when the featured image has none,
+  progress-bar markup present (behavior already handled by the
+  existing `main.js`, ported Phase 4.1), and 3 related-essay cards
+  rendering via `card.php`.
+  Approved by: Farhad, in this session (2026-08-06).
