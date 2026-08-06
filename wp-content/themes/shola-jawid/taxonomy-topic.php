@@ -1,0 +1,102 @@
+<?php
+/**
+ * Template: taxonomy-topic.php — article archive for the `topic`
+ * taxonomy (one template for all 6 terms). Converted from
+ * 03_UI_Design/shola-jawid-ui/pages/body-topic-economy.html (and its 5
+ * sibling files, structurally identical) — Phase 4.2.
+ *
+ * @package shola-jawid
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+get_header();
+
+$term  = get_queried_object();
+$paged = max( 1, get_query_var( 'paged' ) );
+
+$archive_query = new WP_Query(
+	array(
+		'post_type'      => 'post',
+		'posts_per_page' => 6,
+		'paged'          => $paged,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			array(
+				'taxonomy' => 'topic',
+				'field'    => 'term_id',
+				'terms'    => $term->term_id,
+			),
+		),
+	)
+);
+?>
+	<section class="wrap section-top">
+
+		<header class="page-header page-header--narrow page-header--tight">
+			<p class="section-marker" lang="en">Topic</p>
+			<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			<?php if ( $term->description ) : ?>
+				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
+			<?php endif; ?>
+		</header>
+
+		<nav class="topic-nav" aria-label="<?php esc_attr_e( 'پیمایش موضوعات', 'shola-jawid' ); ?>">
+			<?php foreach ( shola_get_topic_slugs_ordered() as $slug ) : ?>
+				<?php
+				$nav_term = get_term_by( 'slug', $slug, 'topic' );
+				if ( ! $nav_term ) {
+					continue;
+				}
+				?>
+				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( get_term_link( $nav_term ) ); ?>"><?php echo esc_html( $nav_term->name ); ?></a>
+			<?php endforeach; ?>
+		</nav>
+
+		<div class="filter-tabs">
+			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></a>
+			<?php /* "پرخواننده‌ترین" (most-read) needs view-count tracking this project doesn't have — kept as an inert placeholder, matching v6's own href="#" for it, rather than faking sort behavior with no real data behind it. */ ?>
+			<a href="#"><?php esc_html_e( 'پرخواننده‌ترین', 'shola-jawid' ); ?></a>
+		</div>
+
+		<?php if ( $archive_query->have_posts() ) : ?>
+			<div class="grid-cards">
+				<?php
+				while ( $archive_query->have_posts() ) :
+					$archive_query->the_post();
+					get_template_part( 'template-parts/cards/card', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+
+			<?php if ( $archive_query->max_num_pages > 1 ) : ?>
+				<div class="pagination mt-lg" aria-label="<?php esc_attr_e( 'صفحه‌بندی', 'shola-jawid' ); ?>">
+					<?php
+					$links = paginate_links(
+						array(
+							'total'     => $archive_query->max_num_pages,
+							'current'   => $paged,
+							'type'      => 'array',
+							'prev_text' => '→',
+							'next_text' => '←',
+						)
+					);
+					if ( $links ) {
+						foreach ( $links as $link ) {
+							$link = shola_to_persian_digits( $link );
+							$link = str_replace( 'page-numbers', 'page-num', $link );
+							echo wp_kses_post( $link );
+						}
+					}
+					?>
+				</div>
+			<?php endif; ?>
+		<?php endif; ?>
+
+	</section>
+<?php
+get_footer();

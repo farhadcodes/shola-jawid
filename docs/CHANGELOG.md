@@ -775,3 +775,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `inc/template-tags.php` level, applies everywhere automatically — no
   per-template changes needed.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed (in `card.php`, found while building `taxonomy-topic.php`):**
+  the article card's topic label was always rendered as a link. Checked
+  v6's source before building the consuming template: on a topic's own
+  archive page (`body-topic-economy.html`), the card's type-label shows
+  the term as **plain text**, not a link (avoiding a redundant self-link)
+  — while the homepage's equivalent card does link it. Fixed with
+  `is_tax( $term->taxonomy, $term->term_id )` in `card.php`: suppresses
+  the link only when the card is rendered on that same term's own
+  archive, links it everywhere else (homepage, search, other topic
+  archives). Verified via `curl`: `اقتصاد` renders as plain text on
+  `/topics/economy/`, still links correctly on the homepage.
+- **Added:** Phase 4.2 — `taxonomy-topic.php` (one template, all 6 topic
+  terms, converted from `body-topic-economy.html` and its 5 structurally
+  identical siblings). Horizontal `.topic-nav` with active-state
+  highlighting, `.filter-tabs` ("تازه‌ترین" real/active via the date-order
+  query; "پرخواننده‌ترین" kept as an inert placeholder matching v6's own
+  `href="#"` — no view-count tracking exists in this project to back a
+  real "most read" sort, so faking one wasn't an option), real
+  `WP_Query` article grid via `card.php`, WP pagination matching the
+  `taxonomy-publication.php` pattern (Persian digits, `.page-num`
+  classes). Seeded real per-term descriptions (exact text pulled from
+  all 6 `body-topic-*.html` source files, not paraphrased) and 6
+  additional articles spread across topics for archive-grid variety.
+  Verified via `curl`: `200`, zero PHP errors, zero inline styles.
+  Approved by: Farhad, in this session (2026-08-06).

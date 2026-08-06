@@ -59,7 +59,22 @@ if ( 'document' === $card_type ) {
 			<span><?php echo esc_html( $type_label ); ?></span>
 			<?php if ( $term_name ) : ?>
 				<span class="divider">/</span>
-				<a href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_name ); ?></a>
+				<?php
+					// v6 shows the term as plain text, not a link, when the card
+					// appears on that same term's own archive page — avoids a
+					// redundant self-link (confirmed against
+					// body-topic-economy.html: no <a> around "اقتصاد" there, vs. a
+					// real link on the homepage's equivalent card). Every other
+					// context keeps the link.
+					$on_own_term_archive = is_tax( $term->taxonomy, $term->term_id );
+					if ( $on_own_term_archive ) :
+						echo esc_html( $term_name );
+					else :
+						?>
+						<a href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_name ); ?></a>
+						<?php
+					endif;
+					?>
 			<?php endif; ?>
 		</p>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $card_post ) ); ?></a></h3>
