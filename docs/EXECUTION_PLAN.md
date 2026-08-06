@@ -429,9 +429,9 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 **Checklist:**
 - ☑ Jalali-calendar dates render site-wide via Persian Calendar (verified via `curl`: masthead runner, bylines, current-issue date, announcement dates)
 - ☑ The three Gregorian-mono-label call sites and all `datetime=""` attributes confirmed immune to the plugin's global hook (verified via `curl` post-install: unchanged, still Gregorian)
-- ☐ Farhad to confirm: site timezone set correctly in Settings → General (Persian Calendar's `regional_settings` had already force-overwritten it to `Asia/Tehran` before this was caught — disabled, but the original value has no record and must be set fresh, likely `Asia/Kabul`)
-- ☐ Farhad to confirm: `date_format` (Settings → General) updated to `j F Y` to match v6's day-month-year, no-comma convention
-- ☐ Final live re-verification (screenshots) of front-page.php, page-publications.php, taxonomy-publication.php once both settings above are confirmed changed — deferred, since the date-format change will visibly alter the output
+- ☑ Site timezone set correctly in Settings → General (`Asia/Kabul`, confirmed by Farhad 2026-08-06)
+- ☑ `date_format` (Settings → General) set to custom `j F Y`, confirmed live (preview showed `۱۵ مرداد ۱۴۰۵`)
+- ☑ Final live re-verification across front-page.php, page-publications.php, taxonomy-publication.php (2026-08-06): masthead runner and all human-readable dates correctly Jalali/day-month-year/no comma; both protected Gregorian mono-label conventions confirmed unaffected; full sweep found no other stray raw date output
 
 ### Phase 5 — Definition of Done
 
