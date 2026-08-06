@@ -608,5 +608,11 @@ class Meta_Fields {
 			SHCORE_VERSION,
 			true
 		);
+		wp_enqueue_style(
+			'shcore-admin-meta',
+			SHCORE_URL . 'admin/css/meta-boxes.css',
+			array(),
+			SHCORE_VERSION
+		);
 	}
 }

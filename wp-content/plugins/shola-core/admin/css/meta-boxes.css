@@ -1,0 +1,32 @@
+/* Shola Core — admin metabox styling.
+
+   Fixes a real overflow bug found via a live wp-admin session (not the
+   standalone JS test harness, which never modeled wp-admin's own
+   metabox width constraints and so never caught this): the TOC
+   repeater's <table> used the browser default table-layout: auto,
+   which sizes columns to fit their content — and a native <select>
+   with no explicit width auto-sizes to fit its widest <option> text.
+   One topic term's slug happened to be very long, ballooning the
+   SECTION column to ~800px inside a ~760px metabox, so the whole table
+   rendered at ~1590px — nearly double the available width. On this
+   RTL admin, the overflow pushed the excess (including the remove-row
+   button, in what's visually the leftmost column) into negative X
+   coordinates: off-screen, not just visually cramped. table-layout:
+   fixed forces columns to respect the table's own width instead of
+   their content's, and width: 100% on the field elements makes them
+   fill their cell instead of dictating it. */
+.shcore-toc-repeater-wrap { max-width: 100%; overflow-x: auto; }
+.shcore-toc-repeater { table-layout: fixed; width: 100%; }
+.shcore-toc-repeater th:nth-child(1),
+.shcore-toc-repeater td:nth-child(1) { width: 26%; }
+.shcore-toc-repeater th:nth-child(2),
+.shcore-toc-repeater td:nth-child(2) { width: 38%; }
+.shcore-toc-repeater th:nth-child(3),
+.shcore-toc-repeater td:nth-child(3) { width: 30%; }
+.shcore-toc-repeater th:nth-child(4),
+.shcore-toc-repeater td:nth-child(4) { width: 6%; }
+.shcore-toc-repeater td { vertical-align: middle; }
+.shcore-toc-repeater select,
+.shcore-toc-repeater input[type="text"] { max-width: 100%; width: 100%; box-sizing: border-box; }
+.shcore-toc-remove-row { color: #b32d2e; font-size: 1.1em; line-height: 1; }
+.shcore-toc-remove-row:hover { color: #dc3232; }

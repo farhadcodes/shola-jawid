@@ -1626,3 +1626,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   string conversion" — from an earlier feature, not touched, flagged
   here for awareness only).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed, real bug, found only after actually loading the real
+  wp-admin edit screen:** Farhad reported the repeater's horizontal
+  overflow and missing remove buttons were both still broken after the
+  prior verification pass — correctly, since that pass relied on a
+  standalone harness that never modeled wp-admin's own metabox layout,
+  so it couldn't have caught either. Investigated this time in the
+  real admin context: generated a real authenticated session
+  server-side (`wp_set_auth_cookie()` on this local dev install, via a
+  throwaway script, deleted immediately after use — no credentials
+  were available or needed otherwise) and navigated the actual browser
+  to the real `post.php?post=26&action=edit` screen. Found the real
+  cause via computed-style inspection, not guessing: the repeater
+  `<table>` used the browser default `table-layout: auto`, and a
+  native `<select>` with no explicit width auto-sizes to fit its
+  widest `<option>` text — one topic term happens to have a very long
+  slug (the same stray "موضوع آزمایشی" test term flagged, not fixed,
+  in the previous entry), ballooning the SECTION column to ~800px
+  alone inside a ~761px metabox `.inside`. The table rendered at
+  ~1593px total — the remove-row buttons were never hidden or absent,
+  they were being pushed to negative X coordinates by the overflow (this
+  admin is RTL, so excess width pushes left, off-screen) — confirmed
+  directly via `getBoundingClientRect()` on the real page before any
+  fix (`left: -512.6`) and after (`left: 369.8`, on-screen). Fixed with
+  a new `admin/css/meta-boxes.css` (enqueued alongside the existing
+  admin JS): `table-layout: fixed` + `width: 100%` on the table with
+  percentage column widths, and `width: 100%` on the `<select>`/
+  `<input>` elements so they fill their cell instead of dictating it.
+  Re-verified live, same authenticated session, same real edit screen
+  (not the harness): table width now `737.2px` inside the `761.2px`
+  container (no overflow), all 6 remove buttons at positive on-screen
+  coordinates, clicking one live actually removed a row (6→5),
+  clicking "+ افزودن ردیف" live actually added one back with a
+  correctly-indexed, visible remove button, and `document.body.scrollWidth`
+  no longer exceeds `window.innerWidth`. No changes were saved to the
+  real issue during this session (form never submitted) — logged out
+  cleanly afterward. Front end re-checked via `curl` after the CSS
+  addition: `200`, zero inline styles, unaffected (this CSS only loads
+  on the `issue`/`document` post-edit screens).
+  Approved by: Farhad, in this session (2026-08-06).
