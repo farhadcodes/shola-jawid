@@ -201,7 +201,7 @@ $current_issue = $current_issue_query->have_posts() ? $current_issue_query->post
 			<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 				<span class="name"><?php echo esc_html( $term->name ); ?></span>
 				<?php /* translators: %s: number of articles. */ ?>
-				<span class="count"><?php echo esc_html( sprintf( _n( '%s مقاله', '%s مقاله', $term->count, 'shola-jawid' ), number_format_i18n( $term->count ) ) ); ?></span></a></li>
+				<span class="count"><?php echo esc_html( sprintf( _n( '%s مقاله', '%s مقاله', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
 		<?php endforeach; ?>
 	</ul>
 </section>

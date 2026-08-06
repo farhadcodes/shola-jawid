@@ -575,3 +575,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   current/archived button logic (archived gets one button, no "current
   issue" link, matching v6 exactly).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** issue-count/year-range meta line on `page-publications.php`
+  (and, found in the same pass, the topic-count line on `front-page.php`)
+  rendered in Latin numerals instead of Persian — found by Farhad
+  comparing screenshots. Verified the actual cause empirically rather
+  than guessing: `number_format_i18n()` does **not** convert digits to
+  Persian on this install (site locale `fa_AF`) — confirmed via a
+  diagnostic script showing `number_format_i18n(2026)` returns `2,026`
+  (Latin digits, and an incorrect thousands separator for a bare year).
+  Re-checked v6's own source to confirm the real convention rather than
+  assume: counts and years use Persian digits everywhere, including
+  inside `.meta-mono`/`lang="en"` elements (`body-publications.html`:
+  `۳۲ ISSUES · ۲۰۱۸–۲۰۲۶`) — only English month abbreviations and
+  technical units (file sizes via `size_format()`) stay Latin.
+  Added `shola_to_persian_digits()` to `inc/template-tags.php` (plain
+  digit substitution, no thousands-separator grouping, matching what v6
+  actually does) and replaced both `number_format_i18n()` call sites —
+  confirmed via `grep` these were the only two in the theme. File sizes
+  (`size_format()` output on the current-issue/document PDF fields)
+  intentionally left as Latin — matches v6's own convention, not an
+  oversight.
+  Verified via `curl`: both pages now show correct Persian digits (`۱
+  ISSUE · ۲۰۲۶`, `۲ ISSUES · ۲۰۰۶–۲۰۲۶`, `۲ مقاله`/`۱ مقاله`/`۰ مقاله`).
+  **Known, separate gap not addressed here:** `get_the_date()` output
+  (byline/issue publish dates) still shows Gregorian dates with Latin
+  digits, not the Jalali-calendar Persian-digit dates v6's mockup shows
+  (e.g. "۷ سرطان ۱۴۰۵") — full Gregorian-to-Jalali conversion is a
+  distinct, much larger feature not requested in this pass; flagging so
+  it isn't mistaken for already-solved.
+  Approved by: Farhad, in this session (2026-08-06).

@@ -6,6 +6,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Convert ASCII digits (0-9) to Persian digits (۰-۹).
+ *
+ * WordPress's number_format_i18n() does NOT do this on this install —
+ * confirmed empirically (site locale fa_AF): it only handles thousands
+ * separators/decimal points and still outputs Latin digits, incorrectly
+ * inserting a thousands separator for a bare year (e.g. "2,026"). v6's
+ * own source confirms the actual convention: counts and years use
+ * Persian digits everywhere, including inside .meta-mono/lang="en"
+ * elements (main.css §… e.g. body-publications.html: `۳۲ ISSUES ·
+ * ۲۰۱۸–۲۰۲۶`) — only English month abbreviations and technical units
+ * (file sizes in MB/KB, via size_format()) stay Latin. Use this — never
+ * number_format_i18n() alone — anywhere a count, year, or other
+ * content-facing number is displayed.
+ *
+ * @param int|string $number Value to convert.
+ * @return string
+ */
+function shola_to_persian_digits( $number ) {
+	static $map = array(
+		'0' => '۰',
+		'1' => '۱',
+		'2' => '۲',
+		'3' => '۳',
+		'4' => '۴',
+		'5' => '۵',
+		'6' => '۶',
+		'7' => '۷',
+		'8' => '۸',
+		'9' => '۹',
+	);
+	return strtr( (string) $number, $map );
+}
+
+/**
  * Site-wide featured-image fallback (Phase 4.2, logged in
  * docs/CHANGELOG.md and CLAUDE.md 2026-08-06): drop-in replacement for
  * get_the_post_thumbnail() — same signature, same return type (an <img>
@@ -250,12 +284,14 @@ function shola_get_publication_meta_line( $term ) {
 		$years[] = (int) get_the_date( 'Y', $issue );
 	}
 	sort( $years );
-	$year_range = ( $years[0] === end( $years ) ) ? (string) $years[0] : $years[0] . '–' . end( $years );
+	$year_range = ( $years[0] === end( $years ) )
+		? shola_to_persian_digits( $years[0] )
+		: shola_to_persian_digits( $years[0] ) . '–' . shola_to_persian_digits( end( $years ) );
 
 	return sprintf(
 		/* translators: 1: issue count, 2: year or year range. */
 		_n( '%1$s ISSUE · %2$s', '%1$s ISSUES · %2$s', count( $issues ), 'shola-jawid' ),
-		number_format_i18n( count( $issues ) ),
+		shola_to_persian_digits( count( $issues ) ),
 		$year_range
 	);
 }
