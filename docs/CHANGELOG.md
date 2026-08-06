@@ -1021,3 +1021,27 @@ trail of *why* the build deviated from — or newly applied — a rule in
   revert confirmed working, everything else from the original build
   (real Jalali dates, WP pagination, zero inline styles) unaffected.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** 3 of the 7 seeded announcements still showed generic
+  placeholder content ("این یک اطلاعیهٔ نمونه است.") instead of their
+  real excerpt text from `body-announcements.html` — leftovers from the
+  earliest seed batch (front-page.php's original announcement seeding),
+  before the later batch started pulling exact v6 text. Farhad reported
+  4 affected; checked precisely before fixing rather than trusting the
+  count blindly — confirmed via `curl` only 3 actually had the
+  placeholder (`تحویل چاپی شمارهٔ ۳۱` already had correct content).
+  Backfilled the real text for all 3 via a throwaway script (deleted
+  immediately after running): "فراخوان ارسال مقاله برای شمارهٔ ۳۳...",
+  "نسخهٔ انگلیسی سایت به‌زودی راه‌اندازی می‌شود", and "آرشیو کامل «جهان
+  برای فتح» دیجیتال شد". Verified via `curl`: `200`, zero PHP errors,
+  zero remaining placeholder instances, all 7 v6-matched announcements
+  now show their correct excerpt text.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `archive-announcement.php` fully confirmed clean by
+  Farhad against `body-announcements.html` — structure, header, list
+  layout, inert titles, Jalali dates, and (now) all real excerpt text
+  match v6 exactly, same 7 titles in the same order. Pagination
+  correctly absent (fewer seeded items than v6's mockup, same pattern as
+  every prior archive template).
+  Approved by: Farhad, in this session (2026-08-06).
