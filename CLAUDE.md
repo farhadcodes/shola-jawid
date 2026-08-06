@@ -215,6 +215,15 @@ Rules:
 - **Escape everything on output** (`esc_html`, `esc_attr`, `esc_url`) and **sanitize
   everything on input** (`sanitize_text_field`, etc.) — no exceptions, this is both
   a coding standard and a security requirement (see §6).
+- **Never call `get_the_post_thumbnail()`/`has_post_thumbnail()` directly in a
+  template.** Use `shola_get_featured_image()` (`inc/template-tags.php`, added
+  Phase 4.2, 2026-08-06) everywhere a featured image is pulled — same signature
+  as `get_the_post_thumbnail()`, but falls back to the bundled
+  `assets/images/fallback.png` when a post has no featured image, instead of an
+  empty container. Applies to every post type that shows a thumbnail (article,
+  issue, document — announcements don't show one anywhere in v6, so this doesn't
+  apply there). This is a permanent site-wide rule, not a one-off fix — every
+  template built from Phase 4.2 onward must use the helper.
 
 ---
 

@@ -6,6 +6,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Site-wide featured-image fallback (Phase 4.2, logged in
+ * docs/CHANGELOG.md and CLAUDE.md 2026-08-06): drop-in replacement for
+ * get_the_post_thumbnail() — same signature, same return type (an <img>
+ * HTML string) — that falls back to assets/images/fallback.png when a
+ * post has no featured image, instead of rendering an empty container.
+ * Use this everywhere a featured image is pulled, in every template built
+ * from here on (card grids, hero, single-post headers, archive listings,
+ * etc.) — never call get_the_post_thumbnail() directly in a new template.
+ *
+ * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
+ * @param string|int[]     $size Registered image size or [width, height].
+ * @param string|array     $attr Extra <img> attributes, same as get_the_post_thumbnail().
+ * @return string HTML img element, or empty string if $post can't be resolved.
+ */
+function shola_get_featured_image( $post = null, $size = 'post-thumbnail', $attr = array() ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return '';
+	}
+
+	if ( has_post_thumbnail( $post ) ) {
+		return get_the_post_thumbnail( $post, $size, $attr );
+	}
+
+	$attr = wp_parse_args(
+		is_string( $attr ) ? wp_parse_args( $attr ) : $attr,
+		array(
+			'loading' => 'lazy',
+			'alt'     => get_the_title( $post ),
+			'class'   => 'shola-fallback-image',
+		)
+	);
+
+	$attr_html = '';
+	foreach ( $attr as $key => $value ) {
+		$attr_html .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+	}
+
+	return sprintf(
+		'<img src="%s"%s>',
+		esc_url( get_theme_file_uri( 'assets/images/fallback.png' ) ),
+		$attr_html
+	);
+}
+
+/**
  * The six topic terms cycle through six fixed crimson-family shades in the
  * v6 popup menu (main.css §06, .menu-topic--c1..c6). v6 hardcodes each
  * topic to a specific shade in a fixed order (economy=c1 ... science-and-art

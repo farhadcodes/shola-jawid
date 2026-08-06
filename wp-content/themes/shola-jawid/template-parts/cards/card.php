@@ -51,9 +51,7 @@ if ( 'document' === $card_type ) {
 ?>
 <article class="card reveal">
 	<a href="<?php echo esc_url( $permalink ); ?>" class="card-media">
-		<?php if ( has_post_thumbnail( $card_post ) ) : ?>
-			<?php echo get_the_post_thumbnail( $card_post, 'shola_card', array( 'loading' => 'lazy' ) ); ?>
-		<?php endif; ?>
+		<?php echo shola_get_featured_image( $card_post, 'shola_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
 	<div class="card-body">
 		<p class="type-label">

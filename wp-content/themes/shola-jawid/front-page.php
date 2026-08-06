@@ -46,9 +46,7 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 <?php if ( $hero ) : ?>
 	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true">
-			<?php if ( has_post_thumbnail( $hero ) ) : ?>
-				<?php echo get_the_post_thumbnail( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); ?>
-			<?php endif; ?>
+			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 		</a>
 		<div class="wrap">
 			<div class="hero-body">
@@ -138,9 +136,7 @@ $current_issue = $current_issue_query->have_posts() ? $current_issue_query->post
 				<div class="issue-hero issue-hero--embedded">
 
 					<a href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>" class="issue-cover reveal">
-						<?php if ( has_post_thumbnail( $current_issue ) ) : ?>
-							<?php echo get_the_post_thumbnail( $current_issue, 'shola_issue_cover', array( 'loading' => 'lazy' ) ); ?>
-						<?php endif; ?>
+						<?php echo shola_get_featured_image( $current_issue, 'shola_issue_cover', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 					</a>
 
 					<div class="reveal">

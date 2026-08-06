@@ -530,3 +530,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   immediately after running). Verified via `curl`: the grid now shows
   multiple genuinely distinct images.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** site-wide featured-image fallback — permanent behavior, not a
+  one-off fix, per Farhad's request. Empty featured-image containers
+  (blank space in card grids, hero, etc. for posts without one) read as
+  unpolished. `assets/images/fallback.png` (Farhad-provided, copied from
+  `03_UI_Design/brand assets/shola-jawid-fallback-image.png`) plus a new
+  `shola_get_featured_image()` helper in `inc/template-tags.php` — same
+  signature/return type as core's `get_the_post_thumbnail()`, so it's a
+  drop-in replacement, falling back to the bundled image instead of
+  rendering nothing. `card.php` and `front-page.php` (hero, issue-cover)
+  updated to call it instead of their ad-hoc `has_post_thumbnail()`
+  checks; confirmed (via grep) no other direct calls to
+  `get_the_post_thumbnail()`/`has_post_thumbnail()` remain anywhere in the
+  theme. Applies to article, issue, and document — announcements don't
+  show a thumbnail anywhere in v6, nothing to update there.
+  **Logged as a permanent rule in `CLAUDE.md` §5** (not just here): every
+  template built from Phase 4.2 onward must call
+  `shola_get_featured_image()`, never the core functions directly.
+  Verified via `curl`: the fallback renders correctly (correct `<img>`
+  markup, `200` on the file itself) for existing test posts that have no
+  featured image, while seeded posts with real thumbnails are unaffected.
+  Approved by: Farhad, in this session (2026-08-06).
