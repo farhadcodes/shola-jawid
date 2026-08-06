@@ -923,3 +923,11 @@ trail of *why* the build deviated from — or newly applied — a rule in
      `shcore_page_count` meta field (Farhad's call — not added
      speculatively here).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** page-count field (raised in the previous entry) confirmed
+  out of scope by Farhad — a deliberate non-requirement, not in the
+  plan. No `shcore_page_count` meta field added. Not carried forward as
+  a pending/deferred item elsewhere (unlike the earlier Jalali-calendar
+  and test-content-cleanup items, which are real deferred work) — this
+  one is closed.
+  Approved by: Farhad, in this session (2026-08-06).
