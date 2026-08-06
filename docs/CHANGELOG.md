@@ -954,3 +954,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   styles, collection-name suppression confirmed working on
   `/library/classics/`.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Deferred:** document CPT translation-year field — identified while
+  reviewing `taxonomy-collection.php` against `body-library-classics.html`
+  (v6's reference: `لنین · ترجمهٔ ۱۴۰۵ · ۱۲۰ ص`, live only shows `لنین`).
+  Confirmed via `class-meta-fields.php` this is genuinely untracked, not
+  a wiring bug: the only translation-related field that exists
+  (`shcore_translation_id`) is scoped to the `post` CPT only, not
+  `document`, and is a different concept entirely (a bilingual
+  post-pairing ID, inert scaffolding per Phase 3.3) — not a year value,
+  wouldn't fit even if wired to documents.
+  Farhad confirmed this is out of scope for this build — unlike page
+  count (closed outright, not deferred, per the earlier entry), this one
+  is logged as a deliberate deferral: a `shcore_translation_year` (or
+  similar) meta field on the `document` CPT, rendering as "ترجمهٔ
+  [year]" in `document-row.php`'s meta line, if this ever gets revisited.
+  Not added now — no field registered, no template changes made.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `taxonomy-collection.php` fully confirmed clean by
+  Farhad against `body-library-classics.html` — structure, header,
+  term-tab active state, and the collection-name self-suppression fix
+  all match v6 exactly. Pagination correctly absent (fewer seeded
+  documents than v6's mockup — expected, not a bug, same as every prior
+  archive template).
+  Approved by: Farhad, in this session (2026-08-06).
