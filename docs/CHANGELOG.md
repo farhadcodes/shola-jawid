@@ -605,3 +605,13 @@ trail of *why* the build deviated from — or newly applied — a rule in
   distinct, much larger feature not requested in this pass; flagging so
   it isn't mistaken for already-solved.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Jalali-calendar date localization tracked as a real
+  checklist item — `docs/EXECUTION_PLAN.md` §5.5 (new) — not left as a
+  changelog-only note. Placed in Phase 5 (functional non-visual
+  requirements) rather than Phase 7.1 QC, since building the actual
+  `shola_get_jalali_date()` conversion function is dev work, not
+  verification; Phase 7.1 QC should find zero remaining Gregorian dates
+  by the time it runs, which only works if the feature is built before
+  QC, not during it. Phase 5's Definition of Done updated to include it.
+  Approved by: Farhad, in this session (2026-08-06).

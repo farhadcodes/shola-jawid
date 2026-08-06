@@ -394,9 +394,31 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 - ☐ Responsive images confirmed serving srcset, not full-size only
 - ☐ Baseline performance pass documented in docs/screenshots/phase5-perf-baseline.md
 
+### 5.5 — Jalali-calendar date localization
+
+> Tracked here per Farhad's request (logged in `docs/CHANGELOG.md`
+> 2026-08-06): during Phase 4.2, `shola_to_persian_digits()` fixed
+> Persian-digit display for counts/years (`inc/template-tags.php`), but
+> `get_the_date()` output (article bylines, issue/document publish dates,
+> announcement dates) still renders plain Gregorian dates in Latin digits
+> everywhere it's used across Phase 4.2's templates — not the
+> Jalali-calendar, Persian-digit dates v6's mockup shows (e.g. "۷ سرطان
+> ۱۴۰۵"). Full Gregorian→Jalali conversion is a distinct, larger feature
+> (calendar math, Persian month names) deliberately deferred out of the
+> Phase 4.2 template-building work rather than retrofitted piecemeal into
+> each template as it's built.
+
+- Build a `shola_get_jalali_date()` (or similarly named) template tag in `inc/template-tags.php` that converts a post's Gregorian date to the Jalali calendar with Persian digits and Persian month names, matching v6's exact date format (e.g. "۷ سرطان ۱۴۰۵").
+- Retrofit every `get_the_date()` call added during Phase 4.2 (front-page.php hero/cards/current-issue, card.php, page-publications.php, and whichever single/archive templates land between now and Phase 5) to use it instead.
+- No new plugin — this is a self-contained conversion function (well-documented Gregorian↔Jalali algorithm), not a dependency requiring a `CLAUDE.md` §3 whitelist discussion.
+
+**Checklist:**
+- ☐ `shola_get_jalali_date()` (or equivalent) built and unit-verified against a handful of known Gregorian→Jalali date pairs
+- ☐ Every date displayed on the front end (bylines, issue/document/announcement dates, current-issue module) uses it — grep for remaining direct `get_the_date()` calls in templates and confirm none remain outside the helper itself
+
 ### Phase 5 — Definition of Done
 
-- All four roles function correctly; SEO tags and sitemap verified; search covers all content types; fonts self-hosted; no new plugins added beyond the `CLAUDE.md` §3 whitelist.
+- All four roles function correctly; SEO tags and sitemap verified; search covers all content types; fonts self-hosted; Jalali-calendar dates live across the whole front end; no new plugins added beyond the `CLAUDE.md` §3 whitelist.
 
 ---
 
