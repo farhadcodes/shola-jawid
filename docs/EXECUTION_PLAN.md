@@ -253,7 +253,7 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 - Convert `_header.html` → `header.php`, using `wp_nav_menu()` for the registered nav location, preserving the exact crimson masthead + maroon 2px anchor line treatment pixel-for-pixel.
 - **Fix, don't port, the invalid nested-interactive markup found in Phase 1.3** (logged in `docs/CHANGELOG.md` and `docs/screenshots/phase1-refactor-notes.md` §5): `_header.html:6-12` nests the search `<a href="search.html">` inside `<button id="menu-open">`, which is invalid HTML5 (button content model excludes interactive descendants) and produces undefined keyboard/screen-reader behavior. `header.php` must render `#menu-open` and the search link as adjacent siblings in the same flex row instead — same visual result, valid markup. This is a markup-hygiene fix, not a visual change; do not port the nesting as-is.
 - Convert `_footer.html` → `footer.php`, thin paper-white per brand guide, footer nav matching the IA doc footer list (شبکه‌های اجتماعی / درباره ما / جست‌وجو).
-- Build `template-parts/cards/card.php` as the shared card partial for **articles only** (no `type` param — see correction below).
+- Build `template-parts/cards/card.php` as the shared card partial, defaulting to **articles**, with an optional `$type` param for the two confirmed mixed-content-stream contexts (see second correction below).
 
 > **Correction (Phase 1.2, logged in `docs/CHANGELOG.md` 2026-08-05):** this
 > step originally called for one `card.php` partial swapping a type
@@ -266,6 +266,20 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 > (articles only, no type param), a separate `issue-card.php` for issue
 > covers, and separate row/list partials outside `template-parts/cards/`
 > for `.doc-row`, `.announce-list`, and `.topic-list`.
+>
+> **Second correction (Phase 4.2, logged in `docs/CHANGELOG.md`
+> 2026-08-06, found while building `front-page.php`):** the "articles
+> only, no type param" conclusion above needed one narrow revision.
+> `body-index.html`'s "Latest" grid and `body-search.html`'s results both
+> render exactly one **document** using `.card` markup (different
+> type-label icon/text, links to `document-single.html`) — confirmed via
+> grep to appear in only those two files, nowhere else (topic archives
+> stay articles-only; library archives still use `.doc-row`/`.issue-card`
+> exclusively, unchanged). So `card.php` does need an optional `$type`
+> param after all — but scoped to `'article'` (default) or `'document'`
+> only, used only in these two confirmed mixed-stream contexts, not the
+> broader article/issue/document 3-way split the first correction
+> rejected. `issue-card.php` and the row/list partials are unaffected.
 
 **Checklist:**
 - ☐ header.php, footer.php built, wp_head()/wp_footer() present and firing

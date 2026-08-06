@@ -457,3 +457,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   layout — confirmed expected, not a regression: that layout is
   `front-page.php`, Phase 4.2 scope, correctly not built yet.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Changed:** revised Phase 1.2's "card.php is articles-only, no type
+  param" conclusion — found while actually building `front-page.php`
+  (Phase 4.2), not a Phase 1.2 oversight; the mixed-content pattern only
+  becomes visible when you build the template that consumes it.
+  `body-index.html`'s "Latest" grid and `body-search.html`'s results each
+  render exactly one **document** using `.card` markup (distinct
+  type-label icon/text, links to `document-single.html`), confirmed via
+  `grep -l '>سند<' pages/body-*.html` to appear in only those two files —
+  topic archives stay articles-only, library archives still use
+  `.doc-row`/`.issue-card` exclusively, nowhere else does this happen.
+  `card.php` gets an optional `$type` param (`'article'` default,
+  `'document'` for these two confirmed contexts only) swapping just the
+  type-label icon/text and link target — same anatomy otherwise. This is
+  narrower than the original 3-way article/issue/document split Phase
+  1.2 rejected, which stays rejected: `issue` still never uses `.card`
+  anywhere, `issue-card.php` and the row/list partials are unaffected.
+  `docs/EXECUTION_PLAN.md` §4.1 amended with a second correction note,
+  appended after the Phase 1.2 one rather than overwriting it, so the
+  history of how this was actually figured out (two passes, not one)
+  stays visible.
+  Approved by: Farhad, in this session (2026-08-06).
