@@ -1410,3 +1410,42 @@ trail of *why* the build deviated from — or newly applied — a rule in
   existing `main.js`, ported Phase 4.1), and 3 related-essay cards
   rendering via `card.php`.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed, real bug found via live editor testing:** `single.php`'s
+  bottom "TAGS" section (before the related-essays rail) was reading
+  from the same `topic` taxonomy `$terms` as the sidebar, not
+  WordPress's native tags (`post_tag`/برچسپ‌ها) — editing topic
+  checkboxes changed it, editing the actual تگ field did nothing.
+  Checked before assuming either fix direction: no IA/content-model doc
+  (`Bilingual_Publishing_Site_IA_Sitemap_v1.0.docx`,
+  `EXECUTION_PLAN.md`, the Persian proposal doc) defines a tag layer
+  separate from Topic/Publication/Collection — the only doc that says
+  "tags" at all is the Aeon design-analysis doc, and only as informal
+  UI copy describing the topic-taxonomy display, not a spec for a
+  distinct WP feature. First proposed removing `post_tag` support
+  entirely on that basis (nothing implemented toward it) — **reversed
+  by Farhad**: keep `post_tag` active, and use it for real. Sidebar
+  keeps showing topics (unchanged); the bottom "TAGS" section now reads
+  from `get_the_tags()` instead of the topic `$terms`.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added (deliberate content-model expansion beyond the IA docs'
+  current spec — reviewed and approved, not quietly wired in):**
+  WordPress's native `post_tag` taxonomy is now a real, functioning
+  part of the article content model — a fourth classification layer
+  alongside Topic/Publication/Collection, which is more than
+  `Bilingual_Publishing_Site_IA_Sitemap_v1.0.docx` §6 currently
+  specifies. Recording this explicitly, the same way this session's
+  other deliberate deviations are on record (Persian Calendar plugin
+  addition, contact-form dynamic subjects, search.php's functional
+  filter tabs): this expands the IA doc's taxonomy table, it isn't
+  something the doc already implied. Verified end-to-end: seeded two
+  real tags (بازار غیررسمی، کار و مزد) on one test article via
+  `wp_set_post_tags()` (throwaway script, deleted after running) — live
+  `curl` confirmed the sidebar still shows only "اقتصاد" (the topic,
+  untouched) while the bottom TAGS section now shows the two real tags
+  linking to their native `/tag/...` archives. A second, untagged
+  article confirmed the section renders as fully absent (no empty box)
+  rather than as a bug, per Farhad's note that existing seeded content
+  has no real tags yet and that's expected, not something to fix.
+  Approved by: Farhad, in this session (2026-08-06).

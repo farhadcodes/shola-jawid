@@ -24,6 +24,8 @@ while ( have_posts() ) :
 	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name' );
 	$author_note = get_post_meta( get_the_ID(), 'shcore_author_note', true );
 	$stats       = shola_get_reading_stats();
+	$post_tags   = get_the_tags();
+	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
 	$thumb_id    = get_post_thumbnail_id();
 	$caption     = $thumb_id ? wp_get_attachment_caption( $thumb_id ) : '';
 	?>
@@ -106,12 +108,12 @@ while ( have_posts() ) :
 
 		<div class="wrap">
 			<div class="article-footer">
-				<?php if ( $terms ) : ?>
+				<?php if ( $post_tags ) : ?>
 					<div>
 						<p class="meta-mono" lang="en">TAGS</p>
 						<ul class="tag-list">
-							<?php foreach ( $terms as $term ) : ?>
-								<li><a class="tag-outline" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></li>
+							<?php foreach ( $post_tags as $post_tag ) : ?>
+								<li><a class="tag-outline" href="<?php echo esc_url( get_term_link( $post_tag ) ); ?>"><?php echo esc_html( $post_tag->name ); ?></a></li>
 							<?php endforeach; ?>
 						</ul>
 					</div>
