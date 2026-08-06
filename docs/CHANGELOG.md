@@ -745,3 +745,14 @@ trail of *why* the build deviated from — or newly applied — a rule in
     output (beyond `datetime=""` attributes, upload paths, and the
     already-verified mono-label contexts) found none.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `page-topics.php` (converted from
+  `body-topics.html`). Straightforward reuse of components already built
+  and verified in earlier Phase 4.2 templates — `.page-header
+  page-header--narrow` (front-page.php's topics section /
+  page-publications.php) and the `.topic-list` loop with real per-term
+  post counts (already correct, Persian digits via
+  `shola_to_persian_digits()`). No new CSS needed. Seeded the `topics`
+  static Page. Verified via `curl`: `200`, zero PHP errors, zero inline
+  styles, real counts matching the homepage topics table exactly.
+  Approved by: Farhad, in this session (2026-08-06).
