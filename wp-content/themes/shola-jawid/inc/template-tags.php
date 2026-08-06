@@ -40,6 +40,27 @@ function shola_to_persian_digits( $number ) {
 }
 
 /**
+ * Locale-independent uppercase English month abbreviation ("MAR", "DEC")
+ * for the `.issue-card-date`/`lang="en"` mono contexts v6 uses (e.g.
+ * "MAR ۲۰۲۶"). get_the_date('M') is locale-aware and returns translated
+ * Persian month names on this site (fa_AF) — confirmed live while
+ * building taxonomy-publication.php (Phase 4.2) — which isn't what this
+ * specific mono-label convention wants. mysql2date()'s third
+ * ($translate) argument set to false bypasses i18n translation entirely,
+ * unlike get_the_date()/date_i18n().
+ *
+ * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
+ * @return string
+ */
+function shola_get_english_month_abbr( $post = null ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return '';
+	}
+	return strtoupper( mysql2date( 'M', $post->post_date, false ) );
+}
+
+/**
  * Site-wide featured-image fallback (Phase 4.2, logged in
  * docs/CHANGELOG.md and CLAUDE.md 2026-08-06): drop-in replacement for
  * get_the_post_thumbnail() — same signature, same return type (an <img>

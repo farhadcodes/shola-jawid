@@ -1334,6 +1334,8 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .page-header .dek { margin-top: 1rem; max-width: 600px; margin-inline: auto; }
 .page-header--narrow .dek { max-width: 560px; }
 .page-header--tight { margin-bottom: 1rem; }
+.page-header--muted h1 { color: var(--stone); }
+.row-tight { gap: .5rem; }
 
 /* -------------------------------------------------------------------------
    ۲۳ · Publications list (page-publications.php, Phase 4.2)
@@ -1351,3 +1353,13 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .publication-item .dek { margin-top: 1rem; max-width: 600px; }
 .publication-item .meta-mono { margin-top: 1rem; }
 .publication-item .row { margin-top: 1.5rem; gap: .75rem; }
+
+/* -------------------------------------------------------------------------
+   ۲۴ · Issue archive — current-issue highlight (taxonomy-publication.php,
+   Phase 4.2)
+   ------------------------------------------------------------------------- */
+.publication-current {
+  padding-bottom: 3rem;
+  border-bottom: 2px solid var(--crimson);
+  margin-bottom: 3rem;
+}

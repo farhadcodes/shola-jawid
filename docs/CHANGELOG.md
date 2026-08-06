@@ -615,3 +615,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   by the time it runs, which only works if the feature is built before
   QC, not during it. Phase 5's Definition of Done updated to include it.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `taxonomy-publication.php` (one template, both
+  publication terms, converted from `body-publication-shola-jawid.html`
+  and `body-publication-a-world-to-win.html`) plus
+  `template-parts/cards/issue-card.php`. Current publication shows a
+  highlighted "Current" issue block (excluded from the archive grid below
+  it) and "شماره‌های پیشین"; the archived publication skips the highlight
+  entirely and shows "همهٔ شماره‌ها" — matching v6's actual per-term
+  difference, not a simplification. Real WP pagination via
+  `paginate_links()`, page numbers converted to Persian digits and
+  `page-numbers` classes remapped to the theme's `.page-num`.
+  Two things fixed during this build, not shipped broken:
+  - Two inline `style="..."` attributes were initially bypassed with
+    `phpcs:ignore` comments instead of being fixed properly — caught on
+    review before committing, replaced with real classes
+    (`.page-header--muted`, `.row-tight`) and a new `.publication-current`
+    class (`main.css` §24), consistent with every other template in this
+    project.
+  - `get_the_date('M')` turned out to be locale-aware and returns
+    translated Persian month names on this site (`fa_AF`), not the
+    English abbreviations ("MAR", "DEC") v6's `.issue-card-date`
+    convention actually wants — found live while verifying, not assumed.
+    Added `shola_get_english_month_abbr()` (`inc/template-tags.php`),
+    using `mysql2date()`'s `$translate = false` argument to bypass i18n
+    translation, which `get_the_date()`/`date_i18n()` don't offer.
+  `issue-card.php`'s month+year date label (always shown, even for the
+  archived publication's issues) is a deliberate minor simplification
+  from v6's year-only archived-issue display — logged as such, since our
+  data model always has a precise date either way, unlike v6's mockup
+  which fakes reduced precision for older issues.
+  Seeded 6 additional issues for شعله جاوید so the archive grid has real
+  content (previously only the 1 "current" issue existed, which is
+  excluded from the grid). Verified via `curl` on both publication terms:
+  `200`, zero PHP errors, zero inline styles, correct current/archived
+  branching, correct English month abbreviations with Persian year
+  digits.
+  Approved by: Farhad, in this session (2026-08-06).
