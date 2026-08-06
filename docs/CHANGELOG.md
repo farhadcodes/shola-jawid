@@ -979,3 +979,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   documents than v6's mockup — expected, not a bug, same as every prior
   archive template).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `archive-announcement.php` (converted from
+  `body-announcements.html`): real `have_posts()` loop, Jalali dates via
+  the site-wide plugin, WP pagination matching the established pattern.
+  One deliberate deviation from v6, not a visual one: v6's announcement
+  titles link to `href="#"` (inert placeholder — no single-announcement
+  view exists anywhere in the IA doc's page-to-template map). Linked to
+  the real `get_permalink()` instead, which resolves correctly through
+  WP's default template hierarchy (verified via `curl`: `200`, not a
+  404) even with no custom single-announcement template — a real
+  destination is more correct than a dead link, and doesn't require
+  building new scope (no template file needed, WP handles the
+  fallback).
+  One inline `style="max-width:820px;margin-inline:auto"` from
+  `body-announcements.html`'s list wrapper replaced with a new
+  `.announce-list--page` class — caught and fixed before committing,
+  not shipped.
+  Seeded 4 more announcements (exact titles/content from v6's remaining
+  examples) for archive variety. Verified via `curl`: `200`, zero PHP
+  errors, zero inline styles.
+  Approved by: Farhad, in this session (2026-08-06).

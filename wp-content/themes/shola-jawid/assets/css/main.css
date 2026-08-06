@@ -1104,6 +1104,9 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .announce-list {
   border-block: 1px solid var(--line);
 }
+/* WP conversion (Phase 4.2): replaces an inline style="" on
+   body-announcements.html's list wrapper. */
+.announce-list--page { max-width: 820px; margin-inline: auto; }
 .announce-list li {
   border-bottom: 1px solid var(--line);
   padding-block: 1.5rem;
