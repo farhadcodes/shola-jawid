@@ -97,7 +97,7 @@ $archive_query = new WP_Query(
 							<?php
 							echo esc_html(
 								( $number ? strtoupper( $term->slug ) . '-' . shola_to_persian_digits( $number ) : get_the_title( $latest_issue ) )
-								. ' · ' . shola_get_english_month_abbr( $latest_issue ) . ' ' . shola_to_persian_digits( get_the_date( 'Y', $latest_issue ) )
+								. ' · ' . shola_get_english_month_abbr( $latest_issue ) . ' ' . shola_to_persian_digits( shola_get_gregorian_year( $latest_issue ) )
 							);
 							?>
 						</p>

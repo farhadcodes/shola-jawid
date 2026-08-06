@@ -652,3 +652,78 @@ trail of *why* the build deviated from — or newly applied — a rule in
   branching, correct English month abbreviations with Persian year
   digits.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added (whitelist exception):** installed **Persian Calendar**
+  (`persian-calendar`) — a deliberate, Farhad-approved exception to
+  `CLAUDE.md` §3's fixed plugin whitelist (now added there too, not just
+  here), to fix the Jalali-calendar date gap tracked as Phase 5.5. Farhad
+  wanted this fixed site-wide at the source rather than continuing to
+  hand-roll per-template conversions.
+  Evaluated two candidates by reading their actual source, not just their
+  WordPress.org descriptions:
+  - **ParsiDate** (100,000+ installs, most-installed candidate) — installed
+    first, activated cleanly, but its date-conversion hooks turned out to
+    be hardcoded to `get_locale() === 'fa_IR'` only (`inc/App/Core/
+    FixDates.php`, with the plugin's own `@TODO: locale non-farsi is a
+    problem` comment). This project's site locale is `fa_AF` (Afghanistan
+    Dari), not `fa_IR` — the hook silently never fired, no dates
+    converted, no error. Farhad explicitly declined both a locale switch
+    to `fa_IR` (a real site-identity decision — this is an
+    Afghanistan-focused publication, not something to trade for plugin
+    convenience) and a theme-side workaround filter. Uninstalled.
+  - **Persian Calendar** — audited the same way: gates its date-conversion
+    hooks on `is_rtl()` (`includes/class-persca-plugin.php`), not a
+    hardcoded locale string, so it works under `fa_AF`. `enable_jalali`
+    defaults to `true`. Installed and activated in its place.
+  **Incident during install, logged permanently since it could recur on a
+  plugin update:** Persian Calendar's `regional_settings` option defaults
+  to `true`, and its `maybe_set_tehran_timezone()` method does a direct
+  `update_option('timezone_string', 'Asia/Tehran')` on init — it had
+  already silently overwritten the site's timezone before this was
+  caught. The prior value was not recorded anywhere and could not be
+  restored. Disabled `regional_settings` immediately (a factual error for
+  an Afghanistan-focused site, not a preference — fixed without asking
+  first, per the standing "fix known bugs immediately" pattern in this
+  project). Farhad is setting the correct timezone (likely `Asia/Kabul`)
+  manually in Settings → General, since there's no record to restore from
+  and the exact value is his call. **Action for whoever does the Phase 6
+  security/config hardening pass: re-check `regional_settings` is still
+  off after any future Persian Calendar update**, since plugin updates
+  can silently re-enable options changed post-install.
+  Also flagged, Farhad's call, not fixed in code: `date_format` (Settings
+  → General) is still WP's English default `F j, Y` ("Month Day, Year"),
+  so Jalali dates render in that token order (`مرداد ۱۵, ۱۴۰۵`) rather
+  than v6's `j F Y` convention (`۱۵ مرداد ۱۴۰۵`, day-month-year, no
+  comma). Farhad is updating this setting directly.
+  Verified via `curl` after install: `200`, zero PHP errors on front-page,
+  publications, and taxonomy-publication; masthead runner and all
+  human-readable dates (bylines, current-issue date, announcements) now
+  render as Jalali with Persian digits; the Gregorian mono-label dates
+  hardened in the same pass (`shola_get_gregorian_year()`,
+  `shola_get_iso_datetime()`, hardened `shola_get_english_month_abbr()` —
+  see below) are confirmed unaffected by the plugin's global hook.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** hardened three date-related template-tag helpers against
+  ParsiDate/Persian Calendar's global date-function hooks, added
+  *before* installing either plugin, per Farhad's explicit request to
+  audit for risk first rather than find breakage after the fact:
+  - `shola_get_english_month_abbr()` (existing, Phase 4.2) — switched
+    from `mysql2date($format, $date, false)` to raw `gmdate()` on the
+    post's timestamp, since `mysql2date()` with `$translate = false`
+    wasn't guaranteed immune to a plugin hooking at a lower level than
+    `get_the_date()`.
+  - `shola_get_gregorian_year()` (new) — same rationale, for the
+    issue-count/year-range mono-label convention
+    (`shola_get_publication_meta_line()`, `taxonomy-publication.php`,
+    `issue-card.php`), which is intentionally Gregorian (matching v6's
+    own literal source, `۳۲ ISSUES · ۲۰۱۸–۲۰۲۶`), not Jalali.
+  - `shola_get_iso_datetime()` (new) — uses `get_post_datetime()` (WP
+    core, 5.3+) for `<time datetime="...">` machine-readable attributes
+    (`front-page.php` ×3, `card.php`), which must stay ISO 8601/Gregorian
+    for accessibility/microformat correctness regardless of what
+    human-readable text is shown next to them.
+  Confirmed via `grep` these were the only risk sites across
+  `front-page.php`, `page-publications.php`, `taxonomy-publication.php`,
+  `card.php`, and `issue-card.php` before installing anything.
+  Approved by: Farhad, in this session (2026-08-06).

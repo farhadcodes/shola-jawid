@@ -70,7 +70,7 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 				$hero_byline_meta = get_post_meta( $hero->ID, 'shcore_byline', true );
 				$hero_byline      = $hero_byline_meta ? $hero_byline_meta : get_the_author_meta( 'display_name', $hero->post_author );
 				?>
-				<p class="card-byline"><?php echo esc_html( $hero_byline ); ?> · <time datetime="<?php echo esc_attr( get_the_date( 'c', $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
+				<p class="card-byline"><?php echo esc_html( $hero_byline ); ?> · <time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
 			</div>
 		</div>
 	</section>
@@ -155,7 +155,7 @@ $current_issue = $current_issue_query->have_posts() ? $current_issue_query->post
 						<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $current_issue ), 30 ) ); ?></p>
 						<dl class="issue-meta">
 							<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
-							<dd><time datetime="<?php echo esc_attr( get_the_date( 'c', $current_issue ) ); ?>"><?php echo esc_html( get_the_date( '', $current_issue ) ); ?></time></dd>
+							<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $current_issue ) ); ?>"><?php echo esc_html( get_the_date( '', $current_issue ) ); ?></time></dd>
 							<?php $volume = get_post_meta( $current_issue->ID, 'shcore_volume', true ); ?>
 							<?php if ( $volume ) : ?>
 								<dt><?php esc_html_e( 'دوره / جلد', 'shola-jawid' ); ?></dt>
@@ -282,7 +282,7 @@ $announcements_query = new WP_Query(
 				$announcements_query->the_post();
 				?>
 				<li>
-					<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+					<time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 					<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 				</li>
 			<?php endwhile; ?>

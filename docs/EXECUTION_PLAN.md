@@ -408,13 +408,30 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 > Phase 4.2 template-building work rather than retrofitted piecemeal into
 > each template as it's built.
 
-- Build a `shola_get_jalali_date()` (or similarly named) template tag in `inc/template-tags.php` that converts a post's Gregorian date to the Jalali calendar with Persian digits and Persian month names, matching v6's exact date format (e.g. "۷ سرطان ۱۴۰۵").
-- Retrofit every `get_the_date()` call added during Phase 4.2 (front-page.php hero/cards/current-issue, card.php, page-publications.php, and whichever single/archive templates land between now and Phase 5) to use it instead.
-- No new plugin — this is a self-contained conversion function (well-documented Gregorian↔Jalali algorithm), not a dependency requiring a `CLAUDE.md` §3 whitelist discussion.
+> **Superseded (logged in `docs/CHANGELOG.md` 2026-08-06):** the plan
+> below assumed a self-contained `shola_get_jalali_date()` helper, no new
+> plugin. That changed — Farhad opted for a plugin (**Persian Calendar**,
+> now on the `CLAUDE.md` §3 whitelist) fixing this site-wide at the
+> WordPress date-function level, rather than hand-rolled per-template
+> conversion. ParsiDate was evaluated first and rejected (hardcoded to
+> `fa_IR` locale only, excluding this project's `fa_AF`); Persian
+> Calendar gates on `is_rtl()` instead, confirmed compatible. Full
+> evaluation, the timezone-overwrite incident found during install, and
+> the date-format/timezone settings Farhad is completing are all in
+> `docs/CHANGELOG.md`. The items below are done via the plugin, not a
+> custom helper — kept here (struck through in spirit, not literally
+> deleted) so the phase's original reasoning stays visible.
+
+- ~~Build a `shola_get_jalali_date()` (or similarly named) template tag in `inc/template-tags.php` that converts a post's Gregorian date to the Jalali calendar with Persian digits and Persian month names, matching v6's exact date format (e.g. "۷ سرطان ۱۴۰۵").~~ Done via Persian Calendar's global `date_i18n`/`wp_date` hooks instead.
+- Three call sites needed hardening *against* the plugin's global hook, not retrofitting *onto* it — `shola_get_publication_meta_line()`, `taxonomy-publication.php`'s current-issue line, and `issue-card.php`'s date label intentionally show Gregorian years (matching v6's own literal `۳۲ ISSUES · ۲۰۱۸–۲۰۲۶` convention), and `<time datetime="...">` attributes must stay ISO 8601 regardless. New helpers `shola_get_gregorian_year()`/`shola_get_iso_datetime()` and a hardened `shola_get_english_month_abbr()` (all `inc/template-tags.php`) handle this — see `docs/CHANGELOG.md`.
+- Every other `get_the_date()` call in Phase 4.2's built templates (front-page.php hero/cards/current-issue/announcements, card.php byline, the masthead runner) is left as plain `get_the_date()` and picks up Jalali conversion automatically via the plugin's global hook — no per-call retrofit needed.
 
 **Checklist:**
-- ☐ `shola_get_jalali_date()` (or equivalent) built and unit-verified against a handful of known Gregorian→Jalali date pairs
-- ☐ Every date displayed on the front end (bylines, issue/document/announcement dates, current-issue module) uses it — grep for remaining direct `get_the_date()` calls in templates and confirm none remain outside the helper itself
+- ☑ Jalali-calendar dates render site-wide via Persian Calendar (verified via `curl`: masthead runner, bylines, current-issue date, announcement dates)
+- ☑ The three Gregorian-mono-label call sites and all `datetime=""` attributes confirmed immune to the plugin's global hook (verified via `curl` post-install: unchanged, still Gregorian)
+- ☐ Farhad to confirm: site timezone set correctly in Settings → General (Persian Calendar's `regional_settings` had already force-overwritten it to `Asia/Tehran` before this was caught — disabled, but the original value has no record and must be set fresh, likely `Asia/Kabul`)
+- ☐ Farhad to confirm: `date_format` (Settings → General) updated to `j F Y` to match v6's day-month-year, no-comma convention
+- ☐ Final live re-verification (screenshots) of front-page.php, page-publications.php, taxonomy-publication.php once both settings above are confirmed changed — deferred, since the date-format change will visibly alter the output
 
 ### Phase 5 — Definition of Done
 

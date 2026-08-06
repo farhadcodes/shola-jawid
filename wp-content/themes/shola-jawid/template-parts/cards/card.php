@@ -64,6 +64,6 @@ if ( 'document' === $card_type ) {
 		</p>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $card_post ) ); ?></a></h3>
 		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 24 ) ); ?></p>
-		<p class="card-byline"><?php echo esc_html( $byline ); ?> · <time datetime="<?php echo esc_attr( get_the_date( 'c', $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time></p>
+		<p class="card-byline"><?php echo esc_html( $byline ); ?> · <time datetime="<?php echo esc_attr( shola_get_iso_datetime( $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time></p>
 	</div>
 </article>

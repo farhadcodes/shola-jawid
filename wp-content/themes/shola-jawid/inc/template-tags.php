@@ -42,12 +42,16 @@ function shola_to_persian_digits( $number ) {
 /**
  * Locale-independent uppercase English month abbreviation ("MAR", "DEC")
  * for the `.issue-card-date`/`lang="en"` mono contexts v6 uses (e.g.
- * "MAR ۲۰۲۶"). get_the_date('M') is locale-aware and returns translated
- * Persian month names on this site (fa_AF) — confirmed live while
- * building taxonomy-publication.php (Phase 4.2) — which isn't what this
- * specific mono-label convention wants. mysql2date()'s third
- * ($translate) argument set to false bypasses i18n translation entirely,
- * unlike get_the_date()/date_i18n().
+ * "MAR ۲۰۲۶"). Uses raw PHP `gmdate()` on the post's timestamp rather
+ * than any WordPress date-formatting function (`get_the_date()`,
+ * `mysql2date()`, `date_i18n()`) — hardened Phase 4.2 (2026-08-06) so it
+ * stays immune to the ParsiDate plugin's global Gregorian→Jalali hook,
+ * wherever exactly that hook attaches. get_the_date('M') was previously
+ * used here and turned out to be locale-aware (translated to Persian
+ * month names on this fa_AF site) even before ParsiDate; `mysql2date()`
+ * with `$translate = false` fixed that, but wasn't guaranteed immune to a
+ * plugin hooking at a lower level than get_the_date() — gmdate() on a raw
+ * timestamp is not interceptable by any WordPress-level date filter.
  *
  * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
  * @return string
@@ -57,7 +61,52 @@ function shola_get_english_month_abbr( $post = null ) {
 	if ( ! $post ) {
 		return '';
 	}
-	return strtoupper( mysql2date( 'M', $post->post_date, false ) );
+	return strtoupper( gmdate( 'M', strtotime( $post->post_date ) ) );
+}
+
+/**
+ * Locale-independent Gregorian year, for the same mono-label convention
+ * as shola_get_english_month_abbr() (issue counts/year-ranges, e.g. "۳۲
+ * ISSUES · ۲۰۱۸–۲۰۲۶") — v6's own source uses Gregorian years with
+ * Persian digits here, not Jalali years. Added alongside the ParsiDate
+ * install (Phase 4.2, 2026-08-06): `get_the_date('Y', ...)` would be
+ * silently converted to a Jalali year by ParsiDate's global hook once
+ * active, which would both show the wrong year and break the "range
+ * matches v6's literal reference" requirement. Pass through
+ * shola_to_persian_digits() for display, same as everywhere else.
+ *
+ * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
+ * @return int
+ */
+function shola_get_gregorian_year( $post = null ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return 0;
+	}
+	return (int) gmdate( 'Y', strtotime( $post->post_date ) );
+}
+
+/**
+ * Machine-readable ISO 8601 timestamp for `<time datetime="...">`
+ * attributes. Must never be calendar/locale-converted regardless of what
+ * human-readable text is shown next to it — HTML datetime attributes are
+ * required to stay machine-parseable (Gregorian, ISO 8601) for
+ * accessibility/microformat correctness. Uses get_post_datetime() (WP
+ * core, 5.3+), which returns a real DateTimeImmutable from the post's raw
+ * date, independent of any date_i18n()/get_the_date() filter — added
+ * alongside the ParsiDate install (Phase 4.2, 2026-08-06) specifically so
+ * these attributes can't be affected by it.
+ *
+ * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
+ * @return string
+ */
+function shola_get_iso_datetime( $post = null ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return '';
+	}
+	$datetime = get_post_datetime( $post );
+	return $datetime ? $datetime->format( DATE_W3C ) : '';
 }
 
 /**
@@ -302,7 +351,7 @@ function shola_get_publication_meta_line( $term ) {
 
 	$years = array();
 	foreach ( $issues as $issue ) {
-		$years[] = (int) get_the_date( 'Y', $issue );
+		$years[] = shola_get_gregorian_year( $issue );
 	}
 	sort( $years );
 	$year_range = ( $years[0] === end( $years ) )

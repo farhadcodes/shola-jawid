@@ -25,7 +25,7 @@ if ( ! $issue_post ) {
 // month+year consistently for every issue is a deliberate, minor
 // simplification — logged in docs/CHANGELOG.md — rather than fabricating
 // a "precision unknown" state that doesn't reflect real data.
-$date_label = shola_get_english_month_abbr( $issue_post ) . ' ' . shola_to_persian_digits( get_the_date( 'Y', $issue_post ) );
+$date_label = shola_get_english_month_abbr( $issue_post ) . ' ' . shola_to_persian_digits( shola_get_gregorian_year( $issue_post ) );
 ?>
 <a href="<?php echo esc_url( get_permalink( $issue_post ) ); ?>" class="issue-card">
 	<div class="issue-card-media">
