@@ -269,7 +269,10 @@ class Meta_Fields {
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<p>
 			<label for="shcore_contents"><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></label><br>
-			<textarea id="shcore_contents" name="shcore_contents" class="large-text" rows="5"><?php echo esc_textarea( $contents ); ?></textarea>
+			<p class="description">
+				<?php esc_html_e( 'هر سطر یک نوشته: «بخش|عنوان|نویسنده» (بخش و نویسنده اختیاری‌اند). نوشته‌های شماره فقط در PDF چاپ می‌شوند و در سایت صفحهٔ مستقل ندارند — این فهرست فقط توضیحی است. نوشتن «TRANSLATION» به‌عنوان بخش، آن سطر را در شمار «ترجمه» به‌جای «مقاله» می‌شمارد.', 'shola-core' ); ?>
+			</p>
+			<textarea id="shcore_contents" name="shcore_contents" class="large-text code" rows="8" placeholder="ECONOMY|اقتصاد سیاسیِ نان؛ چه کسی بهای تورم را می‌پردازد؟|هیئت تحریریه"><?php echo esc_textarea( $contents ); ?></textarea>
 		</p>
 		<?php
 	}
@@ -406,6 +409,50 @@ class Meta_Fields {
 				update_post_meta( $post_id, $field, wp_unslash( $_POST[ $field ] ) );
 			}
 		}
+	}
+
+	/**
+	 * Parses `shcore_contents` (an issue's optional, free-text table of
+	 * contents) into structured entries for single-issue.php. Format is
+	 * one line per entry: `SECTION|Title|Byline` — SECTION and Byline are
+	 * optional, only Title is required; malformed/empty lines are
+	 * skipped rather than raising an error, since this is editor-typed
+	 * free text, not a strict data-entry form. Deliberately no per-entry
+	 * page count or link to a real article: per
+	 * docs/EXECUTION_PLAN.md's Phase 0.3 resolved assumption, issues are
+	 * PDF-only — a table-of-contents entry describes what's in the PDF,
+	 * it isn't a real WP post with its own permalink.
+	 *
+	 * @param int $post_id Issue post ID.
+	 * @return array<int, array{section: string, title: string, byline: string}>
+	 */
+	public static function get_issue_contents( $post_id ) {
+		$raw = get_post_meta( $post_id, 'shcore_contents', true );
+		if ( ! $raw ) {
+			return array();
+		}
+
+		$entries = array();
+		foreach ( preg_split( '/\r\n|\r|\n/', $raw ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line ) {
+				continue;
+			}
+
+			$parts = array_map( 'trim', explode( '|', $line ) );
+			$title = isset( $parts[1] ) ? $parts[1] : $parts[0];
+			if ( '' === $title ) {
+				continue;
+			}
+
+			$entries[] = array(
+				'section' => isset( $parts[1] ) ? $parts[0] : '',
+				'title'   => $title,
+				'byline'  => isset( $parts[2] ) ? $parts[2] : '',
+			);
+		}
+
+		return $entries;
 	}
 
 	/**

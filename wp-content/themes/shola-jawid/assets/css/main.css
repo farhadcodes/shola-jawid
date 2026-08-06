@@ -1441,3 +1441,14 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .search-no-results { text-align: center; }
 .card-dek mark,
 .h-card-lg mark { background: var(--crimson-tint); color: var(--crimson-deep); padding: 0 .2em; }
+
+/* -------------------------------------------------------------------------
+   ۲۷ · Issue table of contents (single-issue.php, Phase 4.2) — replaces
+   body-issue-single.html's inline style="" attributes.
+   ------------------------------------------------------------------------- */
+.issue-toc-head { padding-top: 2rem; border-top: 2px solid var(--crimson); margin-top: 2rem; }
+.issue-toc { display: grid; gap: 0; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+.issue-toc li { padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
+.issue-toc .meta-mono { margin-bottom: .35rem; }
+.issue-toc .link-quiet { font-weight: 700; font-size: var(--t-h4); }
+.issue-toc .meta { margin-top: .35rem; }

@@ -1449,3 +1449,73 @@ trail of *why* the build deviated from — or newly applied — a rule in
   rather than as a bug, per Farhad's note that existing seeded content
   has no real tags yet and that's expected, not something to fix.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `single-issue.php` built, converted from
+  `body-issue-single.html`. Reuses `.issue-hero`/`.issue-cover`/
+  `.badge-current`/`.issue-meta` CSS already ported in Phase 4.1 for
+  `taxonomy-publication.php`'s embedded current-issue preview, and
+  `shola_get_managing_editor()` from `single.php`'s build for "سردبیر
+  مسئول". "شمار صفحات" (page count) stays omitted from `dl.issue-meta`,
+  same already-ruled-out-of-scope decision as before (2026-08-06) — not
+  re-litigated. Cover image, "دریافت PDF", and "پیش‌نمایش درون‌مرورگری"
+  all point at the real PDF attachment URL
+  (`wp_get_attachment_url( shcore_pdf_id )`) — download vs.
+  `target="_blank"` respectively, since most browsers render a PDF
+  inline in a new tab without one, giving both v6 buttons a real,
+  distinct, functioning destination instead of two links to the same
+  place. Falls back to inert `href="#"` on both when no PDF is
+  attached yet, matching the site's established convention for "no
+  real destination exists."
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `شمار مطالب` ("۱۲ مقاله + ۲ ترجمه" in v6) is derived by
+  counting `shcore_contents` lines, not a new field — v6's own count
+  is table-of-contents-derived, and `shcore_contents` already exists
+  for exactly that content, so counting it directly avoids a second
+  field the editor would have to keep in sync by hand. A line's
+  `SECTION` value of `TRANSLATION` counts toward "ترجمه" instead of
+  "مقاله"; empty/absent `shcore_contents` omits the whole
+  `dt`/`dd` pair rather than showing "۰ مقاله".
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `shcore_contents`'s free-text format is now a documented
+  convention, not fully unstructured — one line per table-of-contents
+  entry, `SECTION|Title|Byline` (pipe-delimited; SECTION and Byline are
+  optional, only Title is required). New
+  `\SholaCore\Meta_Fields::get_issue_contents( $post_id )` parses it
+  (malformed/empty lines skipped, not errored — this is editor-typed
+  free text, not a strict form). The metabox textarea
+  (`class-meta-fields.php`) now has an inline description explaining
+  the format plus a real placeholder example, and switched to a
+  monospace (`code`) textarea so the `|` delimiters are easy to line
+  up. Table-of-contents entries are rendered as plain (unlinked) text —
+  not `href="#"` like the announcement-detail precedent — since a TOC
+  line isn't a WP entity with a page identity at all (per the
+  PDF-only, `EXECUTION_PLAN.md` Phase 0.3 resolved assumption), so an
+  inert link would misleadingly suggest one exists; v6's own
+  `article-single.html` links here are a static-prototype artifact of
+  reusing one demo page, not evidence a real per-entry destination was
+  ever intended. Called from the theme via `class_exists()`-guarded
+  static call (`single-issue.php`), degrading to an empty TOC if
+  `shola-core` is ever inactive, per CLAUDE.md §2's no-fatal-if-plugin-
+  missing rule — the first template this session to call a plugin
+  class directly from the theme rather than only via `get_post_meta()`
+  or a rewrite/permalink filter, so this guard is a new, deliberate
+  precedent, not copied from an existing pattern.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `single-issue.php` verified live against 3 real issues
+  (شعله جاوید #32, current publication; two جهان برای فتح issues,
+  archived publication): `200`, zero PHP errors/warnings/notices, zero
+  inline styles. Confirmed: breadcrumb/title/badge exact match against
+  `body-issue-single.html`, `badge-current` vs. `badge-archive`
+  correctly follows publication status, real PDF download/preview
+  links work, `شمار مطالب`/`حجم فایل` correctly computed from real
+  data, `سردبیر مسئول` correct, TOC renders exactly as seeded
+  (including `TRANSLATION`-tagged entries counting correctly toward
+  "۱ ترجمه") on the issue with `shcore_contents` set (seeded via a
+  throwaway script, deleted after running), and — on issues with no
+  PDF/no TOC — every dependent piece (buttons, `حجم فایل` row, the
+  whole TOC section) degrades gracefully to absent rather than showing
+  empty/broken markup.
+  Approved by: Farhad, in this session (2026-08-06).
