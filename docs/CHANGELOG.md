@@ -1045,3 +1045,78 @@ trail of *why* the build deviated from — or newly applied — a rule in
   correctly absent (fewer seeded items than v6's mockup, same pattern as
   every prior archive template).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Contact Form 7 installed (§3 whitelist, pre-approved — no
+  exception process needed) for `page-contact.php`'s form per
+  `EXECUTION_PLAN.md` §4.3. Downloaded the official plugin zip from
+  `downloads.wordpress.org` and extracted directly into the live LocalWP
+  `wp-content/plugins/` directory (same precedent as Persian Calendar —
+  not git-tracked, since third-party plugin binaries live outside the
+  junction-linked theme/plugin paths). Activated and configured via a
+  throwaway script (deleted immediately after running) using CF7's own
+  `WPCF7_ContactForm` API rather than hand-writing post meta. Created
+  form #71 with the 4 fields from `body-contact.html` (name, email,
+  topic select, message) and CF7's own mail-recipient/subject/body/
+  Reply-To settings. Disabled CF7's default stylesheet entirely via
+  `add_filter( 'wpcf7_load_css', '__return_false' )`
+  (`inc/enqueue.php`), per CLAUDE.md §3's requirement that the form use
+  the theme's own markup/CSS, not the plugin's defaults — verified via
+  `curl` that no `contact-form-7*.css` request appears in the page.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** First-pass CF7 form config had no `<label>` elements at all
+  (only placeholder-less `<input>`s), unlike v6's source which has a
+  visible Persian `<label class="label">` for every field. Missed on the
+  first form-template string; caught during live verification of the
+  rendered HTML rather than assumed correct from the setup script alone.
+  Reconfigured form #71 via a second throwaway script (deleted after
+  running) to wrap each field with its matching label
+  (نام / نشانی ایمیل / موضوع پیام / متن پیام), and set the form's post
+  title to "فرم تماس" (was the CF7 default English "Contact form",
+  which was leaking into the rendered `<form aria-label>`).
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** CF7 renders its form wrapper with `dir="ltr"` on this
+  install — it doesn't recognize the site's `fa_AF` locale as
+  RTL (same class of locale gap as the ParsiDate/`fa_IR` issue found
+  earlier with the Jalali calendar plugin). Rather than patch CF7's
+  locale table, added `.wpcf7 { direction: rtl; }` in `main.css` to
+  force the actual rendered direction; the `#c-email` field keeps its
+  own `direction: ltr` override underneath, matching v6's
+  `dir="ltr"` on the email input specifically (an ASCII address field,
+  correctly LTR even inside an RTL form).
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Decided:** Contact page's public email is a placeholder,
+  `info.sholajawid@gmail.com`, not the real address. v6's own source
+  hardcodes `info.farhaad@gmail.com` — the theme developer's personal
+  email (CLAUDE.md §0) — as the public contact address; copying that
+  onto client-facing content without asking would have been wrong, so
+  it was flagged instead of ported verbatim. Used for both the displayed
+  `mailto:` link and CF7 form #71's mail-recipient setting, so both
+  paths agree. Documented here explicitly (not left as a silent
+  substitution) so it's replaced with the real address once Farhad
+  provides it — nothing else about the contact flow needs to change
+  when that happens, since both places read from the one placeholder
+  value.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `page-contact.php` built and closed. Converted from
+  `body-contact.html` (Phase 4.2/4.3): centered narrow page header,
+  CF7 form #71 rendered via `[contact-form-7 id="71"]` inside
+  `.contact-inner`, static aside (email / response-time / privacy text)
+  with the placeholder email above and v6's own inert `href="#"`
+  privacy-policy link (v6 doesn't link to a real privacy page either,
+  so this isn't a regression — matched exactly). New CSS section §25
+  added to `main.css` (`.contact-grid`, `.contact-inner`, `.wpcf7`,
+  `.wpcf7-form`, `#c-email`, `.contact-aside`, `.contact-aside-value`)
+  replacing every inline `style=""` from the source HTML, including one
+  found and removed after the fact (`.page-header .section-marker`'s
+  existing centered rule already covered it, and `.page-header` is
+  centered by default so the source's redundant `class="center"` wrapper
+  was dropped rather than ported). Seeded the `contact` WP Page (id 72)
+  via a throwaway script, deleted after running. Verified live via
+  `curl`: `200`, zero PHP errors/warnings/notices, zero inline styles,
+  zero CF7 default CSS requests, labels and RTL direction both correct
+  after the two fixes above.
+  Approved by: Farhad, in this session (2026-08-06).

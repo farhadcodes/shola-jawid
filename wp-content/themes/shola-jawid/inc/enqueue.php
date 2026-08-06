@@ -21,3 +21,8 @@ function shola_enqueue_assets() {
 	wp_enqueue_script( 'shola-jawid-main', get_theme_file_uri( 'assets/js/main.js' ), array(), $version, true );
 }
 add_action( 'wp_enqueue_scripts', 'shola_enqueue_assets' );
+
+// Contact Form 7 (CLAUDE.md §3 whitelist) must render using the theme's
+// own markup/CSS, not the plugin's default styles — disable CF7's own
+// stylesheet entirely rather than fighting it with overrides.
+add_filter( 'wpcf7_load_css', '__return_false' );

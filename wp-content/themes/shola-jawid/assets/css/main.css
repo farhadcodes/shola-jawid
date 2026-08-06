@@ -1366,3 +1366,35 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   border-bottom: 2px solid var(--crimson);
   margin-bottom: 3rem;
 }
+
+/* -------------------------------------------------------------------------
+   ۲۵ · Contact page (page-contact.php, Phase 4.2/4.3) — replaces
+   body-contact.html's inline style="" attributes. The form itself is
+   Contact Form 7 output (CLAUDE.md §3 whitelist); .wpcf7-form is CF7's
+   own real output class (its <form> tag isn't otherwise customizable),
+   styled here instead of loading CF7's default stylesheet
+   (wpcf7_load_css filtered off in inc/enqueue.php).
+   ------------------------------------------------------------------------- */
+.contact-grid {
+  display: grid; gap: 3rem;
+  grid-template-columns: 1fr;
+  max-width: 960px;
+  margin-inline: auto;
+}
+.contact-inner { display: grid; gap: 2rem; grid-template-columns: 1fr; }
+/* CF7 doesn't recognize the site's fa_AF locale as RTL and renders the
+   form wrapper dir="ltr" — force it back to the site's actual direction
+   rather than depend on CF7's locale-to-dir table. */
+.wpcf7 { direction: rtl; }
+.wpcf7-form { display: flex; flex-direction: column; gap: 1rem; }
+.wpcf7-form > p { align-self: flex-start; }
+/* Email addresses are always LTR ASCII regardless of site direction —
+   matches the same reasoning as the newsletter field on front-page.php,
+   which sets dir="ltr" directly since it's theme-owned markup; CF7's
+   generated <input> isn't directly attribute-editable the same way, so
+   this achieves the identical result via CSS instead. */
+#c-email { direction: ltr; }
+
+.contact-aside { padding-top: 2rem; border-top: 1px solid var(--line); }
+.contact-aside .meta-mono { margin-bottom: .75rem; }
+.contact-aside-value { margin-bottom: 2rem; }
