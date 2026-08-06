@@ -801,3 +801,39 @@ trail of *why* the build deviated from — or newly applied — a rule in
   additional articles spread across topics for archive-grid variety.
   Verified via `curl`: `200`, zero PHP errors, zero inline styles.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Investigated three items from Farhad's `taxonomy-topic.php` review,
+  found via direct source inspection rather than assumption:**
+  1. **Type-tag fill color (مقاله vs یادداشت) — not a missed rule; no
+     such rule exists in v6.** Checked `main.css`'s `.type-label .glyph`
+     rule: one uniform declaration (`color: var(--crimson)`), no
+     type-based modifier. Checked the HTML: on `body-index.html`, the
+     یادداشت card uses the identical SVG path to every مقاله card there.
+     The only place a visually different icon appears is
+     `body-topic-economy.html`, where *every* card — both types,
+     uniformly — uses a shorter, simplified SVG path than the homepage's
+     version. That's a page-to-page inconsistency within v6's own
+     prototype (likely a `gen_bodies.py` generator artifact), not a
+     مقاله-vs-یادداشت design rule. `card.php`'s single consistent icon
+     (matching the homepage's version) is left as-is — flagged rather
+     than "fixed" toward a distinction that doesn't exist in the source.
+  2. **Duplicate images — confirmed and fixed, not just seed-data
+     noise.** Root cause: not a duplicate-file issue (already fixed
+     earlier in Phase 4.2) — multiple independent seed scripts across
+     this session each cycled the same 8-image array from index 0, so
+     posts from different batches landing in the same query result
+     repeated images. `/topics/economy/` showed 4 of its 5 visible cards
+     sharing images. Reassigned via a throwaway script so all 5
+     `economy`-tagged posts use distinct images; verified via `curl`
+     (checking `src=` only, not `srcset`, to avoid double-counting) that
+     all 5 are now unique. Deleted immediately after running.
+  3. **Pagination — confirmed correct, not a template gap.** Verified
+     with a throwaway diagnostic reusing `taxonomy-topic.php`'s exact
+     query/`paginate_links()` logic at an artificially small
+     `posts_per_page` (without touching the live template or adding real
+     content, per Farhad's instruction): Persian digits, `.page-num`
+     classes, `aria-current` state, and prev/next arrows all render
+     correctly once `max_num_pages > 1` — the same pattern already
+     proven live on `taxonomy-publication.php`. Nothing to fix; will
+     render correctly once any topic accumulates more than 6 articles.
+  Approved by: Farhad, in this session (2026-08-06).
