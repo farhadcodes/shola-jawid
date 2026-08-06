@@ -257,3 +257,14 @@ trail of *why* the build deviated from — or newly applied — a rule in
   pattern from Phase 3.1 (verified working as intended, not a bug, in
   Farhad's 3.1 testing).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Deferred/Noted:** Test/QA content created while verifying Phases 3.1–3.2
+  needs cleanup before handover (Phase 7 QC) — logged here so it isn't
+  forgotten, no action needed yet:
+  - One test post of each type (issue, document, article/post), created
+    while verifying Phase 3.1's CPT registration.
+  - Two extra taxonomy terms added while verifying Phase 3.2's seeding:
+    "نشریه آزمایشی" under Publications and "موضوع آزمایشی" under Topics.
+  Add a Phase 7.1 checklist item to delete all of the above before
+  final QC / handover.
+  Approved by: Farhad, in this session (2026-08-06).

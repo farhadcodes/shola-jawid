@@ -446,11 +446,13 @@ Goal: close out the project the way the original proposal promised — full owne
 - Test on mobile viewport (390px) and desktop.
 - Test with JavaScript disabled — site must remain usable.
 - Run phpcs one final time across the entire theme + plugin — zero warnings.
+- Delete all test/QA content created during development (logged in `docs/CHANGELOG.md` 2026-08-06): the test issue/document/article posts from Phase 3.1, and the "نشریه آزمایشی"/"موضوع آزمایشی" test taxonomy terms from Phase 3.2.
 
 **Checklist:**
 - ☐ Full end-to-end navigation walk-through completed with no broken links or missing content
 - ☐ Mobile + desktop + no-JS all verified
 - ☐ phpcs clean across entire codebase
+- ☐ All Phase 3 test content and test taxonomy terms deleted
 
 ### 7.2 — Credit verification (CLAUDE.md §7 — all six placements)
 
