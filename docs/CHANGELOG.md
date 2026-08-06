@@ -448,3 +448,12 @@ trail of *why* the build deviated from — or newly applied — a rule in
   hardcoded — the fix is the admin setting, not the code). Flagged to
   Farhad rather than silently working around them.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** Phase 4.1 confirmed complete via visual comparison
+  (screenshots, both settings from the prior entry corrected). Masthead
+  colors, nav structure, RTL direction, and footer columns all match the
+  v6 prototype. The homepage body currently falls through to `index.php`'s
+  generic fallback loop rather than the real hero/card-grid/current-issue
+  layout — confirmed expected, not a regression: that layout is
+  `front-page.php`, Phase 4.2 scope, correctly not built yet.
+  Approved by: Farhad, in this session (2026-08-06).
