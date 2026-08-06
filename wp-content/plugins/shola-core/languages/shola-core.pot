@@ -219,3 +219,59 @@ msgstr ""
 #: includes/class-taxonomies.php
 msgid "مشاهدهٔ مجموعه"
 msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "اطلاعات شماره"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "اطلاعات سند"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "اطلاعات مقاله"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "شمارهٔ شماره"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "دوره / جلد"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "فهرست مطالب (اختیاری)"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "نویسنده / منبع"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "نام مستعار نویسنده (اختیاری — در صورت خالی بودن، نام کاربر وردپرس نمایش داده می‌شود)"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "شناسهٔ نوشتهٔ ترجمه (غیرفعال در این مرحله — فقط زیرساخت دوزبانه)"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "زبان"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "فارسی"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "فایل PDF"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "انتخاب فایل PDF"
+msgstr ""
+
+#: includes/class-meta-fields.php
+msgid "حذف"
+msgstr ""

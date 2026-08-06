@@ -341,3 +341,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Phase 4 templates that would need to account for two competing
   categorization systems.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 3.3 (post meta fields) — `class-meta-fields.php` registers
+  all IA doc §5 meta fields not already covered by native WP fields or
+  Phase 3.2's taxonomies (تاریخ → post_date, خلاصه/توضیح → post_excerpt,
+  جلد/پیش‌نمایش → featured image, نشریه/مجموعه → taxonomy terms — no meta
+  key needed for those): `shcore_issue_number`/`shcore_volume`/
+  `shcore_pdf_id`/`shcore_contents` on `issue`;
+  `shcore_author_source`/`shcore_pdf_id`/`shcore_language` on `document`;
+  `shcore_byline`/`shcore_language`/`shcore_translation_id` on `post`
+  (پیوند ترجمه scaffolded per `CLAUDE.md` §1 — field exists, nothing acts
+  on it yet). All registered via `register_post_meta()` with real
+  `sanitize_callback`/`auth_callback` pairs (not just present for show),
+  `show_in_rest => true`.
+  PDF fields use `sanitize_pdf_id()` — rejects anything that isn't a real
+  attachment ID whose *stored* MIME type (from WP core's own finfo-based
+  check at original upload time, not the file extension) is
+  `application/pdf`. Verified directly, not just read for correctness, via
+  a throwaway diagnostic (deleted immediately after): a real image
+  attachment ID is correctly rejected (returns 0), as are an invalid ID
+  and a non-numeric string. This is the actual server-side enforcement per
+  `CLAUDE.md` §6; the media-picker restriction in the new
+  `admin/js/meta-boxes.js` is client-side UX only, and `ensure_pdf_mime_allowed()`
+  keeps `application/pdf` in the site's allowed upload mimes defensively.
+  Classic metaboxes (nonce-protected, `edit_post`-capability-checked) give
+  editors a no-code UI for all of the above; `update_post_meta()` calls in
+  the save handler route through the same sanitize callbacks REST would
+  use, so there's one validation path, not two.
+  Approved by: Farhad, in this session (2026-08-06).
