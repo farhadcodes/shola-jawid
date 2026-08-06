@@ -315,3 +315,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   not just the editor-panel symptom hidden — confirmed both root causes
   before fixing, per `CLAUDE.md` §9.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Changed:** removed WP core's built-in Category taxonomy from the
+  `post` type (`Taxonomies::remove_core_category_from_post()`, hooked on
+  `init` priority 20, after core's own registration). `topic` is the
+  actual content-model taxonomy for articles (IA doc §6); leaving
+  Categories attached alongside it would show editors a redundant, unused
+  panel and silently default posts to "Uncategorized" for no reason. Uses
+  both `remove_post_type_support('post', 'category')` (classic-editor
+  metabox/`post_type_supports()` checks) and
+  `unregister_taxonomy_for_object_type('category', 'post')` (controls
+  whether the block editor's REST-driven taxonomy panel appears at all —
+  Gutenberg reads the taxonomy's object_type association, not
+  `post_type_supports()`).
+  Verified via a throwaway diagnostic script (deleted immediately after,
+  confirmed unreachable): `get_object_taxonomies('post')` no longer
+  includes `category`; `wp_insert_post()` still succeeds with no error;
+  the topic-based permalink is unaffected
+  (`/topics/economy/...` still correct); an untouched default post with no
+  topic term still falls back to `/topics/بدون-موضوع/...` rather than
+  erroring.
+  Reason: known-confusing, known-redundant UI left in deliberately rather
+  than by oversight would contradict `CLAUDE.md`'s "self-manageable, no
+  developer needed" requirement — better removed now than carried into
+  Phase 4 templates that would need to account for two competing
+  categorization systems.
+  Approved by: Farhad, in this session (2026-08-06).

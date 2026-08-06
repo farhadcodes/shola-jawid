@@ -25,7 +25,30 @@ class Taxonomies {
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_taxonomies' ) );
 		add_action( 'init', array( __CLASS__, 'register_topic_rewrite' ) );
+		add_action( 'init', array( __CLASS__, 'remove_core_category_from_post' ), 20 );
 		add_filter( 'post_link', array( __CLASS__, 'filter_post_permalink' ), 10, 2 );
+	}
+
+	/**
+	 * Remove WP core's built-in Category taxonomy from the `post` type.
+	 * `topic` is the content model's actual categorization taxonomy for
+	 * articles (IA doc §6); leaving Categories attached too would show
+	 * editors a redundant, unused metabox/panel and let posts silently
+	 * default to "Uncategorized" for no reason. Priority 20 so this runs
+	 * after core's own post-type/taxonomy registration (both on `init`
+	 * priority 10 and 0 respectively) has already happened.
+	 *
+	 * Both calls are needed, not just one: remove_post_type_support()
+	 * controls the classic-editor metabox and post_type_supports() checks;
+	 * unregister_taxonomy_for_object_type() controls whether the block
+	 * editor's REST-driven taxonomy panel appears at all (Gutenberg reads
+	 * the taxonomy's object_type association, not post_type_supports()).
+	 *
+	 * @return void
+	 */
+	public static function remove_core_category_from_post() {
+		remove_post_type_support( 'post', 'category' );
+		unregister_taxonomy_for_object_type( 'category', 'post' );
 	}
 
 	/**
