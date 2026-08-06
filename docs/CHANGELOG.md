@@ -284,3 +284,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   controlled vocabulary that lets editors free-type new terms isn't
   actually controlled.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** native `post` (article) permalinks were showing
+  `/uncategorized/{postname}/` on the live front end instead of the IA
+  doc's `/topics/{topic}/{slug}` — a more serious bug than the
+  `hierarchical` UI issue above, found by Farhad checking the actual
+  front-end URL. Two independent causes, both fixed:
+  1. `Taxonomies::filter_post_permalink()` was hooked to `post_type_link`,
+     which only fires for custom post types via `get_post_permalink()`
+     (why `issue`/`document` worked correctly) — native `post` permalinks
+     go through `get_permalink()`'s own tag-replacement logic, filtered
+     through `post_link` instead. The filter was silently never running
+     for articles. Rehooked to `post_link` in `class-taxonomies.php`.
+  2. The site's `permalink_structure` option was `/%category%/%postname%/`
+     — not `/%postname%/` as it appeared during Phase 3.1 testing. Since
+     this project doesn't use WP core's built-in Category taxonomy at all
+     (articles use the custom `topic` taxonomy instead), every post was
+     defaulting to the "Uncategorized" category and leaking that slug into
+     the URL. Corrected via a one-time `update_option()` +
+     `flush_rewrite_rules()` (run through a throwaway diagnostic script,
+     deleted immediately after, per security practice — never leave a
+     debug/option-writing script reachable over HTTP) to
+     `/%postname%/`; the `post_link` filter above fully overrides the
+     final URL regardless, but leaving the site option itself wrong would
+     have been misleading in Settings → Permalinks.
+  Verified end-to-end: the existing test article (already tagged "economy"
+  from earlier testing) now permalinks as `/topics/economy/...`, matching
+  the IA doc exactly.
+  Reason: Farhad explicitly asked for the underlying URL structure fixed,
+  not just the editor-panel symptom hidden — confirmed both root causes
+  before fixing, per `CLAUDE.md` §9.
+  Approved by: Farhad, in this session (2026-08-06).
