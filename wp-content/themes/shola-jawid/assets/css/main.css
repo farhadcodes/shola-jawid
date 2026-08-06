@@ -1318,3 +1318,36 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 }
 .about-tabs a:hover { color: var(--ink); }
 .about-tabs .active { color: var(--ink); border-color: var(--ink); }
+
+/* -------------------------------------------------------------------------
+   ۲۲ · Static page header (WP conversion, Phase 4.2) — the centered
+   section-marker + h1 + dek block repeated identically (per
+   body-topics/library/announcements/about/contact/search.html) at the top
+   of every static/archive listing page. Confirmed by comparing all six
+   source files before adding this, not assumed. Replaces their inline
+   style="" attributes.
+   ------------------------------------------------------------------------- */
+.section-top { padding-block-start: 3rem; }
+.page-header { text-align: center; margin-bottom: 3rem; }
+.page-header .section-marker { justify-content: center; display: inline-flex; }
+.page-header h1 { margin-top: 1rem; }
+.page-header .dek { margin-top: 1rem; max-width: 600px; margin-inline: auto; }
+.page-header--narrow .dek { max-width: 560px; }
+.page-header--tight { margin-bottom: 1rem; }
+
+/* -------------------------------------------------------------------------
+   ۲۳ · Publications list (page-publications.php, Phase 4.2)
+   ------------------------------------------------------------------------- */
+.publications-list { display: grid; gap: 3rem; grid-template-columns: 1fr; }
+.publication-item {
+  display: grid; gap: 2rem;
+  grid-template-columns: 1fr;
+  padding-block: 2rem;
+  border-top: 2px solid var(--crimson);
+}
+.publication-item--archived { border-top: 1px solid var(--line); }
+.publication-item h2 { margin-top: 1rem; font-size: clamp(1.8rem, 3vw, 2.4rem); }
+.publication-item--archived h2 { color: var(--stone); }
+.publication-item .dek { margin-top: 1rem; max-width: 600px; }
+.publication-item .meta-mono { margin-top: 1rem; }
+.publication-item .row { margin-top: 1.5rem; gap: .75rem; }

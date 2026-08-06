@@ -552,3 +552,26 @@ trail of *why* the build deviated from — or newly applied — a rule in
   markup, `200` on the file itself) for existing test posts that have no
   featured image, while seeded posts with real thumbnails are unaffected.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `page-publications.php` (converted from
+  `body-publications.html`): lists both publication terms with real,
+  computed data — `shola_get_publication_meta_line()` (new in
+  `inc/template-tags.php`) counts actual published `issue` posts per term
+  and their real year range, not fabricated numbers; term `description`
+  (WP-native taxonomy field, editable via Edit Term with no code) supplies
+  the per-publication blurb.
+  Added a reusable `.page-header` component to `main.css` (§22) after
+  confirming — by actually comparing all six relevant source files, not
+  assuming — that the centered section-marker+h1+dek block is byte-for-
+  byte identical across `body-topics/library/announcements/about/
+  contact/search.html`; will be reused as those pages are built rather
+  than re-solved each time. `.publications-list`/`.publication-item` (§23)
+  cover this page's specific list markup.
+  Seeded the `publications` static Page (WP Page, slug `publications`,
+  required for this template to apply at all), set both publication
+  terms' descriptions, and added a second issue under the archived
+  a-world-to-win publication so its list state isn't empty for QC.
+  Verified via `curl`: `200`, zero PHP errors, zero inline styles, correct
+  current/archived button logic (archived gets one button, no "current
+  issue" link, matching v6 exactly).
+  Approved by: Farhad, in this session (2026-08-06).

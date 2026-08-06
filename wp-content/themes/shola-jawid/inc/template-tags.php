@@ -215,3 +215,47 @@ function shola_fallback_footer_site() {
 	</ul>
 	<?php
 }
+
+/**
+ * "۳۲ ISSUES · ۲۰۱۸–۲۰۲۶" style meta line for a publication term
+ * (page-publications.php) — computed from real published `issue` posts
+ * tagged with that term, not fabricated. Returns an empty string if the
+ * term has no issues yet (nothing to show, not "0 issues").
+ *
+ * @param WP_Term $term Publication term.
+ * @return string
+ */
+function shola_get_publication_meta_line( $term ) {
+	$issues = get_posts(
+		array(
+			'post_type'      => 'issue',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+				array(
+					'taxonomy' => 'publication',
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
+			),
+		)
+	);
+
+	if ( ! $issues ) {
+		return '';
+	}
+
+	$years = array();
+	foreach ( $issues as $issue ) {
+		$years[] = (int) get_the_date( 'Y', $issue );
+	}
+	sort( $years );
+	$year_range = ( $years[0] === end( $years ) ) ? (string) $years[0] : $years[0] . '–' . end( $years );
+
+	return sprintf(
+		/* translators: 1: issue count, 2: year or year range. */
+		_n( '%1$s ISSUE · %2$s', '%1$s ISSUES · %2$s', count( $issues ), 'shola-jawid' ),
+		number_format_i18n( count( $issues ) ),
+		$year_range
+	);
+}
