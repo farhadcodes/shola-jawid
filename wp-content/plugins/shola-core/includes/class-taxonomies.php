@@ -30,9 +30,15 @@ class Taxonomies {
 
 	/**
 	 * Register topic (post), publication (issue), and collection
-	 * (document) taxonomies. All three are flat, fixed vocabularies, not
-	 * open-ended tagging — hierarchical is false because none of them
-	 * nest, not because they're tag-like/uncontrolled.
+	 * (document) taxonomies. All three are hierarchical => true, even
+	 * though none of them actually nest — in WordPress, `hierarchical`
+	 * governs the editor UI/capability model, not just parent/child
+	 * structure: true gives the Categories-style checkbox list against the
+	 * existing terms and requires manage_categories to create a new one;
+	 * false gives the Tags-style free-text box where any edit_posts user
+	 * can mint an arbitrary new term on the fly. These three are fixed,
+	 * IA-doc-specified vocabularies (6/2/4 terms) that editors must pick
+	 * from, not open-ended tagging, so true is correct despite being flat.
 	 *
 	 * Slugs are the same ASCII kebab-case values already used by the v6
 	 * prototype's file names and the IA doc §4 URL table (economy, world,
@@ -59,7 +65,7 @@ class Taxonomies {
 				),
 				'public'            => true,
 				'show_in_rest'      => true,
-				'hierarchical'      => false,
+				'hierarchical'      => true,
 				'show_admin_column' => true,
 				'rewrite'           => array(
 					'slug'       => 'topics',
@@ -83,7 +89,7 @@ class Taxonomies {
 				),
 				'public'            => true,
 				'show_in_rest'      => true,
-				'hierarchical'      => false,
+				'hierarchical'      => true,
 				'show_admin_column' => true,
 				'rewrite'           => array(
 					'slug'       => 'publications',
@@ -107,7 +113,7 @@ class Taxonomies {
 				),
 				'public'            => true,
 				'show_in_rest'      => true,
-				'hierarchical'      => false,
+				'hierarchical'      => true,
 				'show_admin_column' => true,
 				'rewrite'           => array(
 					'slug'       => 'library',

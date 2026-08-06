@@ -268,3 +268,19 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Add a Phase 7.1 checklist item to delete all of the above before
   final QC / handover.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** `topic`, `publication`, and `collection` were registered with
+  `hierarchical => false` in Phase 3.2 — wrong. Caught by Farhad testing:
+  the topic panel in the post editor rendered as a free-text Tags-style box
+  instead of a checkbox list of the 6 fixed terms. `hierarchical` governs
+  the editor UI/capability model, not just nesting: `false` lets any
+  `edit_posts` user mint an arbitrary new term on the fly (duplicate risk,
+  e.g. "اقتصاد" vs "اقتصادی"); `true` gives a checkbox list against
+  existing terms only, requiring `manage_categories` to add a new one. All
+  three are fixed, IA-doc-specified vocabularies, not open tagging, so
+  `true` is correct despite none of them nesting. Confirmed with Farhad
+  before changing (`CLAUDE.md` §9). Fixed in `class-taxonomies.php`.
+  Reason: serves `CLAUDE.md`'s "self-manageable" requirement — a
+  controlled vocabulary that lets editors free-type new terms isn't
+  actually controlled.
+  Approved by: Farhad, in this session (2026-08-06).
