@@ -1398,3 +1398,17 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .contact-aside { padding-top: 2rem; border-top: 1px solid var(--line); }
 .contact-aside .meta-mono { margin-bottom: .75rem; }
 .contact-aside-value { margin-bottom: 2rem; }
+
+/* -------------------------------------------------------------------------
+   ۲۶ · Search page (search.php, Phase 4.2) — replaces
+   body-search.html's inline style="" attributes.
+   ------------------------------------------------------------------------- */
+.search-form { max-width: 640px; margin-inline: auto; margin-bottom: 3rem; }
+.search-form-label { text-align: center; }
+.search-form-row { display: flex; gap: .5rem; }
+.search-filter-tabs { margin-top: 1rem; margin-bottom: 0; font-size: var(--t-small); }
+.search-results { max-width: 820px; margin-inline: auto; }
+.search-results-count { margin-bottom: 1.5rem; }
+.search-no-results { text-align: center; }
+.card-dek mark,
+.h-card-lg mark { background: var(--crimson-tint); color: var(--crimson-deep); padding: 0 .2em; }

@@ -270,16 +270,27 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 > **Second correction (Phase 4.2, logged in `docs/CHANGELOG.md`
 > 2026-08-06, found while building `front-page.php`):** the "articles
 > only, no type param" conclusion above needed one narrow revision.
-> `body-index.html`'s "Latest" grid and `body-search.html`'s results both
-> render exactly one **document** using `.card` markup (different
-> type-label icon/text, links to `document-single.html`) — confirmed via
-> grep to appear in only those two files, nowhere else (topic archives
-> stay articles-only; library archives still use `.doc-row`/`.issue-card`
-> exclusively, unchanged). So `card.php` does need an optional `$type`
+> `body-index.html`'s "Latest" grid renders exactly one **document**
+> using `.card` markup (different type-label icon/text, links to
+> `document-single.html`). So `card.php` does need an optional `$type`
 > param after all — but scoped to `'article'` (default) or `'document'`
-> only, used only in these two confirmed mixed-stream contexts, not the
-> broader article/issue/document 3-way split the first correction
-> rejected. `issue-card.php` and the row/list partials are unaffected.
+> only, not the broader article/issue/document 3-way split the first
+> correction rejected. `issue-card.php` and the row/list partials are
+> unaffected.
+>
+> **Third correction (Phase 4.2, logged in `docs/CHANGELOG.md`
+> 2026-08-06, found while building `search.php`):** the second
+> correction above also claimed `body-search.html`'s results use this
+> same `.card` markup for its document result — checked directly
+> against the actual file this time (rather than the grep sweep that
+> produced the second correction, which apparently mismatched here) and
+> found that's not accurate: no `class="card"` appears anywhere in
+> `body-search.html`. Its results — all 4 types, article/note/issue/
+> document alike — are a distinct `<li class="stack-lg">`-family
+> component (`h-card-lg`, no image, no type-icon SVG), built as its own
+> `template-parts/search/result.php` instead of a third `card.php`
+> variant. `card.php` stays scoped to exactly the one confirmed
+> context: front-page.php's Latest grid.
 
 **Checklist:**
 - ☐ header.php, footer.php built, wp_head()/wp_footer() present and firing

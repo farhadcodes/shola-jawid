@@ -30,6 +30,79 @@ class Post_Types {
 		add_action( 'init', array( __CLASS__, 'register_rewrite_tags' ) );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_issue_permalink' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_document_permalink' ), 10, 2 );
+		add_action( 'pre_get_posts', array( __CLASS__, 'include_cpts_in_search' ) );
+		add_filter( 'query_vars', array( __CLASS__, 'register_search_type_query_var' ) );
+	}
+
+	/**
+	 * Registers `result_type`, the query var behind search.php's filter
+	 * tabs (همه/مقاله/یادداشت/شمارهٔ نشریه/سند کتابخانه).
+	 *
+	 * @param string[] $vars Public query vars.
+	 * @return string[]
+	 */
+	public static function register_search_type_query_var( $vars ) {
+		$vars[] = 'result_type';
+		return $vars;
+	}
+
+	/**
+	 * Native front-end search (`search.php`) must return articles/notes
+	 * (`post`), issues, and documents together by default, per IA doc SRCH
+	 * row and `body-search.html`'s mixed result list — `announcement` is
+	 * deliberately excluded, it never appears in v6's search results or
+	 * its filter-tab list. Also backs search.php's filter tabs via the
+	 * `result_type` query var: مقاله (article, excludes the aside post
+	 * format), یادداشت (note, the aside post format), شمارهٔ نشریه
+	 * (issue), سند کتابخانه (document). Only touches the main front-end
+	 * search query, never wp-admin or any other query on the site.
+	 *
+	 * @param WP_Query $query The query being modified.
+	 * @return void
+	 */
+	public static function include_cpts_in_search( $query ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_search() ) {
+			return;
+		}
+
+		$type = sanitize_key( (string) $query->get( 'result_type' ) );
+
+		switch ( $type ) {
+			case 'article':
+				$query->set( 'post_type', 'post' );
+				$query->set(
+					'tax_query', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+					array(
+						array(
+							'taxonomy' => 'post_format',
+							'field'    => 'slug',
+							'terms'    => array( 'post-format-aside' ),
+							'operator' => 'NOT IN',
+						),
+					)
+				);
+				break;
+
+			case 'note':
+				$query->set( 'post_type', 'post' );
+				$query->set( 'post_format', 'aside' );
+				break;
+
+			case 'issue':
+				$query->set( 'post_type', 'issue' );
+				break;
+
+			case 'document':
+				$query->set( 'post_type', 'document' );
+				break;
+
+			default:
+				$post_type = $query->get( 'post_type' );
+				if ( empty( $post_type ) || 'any' === $post_type ) {
+					$query->set( 'post_type', array( 'post', 'issue', 'document' ) );
+				}
+				break;
+		}
 	}
 
 	/**

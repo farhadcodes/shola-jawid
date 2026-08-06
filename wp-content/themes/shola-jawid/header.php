@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span><?php esc_html_e( 'منو', 'shola-jawid' ); ?></span>
 			</button>
 			<span aria-hidden="true" class="mast-slash">/</span>
-			<a href="<?php echo esc_url( home_url( '/search/' ) ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 				<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
 

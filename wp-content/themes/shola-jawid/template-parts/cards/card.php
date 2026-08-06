@@ -5,11 +5,15 @@
  * class="card"> markup.
  *
  * Defaults to article display; pass $args['type'] = 'document' for the
- * two confirmed mixed-content-stream contexts (front-page.php's Latest
- * grid, search.php results) where v6 also renders a document through this
- * same markup — see docs/CHANGELOG.md 2026-08-06. Every other document
- * context uses .doc-row (template-parts/rows/document-row.php) instead;
- * do not pass type=document anywhere else.
+ * one confirmed mixed-content-stream context (front-page.php's Latest
+ * grid) where v6 also renders a document through this same markup — see
+ * docs/CHANGELOG.md 2026-08-06. search.php's results were assumed to be a
+ * second such context but turned out not to be, on checking
+ * body-search.html directly while building search.php (2026-08-06,
+ * corrected in docs/CHANGELOG.md) — that page uses its own distinct
+ * template-parts/search/result.php instead. Every other document context
+ * uses .doc-row (template-parts/rows/document-row.php); do not pass
+ * type=document anywhere else.
  *
  * @param array $args {
  *     @type WP_Post $post Post object. Defaults to the global $post.

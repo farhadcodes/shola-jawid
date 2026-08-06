@@ -1205,3 +1205,70 @@ trail of *why* the build deviated from — or newly applied — a rule in
   present and matching the tab nav's `href="#..."` targets, correct
   placeholder email.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Corrected:** `EXECUTION_PLAN.md`'s Phase 4.1 "second correction"
+  (logged 2026-08-06) claimed `body-search.html`'s results render its
+  one document using `.card` markup, alongside `body-index.html`'s
+  "Latest" grid. Checked directly against the actual file while
+  building `search.php` rather than trusting the plan's prior note: no
+  `class="card"` appears anywhere in `body-search.html`. Search results
+  are a genuinely distinct anatomy — a plain `<li>` in `<ul
+  class="stack-lg">`, `h-card-lg` not `h-card`, no image, no type-icon
+  SVG — that happens to reuse the `card-dek`/`card-byline` class names
+  for visual-family consistency, not the same component. Built a new
+  `template-parts/search/result.php` instead of extending `card.php`'s
+  `$type` param a second time. `card.php`'s own docblock (which
+  repeated the same inaccurate claim) corrected in the same commit.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `search.php` needs 4 result types mixed in one query
+  (article, note, issue, document) plus working filter tabs — v6's
+  mockup renders the tabs as inert `href="#"` placeholders, but unlike
+  `archive-announcement.php`'s announcement-detail case, a real
+  destination for each tab already exists (this same template,
+  filtered), so building them as live links is the "real destination
+  beats a dead link" case, not the reverted one. Implemented in
+  `shola-core\Post_Types`: `include_cpts_in_search()` (hooked to
+  `pre_get_posts`) now both (a) defaults native search to `post` +
+  `issue` + `document` together — `announcement` deliberately excluded,
+  it never appears in v6's search results or filter-tab list — and (b)
+  reads a new `result_type` public query var (registered via
+  `query_vars`) to back the filter tabs: `article` (post, excluding the
+  aside post format via `tax_query`), `note` (post, `post_format =
+  aside`), `issue`, `document`. Query engineering placed in `shola-core`
+  rather than the theme, consistent with the existing permalink filters
+  living there (§2 split — this determines which content a native WP
+  feature surfaces, not presentation).
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `shola_highlight_search_term()` (`inc/template-tags.php`)
+  wraps query matches in `<mark>`, matching v6's highlighted result
+  titles/deks. Multibyte-safe (`/iu` regex flags) for Persian text.
+  Takes already-`esc_html()`'d input and returns HTML with `<mark>`
+  intact, output via `wp_kses( $text, array( 'mark' => array() ) )` at
+  the call site rather than raw `echo`, so nothing except the `<mark>`
+  tag itself is ever unescaped.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** the masthead search icon (`header.php`, built Phase 4.1)
+  has linked to `home_url( '/search/' )` since it was written — a
+  static path with no Page and no rewrite rule behind it, confirmed via
+  `curl`: `404`. Pre-existing bug, not something this session
+  introduced; caught now because `search.php` finally gives it a real,
+  correct destination to point to. Fixed to `home_url( '/?s=' )` — WP's
+  `is_search()` is true whenever the `s` query var is present at all,
+  even empty, confirmed via `curl` (`200`, renders the search template
+  with an empty query rather than 404ing or falling through to the
+  front page). Footer checked for the same bug — no search link exists
+  there at all (`shola_fallback_footer_site()`), so nothing to fix.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `search.php` built and closed. Verified live via
+  `curl` against real seeded content (query "تورم", present in both an
+  article and an issue): `200`, zero PHP errors/warnings/notices, zero
+  inline styles, correct Persian-digit result count, `<mark>`
+  highlighting working on both title and dek, filter tabs verified to
+  actually filter (`result_type=issue` returned only the شماره result),
+  and the empty-results state tested with a nonsense query (renders the
+  "نتیجه‌ای یافت نشد" message, not a blank page or an error).
+  Approved by: Farhad, in this session (2026-08-06).

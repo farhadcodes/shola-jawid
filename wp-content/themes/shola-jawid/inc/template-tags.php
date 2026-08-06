@@ -388,3 +388,28 @@ function shola_get_publication_meta_line( $term ) {
 		$year_range
 	);
 }
+
+/**
+ * Wraps every case-insensitive occurrence of the search query in a <mark>,
+ * matching body-search.html's highlighted result titles. Takes and returns
+ * already-escaped HTML (the caller passes esc_html()'d text) so the <mark>
+ * tags themselves aren't escaped away; $query is escaped internally before
+ * use, but must not itself already be HTML.
+ *
+ * @param string $escaped_text Already-esc_html()'d text to search within.
+ * @param string $query        Raw (unescaped) search query.
+ * @return string HTML with matches wrapped in <mark>, safe to echo directly.
+ */
+function shola_highlight_search_term( $escaped_text, $query ) {
+	$query = trim( (string) $query );
+
+	if ( '' === $query ) {
+		return $escaped_text;
+	}
+
+	$pattern = '/' . preg_quote( esc_html( $query ), '/' ) . '/iu';
+
+	$highlighted = preg_replace( $pattern, '<mark>$0</mark>', $escaped_text );
+
+	return null === $highlighted ? $escaped_text : $highlighted;
+}
