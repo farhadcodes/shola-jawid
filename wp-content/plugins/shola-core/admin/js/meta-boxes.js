@@ -50,4 +50,27 @@
 		$field.find(".shcore-pdf-filename").text("");
 		$(this).hide();
 	});
+
+	/* Issue table-of-contents repeater. Every row field (section, title,
+	   byline) is optional by design — this script only adds/removes whole
+	   rows; it never validates field contents, since a blank field is a
+	   valid save, not something to block. */
+	$(document).on("click", ".shcore-toc-add-row", function (e) {
+		e.preventDefault();
+		var $wrap = $(this).closest(".shcore-toc-repeater-wrap");
+		var $tbody = $wrap.find(".shcore-toc-repeater tbody");
+		var template = $wrap.find(".shcore-toc-row-template").html();
+		var index = $tbody.find("tr").length;
+
+		while ($tbody.find('[name*="[' + index + '][section]"]').length) {
+			index++;
+		}
+
+		$tbody.append(template.replace(/__INDEX__/g, index));
+	});
+
+	$(document).on("click", ".shcore-toc-remove-row", function (e) {
+		e.preventDefault();
+		$(this).closest("tr").remove();
+	});
 })(jQuery);

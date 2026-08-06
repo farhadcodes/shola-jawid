@@ -1519,3 +1519,110 @@ trail of *why* the build deviated from — or newly applied — a rule in
   whole TOC section) degrades gracefully to absent rather than showing
   empty/broken markup.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Changed (real schema change, editorial-workflow-facing, reviewed
+  before building — not bolted on after):** `shcore_contents` replaces
+  the pipe-delimited-text editing UI with a real repeater: SECTION
+  (dropdown), Title (text), Byline (text) per row, add/remove-row
+  controls, extending the existing PDF-picker admin-JS pattern
+  (`admin/js/meta-boxes.js`) rather than a new dependency. Plan
+  reviewed and approved before implementation:
+  - **SECTION dropdown is dynamic**, not hardcoded — pulled live from
+    `get_terms( 'topic' )` plus a fixed `TRANSLATION` pseudo-option, so
+    a new topic term doesn't need a code change to appear here. (A
+    stray pre-existing test term, "موضوع آزمایشی", was noticed showing
+    up in this dropdown while verifying — unrelated leftover data in
+    the `topic` taxonomy, not introduced by this change; flagged here,
+    not cleaned up as part of this task.)
+  - **Storage**: `shcore_contents` keeps its single meta key, but its
+    *contents* change from pipe-delimited free text to a JSON-encoded
+    array of `{section, title, byline}` objects — simpler atomic
+    save/read than WP's repeated-meta-row pattern for this small,
+    bounded row count. `get_issue_contents()`'s return shape is
+    unchanged, so `single-issue.php` needed zero changes.
+  - **Every field is genuinely optional at every layer, by design, not
+    just tolerated**: `sanitize_issue_contents()` keeps any row with at
+    least one non-empty field (title-only, section-only, byline-only,
+    any combination) and only drops rows that are fully empty across
+    all three — that was the explicit choice made, stated here per
+    Farhad's instruction to say which of "save blank vs. drop blank
+    rows" was chosen. A completely empty repeater (zero rows) saves as
+    `''` and reads back as an empty array, matching how absent
+    `shcore_contents` already behaved before this change.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed, real bug found and fixed before it could ship:** the first
+  migration attempt (converting issue #32's existing pipe-delimited
+  text to the new JSON format) silently corrupted every Persian
+  character in the stored data — `wp_json_encode()` without
+  `JSON_UNESCAPED_UNICODE` escapes non-ASCII text as `\uXXXX`
+  sequences, and something in WordPress's own post-meta save pipeline
+  (isolated and confirmed empirically via a throwaway scratch-post
+  test, not just assumed: a plain `update_post_meta()` call with no
+  custom code involved reproduced the exact same corruption)
+  applies `stripslashes()`-style unslashing on the way to the
+  database — which strips the backslash off every `\uXXXX` escape,
+  turning correctly-encoded Persian text into literal garbage
+  (`u0627` instead of what it should decode to). Caught by checking
+  the actual re-parsed output after the first migration attempt rather
+  than assuming success from "no PHP error was thrown" — there wasn't
+  one; the corruption was silent. Fixed by encoding with
+  `JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES` everywhere
+  `shcore_contents` is written (`sanitize_issue_contents()`,
+  `save_meta_boxes()`), which avoids the problem entirely by never
+  producing a backslash-escape for Persian text (or `/`) in the first
+  place, so there's nothing for the unslashing step to corrupt.
+  Re-ran the migration afterward — verified below.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** Full verification pass, per Farhad's explicit request
+  to verify each layer rather than trust the code:
+  1. **Migration**: issue #32's 6 original rows re-migrated after the
+     `JSON_UNESCAPED_UNICODE` fix — raw stored JSON confirmed to
+     contain real UTF-8 Persian text (not escapes), all 6 rows re-parse
+     with content byte-identical to the original v6 source text. No
+     data loss.
+  2. **Add/remove-row UI**: wp-admin itself needs a login this session
+     doesn't have credentials for, so tested differently but for-real:
+     built a standalone HTML harness that loads the actual
+     `admin/js/meta-boxes.js` file and the actual server-rendered
+     repeater markup (`render_issue_metabox()`'s real output, not a
+     mock) — the same PHP and the same JS the real editor screen would
+     load, just outside the wp-admin auth wall. Confirmed: initial
+     load shows the real 6 rows; "+ افزودن ردیف" appends a correctly-
+     indexed new row (`[6]`); removing a row correctly removes only
+     that row; adding again after a mid-list removal correctly skips
+     the now-missing index rather than colliding with it (`[7]`, not a
+     reused `[2]`) — the JS's collision-avoidance loop verified doing
+     its job, not just present in the code.
+  3. **Fresh issue, no existing TOC**: `render_issue_metabox()` called
+     directly on a scratch draft post with empty `shcore_contents` —
+     renders the repeater table with zero rows and the add-row button/
+     row-template intact, no PHP warnings in the captured output.
+  4. **Front-end unchanged after migration**: `single-issue.php` on
+     issue #32 re-verified via `curl` post-migration — `200`, zero
+     inline styles, zero PHP errors, identical TOC output (numbering,
+     section labels, "۵ مقاله + ۱ ترجمه" summary) to before the schema
+     change.
+  5. **Optional-fields behavior, tested explicitly at both layers**:
+     a title-only row, a section-only row, and a fully empty repeater
+     each round-tripped through `sanitize_issue_contents()` →
+     `get_issue_contents()` correctly (confirmed via `var_dump`, no
+     undefined-index warnings — every returned row always has all
+     three keys, empty string where absent). Then re-tested live on
+     the real front end: temporarily added a title-only row and a
+     section-only row to issue #32's real TOC, `curl`-verified `200`
+     and zero PHP warnings, confirmed each rendered exactly as the
+     template's existing conditionals intend (title-only: bare
+     `<span>`, no meta-mono line, no byline line; section-only:
+     meta-mono line present, empty `<span class="link-quiet"></span>`,
+     no byline line) — not broken, just minimally rendered, then
+     restored the original 6 clean rows afterward.
+  All throwaway scripts (migration, isolation test, verification test,
+  harness) deleted after running and confirmed unreachable (`404`).
+  `debug.log` checked for any `shcore_contents`/`Meta_Fields`-related
+  entries from this work — none found (one unrelated pre-existing
+  warning noticed in `class-contact-settings.php:118`, "Array to
+  string conversion" — from an earlier feature, not touched, flagged
+  here for awareness only).
+  Approved by: Farhad, in this session (2026-08-06).

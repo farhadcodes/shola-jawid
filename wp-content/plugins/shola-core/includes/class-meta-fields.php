@@ -86,7 +86,7 @@ class Meta_Fields {
 				'type'              => 'string',
 				'single'            => true,
 				'show_in_rest'      => true,
-				'sanitize_callback' => 'wp_kses_post',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_issue_contents' ),
 				'auth_callback'     => $auth_callback,
 			)
 		);
@@ -254,9 +254,9 @@ class Meta_Fields {
 	 */
 	public static function render_issue_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$number   = get_post_meta( $post->ID, 'shcore_issue_number', true );
-		$volume   = get_post_meta( $post->ID, 'shcore_volume', true );
-		$contents = get_post_meta( $post->ID, 'shcore_contents', true );
+		$number = get_post_meta( $post->ID, 'shcore_issue_number', true );
+		$volume = get_post_meta( $post->ID, 'shcore_volume', true );
+		$rows   = self::get_issue_contents( $post->ID );
 		?>
 		<p>
 			<label for="shcore_issue_number"><strong><?php esc_html_e( 'شمارهٔ شماره', 'shola-core' ); ?></strong></label><br>
@@ -267,13 +267,73 @@ class Meta_Fields {
 			<input type="text" id="shcore_volume" name="shcore_volume" class="regular-text" value="<?php echo esc_attr( $volume ); ?>">
 		</p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
-		<p>
-			<label for="shcore_contents"><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></label><br>
-			<p class="description">
-				<?php esc_html_e( 'هر سطر یک نوشته: «بخش|عنوان|نویسنده» (بخش و نویسنده اختیاری‌اند). نوشته‌های شماره فقط در PDF چاپ می‌شوند و در سایت صفحهٔ مستقل ندارند — این فهرست فقط توضیحی است. نوشتن «TRANSLATION» به‌عنوان بخش، آن سطر را در شمار «ترجمه» به‌جای «مقاله» می‌شمارد.', 'shola-core' ); ?>
-			</p>
-			<textarea id="shcore_contents" name="shcore_contents" class="large-text code" rows="8" placeholder="ECONOMY|اقتصاد سیاسیِ نان؛ چه کسی بهای تورم را می‌پردازد؟|هیئت تحریریه"><?php echo esc_textarea( $contents ); ?></textarea>
+
+		<p><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></p>
+		<p class="description">
+			<?php esc_html_e( 'نوشته‌های شماره فقط در PDF چاپ می‌شوند و در سایت صفحهٔ مستقل ندارند — این فهرست فقط توضیحی است. هر سه فیلد اختیاری‌اند؛ ردیف‌های کاملاً خالی هنگام ذخیره نادیده گرفته می‌شوند.', 'shola-core' ); ?>
 		</p>
+		<div class="shcore-toc-repeater-wrap">
+			<table class="widefat shcore-toc-repeater">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'بخش', 'shola-core' ); ?></th>
+						<th><?php esc_html_e( 'عنوان', 'shola-core' ); ?></th>
+						<th><?php esc_html_e( 'نویسنده', 'shola-core' ); ?></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $i => $row ) : ?>
+						<?php self::render_toc_row( $i, $row ); ?>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<p><button type="button" class="button shcore-toc-add-row"><?php esc_html_e( '+ افزودن ردیف', 'shola-core' ); ?></button></p>
+			<script type="text/html" class="shcore-toc-row-template">
+				<?php self::render_toc_row( '__INDEX__', array() ); ?>
+			</script>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders one <tr> of the table-of-contents repeater — shared between
+	 * existing rows (real index, real values) and the JS row template
+	 * (literal `__INDEX__` placeholder, empty values, string-replaced on
+	 * clone in admin/js/meta-boxes.js). SECTION options come live from the
+	 * `topic` taxonomy plus a fixed TRANSLATION pseudo-option, rather than
+	 * a hardcoded slug list, so a new topic term doesn't need a code
+	 * change to show up here.
+	 *
+	 * @param int|string                                  $index Row index (or '__INDEX__' for the template).
+	 * @param array{section?: string, title?: string, byline?: string} $row Row values.
+	 * @return void
+	 */
+	private static function render_toc_row( $index, $row ) {
+		$section = isset( $row['section'] ) ? $row['section'] : '';
+		$title   = isset( $row['title'] ) ? $row['title'] : '';
+		$byline  = isset( $row['byline'] ) ? $row['byline'] : '';
+		$topics  = get_terms( array( 'taxonomy' => 'topic', 'hide_empty' => false ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, admin-only.
+		if ( is_wp_error( $topics ) ) {
+			$topics = array();
+		}
+		?>
+		<tr>
+			<td>
+				<select name="shcore_contents[<?php echo esc_attr( $index ); ?>][section]">
+					<option value=""><?php esc_html_e( '— بدون بخش —', 'shola-core' ); ?></option>
+					<?php foreach ( $topics as $topic ) : ?>
+						<option value="<?php echo esc_attr( $topic->slug ); ?>" <?php selected( $section, $topic->slug ); ?>>
+							<?php echo esc_html( $topic->name . ' (' . strtoupper( $topic->slug ) . ')' ); ?>
+						</option>
+					<?php endforeach; ?>
+					<option value="TRANSLATION" <?php selected( $section, 'TRANSLATION' ); ?>><?php esc_html_e( 'ترجمه (TRANSLATION)', 'shola-core' ); ?></option>
+				</select>
+			</td>
+			<td><input type="text" class="regular-text" name="shcore_contents[<?php echo esc_attr( $index ); ?>][title]" value="<?php echo esc_attr( $title ); ?>"></td>
+			<td><input type="text" class="regular-text" name="shcore_contents[<?php echo esc_attr( $index ); ?>][byline]" value="<?php echo esc_attr( $byline ); ?>"></td>
+			<td><button type="button" class="button-link shcore-toc-remove-row" aria-label="<?php esc_attr_e( 'حذف ردیف', 'shola-core' ); ?>">✕</button></td>
+		</tr>
 		<?php
 	}
 
@@ -405,6 +465,16 @@ class Meta_Fields {
 		}
 
 		foreach ( $fields_by_type[ $post->post_type ] as $field ) {
+			if ( 'shcore_contents' === $field ) {
+				// Repeater rows arrive as shcore_contents[N][section|title|byline].
+				// Absent entirely (JS never touched, or every row removed) is a
+				// valid, expected state — save as an empty TOC, not an error.
+				$rows = isset( $_POST['shcore_contents'] ) && is_array( $_POST['shcore_contents'] )
+					? array_values( wp_unslash( $_POST['shcore_contents'] ) )
+					: array();
+				update_post_meta( $post_id, 'shcore_contents', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+				continue;
+			}
 			if ( isset( $_POST[ $field ] ) ) {
 				update_post_meta( $post_id, $field, wp_unslash( $_POST[ $field ] ) );
 			}
@@ -412,13 +482,20 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Parses `shcore_contents` (an issue's optional, free-text table of
-	 * contents) into structured entries for single-issue.php. Format is
-	 * one line per entry: `SECTION|Title|Byline` — SECTION and Byline are
-	 * optional, only Title is required; malformed/empty lines are
-	 * skipped rather than raising an error, since this is editor-typed
-	 * free text, not a strict data-entry form. Deliberately no per-entry
-	 * page count or link to a real article: per
+	 * Parses `shcore_contents` (an issue's optional table of contents)
+	 * into structured entries for single-issue.php and the metabox
+	 * repeater. Stored as a JSON-encoded array of
+	 * `{section, title, byline}` objects (schema changed 2026-08-06 from
+	 * a pipe-delimited free-text format to this repeater-backed one — see
+	 * docs/CHANGELOG.md for the migration record). All three fields are
+	 * genuinely optional: a row with only a title, only a section, or any
+	 * other partial combination is valid and rendered as-is; only fully
+	 * empty rows are dropped, and that happens on save
+	 * (sanitize_issue_contents()), not here. Malformed/non-JSON stored
+	 * data (e.g. pre-migration content that was never converted) decodes
+	 * to an empty array rather than erroring.
+	 *
+	 * Deliberately no per-entry page count or link to a real article: per
 	 * docs/EXECUTION_PLAN.md's Phase 0.3 resolved assumption, issues are
 	 * PDF-only — a table-of-contents entry describes what's in the PDF,
 	 * it isn't a real WP post with its own permalink.
@@ -432,27 +509,79 @@ class Meta_Fields {
 			return array();
 		}
 
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) ) {
+			return array();
+		}
+
 		$entries = array();
-		foreach ( preg_split( '/\r\n|\r|\n/', $raw ) as $line ) {
-			$line = trim( $line );
-			if ( '' === $line ) {
+		foreach ( $decoded as $row ) {
+			if ( ! is_array( $row ) ) {
 				continue;
 			}
-
-			$parts = array_map( 'trim', explode( '|', $line ) );
-			$title = isset( $parts[1] ) ? $parts[1] : $parts[0];
-			if ( '' === $title ) {
-				continue;
-			}
-
 			$entries[] = array(
-				'section' => isset( $parts[1] ) ? $parts[0] : '',
-				'title'   => $title,
-				'byline'  => isset( $parts[2] ) ? $parts[2] : '',
+				'section' => isset( $row['section'] ) ? (string) $row['section'] : '',
+				'title'   => isset( $row['title'] ) ? (string) $row['title'] : '',
+				'byline'  => isset( $row['byline'] ) ? (string) $row['byline'] : '',
 			);
 		}
 
 		return $entries;
+	}
+
+	/**
+	 * Sanitize callback for `shcore_contents`. Accepts a JSON string
+	 * (from save_meta_boxes()'s own `wp_json_encode()` of the repeater's
+	 * `$_POST` rows, or from REST), sanitizes every field with
+	 * `sanitize_text_field()`, and drops rows that are fully empty across
+	 * all three fields — a partially-filled row (e.g. title only) is kept
+	 * as-is, since every field is independently optional by design, not
+	 * just tolerated.
+	 *
+	 * Real bug found and fixed while building this: `wp_json_encode()`
+	 * without `JSON_UNESCAPED_UNICODE` escapes every non-ASCII (i.e.
+	 * every Persian) character as `\uXXXX`, and something in WP's own
+	 * post-meta save path (empirically confirmed via an isolated
+	 * `update_post_meta()` test, not just assumed) applies
+	 * `stripslashes()`-style unslashing to the value on the way to the
+	 * DB — which silently eats the backslash off every `\uXXXX`
+	 * sequence, turning it into literal garbage text (`u0627` instead of
+	 * the character it decodes to). `JSON_UNESCAPED_UNICODE` avoids the
+	 * problem entirely by never producing a backslash-escape for Persian
+	 * text in the first place. `JSON_UNESCAPED_SLASHES` alongside it for
+	 * the same reason, applied preventatively (no `/` in real data hit
+	 * this yet, but the failure mode would be identical).
+	 *
+	 * @param string $raw JSON-encoded array of {section, title, byline} rows.
+	 * @return string JSON-encoded, sanitized array — or '' if nothing valid remains.
+	 */
+	public static function sanitize_issue_contents( $raw ) {
+		$decoded = json_decode( (string) $raw, true );
+		if ( ! is_array( $decoded ) ) {
+			return '';
+		}
+
+		$clean = array();
+		foreach ( $decoded as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$section = isset( $row['section'] ) ? sanitize_text_field( $row['section'] ) : '';
+			$title   = isset( $row['title'] ) ? sanitize_text_field( $row['title'] ) : '';
+			$byline  = isset( $row['byline'] ) ? sanitize_text_field( $row['byline'] ) : '';
+
+			if ( '' === $section && '' === $title && '' === $byline ) {
+				continue; // Fully empty row — nothing to keep.
+			}
+
+			$clean[] = array(
+				'section' => $section,
+				'title'   => $title,
+				'byline'  => $byline,
+			);
+		}
+
+		return $clean ? wp_json_encode( $clean, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) : '';
 	}
 
 	/**
