@@ -1313,3 +1313,27 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the correct name/duration, and its starting computed background
   color is `rgb(245, 220, 220)` (`--crimson-tint` exactly).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** Farhad reviewed the flash live and found two real gaps:
+  too quick to actually register, and scoped to only the `<h2>` title
+  rather than the section a reader jumped to. The heading-only scope
+  was a real ceiling of the original approach — `h2:target` has no
+  pure-CSS way to reach "every sibling until the next heading," so the
+  fix restructures rather than just tunes: the `about` Page's
+  `post_content` (id 73) now wraps each of the 7 sections in a Group
+  block (`{"anchor":"...","className":"about-section",...}`) so the
+  anchor — and therefore `:target` — lands on a real container around
+  the heading *and* its paragraphs, not the heading alone. CSS updated
+  to match: `.prose .about-section:target` instead of `.prose
+  h2:target`. Timing changed from a straight 1.4s fade to a
+  `0%, 35% { …tint }, 100% { …transparent }` keyframe at 2.2s — holds
+  at full tint for the first third before fading, giving it time to
+  actually be seen rather than fading immediately. Re-verified live via
+  the browser: `#team` now resolves to the wrapping `<div>` (confirmed
+  fresh, not a stale cached DOM — an earlier check briefly and
+  incorrectly suggested the id had landed on the `<h2>` again, caught
+  and re-checked against a forced fresh navigation before trusting it),
+  its bounding-box height covers the full section (~190px, heading +
+  both paragraphs) not just the heading line, and
+  `animation-duration: 2.2s` is applied.
+  Approved by: Farhad, in this session (2026-08-06).

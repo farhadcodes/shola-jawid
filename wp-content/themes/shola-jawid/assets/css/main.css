@@ -899,17 +899,25 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 }
 /* page-about.php's tab nav jumps here via the browser's native anchor
    scroll (v6 has no :target CSS of its own to build on — checked, no
-   matches for :target/@keyframes anywhere in its source). Brief
-   background flash confirms where the jump landed; reuses
-   --crimson-tint, the same token the search-result <mark> highlight
-   already uses, rather than introducing a new color for the same
-   "highlighted" meaning. */
+   matches for :target/@keyframes anywhere in its source). Background
+   flash confirms where the jump landed; reuses --crimson-tint, the
+   same token the search-result <mark> highlight already uses, rather
+   than introducing a new color for the same "highlighted" meaning.
+   The anchor lives on a .about-section wrapper (a Group block around
+   each heading + its paragraphs), not the heading alone, so the flash
+   covers the whole section a reader jumped to, not just its title —
+   plain h2:target can't do that with CSS alone, since a heading has no
+   relationship to the sibling paragraphs "until the next heading."
+   Holds at full tint for the first third before fading, and runs
+   longer (2.2s) than a first pass (1.4s, straight fade) — that first
+   version read as barely-there; Farhad confirmed by eye it needed more
+   time to actually register. */
 @keyframes shola-target-flash {
-  from { background-color: var(--crimson-tint); }
-  to   { background-color: transparent; }
+  0%, 35% { background-color: var(--crimson-tint); }
+  100%    { background-color: transparent; }
 }
-.prose h2:target {
-  animation: shola-target-flash 1.4s var(--ease);
+.prose .about-section:target {
+  animation: shola-target-flash 2.2s var(--ease);
 }
 .prose a { color: var(--crimson); text-decoration: underline; text-underline-offset: 4px; transition: color var(--dur) var(--ease); }
 .prose a:hover { color: var(--crimson-deep); }
