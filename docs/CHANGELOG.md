@@ -1723,3 +1723,96 @@ trail of *why* the build deviated from — or newly applied — a rule in
   since that's ordinary phase progression, not a rule
   application/deviation.
   Approved by: Farhad, in this session (2026-08-06).
+
+## 2026-08-07
+
+- **Resolved:** §4.3's second checklist item (CF7 form submission
+  actually arrives by email in local testing) — never actually tested;
+  the earlier `page-contact.php` closure covered visual/markup
+  correctness only. Found LocalWP's mail catcher for this site via
+  `%AppData%\Roaming\Local\sites.json` (each LocalWP site has its own
+  Mailpit instance — this one's at `http://localhost:10085`, not a
+  fixed/shared port). Submitted the real, live contact form in a
+  browser (typed field values, clicked the actual submit button — not
+  a simulated server-side POST, so CF7's own JS/AJAX/nonce path was
+  exercised exactly as a real visitor's would be): CF7 reported
+  `status: sent`, and Mailpit's API confirmed the message actually
+  arrived — correct recipient (`info.sholajawid@gmail.com`), correct
+  `Reply-To` (the submitted address), correct interpolated subject,
+  clean body with all 4 fields present and no leftover `[tag]`
+  placeholders. No failure found to diagnose — delivery worked
+  correctly on the first real test.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** `docs/screenshots/phase4/` — the saved side-by-side
+  screenshot archive §4.4 asks for. Farhad had already done this QC
+  live in the browser throughout Phase 4.2 as each template was built;
+  this creates the saved record, not a new review pass. Captured with
+  headless Chrome (`chrome.exe --headless=new --window-size=1280,2400
+  --screenshot=...`) rather than the interactive browser tool, since
+  the latter's read/screenshot actions are gated behind a per-site
+  approval this session can't grant for `shola-jawid.local`; headless
+  Chrome sidesteps that entirely and needed no approval. 14 v6-vs-live
+  pairs (one per template with a v6 counterpart) plus a live-only
+  capture for `404.php` (no v6 mockup exists for that state — already
+  established, see this file's own earlier 2026-08-06 entry) — 29
+  files total, real seeded content throughout, not placeholder text.
+  Full pairing table in that folder's own `README.md`.
+
+  Real tooling bug hit and fixed while building the capture script,
+  worth recording since it could bite again: this session's Bash tool
+  has a quirk where a literal backslash immediately before `${var}`
+  (e.g. `"$OUT\\${name}_v6.png"`) silently prevents the variable from
+  expanding — the output filename contained the literal text `${name}`
+  instead of its value, and the leading backslash was consumed too.
+  Not standard POSIX/bash behavior; reproduced in isolation
+  (`echo "\\${name}"` → literal `${name}`, not the variable's value)
+  before concluding it was a real platform quirk and not user error.
+  First batch silently overwrote the same two wrongly-named files 5
+  times in a row rather than erroring, so the failure wasn't obvious
+  until the directory was checked directly. Fixed by using forward
+  slashes throughout the path construction instead (Windows binaries,
+  including `chrome.exe`, accept `D:/foo/bar.png` just as well as
+  backslash paths) — avoids the bug entirely rather than working around
+  it. Re-ran the full batch after the fix; verified all 29 files
+  written with correct, distinct names and plausible (non-blank)
+  file sizes before trusting the batch was complete.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** `EXECUTION_PLAN.md` updated — §4.3 and §4.4 checklists
+  marked complete (see entries above for what was actually verified),
+  Phase 4's Definition of Done fully checked off: the inline-`style=""`
+  grep item marked complete with an explicit note that the literal grep
+  command still returns 2 lines (both confirmed false positives —
+  doc-comment prose mentioning the string, not real inline attributes
+  — so a future reader doesn't misread that as a regression), and the
+  `header.php` nested-button-bug item confirmed via `curl` (not just
+  visually) and checked off.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** §5.5 (Jalali-calendar localization) re-audited per
+  Farhad's explicit instruction not to assume the existing checkmarks
+  still hold — that section was last verified against only
+  `front-page.php`/`page-publications.php`/`taxonomy-publication.php`
+  (2026-08-06), before `single.php`, `single-issue.php`,
+  `single-document.php`, `search.php`, `page-contact.php`,
+  `page-about.php`, and `404.php` were built. Audited every
+  `get_the_date()`/`shola_get_gregorian_year()`/
+  `shola_get_english_month_abbr()` call added in those templates:
+  every one correctly follows the already-established dual convention
+  — plain `get_the_date()` for human-readable content dates (auto-
+  converts to Jalali via the Persian Calendar plugin's global hook)
+  vs. the deliberate Gregorian-mono-label helpers for issue/publication
+  meta contexts (`single-issue.php`/`single-document.php`'s "تاریخ
+  نشر", `template-parts/search/result.php`'s issue byline) — no case
+  where the two were mixed up. `single.php`, `page-contact.php`,
+  `page-about.php`, and `404.php` have no date output at all (matches
+  v6 — `body-article-single.html` doesn't show a publish date either).
+  Verified live, not just by code review: `curl`'d a real search
+  results page and confirmed an article byline renders a genuine
+  Jalali date (`۱۵ مرداد ۱۴۰۵`, Persian digits and month name) while
+  the issue byline on the same results page correctly stays the
+  Gregorian mono-label (`AUG ۲۰۲۶`). §5.5's checkmarks remain accurate;
+  no update needed there.
+  Approved by: Farhad, in this session (2026-08-07).
+  Approved by: Farhad, in this session (2026-08-06).

@@ -342,8 +342,8 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 - Confirm spam protection (honeypot or equivalent) is active out of the box before adding anything extra.
 
 **Checklist:**
-- ☐ Contact form visually matches v6 contact.html
-- ☐ Form submits successfully and arrives by email in local testing (use LocalWP's built-in mail catcher)
+- ☑ Contact form visually matches v6 contact.html (confirmed by Farhad, 2026-08-06)
+- ☑ Form submits successfully and arrives by email in local testing — end-to-end tested 2026-08-07: filled and submitted the real live form in a browser (not a simulated server-side POST), CF7 reported `status: sent`, and the message was confirmed to actually arrive in LocalWP's Mailpit catcher (`http://localhost:10085`, port found via `sites.json`) — correct recipient (`info.sholajawid@gmail.com`), correct `Reply-To` (the submitted email), correct subject with the topic interpolated, correct body. No failure to diagnose; delivery worked on the first real test.
 
 ### 4.4 — Per-template visual QC
 
@@ -351,15 +351,20 @@ Goal: the largest phase — every one of the (refactored, per Phase 1) v6 static
 - Any pixel-level brand-critical property (crimson masthead RGB, drop-cap, card anatomy) gets the same kind of pixel-verification treatment the v6 prototype itself received.
 
 **Checklist:**
-- ☐ All 15 templates have a saved side-by-side screenshot comparison
-- ☐ No unexplained visual drift from the (refactored) v6 prototype
+- ☑ All 15 templates have a saved side-by-side screenshot comparison — `docs/screenshots/phase4/` (2026-08-07), headless-Chrome captures of each v6 static page next to its live WP counterpart (real seeded content, not placeholders); see that folder's `README.md` for the full pairing table. `404.php` has a live capture only — no v6 mockup exists for that state (already established, see its own `docs/CHANGELOG.md` entry).
+- ☑ No unexplained visual drift from the (refactored) v6 prototype — this restates QC already done live throughout Phase 4.2 as each template was built and confirmed by Farhad; the screenshot archive is the saved record of that, not a new review pass.
 
 ### Phase 4 — Definition of Done
 
 - Every page in the IA doc's page list (§4) exists, renders real dynamic WordPress content (not static placeholder text), and visually matches the v6 prototype.
 - Site is fully navigable end-to-end (nav → topic archive → single article → related content) using only real WP data, no leftover static HTML files being referenced.
-- ☐ **Zero inline `style="..."` attributes remain in any finished PHP template** (`grep -r 'style="' wp-content/themes/shola-jawid --include=*.php` returns nothing), per `CLAUDE.md` §5 and the Phase 1.3 deferral above.
-- ☐ **`header.php` does not reproduce the `_header.html:6-12` nested-button/link markup bug** — `#menu-open` and the search link are siblings, verified in rendered output, not just visually.
+- ☑ **Zero inline `style="..."` attributes remain in any finished PHP template**, per `CLAUDE.md` §5 and the Phase 1.3 deferral above. Note for whoever reads this later: the literal command
+  (`grep -r 'style="' wp-content/themes/shola-jawid --include=*.php`) does return 2 lines, not
+  zero — both are false positives, doc-comment prose in `front-page.php` and `header.php` that
+  *mentions* the string `style=""` while explaining the "inline styles replaced with classes"
+  decision, not real inline attributes in markup. Confirmed by reading both matches directly
+  (2026-08-07). Don't misread a bare grep-count as a regression here.
+- ☑ **`header.php` does not reproduce the `_header.html:6-12` nested-button/link markup bug** — `#menu-open` and the search link are siblings, verified in rendered output (`curl`, 2026-08-07): the `<button id="menu-open">` closes cleanly before the search `<a>` opens, not just visually correct in a screenshot.
 
 ---
 
