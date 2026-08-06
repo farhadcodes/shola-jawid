@@ -369,3 +369,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the save handler route through the same sanitize callbacks REST would
   use, so there's one validation path, not two.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** the PDF media picker (`admin/js/meta-boxes.js`) let editors
+  select and save non-PDF files with no visible error — found by Farhad
+  clicking through the real UI, exactly the kind of check a diagnostic
+  script can't substitute for. Root-caused both halves separately, per
+  Farhad's instruction not to assume which one was broken:
+  1. **Client-side (the actual bug):** the `select` handler accepted
+     whatever `attachment.id` came back with zero validation — the
+     `library: { type: 'application/pdf' }` frame option restricts the
+     browse grid but doesn't stop a file reaching `select` via other paths
+     (search, the "Upload files" tab, etc.), and nothing re-checked the
+     final choice. Fixed by validating `attachment.mime` in the `select`
+     callback and alerting + refusing the selection if it isn't
+     `application/pdf`. (No live browser devtools access in this
+     environment to pin down exactly why the grid-level filter itself
+     wasn't visually restricting — the fix doesn't depend on that working,
+     it validates the actual outcome regardless.)
+  2. **Server-side (re-verified, not just re-read):** re-ran the real
+     `update_post_meta()` call chain (not the isolated `sanitize_pdf_id()`
+     function call from the original Phase 3.3 verification) against a
+     throwaway temp post, saving a real image attachment's ID —
+     confirmed rejected (`shcore_pdf_id` stayed empty), same as the
+     isolated-function test. Server-side enforcement was never actually
+     broken.
+  **Diagnostic-process error, corrected:** the first version of this
+  re-test ran against Farhad's real test issue (not a throwaway post) and
+  its cleanup step blindly deleted `shcore_pdf_id` afterward — which
+  turned out to hold a legitimate, correctly-saved reference to a real PDF
+  (`50-writing-tools.pdf`, attachment #14) from Farhad's own earlier
+  testing, not test debris. Caught immediately by checking what the
+  deleted value actually was before assuming it was disposable; restored
+  to `14` right away. Subsequent diagnostics create and fully delete their
+  own throwaway post instead of touching real content.
+  Approved by: Farhad, in this session (2026-08-06).

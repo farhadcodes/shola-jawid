@@ -22,6 +22,19 @@
 
 		frame.on("select", function () {
 			var attachment = frame.state().get("selection").first().toJSON();
+
+			// The library.type filter above restricts the browse grid, but
+			// doesn't stop a file from being selected via other paths
+			// (search, "Upload files" tab, etc.) — so re-validate the
+			// actual chosen file's MIME type here before accepting it.
+			// This is still client-side UX only: the real enforcement is
+			// server-side (Meta_Fields::sanitize_pdf_id()), which runs
+			// regardless of anything in this file.
+			if (attachment.mime !== "application/pdf") {
+				window.alert("فقط فایل PDF قابل انتخاب است. فایل انتخابی: " + (attachment.mime || "نامشخص"));
+				return;
+			}
+
 			$input.val(attachment.id);
 			$name.text(attachment.filename || attachment.title || "");
 			$remove.show();
