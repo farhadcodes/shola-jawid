@@ -1337,3 +1337,23 @@ trail of *why* the build deviated from — or newly applied — a rule in
   both paragraphs) not just the heading line, and
   `animation-duration: 2.2s` is applied.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved (deliberate deviation from v6, reviewed and approved):**
+  `search.php`'s filter tabs (همه/مقاله/یادداشت/شمارهٔ نشریه/سند
+  کتابخانه) are real, functioning links — `result_type`-driven, built
+  and logged earlier in this session — rather than v6's inert `href="#"`
+  placeholders. Recording this explicitly as an intentional
+  improvement, not an unreviewed scope addition, the same way this
+  session's other deliberate deviations from the static prototype are
+  on record: the contact form's subject dropdown made editable
+  (`shcore_contact_topics`, rather than v6's hardcoded list),
+  `archive-announcement.php`'s titles tried as real permalinks and then
+  reverted back to v6's inert links once the plan confirmed no
+  single-announcement template exists. This case lands on the opposite
+  side of that same judgment call from the announcement one: a real
+  destination for each tab already exists (this same template,
+  filtered), so building them live is "real destination beats a dead
+  link," not the reverted case. `search.php` is now fully closed:
+  masthead-width fix confirmed, functional filter tabs confirmed and
+  approved by Farhad.
+  Approved by: Farhad, in this session (2026-08-06).
