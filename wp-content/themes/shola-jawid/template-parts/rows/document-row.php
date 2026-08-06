@@ -16,6 +16,13 @@
  * (`body-library.html`: "آثار کلاسیک · لنین · PDF · 2.8 MB") includes it
  * and shola-core tracks it (`shcore_author_source`, Phase 3.3).
  *
+ * Also suppresses the collection name when rendered on that same
+ * collection's own archive (`taxonomy-collection.php`) — checked against
+ * `body-library-classics.html` before building that template: its rows
+ * show "لنین · ترجمه ۱۴۰۵ · ..." with no "آثار کلاسیک" prefix, the same
+ * self-reference suppression already proven for card.php's topic link
+ * (Phase 4.2, `is_tax()`).
+ *
  * @param array $args {
  *     @type WP_Post $post Document post object. Defaults to the global $post.
  * }
@@ -41,10 +48,17 @@ if ( $doc_pdf_id ) {
 	$doc_pdf_sz   = $doc_pdf_file && file_exists( $doc_pdf_file ) ? size_format( filesize( $doc_pdf_file ) ) : '';
 }
 
-// "ص" (page count) appears in v6's example but no such field exists in
-// the content model (Phase 3.3) -- omitted rather than fabricated, same
-// call already made for the current-issue module on front-page.php.
-$meta_parts = array_filter( array( $doc_term ? $doc_term->name : '', $doc_author ) );
+// "ص" (page count) and "ترجمه ۱۴۰۵" (translation year, seen on some
+// body-library-classics.html rows) both appear in v6's examples but
+// neither has a content-model field (page count confirmed out of scope
+// by Farhad, 2026-08-06) -- omitted rather than fabricated.
+$on_own_collection_archive = $doc_term && is_tax( $doc_term->taxonomy, $doc_term->term_id );
+$meta_parts                = array_filter(
+	array(
+		$on_own_collection_archive ? '' : ( $doc_term ? $doc_term->name : '' ),
+		$doc_author,
+	)
+);
 ?>
 <li class="doc-row reveal">
 	<div class="doc-body">

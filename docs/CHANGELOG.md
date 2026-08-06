@@ -931,3 +931,26 @@ trail of *why* the build deviated from — or newly applied — a rule in
   and test-content-cleanup items, which are real deferred work) — this
   one is closed.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed (in `document-row.php`, found before building the consuming
+  template, not after):** checked `body-library-classics.html`'s exact
+  source before building `taxonomy-collection.php` and found the same
+  class of self-reference bug already fixed once for `card.php`'s topic
+  link — v6 omits the collection name from `doc-meta` entirely on that
+  collection's own archive (`لنین · ترجمه ۱۴۰۵ · ...`, no "آثار کلاسیک"
+  prefix), but `document-row.php` always included it. Fixed with the
+  same `is_tax( $doc_term->taxonomy, $doc_term->term_id )` pattern
+  already proven for `card.php`, before this bug could ship. "ترجمه
+  ۱۴۰۵" (translation year) also appears in some v6 rows but has no
+  content-model field — omitted, not fabricated, same as page count.
+- **Added:** Phase 4.2 — `taxonomy-collection.php` (one template, all 4
+  collection terms, converted from `body-library-classics.html` and its
+  3 structurally identical siblings). Horizontal `.topic-nav` with
+  active-state highlighting (same pattern as `taxonomy-topic.php`),
+  `document-row.php` list, WP pagination. Seeded real per-term
+  descriptions (exact text from all 4 `body-library-*.html` source
+  files) and 4 more classics documents with real authors for archive
+  variety. Verified via `curl`: `200`, zero PHP errors, zero inline
+  styles, collection-name suppression confirmed working on
+  `/library/classics/`.
+  Approved by: Farhad, in this session (2026-08-06).
