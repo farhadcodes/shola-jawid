@@ -727,3 +727,21 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `front-page.php`, `page-publications.php`, `taxonomy-publication.php`,
   `card.php`, and `issue-card.php` before installing anything.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** Phase 5.5 (Jalali-calendar date localization) confirmed
+  complete via live re-verification across all three affected pages,
+  after Farhad set both remaining settings (timezone → `Asia/Kabul`,
+  `date_format` → custom `j F Y`). Verified via `curl`:
+  - Masthead runner now `۱۵ مرداد ۱۴۰۵` — Jalali, Persian digits,
+    day-month-year order, no comma — matching v6 exactly.
+  - All human-readable dates (bylines, current-issue "تاریخ نشر",
+    announcements) across `front-page.php` correctly Jalali.
+  - Both protected Gregorian mono-label conventions (`page-publications.php`
+    issue-count/year-range, `taxonomy-publication.php` current-issue line
+    and issue-card grid dates) confirmed still unaffected by the
+    `date_format` change — they bypass WP's date-formatting option
+    entirely via the hardened helpers, as designed.
+  - Full-page sweep of all three pages for any other stray raw Gregorian
+    output (beyond `datetime=""` attributes, upload paths, and the
+    already-verified mono-label contexts) found none.
+  Approved by: Farhad, in this session (2026-08-06).
