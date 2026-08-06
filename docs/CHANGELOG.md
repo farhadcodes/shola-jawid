@@ -1272,3 +1272,44 @@ trail of *why* the build deviated from — or newly applied — a rule in
   and the empty-results state tested with a nonsense query (renders the
   "نتیجه‌ای یافت نشد" message, not a blank page or an error).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** real bug on `search.php`, found by Farhad from a rendered
+  screenshot — the masthead/crimson header bar was visibly narrower
+  than every other template, boxed instead of full-width. Root cause
+  had nothing to do with the masthead or header.php (confirmed
+  byte-identical header markup/CSS between search.php and a working
+  template via `curl`): WordPress's own `body_class()` auto-adds a
+  literal `search-results` class to `<body>` on this template (WP
+  core, not theme code), which collided with this session's own
+  `.search-results { max-width: 820px; margin-inline: auto; }` rule
+  (added while building `search.php`, meant only for the results
+  `<div>`, same selector text as the reserved body class) — shrinking
+  and centering the entire `<body>`, masthead included, to 820px.
+  Confirmed live via the browser's DOM inspector (not curl, which
+  can't reveal a computed-CSS bug like this): `<body>` computed width
+  was exactly `820px`, matching the rule's constant. Renamed the
+  wrapper class to `.search-results-wrap` (`search.php`, `main.css`) —
+  a distinct string, can't collide with any of WP core's own
+  auto-added body classes. Re-verified live: `.masthead` now spans the
+  full body width again, `.search-results-wrap` still correctly
+  constrained to 820px.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `:target` highlight-flash on `page-about.php`'s
+  anchor-jump sections, per Farhad's UX request — clicking a tab
+  (دربارهٔ ما / هیئت تحریریه / etc.) already jumps via the browser's
+  native anchor scroll, but gave no visual confirmation of where the
+  page landed. Checked `v6`'s source first per instructions before
+  inventing anything: no `:target` or `@keyframes` rule exists anywhere
+  in its CSS, so this is a new addition, not a ported one. Reuses
+  `--crimson-tint` — the same token the search-result `<mark>`
+  highlight already uses for "highlighted" meaning, rather than a new
+  color — animating `background-color` from `--crimson-tint` to
+  transparent over `1.4s`, scoped to `.prose h2:target` (`main.css`,
+  new `@keyframes shola-target-flash`) so it only ever fires on the
+  headings `page-about.php`'s tab nav actually targets. CSS-only, no
+  JS. Verified live via the browser: navigating to `/about/#team`
+  confirms `#team` matches `:target`, the animation is applied with
+  the correct name/duration, and its starting computed background
+  color is `rgb(245, 220, 220)` (`--crimson-tint` exactly).
+  Approved by: Farhad, in this session (2026-08-06).

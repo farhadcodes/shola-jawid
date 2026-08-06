@@ -53,7 +53,7 @@ $filters = array(
 			</div>
 		</form>
 
-		<div class="search-results">
+		<div class="search-results-wrap">
 			<?php if ( have_posts() ) : ?>
 				<p class="meta-mono search-results-count" lang="en">
 					<?php echo esc_html( shola_to_persian_digits( $GLOBALS['wp_query']->found_posts ) ); ?> RESULTS FOR "<?php echo esc_html( $search_query ); ?>"
