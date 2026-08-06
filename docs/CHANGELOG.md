@@ -1698,4 +1698,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   absent before content was seeded and correctly present after (seeded
   via a throwaway script, deleted after running).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `404.php` built. No v6 mockup exists for an error state —
+  checked directly (no 404/error-named file anywhere in
+  `03_UI_Design/shola-jawid-ui`) rather than assumed — so per
+  `EXECUTION_PLAN.md`'s own instruction for this row ("Match v6
+  error-state design if one exists, else brand-consistent minimal
+  page"), this is assembled entirely from existing components/tokens
+  (`.h-display`, `.dek`, `.btn-primary`/`.btn-ghost`) rather than any
+  new visual design. "بازگشت به صفحهٔ اصلی" (home) and "جست‌وجو در سایت"
+  (pre-filled to `/?s=`, reusing `search.php` rather than inventing a
+  second inline search box) give a genuinely useful next step instead
+  of a dead end. Verified live via `curl` against a nonexistent URL,
+  `?p=99999`, and a nonexistent topic archive slug: all three
+  correctly return `404` (not a silent `200` or a redirect), zero PHP
+  errors/warnings/notices, zero inline styles.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** Every template in `EXECUTION_PLAN.md`'s page-to-
+  template map (§4.2) is now built. Phase 4 (templates) is
+  functionally complete; remaining work moves to whatever Phase 5+
+  covers per the execution plan (fonts self-hosting, security
+  hardening, final QC, etc.) — not tracked further in this log entry,
+  since that's ordinary phase progression, not a rule
+  application/deviation.
   Approved by: Farhad, in this session (2026-08-06).

@@ -1464,3 +1464,17 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .doc-about .h-section { margin-top: .5rem; margin-bottom: 1.5rem; }
 .doc-related-head { margin-top: .5rem; margin-bottom: 2rem; }
 .doc-related-list { margin-bottom: 3rem; }
+
+/* -------------------------------------------------------------------------
+   ۲۹ · 404 (404.php, Phase 4.2) — no v6 mockup exists for this state
+   (checked: no 404/error file anywhere in 03_UI_Design/shola-jawid-ui),
+   so per EXECUTION_PLAN.md's own instruction for this row ("match v6
+   error-state design if one exists, else brand-consistent minimal
+   page"), this is assembled from existing components/tokens only — no
+   new visual design invented, just .h-display + .dek + .btn reused in
+   a centered, minimal layout.
+   ------------------------------------------------------------------------- */
+.error-404 { text-align: center; padding-block: 4rem; }
+.error-404 .h-display { margin-top: .5rem; }
+.error-404 .dek { margin-top: 1rem; max-width: 480px; margin-inline: auto; }
+.error-404-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
