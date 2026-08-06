@@ -868,3 +868,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   shows solid-filled squares uniformly (مقاله and یادداشت alike);
   homepage shows hollow/outlined squares uniformly. Matches v6.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.2 — `page-library.php` (converted from
+  `body-library.html`): collections listing (real per-collection
+  document counts, `.topic-list` pattern already verified) + "تازه‌ترین
+  اسناد" latest-documents list.
+  **Fixed a real gap while building this, not just seed volume:**
+  extracted `template-parts/rows/document-row.php` (per the Phase 1.2
+  decision that `.doc-row` needed its own partial outside
+  `template-parts/cards/`) rather than duplicating the doc-row markup a
+  third time — and in doing so found `front-page.php`'s existing inline
+  version omitted the author/source field entirely, even though v6's own
+  example (`body-library.html`: "آثار کلاسیک · لنین · PDF · 2.8 MB")
+  includes it and `shola-core` already tracks it (`shcore_author_source`,
+  Phase 3.3). `front-page.php` switched to the new shared partial in the
+  same commit — fixed retroactively there too, verified via `curl` on
+  both pages.
+  Also checked rather than assumed: `body-library.html`'s "همهٔ …" link
+  text/target for the latest-documents section differs from
+  `front-page.php`'s equivalent link ("همهٔ آثار کلاسیک" → the classics
+  collection, not "همهٔ مجموعه‌ها" → `/library/`) — makes sense on the
+  library page itself (a generic "all collections" link would be
+  redundant right below the collections list already shown), matched
+  exactly rather than assumed identical to the homepage's version.
+  "ص" (page count) omitted from `doc-meta`, same as the current-issue
+  module — no such field exists in the content model, not fabricated.
+  Seeded the `library` static Page, backfilled real author data on 3
+  existing documents, and added 2 more documents for list variety.
+  Verified via `curl` on both pages: `200`, zero PHP errors, zero inline
+  styles.
+  Approved by: Farhad, in this session (2026-08-06).

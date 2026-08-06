@@ -229,30 +229,10 @@ $documents_query = new WP_Query(
 			<?php
 			while ( $documents_query->have_posts() ) :
 				$documents_query->the_post();
-				$doc         = get_post();
-				$doc_terms   = get_the_terms( $doc, 'collection' );
-				$doc_term    = ( $doc_terms && ! is_wp_error( $doc_terms ) ) ? array_shift( $doc_terms ) : false;
-				$doc_pdf_id  = (int) get_post_meta( $doc->ID, 'shcore_pdf_id', true );
-				$doc_pdf_sz  = '';
-				if ( $doc_pdf_id ) {
-					$doc_pdf_file = get_attached_file( $doc_pdf_id );
-					$doc_pdf_sz   = $doc_pdf_file && file_exists( $doc_pdf_file ) ? size_format( filesize( $doc_pdf_file ) ) : '';
-				}
-				?>
-				<li class="doc-row reveal">
-					<div class="doc-body">
-						<a href="<?php the_permalink(); ?>" class="link-quiet"><?php the_title(); ?></a>
-						<p class="doc-meta">
-							<?php echo $doc_term ? esc_html( $doc_term->name ) : ''; ?>
-							<?php if ( $doc_pdf_sz ) : ?>
-								· <span class="meta-mono" lang="en">PDF · <?php echo esc_html( $doc_pdf_sz ); ?></span>
-							<?php endif; ?>
-						</p>
-					</div>
-					<a class="btn btn-ghost btn-sm" href="<?php the_permalink(); ?>"><?php esc_html_e( 'دریافت', 'shola-jawid' ); ?></a>
-				</li>
-			<?php endwhile; ?>
-			<?php wp_reset_postdata(); ?>
+				get_template_part( 'template-parts/rows/document-row', null, array( 'post' => get_post() ) );
+			endwhile;
+			wp_reset_postdata();
+			?>
 		</ul>
 	</section>
 <?php endif; ?>
