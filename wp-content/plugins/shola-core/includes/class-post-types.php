@@ -174,7 +174,16 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-media-text',
-				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'custom-fields' ),
+				// 'editor' added Phase 4.2 (2026-08-06), building
+				// single-document.php: v6's "دربارهٔ این متن" section is
+				// 2 paragraphs of real, per-document editorial prose (not
+				// a one-line dek — that's post_excerpt, used separately in
+				// the hero) — same reasoning already applied to
+				// page-about.php's prose: substantive content an editor
+				// should write via the block editor, not a code change.
+				// Documents seeded before this change simply render that
+				// section as absent until an editor fills it in.
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
 				'taxonomies'   => array( 'collection' ),
 				'rewrite'      => array(
 					'slug'       => 'library/%collection%',

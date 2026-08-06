@@ -1666,3 +1666,36 @@ trail of *why* the build deviated from — or newly applied — a rule in
   addition: `200`, zero inline styles, unaffected (this CSS only loads
   on the `issue`/`document` post-edit screens).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Changed:** `document` post type gains `'editor'` support
+  (`class-post-types.php`), so `single-document.php`'s "دربارهٔ این متن"
+  section can be real, per-document editorial prose written via the
+  block editor. Same reasoning already applied to `page-about.php`:
+  v6's 2-paragraph "About the Text" is substantive content that varies
+  per document, not a one-line dek (that's `post_excerpt`, still used
+  separately in the hero) — an editor should be able to write it
+  without a code change. Documents seeded before this change simply
+  show the section as absent until filled in; no content-model field
+  was fabricated to backfill it.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** `single-document.php` built, converted from
+  `body-document-single.html`. Reuses `.issue-hero`/`.issue-meta`
+  wholesale from `single-issue.php` (same anatomy: cover, badge, title/
+  dek, meta list, real PDF download/preview buttons) and
+  `template-parts/rows/document-row.php` for the "اسناد مرتبط" related
+  list (3 documents sharing the current one's collection, excluding
+  itself) — no new partial needed for either. "شمار صفحات" (page
+  count) stays omitted from `dl.issue-meta`, same out-of-scope ruling
+  as `single-issue.php`, not re-litigated. "ویراستار" reuses
+  `shola_get_managing_editor()` (same person/value as `single-issue.php`'s
+  "سردبیر مسئول" — v6 just uses a different label word for the same
+  role in this context, matched exactly rather than assumed identical).
+  Verified live via `curl` against a real seeded document ("دولت و
+  انقلاب"): `200`, zero PHP errors/warnings/notices, zero inline
+  styles, breadcrumb/badge/title/dek/meta/buttons all correct against
+  real data, 3 related documents rendering, "About the Text" correctly
+  absent before content was seeded and correctly present after (seeded
+  via a throwaway script, deleted after running).
+  Approved by: Farhad, in this session (2026-08-06).
+  Approved by: Farhad, in this session (2026-08-06).

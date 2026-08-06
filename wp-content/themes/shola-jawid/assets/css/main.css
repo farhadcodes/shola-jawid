@@ -1452,3 +1452,15 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .issue-toc .meta-mono { margin-bottom: .35rem; }
 .issue-toc .link-quiet { font-weight: 700; font-size: var(--t-h4); }
 .issue-toc .meta { margin-top: .35rem; }
+
+/* -------------------------------------------------------------------------
+   ۲۸ · Document single (single-document.php, Phase 4.2) — replaces
+   body-document-single.html's inline style="" attributes. Reuses
+   .issue-hero/.issue-meta/.doc-row wholesale (same anatomy as
+   single-issue.php/document-row.php); only the "About the Text" and
+   "Related" section spacing below is new to this template.
+   ------------------------------------------------------------------------- */
+.doc-about { padding-inline: 0; margin-top: 2rem; padding-bottom: 3rem; border-bottom: 1px solid var(--line); margin-bottom: 3rem; }
+.doc-about .h-section { margin-top: .5rem; margin-bottom: 1.5rem; }
+.doc-related-head { margin-top: .5rem; margin-bottom: 2rem; }
+.doc-related-list { margin-bottom: 3rem; }
