@@ -516,3 +516,17 @@ trail of *why* the build deviated from — or newly applied — a rule in
   showing real dynamic data (accurate per-topic post counts, real PDF file
   size computed from the actual uploaded file, correct term links).
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** the "Latest" grid's sample content lacked visual variety —
+  found by Farhad comparing screenshots: 4 of 6 cards showed the same
+  featured image. Root cause: the three "different" attachment IDs the
+  original seed script cycled through (Phase 4.2 above) were the same
+  photo uploaded three times (`Children_Food_Aid`), not three distinct
+  images — the media library simply didn't have enough real variety to
+  seed from. Fixed by uploading the v6 prototype's own 8 placeholder
+  photos (`03_UI_Design/shola-jawid-ui/assets/images/`) into the media
+  library and reassigning distinct featured images across the seeded
+  articles/issue/documents, via another throwaway script (deleted
+  immediately after running). Verified via `curl`: the grid now shows
+  multiple genuinely distinct images.
+  Approved by: Farhad, in this session (2026-08-06).
