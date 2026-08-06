@@ -2,11 +2,16 @@
 /**
  * Template: archive-announcement.php — اطلاعیه‌ها (Announcements archive).
  * Converted from 03_UI_Design/shola-jawid-ui/pages/body-announcements.html
- * (Phase 4.2). No single-announcement template exists in the IA doc's
- * page-to-template map — titles link to the real WP permalink (falls
- * through the default template hierarchy) rather than v6's inert
- * href="#" placeholder, since a real destination is more correct than a
- * dead link and doesn't require inventing new scope.
+ * (Phase 4.2). Announcements are list-only by design, permanently — no
+ * single-announcement template exists anywhere in the IA doc's
+ * page-to-template map (confirmed by re-reading it directly, not
+ * assumed), matching v6's own inert href="#" title links. An earlier
+ * version of this file linked titles to the real permalink instead,
+ * reasoning that a real destination beats a dead link — wrong: it
+ * pointed at WP's bare unstyled default template hierarchy, a worse
+ * experience than an inert link, since no detail view is actually
+ * planned. Reverted per Farhad's confirmation, logged in
+ * docs/CHANGELOG.md 2026-08-06.
  *
  * @package shola-jawid
  */
@@ -36,7 +41,7 @@ $paged = max( 1, get_query_var( 'paged' ) );
 					<li>
 						<time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 						<div>
-							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+							<a href="#"><?php the_title(); ?></a>
 							<p class="meta mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 30 ) ); ?></p>
 						</div>
 					</li>

@@ -1000,3 +1000,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   examples) for archive variety. Verified via `curl`: `200`, zero PHP
   errors, zero inline styles.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Reverted:** `archive-announcement.php`'s title links back to v6's
+  inert `href="#"`. My earlier reasoning ("a real destination is more
+  correct than a dead link") was wrong — Farhad caught that a real
+  permalink pointing at WP's bare default template hierarchy (no
+  single-announcement template exists or is planned) is a *worse*
+  experience than an inert link: a user clicking through lands on
+  something unstyled and inconsistent with the rest of the site.
+  Re-checked the plan's page-to-template map directly before deciding:
+  exactly three single-view templates are listed (article, issue,
+  document) — no single-announcement anywhere, and the `ANN` row's own
+  Notes column is empty, no forward-reference to a future detail view.
+  Confirmed: announcements are list-only by design, permanently, not a
+  "missing template" gap to fill later. Verified via `curl`: `200`, zero
+  PHP errors, titles correctly back to inert `href="#"`.
+  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** `archive-announcement.php` fully closed — inert-link
+  revert confirmed working, everything else from the original build
+  (real Jalali dates, WP pagination, zero inline styles) unaffected.
+  Approved by: Farhad, in this session (2026-08-06).
