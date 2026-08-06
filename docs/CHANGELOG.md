@@ -837,3 +837,26 @@ trail of *why* the build deviated from — or newly applied — a rule in
      proven live on `taxonomy-publication.php`. Nothing to fix; will
      render correctly once any topic accumulates more than 6 articles.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Corrected:** the type-tag icon finding above was wrong — reversed by
+  Farhad with a direct screenshot comparison against v6, not just source
+  diffing. The two SVG path variants I found earlier (`main.css`/HTML
+  source review) are real and do render differently: v6's homepage
+  (`body-index.html`) uses a two-subpath path (two nested,
+  opposite-wound shapes — with `fill="currentColor"` and nonzero winding,
+  this cuts a hole, rendering **hollow/outlined**); every one of v6's
+  6 topic-archive files (`body-topic-*.html`) uses a one-subpath path,
+  rendering **solid filled** — confirmed uniform across all 6, not just
+  economy. My first pass concluded "no rule exists" because I only
+  compared source *code*, not what each path actually renders as — a
+  wrong conclusion, corrected by Farhad's screenshot evidence.
+  Fixed properly in `card.php`: the icon variant is now selected by the
+  same `is_tax( $term->taxonomy, $term->term_id )` condition already used
+  to suppress the term self-link (v6 toggles both together — solid icon
+  + plain-text term on a topic's own archive; hollow icon + linked term
+  everywhere else). Verified via `curl` on both contexts: `/topics/
+  economy/` renders the one-subpath (solid) icon, the homepage renders
+  the two-subpath (hollow) icon — matching v6 exactly in both places.
+  Full regression check across all five built pages: `200`, zero PHP
+  errors.
+  Approved by: Farhad, in this session (2026-08-06).

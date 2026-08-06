@@ -37,6 +37,7 @@ if ( 'document' === $card_type ) {
 	$term_name   = $term ? $term->name : '';
 	$byline      = __( 'کتابخانه', 'shola-jawid' );
 	$type_icon   = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1"/></svg>';
+	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
 } else {
 	$permalink   = get_permalink( $card_post );
 	$type_label  = has_post_format( 'aside', $card_post ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
@@ -46,7 +47,26 @@ if ( 'document' === $card_type ) {
 	$term_name   = $term ? $term->name : '';
 	$byline_meta = get_post_meta( $card_post->ID, 'shcore_byline', true );
 	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name', $card_post->post_author );
-	$type_icon   = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>';
+
+	/*
+	 * v6 uses two different glyph SVGs for article-type cards, and it's a
+	 * real, consistent split, not random inconsistency — confirmed by
+	 * checking all 6 body-topic-*.html files, not just economy:
+	 * body-index.html (homepage/mixed-stream context) uses a two-subpath
+	 * path that renders hollow/outlined; every body-topic-*.html (a
+	 * topic's own archive) uses a one-subpath path that renders solid
+	 * filled. Found by Farhad comparing rendered screenshots — source
+	 * diffing alone missed it because both are valid, similar-looking SVG
+	 * paths; only checking what they actually render as (nonzero fill
+	 * winding: two nested opposite-wound subpaths cut a hole = outline,
+	 * one subpath = solid) revealed the real difference. Toggled by the
+	 * same is_tax() condition as the term-link suppression below, since
+	 * v6 changes both together.
+	 */
+	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
+	$type_icon            = $on_own_term_archive
+		? '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Z"/></svg>'
+		: '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>';
 }
 ?>
 <article class="card reveal">
@@ -65,8 +85,8 @@ if ( 'document' === $card_type ) {
 					// redundant self-link (confirmed against
 					// body-topic-economy.html: no <a> around "اقتصاد" there, vs. a
 					// real link on the homepage's equivalent card). Every other
-					// context keeps the link.
-					$on_own_term_archive = is_tax( $term->taxonomy, $term->term_id );
+					// context keeps the link. $on_own_term_archive is computed
+					// above, alongside the matching icon-style decision.
 					if ( $on_own_term_archive ) :
 						echo esc_html( $term_name );
 					else :
