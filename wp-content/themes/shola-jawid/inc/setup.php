@@ -34,9 +34,25 @@ function shola_setup() {
 	add_theme_support( 'custom-logo' );
 	add_theme_support( 'responsive-embeds' );
 
+	/*
+	 * The v6 popup menu (main.css §06) has four columns: Topics and
+	 * Publications are generated from the `topic`/`publication` taxonomy
+	 * terms directly (Phase 3.2), not editor-managed menus — only
+	 * Sections and More are real, curated nav lists, so those are the two
+	 * locations registered here (Phase 4.1, replacing the single
+	 * placeholder `primary` location from Phase 2.1, which didn't match
+	 * v6's actual structure). The footer has two further curated lists
+	 * (a 3-of-6 topic subset, and a site-links column) that are also
+	 * editor-manageable menus, not taxonomy loops — registered separately
+	 * since they're visually and structurally distinct locations, not the
+	 * same content repeated.
+	 */
 	register_nav_menus(
 		array(
-			'primary' => __( 'منوی اصلی', 'shola-jawid' ),
+			'menu_sections' => __( 'منو — بخش‌ها', 'shola-jawid' ),
+			'menu_more'     => __( 'منو — بیشتر', 'shola-jawid' ),
+			'footer_topics' => __( 'پاورقی — موضوعات منتخب', 'shola-jawid' ),
+			'footer_site'   => __( 'پاورقی — پیوندهای سایت', 'shola-jawid' ),
 		)
 	);
 

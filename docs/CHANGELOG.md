@@ -403,3 +403,48 @@ trail of *why* the build deviated from — or newly applied — a rule in
   to `14` right away. Subsequent diagnostics create and fully delete their
   own throwaway post instead of touching real content.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Added:** Phase 4.1 (header, footer, shared partials). Ported v6's
+  `assets/css/main.css` (1,289 lines) and `assets/js/main.js` verbatim
+  into the theme, plus the already-self-hosted Farhang2/ModamPro font
+  files (relative `@font-face` paths in main.css needed no changes — same
+  directory nesting preserved). Newsreader/Inter/JetBrains Mono still load
+  from Google Fonts in `header.php`, matching what v6 currently does
+  (self-hosting those is explicitly Phase 5.4 scope, not done early).
+  `header.php` converts `_shell.html` + `_header.html` + `_menu.html`;
+  `footer.php` converts the closing half of `_shell.html` + `_footer.html`.
+  Both deferred fixes from Phase 1.3 are applied, not ported as-is: the
+  nested `<a>` inside `<button id="menu-open">` is now sibling markup, and
+  all inline `style="..."` attributes from these three source files are
+  replaced with classes added to `main.css` (`.mast-slash`,
+  `.mast-slash-light`, `.mast-icon-link`, `.mast-brand`, `.menu-topbar`,
+  `.mast-nameplate--menu`, `.menu-publications`, `.ms-sm`) — same computed
+  values, verified via `curl`: zero `style="` attributes anywhere in the
+  rendered output.
+  `inc/setup.php`'s nav menu registration expanded from the single
+  placeholder `primary` location (Phase 2.1) to `menu_sections`/
+  `menu_more`/`footer_topics`/`footer_site` — matching what the popup menu
+  and footer actually need. The Topics and Publications columns in both
+  are generated directly from the `topic`/`publication` taxonomy terms
+  (fixed v6 display order, not `get_terms()`'s alphabetical default — see
+  `shola_get_topic_slugs_ordered()`/`shola_get_publication_slugs_ordered()`
+  in `inc/template-tags.php`), not menus, since they aren't editor-curated
+  lists. Each of the four new locations has a `fallback_cb` matching v6's
+  hardcoded defaults, so the popup/footer render correctly today even
+  before an admin builds real menus under Appearance → Menus.
+  `index.php` refactored to call `get_header()`/`get_footer()`, as noted
+  as a follow-up when it was first scaffolded in Phase 2.
+  Verified via `curl` (no live browser access in this environment): `200`,
+  zero PHP errors/warnings/notices in output or `debug.log`, zero inline
+  styles, the nested-button fix holds, and all taxonomy-driven content
+  (6 topics, 2 publications, correct colors/order/permalinks) renders
+  correctly.
+  **Two real gaps found, both WP admin settings, not code bugs:**
+  Settings → General → Site Language is still English (`lang="en-US"`, no
+  `dir="rtl"` — `language_attributes()` is working correctly, it's
+  reporting the actual site config) and Site Title is still the LocalWP
+  default `shola-jawid` instead of `شعله جاوید` (used correctly via
+  `get_bloginfo('name')` throughout, per WP convention, rather than
+  hardcoded — the fix is the admin setting, not the code). Flagged to
+  Farhad rather than silently working around them.
+  Approved by: Farhad, in this session (2026-08-06).

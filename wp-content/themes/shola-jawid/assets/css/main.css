@@ -1,0 +1,1308 @@
+/* =========================================================================
+   شعله جاوید — Quiet Press v6 · main.css
+   Custom stylesheet. Semantic classes. Logical properties throughout.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   ۰۱ · Design tokens (11 brand tokens + 2 function tokens)
+   ------------------------------------------------------------------------- */
+:root {
+  /* Brand — the eleven locked tokens */
+  --ink:            #0F0F0F;
+  --paper:          #FFFFFF;
+  --crimson:        #8E1B1B;
+  --crimson-deep:   #6B1414;
+  --maroon:         #4A0E0E;
+  --crimson-tint:   #F5DCDC;
+  --ink-soft:       #2A2A2A;
+  --stone:          #6E6E6A;
+  --line:           #E6E5E1;
+  --cream:          #FAF8F3;
+
+  /* Functional */
+  --ok:             #1E7B4F;
+  --warn:           #B5871F;
+
+  /* Type families */
+  --font-fa:        "Farhang2", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display:   "Farhang2", serif;
+  --font-en:        "Newsreader", Georgia, serif;
+  --font-ui:        "Inter", "Farhang2", ui-sans-serif, sans-serif;
+  --font-mono:      "JetBrains Mono", ui-monospace, monospace;
+  --font-nav:       "ModamPro", "Farhang2", ui-sans-serif, sans-serif;
+
+  /* Type scale — 8px grid */
+  --t-micro:        0.6875rem;   /* 11px */
+  --t-caption:      0.75rem;     /* 12px */
+  --t-small:        0.875rem;    /* 14px */
+  --t-body:         1.0625rem;   /* 17px */
+  --t-h4:           1.25rem;     /* 20px */
+  --t-h3:           1.5rem;      /* 24px */
+  --t-h2:           2rem;        /* 32px */
+  --t-h1:           2.5rem;      /* 40px */
+  --t-display:      3.5rem;      /* 56px */
+
+  /* Layout */
+  --wrap-wide:      1200px;
+  --wrap-content:   1080px;
+  --wrap-read:      680px;
+  --gap-pad-x:      1.25rem;
+
+  /* Motion */
+  --ease:           cubic-bezier(.4, 0, .2, 1);
+  --dur:            .18s;
+}
+
+@media (min-width: 640px) {
+  :root { --gap-pad-x: 2rem; }
+}
+
+/* -------------------------------------------------------------------------
+   ۰۱ب · Farhang 2 Pro — self-hosted Persian typeface (body + display)
+   ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Thin.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Thin.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-ExtraLight.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-ExtraLight.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Light.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Light.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Regular.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Regular.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Medium.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-DemiBold.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-DemiBold.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Bold.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Bold.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-ExtraBold.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-ExtraBold.woff") format("woff");
+}
+@font-face {
+  font-family: "Farhang2";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("../fonts/farhang2/woff2/Farhang2-Black.woff2") format("woff2"),
+       url("../fonts/farhang2/woff/Farhang2-Black.woff") format("woff");
+}
+
+/* -------------------------------------------------------------------------
+   ۰۱ج · Modam Pro — self-hosted, header/footer meta nav only
+   ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-ExtraLight.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-ExtraLight.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-Light.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-Light.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-Regular.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-Regular.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-Medium.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-Medium.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-SemiBold.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-SemiBold.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-Bold.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-Bold.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-ExtraBold.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-ExtraBold.woff") format("woff");
+}
+@font-face {
+  font-family: "ModamPro";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("../fonts/modampro/woff2/ModamWeb-Black.woff2") format("woff2"),
+       url("../fonts/modampro/woff/ModamWeb-Black.woff") format("woff");
+}
+
+/* -------------------------------------------------------------------------
+   ۰۲ · Reset & base
+   ------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  font-family: var(--font-fa);
+  font-size: var(--t-body);
+  line-height: 1.95;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, svg, video { display: block; max-width: 100%; height: auto; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: transparent; border: 0; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 1.3; }
+
+[lang="en"], .latin { font-family: var(--font-en); }
+[lang="en"] .ui, .latin.ui { font-family: var(--font-ui); }
+
+::selection { background: var(--crimson-tint); color: var(--crimson-deep); }
+:focus-visible { outline: 2px solid var(--crimson); outline-offset: 3px; }
+
+/* -------------------------------------------------------------------------
+   ۰۳ · Skip link (a11y)
+   ------------------------------------------------------------------------- */
+.skip-link {
+  position: absolute; top: -100px; inset-inline-start: 8px;
+  z-index: 60;
+  padding: .5rem 1rem;
+  background: var(--crimson); color: var(--paper);
+  font-size: var(--t-small); font-weight: 600;
+}
+.skip-link:focus { top: 8px; }
+
+/* -------------------------------------------------------------------------
+   ۰۴ · Layout containers
+   ------------------------------------------------------------------------- */
+.wrap        { width: 100%; max-width: var(--wrap-wide);    margin-inline: auto; padding-inline: var(--gap-pad-x); }
+.wrap-content{ width: 100%; max-width: var(--wrap-content); margin-inline: auto; padding-inline: var(--gap-pad-x); }
+.wrap-read   { width: 100%; max-width: var(--wrap-read);    margin-inline: auto; padding-inline: var(--gap-pad-x); }
+
+/* -------------------------------------------------------------------------
+   ۰۵ · Masthead — crimson field with white nameplate (historical anchor)
+   ------------------------------------------------------------------------- */
+.masthead {
+  border-bottom: 2px solid var(--maroon);
+  background: var(--crimson);
+  position: relative;
+  z-index: 30;
+}
+/* Focus rings must be visible on crimson */
+.masthead :focus-visible {
+  outline-color: var(--paper);
+  outline-offset: 3px;
+}
+.masthead-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+}
+.masthead-left, .masthead-right {
+  display: flex; align-items: center; gap: .6rem;
+}
+.masthead-right { justify-content: flex-end; }
+
+.mast-btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-family: var(--font-nav);
+  font-size: 1rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--paper);
+  padding: .5rem .25rem;
+  transition: color var(--dur) var(--ease);
+}
+.mast-btn:hover { color: var(--crimson-tint); }
+
+.mast-nameplate {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--paper);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: -.005em;
+  text-align: center;
+  display: inline-block;
+}
+.mast-runner {
+  display: block;
+  margin-top: .35rem;
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .1em;
+  color: color-mix(in oklab, var(--paper) 72%, transparent);
+  text-transform: uppercase;
+}
+
+.mast-sister {
+  font-family: var(--font-nav);
+  font-size: 1rem;
+  letter-spacing: .1em;
+  color: color-mix(in oklab, var(--paper) 72%, transparent);
+  text-transform: uppercase;
+}
+.mast-sister a {
+  color: color-mix(in oklab, var(--paper) 85%, transparent);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.mast-sister a:hover { color: var(--paper); border-color: var(--paper); }
+.mast-sister .sep { margin-inline: .5rem; opacity: .5; }
+
+@media (max-width: 720px) {
+  .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: 1rem; }
+  .mast-sister-desktop { display: none; }
+}
+
+/* WP conversion (Phase 4.1): replaces inline style="" attributes that were
+   on _header.html's menu/search separator, search icon link, and
+   nameplate-link wrapper — same computed values, moved to classes per
+   CLAUDE.md §5. */
+.mast-slash { opacity: .5; margin-inline: .35rem; }
+.mast-slash-light { color: var(--paper); opacity: .4; }
+.mast-icon-link { display: inline-flex; }
+.mast-brand { text-align: center; }
+
+/* -------------------------------------------------------------------------
+   ۰۶ · Popup menu — the signature move
+   ------------------------------------------------------------------------- */
+.menu-panel {
+  position: fixed; inset: 0;
+  background: var(--paper);
+  z-index: 90;
+  overflow-y: auto;
+  padding: 2rem var(--gap-pad-x) 4rem;
+  display: none;
+}
+.menu-panel[data-open="true"] { display: block; }
+
+.menu-close {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-family: var(--font-nav);
+  font-size: 0.8125rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink);
+  padding: .4rem 0;
+}
+.menu-close:hover { color: var(--crimson); }
+
+/* WP conversion (Phase 4.1): replaces inline style="" on _menu.html's top
+   bar and the popup's smaller nameplate instance. */
+.menu-topbar { display: flex; justify-content: space-between; align-items: center; }
+.mast-nameplate--menu { font-size: 1.6rem; }
+
+.menu-grid {
+  margin-top: 3rem;
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: 1fr;
+  max-width: var(--wrap-content);
+  margin-inline: auto;
+}
+@media (min-width: 800px) {
+  .menu-grid { grid-template-columns: 1.4fr 1fr; gap: 4rem; }
+}
+
+.menu-topics {
+  display: flex; flex-direction: column;
+  gap: .6rem;
+}
+.menu-topic {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6vw, 3.5rem);
+  line-height: 1.15;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 8px;
+  transition: transform var(--dur) var(--ease), padding var(--dur) var(--ease), text-decoration-color var(--dur) var(--ease);
+}
+.menu-topic:hover, .menu-topic:focus-visible { padding-inline-start: .5rem; text-decoration-color: currentColor; }
+.menu-topic--c1 { color: #8E1B1B; }   /* crimson */
+.menu-topic--c2 { color: #6B1414; }   /* deep */
+.menu-topic--c3 { color: #4A0E0E; }   /* maroon */
+.menu-topic--c4 { color: #A83232; }   /* lighter crimson mix */
+.menu-topic--c5 { color: #5C2020; }   /* mid */
+.menu-topic--c6 { color: #7D1818; }   /* mid-deep */
+
+.menu-social { display: flex; gap: .6rem; margin-bottom: 2rem; }
+.menu-social a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  transition: background var(--dur) var(--ease);
+}
+.menu-social a:hover { background: var(--crimson); }
+
+.menu-side { display: flex; flex-direction: column; gap: 2.5rem; }
+.menu-section-title {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--stone);
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1rem;
+}
+.menu-list { display: flex; flex-direction: column; gap: .8rem; }
+.menu-list a {
+  font-size: var(--t-h4);
+  font-weight: 500;
+  color: var(--ink);
+  transition: color var(--dur) var(--ease);
+}
+.menu-list a:hover { color: var(--crimson); }
+.menu-list-small a { font-size: var(--t-body); font-weight: 400; }
+
+/* WP conversion (Phase 4.1): replaces inline style="" on _menu.html's
+   Publications block wrapper. */
+.menu-publications { padding-top: 1.5rem; border-top: 1px solid var(--line); }
+
+/* -------------------------------------------------------------------------
+   ۰۷ · Typography components
+   ------------------------------------------------------------------------- */
+.h-display {
+  font-family: var(--font-display); font-weight: 700;
+  color: var(--crimson-deep);
+  font-size: clamp(2.25rem, 5vw, var(--t-display));
+  line-height: 1.15;
+  letter-spacing: -.005em;
+}
+.h-page {
+  font-family: var(--font-display); font-weight: 700;
+  color: var(--crimson-deep);
+  font-size: clamp(2rem, 4vw, var(--t-h1));
+  line-height: 1.2;
+}
+.h-section {
+  font-family: var(--font-display); font-weight: 700;
+  color: var(--crimson-deep);
+  font-size: clamp(1.6rem, 3vw, var(--t-h2));
+  line-height: 1.25;
+}
+.h-card {
+  font-family: var(--font-fa); font-weight: 800;
+  color: var(--ink);
+  font-size: var(--t-h4);
+  line-height: 1.45;
+}
+.h-card-lg {
+  font-family: var(--font-fa); font-weight: 800;
+  color: var(--ink);
+  font-size: var(--t-h3);
+  line-height: 1.4;
+}
+
+.dek {
+  color: var(--ink-soft);
+  font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+.meta      { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; line-height: 1.7; }
+.meta-mono { color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; line-height: 1.7; letter-spacing: .04em; }
+
+/* Aeon-style tiny type/topic label: "مقاله / اقتصاد" */
+.type-label {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .08em;
+  color: var(--stone);
+  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: .35rem;
+}
+.type-label .glyph {
+  width: 12px; height: 12px;
+  display: inline-block;
+  color: var(--crimson);
+}
+.type-label a { color: var(--stone); transition: color var(--dur) var(--ease); }
+.type-label a:hover { color: var(--crimson); }
+.type-label .divider { opacity: .5; }
+
+/* Quiet section marker — replaces the loud crimson kicker */
+.section-marker {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  display: inline-flex; align-items: center; gap: .6rem;
+}
+.section-marker::before {
+  content: ""; display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--crimson);
+}
+.section-head { margin-bottom: 2.5rem; }
+.section-head .h-section { margin-top: .5rem; }
+
+/* -------------------------------------------------------------------------
+   ۰۸ · Links & buttons
+   ------------------------------------------------------------------------- */
+.link {
+  color: var(--crimson);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color var(--dur) var(--ease);
+}
+.link:hover { color: var(--crimson-deep); }
+
+.link-quiet {
+  transition: color var(--dur) var(--ease);
+}
+.link-quiet:hover { color: var(--crimson); }
+
+.link-more {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  padding: .4rem 0;
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.link-more:hover { color: var(--crimson-deep); border-color: var(--crimson-deep); }
+.link-more .arr { display: inline-block; transform: translateY(-1px); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  padding: .75rem 1.4rem;
+  font-family: var(--font-fa);
+  font-size: var(--t-small);
+  font-weight: 600;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  user-select: none;
+  border: 1px solid transparent;
+}
+.btn-primary { background: var(--crimson); color: var(--paper); }
+.btn-primary:hover { background: var(--crimson-deep); }
+.btn-ghost { border-color: var(--crimson); color: var(--crimson-deep); background: transparent; }
+.btn-ghost:hover { background: var(--crimson); color: var(--paper); }
+.btn-sm { padding: .5rem 1rem; font-size: var(--t-caption); }
+
+/* Tag pill for topic tags */
+.tag {
+  display: inline-block;
+  font-family: var(--font-fa);
+  font-weight: 700;
+  font-size: var(--t-caption);
+  color: var(--crimson);
+  transition: color var(--dur) var(--ease);
+}
+.tag:hover { color: var(--crimson-deep); }
+
+.tag-outline {
+  display: inline-block;
+  padding: .3rem .6rem;
+  font-size: var(--t-micro);
+  font-weight: 600;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.tag-outline:hover { border-color: var(--crimson); color: var(--crimson); }
+
+.badge-current {
+  display: inline-block;
+  padding: .3rem .6rem;
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .08em;
+  color: var(--crimson-deep);
+  background: var(--crimson-tint);
+  text-transform: uppercase;
+}
+.badge-archive {
+  display: inline-block;
+  padding: .3rem .6rem;
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .08em;
+  color: var(--stone);
+  border: 1px solid var(--line);
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------
+   ۰۹ · Cards — no borders. Whitespace only. Aeon principle.
+   ------------------------------------------------------------------------- */
+.card {
+  display: flex; flex-direction: column;
+  gap: .9rem;
+}
+.card-media {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--cream);
+  position: relative;
+}
+.card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--crimson);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+  pointer-events: none;
+}
+.card-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .6s var(--ease), filter .45s var(--ease);
+}
+.card:hover .card-media img { transform: scale(1.04); filter: grayscale(.9) brightness(1.02); }
+.card:hover .card-media::after { opacity: .3; }
+@media (prefers-reduced-motion: reduce) {
+  .card-media img, .card-media::after { transition: none; }
+}
+
+.card-body { display: flex; flex-direction: column; gap: .55rem; }
+.card .h-card {
+  transition: color var(--dur) var(--ease);
+}
+.card a:hover .h-card,
+.card .h-card a:hover { color: var(--crimson); }
+.card-dek { color: var(--ink-soft); font-size: var(--t-small); line-height: 1.75; }
+.card-byline { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; margin-top: .25rem; }
+
+/* Compact card variant — for "popular" rails */
+.card-mini { gap: .6rem; }
+.card-mini .card-media { aspect-ratio: 16 / 10; }
+.card-mini .h-card { font-size: var(--t-body); font-weight: 700; line-height: 1.5; }
+
+/* Card grid */
+.grid-cards {
+  display: grid;
+  gap: 2.5rem 2rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .grid-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.grid-cards-4 {
+  display: grid;
+  gap: 2.5rem 1.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 620px)  { .grid-cards-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .grid-cards-4 { grid-template-columns: repeat(4, 1fr); } }
+
+/* -------------------------------------------------------------------------
+   ۱۰ · Homepage hero — Aeon-style single dominant story
+   ------------------------------------------------------------------------- */
+.hero-lead { margin-block: 0 5rem; position: relative; }
+.hero-media {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 128px);
+  min-height: 240px;
+  max-height: 900px;
+  overflow: hidden;
+  background: var(--cream);
+}
+@media (max-width: 900px) and (max-height: 500px) {
+  /* Short landscape screens (phones rotated) — header eats proportionally more
+     of the viewport, so ease off the subtraction to avoid a taller-than-screen total */
+  .hero-media { height: calc(100vh - 120px); min-height: 180px; }
+}
+.hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Gray wash (70%) over the photo */
+.hero-lead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--stone);
+  opacity: .7;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Dark gradient, opaque at the bottom fading to transparent — grounds the overlaid text */
+.hero-lead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, .55) 35%, rgba(0, 0, 0, 0) 75%);
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-lead > .wrap {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  padding-block-end: 5rem;
+}
+.hero-body {
+  margin-top: 0;
+  max-width: 780px;
+}
+.hero-body .type-label { margin-bottom: 1rem; font-size: 0.65rem; color: rgba(255, 255, 255, .85); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
+.hero-body .type-label .glyph { color: var(--paper); }
+.hero-body .type-label a { color: var(--paper); }
+.hero-body .h-display { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--paper); text-shadow: 0 2px 20px rgba(0, 0, 0, .75), 0 1px 3px rgba(0, 0, 0, .9); }
+.hero-body .h-display a { transition: color var(--dur) var(--ease); }
+.hero-body .h-display a:hover { color: var(--crimson-tint); }
+.hero-body .dek { margin-top: 1.25rem; max-width: 640px; font-size: clamp(0.9rem, 1.28vw, 1.05rem); color: rgba(255, 255, 255, .94); text-shadow: 0 1px 10px rgba(0, 0, 0, .65); }
+.hero-body .card-byline { margin-top: 1.25rem; font-size: 0.7rem; color: rgba(255, 255, 255, .8); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
+
+/* -------------------------------------------------------------------------
+   ۱۱ · Sections & rules
+   ------------------------------------------------------------------------- */
+.sect { padding-block: 4rem; }
+.sect-lg { padding-block: 5.5rem; }
+.sect-tint { background: var(--crimson-tint); }
+.sect-cream { background: var(--cream); }
+
+.rule       { height: 1px; background: var(--line); border: 0; }
+.rule-crimson { height: 2px; background: var(--crimson); border: 0; }
+
+/* -------------------------------------------------------------------------
+   ۱۲ · Article page — Aeon-style split
+   ------------------------------------------------------------------------- */
+.article-hero {
+  margin-block: 0 2.5rem;
+}
+.article-hero-visual {
+  position: relative;
+}
+.article-hero-media {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  background: var(--cream);
+}
+.article-hero-media img { width: 100%; height: 100%; object-fit: cover; }
+/* Gray wash (70%) over the photo — same treatment as the homepage hero */
+.article-hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--stone);
+  opacity: .7;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Dark gradient, opaque at the bottom fading to transparent — grounds the overlaid text */
+.article-hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, .55) 35%, rgba(0, 0, 0, 0) 75%);
+  pointer-events: none;
+  z-index: 2;
+}
+.article-hero-visual .article-header {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  padding-block: 0 3rem;
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+.article-hero-visual .article-crumb,
+.article-hero-visual .article-crumb a { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
+.article-hero-visual .article-crumb a:hover,
+.article-hero-visual .article-crumb .active { color: var(--paper); }
+.article-hero-visual .article-title { color: var(--paper); max-width: 900px; text-shadow: 0 2px 20px rgba(0, 0, 0, .85), 0 1px 3px rgba(0, 0, 0, .9); }
+.article-hero-visual .article-dek { color: rgba(255, 255, 255, .96); text-shadow: 0 2px 14px rgba(0, 0, 0, .8), 0 1px 2px rgba(0, 0, 0, .9); }
+.article-hero-caption {
+  max-width: var(--wrap-wide);
+  margin-inline: auto;
+  padding-inline: var(--gap-pad-x);
+  padding-block: .75rem;
+  background: var(--paper);
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.article-header {
+  padding-block: 2.5rem 3rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 3rem;
+}
+.article-crumb {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .1em;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.article-crumb a { color: var(--stone); transition: color var(--dur) var(--ease); }
+.article-crumb a:hover { color: var(--crimson); }
+.article-crumb .active { color: var(--crimson); }
+
+.article-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--crimson-deep);
+  font-size: clamp(2.1rem, 4.5vw, 3.25rem);
+  line-height: 1.15;
+  letter-spacing: -.005em;
+}
+.article-dek {
+  color: var(--ink-soft);
+  font-size: clamp(1.15rem, 1.7vw, 1.4rem);
+  line-height: 1.7;
+  margin-top: 1.25rem;
+  max-width: 640px;
+}
+
+.article-body {
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 940px) {
+  .article-body {
+    grid-template-columns: 250px 1fr;
+    gap: 4rem;
+  }
+}
+.article-sidebar {
+  font-size: var(--t-small);
+  line-height: 1.75;
+}
+@media (min-width: 940px) {
+  .article-sidebar { position: sticky; top: 2rem; align-self: start; }
+}
+.article-sidebar .author { color: var(--stone); }
+.article-sidebar .author strong { color: var(--ink); font-weight: 700; }
+.article-sidebar .author a { color: var(--ink); border-bottom: 1px solid var(--line); }
+.article-sidebar .author a:hover { border-color: var(--crimson); color: var(--crimson); }
+.article-sidebar .editor { margin-top: 1rem; color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; }
+.article-sidebar .word-count { margin-top: 1rem; color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .06em; }
+.article-sidebar .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+
+/* Long-form prose */
+.prose {
+  color: var(--ink);
+  font-size: 1.25rem; /* 20px — bumped up from --t-body (17px) for reading comfort */
+  line-height: 1.95;
+}
+.prose > * + * { margin-block-start: 1.4rem; }
+.prose > p:first-child::first-letter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 4.2em;
+  float: right;
+  line-height: .85;
+  margin-inline-start: .25rem;
+  margin-block-start: .15rem;
+  color: var(--crimson-deep);
+}
+[dir="ltr"] .prose > p:first-child::first-letter { float: left; margin-inline-end: .5rem; margin-inline-start: 0; }
+
+.prose h2 {
+  font-family: var(--font-fa);
+  font-weight: 800;
+  font-size: var(--t-h3);
+  line-height: 1.4;
+  margin-block-start: 3rem;
+  color: var(--ink);
+}
+.prose h3 {
+  font-family: var(--font-fa);
+  font-weight: 800;
+  font-size: var(--t-h4);
+  line-height: 1.5;
+  margin-block-start: 2.5rem;
+  color: var(--ink);
+}
+.prose a { color: var(--crimson); text-decoration: underline; text-underline-offset: 4px; transition: color var(--dur) var(--ease); }
+.prose a:hover { color: var(--crimson-deep); }
+.prose ul, .prose ol { padding-inline-start: 1.5rem; }
+.prose ul { list-style: disc outside; }
+.prose ol { list-style: persian outside; }
+.prose blockquote {
+  border-inline-start: 2px solid var(--crimson);
+  padding-inline-start: 1.5rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.prose figure img { width: 100%; }
+.prose figcaption {
+  margin-top: .5rem;
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* Aeon-style bare bold pull-line — no box, no border */
+.pull-line {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--crimson-deep);
+  font-size: clamp(1.5rem, 2.8vw, 1.9rem);
+  line-height: 1.5;
+  margin-block: 2.5rem 2.5rem !important;
+  padding-block: 1rem;
+}
+
+/* Article footer: tags, syndicate, share */
+.article-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 1.5rem;
+}
+.article-footer .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* Related essays rail — reuses card anatomy */
+.related-rail {
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 2px solid var(--crimson);
+}
+
+/* -------------------------------------------------------------------------
+   ۱۳ · Reading progress bar (article-single only)
+   ------------------------------------------------------------------------- */
+.progress-track {
+  position: fixed; inset-inline: 0; top: 0;
+  height: 2px; background: transparent;
+  z-index: 50;
+}
+.progress-bar {
+  height: 100%; width: 0;
+  background: var(--crimson);
+}
+
+/* -------------------------------------------------------------------------
+   ۱۴ · Issue / Document — single views
+   ------------------------------------------------------------------------- */
+.issue-hero {
+  display: grid; gap: 3rem;
+  grid-template-columns: 1fr;
+  padding-block: 4rem;
+  align-items: start;
+}
+@media (min-width: 800px) {
+  .issue-hero { grid-template-columns: 380px 1fr; gap: 4rem; }
+}
+.issue-cover {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--cream);
+  box-shadow: 0 30px 60px -30px rgba(15,15,15,.35), 0 6px 20px -8px rgba(15,15,15,.15);
+}
+.issue-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.issue-meta {
+  display: grid; grid-template-columns: max-content 1fr;
+  gap: .5rem 1.5rem;
+  padding-block: 1.5rem;
+  border-block: 1px solid var(--line);
+  margin-block: 2rem;
+  font-size: var(--t-small);
+}
+.issue-meta dt { color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .1em; text-transform: uppercase; padding-top: .15rem; }
+.issue-meta dd { color: var(--ink); }
+
+.doc-row {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  transition: background var(--dur) var(--ease);
+}
+.doc-row:hover { background: color-mix(in oklab, var(--crimson-tint) 40%, var(--paper)); }
+.doc-row .doc-body { flex: 1; min-width: 0; }
+.doc-row .doc-body a { font-weight: 700; transition: color var(--dur) var(--ease); }
+.doc-row .doc-body a:hover { color: var(--crimson); }
+.doc-row .doc-meta { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; margin-top: .35rem; }
+
+/* Issue grid — for publication archive */
+.issue-grid {
+  display: grid; gap: 3rem 2rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 640px) { .issue-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .issue-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1120px){ .issue-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.issue-card { display: flex; flex-direction: column; gap: .75rem; }
+.issue-card-media {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--cream);
+  box-shadow: 0 10px 25px -12px rgba(15,15,15,.25);
+  transition: transform var(--dur) var(--ease);
+}
+.issue-card:hover .issue-card-media { transform: translateY(-3px); }
+.issue-card-media img { width: 100%; height: 100%; object-fit: cover; }
+.issue-card-title { font-size: var(--t-small); font-weight: 700; color: var(--ink); }
+.issue-card-title a:hover { color: var(--crimson); }
+.issue-card-date { font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .08em; color: var(--stone); text-transform: uppercase; }
+
+/* -------------------------------------------------------------------------
+   ۱۵ · Topic index (Aeon-style horizontal list)
+   ------------------------------------------------------------------------- */
+.topic-nav {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .3rem 1.75rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 3rem;
+}
+.topic-nav a {
+  color: var(--crimson);
+  font-size: var(--t-small);
+  padding-block: .35rem;
+  transition: color var(--dur) var(--ease);
+  border-bottom: 1px solid transparent;
+}
+.topic-nav a:hover { color: var(--crimson-deep); border-color: var(--crimson-deep); }
+.topic-nav .active { color: var(--crimson-deep); border-color: var(--crimson-deep); }
+
+/* Latest / Popular tabs */
+.filter-tabs {
+  display: flex; justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  font-size: var(--t-body);
+}
+.filter-tabs a { color: var(--stone); padding-block: .3rem; border-bottom: 1px solid transparent; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.filter-tabs a:hover { color: var(--ink); }
+.filter-tabs .active { color: var(--ink); border-color: var(--ink); }
+
+/* Topic list (typographic) */
+.topic-list {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+  border-top: 1px solid var(--line);
+}
+@media (min-width: 720px) { .topic-list { grid-template-columns: 1fr 1fr; } }
+.topic-list li { border-bottom: 1px solid var(--line); }
+.topic-list li:nth-child(odd) { border-inline-end: 1px solid var(--line); }
+@media (max-width: 719px) { .topic-list li { border-inline-end: 0 !important; } }
+.topic-list a {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  padding: 2rem 1.5rem;
+  transition: background var(--dur) var(--ease);
+}
+.topic-list a:hover { background: var(--cream); }
+.topic-list .name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
+  color: var(--ink);
+  transition: color var(--dur) var(--ease);
+}
+.topic-list a:hover .name { color: var(--crimson); }
+.topic-list .count {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .1em;
+  color: var(--stone);
+}
+
+/* -------------------------------------------------------------------------
+   ۱۶ · Announcements list
+   ------------------------------------------------------------------------- */
+.announce-list {
+  border-block: 1px solid var(--line);
+}
+.announce-list li {
+  border-bottom: 1px solid var(--line);
+  padding-block: 1.5rem;
+  display: grid;
+  gap: .5rem 1.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .announce-list li {
+    grid-template-columns: 8rem 1fr;
+    align-items: baseline;
+  }
+}
+.announce-list li:last-child { border-bottom: 0; }
+.announce-list time {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .1em;
+  color: var(--stone);
+  text-transform: uppercase;
+}
+.announce-list a {
+  font-weight: 700; color: var(--ink);
+  transition: color var(--dur) var(--ease);
+}
+.announce-list a:hover { color: var(--crimson); }
+
+/* -------------------------------------------------------------------------
+   ۱۷ · Forms
+   ------------------------------------------------------------------------- */
+.field {
+  display: block; width: 100%;
+  padding: .85rem 1rem;
+  font-family: var(--font-fa);
+  font-size: var(--t-body);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  transition: border-color var(--dur) var(--ease);
+}
+.field::placeholder { color: var(--stone); }
+.field:hover { border-color: var(--stone); }
+.field:focus { border-color: var(--crimson); outline: none; }
+.field.dark {
+  background: transparent; color: var(--paper);
+  border-color: color-mix(in oklab, var(--paper) 30%, transparent);
+}
+.field.dark::placeholder { color: color-mix(in oklab, var(--paper) 45%, transparent); }
+.field.dark:focus { border-color: var(--paper); }
+.label {
+  display: block; margin-bottom: .5rem;
+  font-size: var(--t-small); font-weight: 600;
+}
+
+/* Pagination */
+.pagination {
+  display: flex; justify-content: center;
+  gap: .5rem;
+  margin-top: 3rem;
+}
+.page-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.4rem; height: 2.4rem;
+  border: 1px solid var(--line);
+  font-size: var(--t-small); font-weight: 600;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.page-num:hover { border-color: var(--crimson); color: var(--crimson); }
+.page-num[aria-current="page"] {
+  background: var(--crimson); color: var(--paper); border-color: var(--crimson);
+}
+
+/* -------------------------------------------------------------------------
+   ۱۸ · Newsletter band (subtle tint, not crimson)
+   ------------------------------------------------------------------------- */
+.newsletter {
+  background: var(--crimson-tint);
+  padding-block: 3.5rem;
+}
+.newsletter-inner {
+  display: grid; gap: 2rem;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .newsletter-inner { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
+}
+.newsletter h2 { color: var(--crimson-deep); }
+.newsletter-form {
+  display: flex; gap: .75rem; flex-direction: column;
+}
+@media (min-width: 500px) { .newsletter-form { flex-direction: row; } }
+.newsletter-form .field {
+  background: var(--paper);
+  border-color: color-mix(in oklab, var(--crimson) 30%, transparent);
+}
+.newsletter-form .field:focus { border-color: var(--crimson); }
+.newsletter-form .btn { flex-shrink: 0; }
+
+/* -------------------------------------------------------------------------
+   ۱۹ · Footer — quiet, thin, paper-based
+   ------------------------------------------------------------------------- */
+.footer {
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+  padding-block: 3.5rem 2rem;
+  margin-top: 4rem;
+}
+.footer-grid {
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 1fr;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line);
+}
+@media (min-width: 720px) {
+  .footer-grid { grid-template-columns: 1.4fr repeat(3, 1fr); }
+}
+.footer-name {
+  font-family: var(--font-display); font-weight: 700;
+  color: var(--crimson); font-size: 1.75rem; line-height: 1;
+}
+.footer-tagline {
+  margin-top: .75rem;
+  font-size: var(--t-small);
+  color: var(--stone);
+  line-height: 1.7;
+  max-width: 300px;
+}
+.footer-social {
+  margin-top: 1.5rem;
+  display: flex; gap: .75rem;
+}
+.footer-social a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.2rem; height: 2.2rem;
+  color: var(--stone);
+  transition: color var(--dur) var(--ease);
+}
+.footer-social a:hover { color: var(--crimson); }
+.footer-col h3 {
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  letter-spacing: .14em;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.footer-col ul { display: flex; flex-direction: column; gap: .55rem; }
+.footer-col a {
+  font-size: var(--t-small);
+  color: var(--ink);
+  transition: color var(--dur) var(--ease);
+}
+.footer-col a:hover { color: var(--crimson); }
+
+.footer-base {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+  padding-top: 1.5rem;
+  font-family: var(--font-nav);
+  font-size: 1rem;
+  letter-spacing: .08em;
+  color: var(--stone);
+}
+
+/* -------------------------------------------------------------------------
+   ۲۰ · Utility helpers (small — most styles are semantic)
+   ------------------------------------------------------------------------- */
+.center { text-align: center; }
+.stack   { display: flex; flex-direction: column; }
+.stack > * + * { margin-top: 1rem; }
+.stack-sm > * + * { margin-top: .5rem; }
+.stack-lg > * + * { margin-top: 2rem; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.row-between { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; }
+.mt-lg { margin-top: 3rem; }
+.mt-md { margin-top: 1.5rem; }
+.mt-sm { margin-top: .75rem; }
+.mb-lg { margin-bottom: 3rem; }
+.ms-sm { margin-inline-start: .5rem; }
+.hide-mobile { display: initial; }
+@media (max-width: 720px) { .hide-mobile { display: none; } }
+.hide-desktop { display: none; }
+@media (max-width: 720px) { .hide-desktop { display: initial; } }
+
+/* Scroll reveal */
+.js .reveal { opacity: 0; transform: translateY(10px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.js .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* -------------------------------------------------------------------------
+   ۲۱ · About page tabs
+   ------------------------------------------------------------------------- */
+.about-tabs {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 1.75rem;
+  padding-block: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 3rem;
+}
+.about-tabs a {
+  color: var(--stone);
+  font-size: var(--t-small);
+  padding-block: .3rem;
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.about-tabs a:hover { color: var(--ink); }
+.about-tabs .active { color: var(--ink); border-color: var(--ink); }
