@@ -756,3 +756,22 @@ trail of *why* the build deviated from — or newly applied — a rule in
   static Page. Verified via `curl`: `200`, zero PHP errors, zero inline
   styles, real counts matching the homepage topics table exactly.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Fixed:** masthead runner (`shola_get_masthead_runner()`) was missing
+  v6's fixed Latin brand-code prefix ("SHOLA JAWID") — found by Farhad
+  comparing `page-topics.php` and `page-publications.php` against v6 (a
+  shared-component bug, visible on every page, not template-specific).
+  Root cause: the function used `get_bloginfo('name')` (the Persian site
+  title) for the first segment, when v6's source (`_header.html:24`) uses
+  a fixed Latin brand code instead — `SHOLA JAWID · شماره ۳۲ · سرطان
+  ۱۴۰۵`, not a translation of the Persian nameplate (which is already
+  shown separately). Added `shola_get_masthead_code()` (filterable,
+  intentionally not wrapped in `__()` — a fixed ASCII brand mark, same
+  category as the `SJ-32`-style codes already correctly used in
+  `taxonomy-publication.php`, not translatable UI copy).
+  Verified via `curl` on both affected pages: `شعله جاوید · شماره ۳۲ ·
+  ۱۵ مرداد ۱۴۰۵` (Persian title, wrong) → `SHOLA JAWID · شماره ۳۲ ·
+  ۱۵ مرداد ۱۴۰۵` (correct, matches v6). Fixed once at the shared
+  `inc/template-tags.php` level, applies everywhere automatically — no
+  per-template changes needed.
+  Approved by: Farhad, in this session (2026-08-06).

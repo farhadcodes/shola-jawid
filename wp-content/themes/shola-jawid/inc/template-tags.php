@@ -210,15 +210,38 @@ function shola_publication_status_label( $slug ) {
 }
 
 /**
+ * Fixed Latin brand-code used in the masthead runner's mono/lang="en"
+ * context ("SHOLA JAWID · شماره ۳۲ · سرطان ۱۴۰۵" in v6) — a running-head
+ * mark, not a translation of the site name (`get_bloginfo('name')`
+ * already supplies the actual Persian nameplate text elsewhere in
+ * header.php). Not wrapped in __() — like "SJ-32" in
+ * taxonomy-publication.php, this is a fixed ASCII brand code, not
+ * translatable UI copy. Filterable so it isn't hardcoded in more than one
+ * place if it's ever needed elsewhere.
+ *
+ * @return string
+ */
+function shola_get_masthead_code() {
+	return apply_filters( 'shola_masthead_code', 'SHOLA JAWID' );
+}
+
+/**
  * Masthead runner text ("SHOLA JAWID · شماره ۳۲ · سرطان ۱۴۰۵" in v6) —
  * built from the latest published issue's number + date if one exists,
- * falling back to just the site name so the masthead never shows stale
+ * falling back to just the brand code so the masthead never shows stale
  * placeholder data once real content exists.
+ *
+ * Bug fixed 2026-08-06 (found by Farhad comparing page-topics.php and
+ * page-publications.php against v6): this previously used
+ * get_bloginfo('name') — the Persian site title — for the first segment,
+ * when v6's actual source uses the fixed Latin brand code instead. The
+ * Persian nameplate is already shown separately in header.php; this
+ * function only builds the mono-label runner beneath it.
  *
  * @return string
  */
 function shola_get_masthead_runner() {
-	$site_name = get_bloginfo( 'name' );
+	$code = shola_get_masthead_code();
 
 	$latest = get_posts(
 		array(
@@ -230,18 +253,18 @@ function shola_get_masthead_runner() {
 	);
 
 	if ( ! $latest ) {
-		return $site_name;
+		return $code;
 	}
 
 	$number = get_post_meta( $latest[0]->ID, 'shcore_issue_number', true );
 	if ( ! $number ) {
-		return $site_name;
+		return $code;
 	}
 
 	return sprintf(
-		/* translators: 1: site name, 2: issue number, 3: issue date. */
+		/* translators: 1: fixed Latin brand code (not translatable), 2: issue number, 3: issue date. */
 		__( '%1$s · شماره %2$s · %3$s', 'shola-jawid' ),
-		$site_name,
+		$code,
 		$number,
 		get_the_date( '', $latest[0] )
 	);
