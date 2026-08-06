@@ -860,3 +860,11 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Full regression check across all five built pages: `200`, zero PHP
   errors.
   Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** solid-vs-hollow type-tag icon fix confirmed via actual
+  browser rendering by Farhad, not just the `curl`/regression check —
+  deliberately re-verified visually given the prior round's conclusion
+  on this exact component turned out to be wrong. `/topics/economy/`
+  shows solid-filled squares uniformly (مقاله and یادداشت alike);
+  homepage shows hollow/outlined squares uniformly. Matches v6.
+  Approved by: Farhad, in this session (2026-08-06).
