@@ -2336,4 +2336,23 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Confirmed still the correct assumption; no code or content-model
   change needed.
   Approved by: Farhad, in this session (2026-08-07).
+
+- **Deferred (explicit sign-off, not resolved unilaterally):** decision
+  #2 from `EXECUTION_PLAN.md` Appendix B (bilingual pairing model —
+  linked fa/en translation pairs vs. two fully independent sites).
+  Brought to Farhad as an actual decision to make ("resolve now" vs.
+  "explicitly defer with sign-off"), not a recommendation to rubber-
+  stamp, per his explicit instruction when this item was flagged.
+  Farhad confirmed directly with the client: no English content is
+  planned at this time. Site stays exactly as already built —
+  bilingual-*ready*, Persian-active only, no Polylang/WPML, no English
+  content or routing (`CLAUDE.md` §1). The "linked pairs" model (per
+  IA doc §2.2) is recorded as the working assumption for *whenever*
+  English rollout is eventually scoped — not a commitment made today,
+  and not something this build has validated against real English
+  content, since none exists. `EXECUTION_PLAN.md` Appendix B updated
+  to reflect this closure. All 3 of the IA doc's open decisions are
+  now either resolved or explicitly deferred with sign-off — Phase
+  7.3's checklist item for this is complete.
+  Approved by: Farhad, in this session (2026-08-07).
   Approved by: Farhad, in this session (2026-08-06).
