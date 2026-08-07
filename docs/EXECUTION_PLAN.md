@@ -528,15 +528,15 @@ Goal: close out the project the way the original proposal promised — full owne
 
 | # | Placement | Verified? |
 |---|---|---|
-| 1 | Theme style.css header (Author URI → github.com/farhadcodes, visible in Appearance → Themes) | ☐ |
-| 2 | screenshot.png credit strip (visual treatment confirmed with Farhad first) | ☐ |
-| 3 | Plugin shola-core.php header (same Author URI) | ☐ |
-| 4 | Theme readme.txt Credits section | ☐ |
-| 5 | Repo root README.md Credits section | ☐ |
-| 6 | admin_footer_text light-touch credit line | ☐ |
+| 1 | Theme style.css header (Author URI → github.com/farhadcodes, visible in Appearance → Themes) | ☑ (2026-08-07) |
+| 2 | screenshot.png credit strip (visual treatment confirmed with Farhad first) | ☑ (2026-08-07) |
+| 3 | Plugin shola-core.php header (same Author URI) | ☑ (2026-08-07) |
+| 4 | Theme readme.txt Credits section | ☑ (2026-08-07) |
+| 5 | Repo root README.md Credits section | ☑ (2026-08-07) |
+| 6 | admin_footer_text light-touch credit line | ☑ (2026-08-07) |
 
 **Checklist:**
-- ☐ All six credit placements individually confirmed present and correctly linked, not assumed from memory
+- ☑ All six credit placements individually confirmed present and correctly linked, not assumed from memory (2026-08-07) — placements 1/3/4/5 read directly from their source files (exact text quoted in `docs/CHANGELOG.md`); #6 called live via `apply_filters('admin_footer_text', '')` rather than just reading the code, confirming the actual runtime output and link; #2 was the one real gap — `screenshot.png` was still a bare placeholder image (confirmed by opening it, not assumed from its file existing) — replaced with a real front-page screenshot plus the credit-strip visual treatment Farhad confirmed first (bottom-right, subtle overlay).
 
 ### 7.3 — Open items resolved or explicitly deferred
 

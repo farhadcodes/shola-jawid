@@ -2355,4 +2355,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   now either resolved or explicitly deferred with sign-off — Phase
   7.3's checklist item for this is complete.
   Approved by: Farhad, in this session (2026-08-07).
-  Approved by: Farhad, in this session (2026-08-06).
+
+- **Resolved:** Phase 7.2 — all six `CLAUDE.md` §7 credit placements
+  individually re-verified, not assumed from memory as already done
+  earlier in the project: theme `style.css`, plugin `shola-core.php`,
+  `readme.txt`, and root `README.md` all read directly from their
+  actual current file contents (exact `Author`/`Author URI` lines and
+  Credits sections all correct); `admin_footer_text` verified live via
+  `apply_filters('admin_footer_text', '')` rather than just reading
+  the callback's code, confirming the actual rendered output and link.
+  Five of six were already correct from earlier phases.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed:** the sixth placement, `screenshot.png`, was the one real
+  gap — opened the actual file rather than trusting that its existence
+  meant it was finished, and found it was still exactly the Phase 3.1
+  placeholder (bare white background, "Shola Jawid — placeholder
+  screenshot" text, 5.7KB). Per `CLAUDE.md` §7's own instruction not to
+  guess at the credit-strip visual treatment unilaterally, presented
+  three concrete options to Farhad before building anything — he chose
+  a subtle bottom-right overlay. Captured a real screenshot of the
+  finished front page (headless Chrome, 1200×900, the same technique
+  proven throughout this session), then composited the credit strip
+  via an HTML+CSS overlay (dark semi-transparent strip, brand
+  `--ink`/`--paper` tokens, monospace text: "Designed & developed by
+  Farhad Farhaad" / "github.com/farhadcodes") rendered through the
+  same headless-Chrome screenshot technique rather than needing an
+  image-editing tool. Replaced `screenshot.png` (now 918KB, real
+  content). Verified live via `curl` that the new file is actually
+  served at the theme's real screenshot URL, not just present on disk.
+  Approved by: Farhad, in this session (2026-08-07).
