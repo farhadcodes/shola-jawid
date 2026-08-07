@@ -47,7 +47,21 @@ $filters = array(
 				<?php foreach ( $filters as $value => $label ) : ?>
 					<a
 						class="<?php echo $result_type === $value ? 'active' : ''; ?>"
-						href="<?php echo esc_url( add_query_arg( array_filter( array( 's' => $search_query, 'result_type' => $value ) ), home_url( '/' ) ) ); ?>"
+						href="
+						<?php
+						echo esc_url(
+							add_query_arg(
+								array_filter(
+									array(
+										's'           => $search_query,
+										'result_type' => $value,
+									)
+								),
+								home_url( '/' )
+							)
+						);
+						?>
+								"
 					><?php echo esc_html( $label ); ?></a>
 				<?php endforeach; ?>
 			</div>

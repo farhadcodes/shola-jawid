@@ -313,7 +313,12 @@ class Meta_Fields {
 		$section = isset( $row['section'] ) ? $row['section'] : '';
 		$title   = isset( $row['title'] ) ? $row['title'] : '';
 		$byline  = isset( $row['byline'] ) ? $row['byline'] : '';
-		$topics  = get_terms( array( 'taxonomy' => 'topic', 'hide_empty' => false ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, admin-only.
+		$topics  = get_terms(
+			array(
+				'taxonomy'   => 'topic',
+				'hide_empty' => false,
+			)
+		); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, admin-only.
 		if ( is_wp_error( $topics ) ) {
 			$topics = array();
 		}

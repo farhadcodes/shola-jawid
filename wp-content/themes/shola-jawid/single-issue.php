@@ -18,13 +18,13 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$pub_terms = get_the_terms( get_the_ID(), 'publication' );
-	$pub       = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
+	$pub_terms  = get_the_terms( get_the_ID(), 'publication' );
+	$pub        = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
 	$is_current = $pub && 'shola-jawid' === $pub->slug;
 	$number     = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
 
-	$pdf_id  = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
-	$pdf_url = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
+	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
+	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	$pdf_size = '';
 	if ( $pdf_id ) {
 		$pdf_file = get_attached_file( $pdf_id );
@@ -80,9 +80,9 @@ while ( have_posts() ) :
 		<div class="issue-hero">
 
 			<a
-				<?php if ( $pdf_url ) : ?>href="<?php echo esc_url( $pdf_url ); ?>" download<?php else : ?>href="#"<?php endif; ?>
+				<?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="#"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied; the surrounding markup is a static string, not user input. ?>
 				class="issue-cover"
-				aria-label="<?php echo esc_attr( $number ? sprintf( __( 'دریافت PDF شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : __( 'دریافت PDF', 'shola-jawid' ) ); ?>"
+				aria-label="<?php echo esc_attr( $number ? sprintf( /* translators: %s: issue number. */ __( 'دریافت PDF شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : __( 'دریافت PDF', 'shola-jawid' ) ); ?>"
 			>
 				<?php echo shola_get_featured_image( get_post(), 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 			</a>
@@ -92,7 +92,7 @@ while ( have_posts() ) :
 					<?php
 					echo esc_html(
 						$number
-							? sprintf( __( 'شمارهٔ %1$s · %2$s', 'shola-jawid' ), shola_to_persian_digits( $number ), shola_publication_status_label( $pub ? $pub->slug : '' ) )
+							? sprintf( /* translators: 1: issue number, 2: current/archived status label. */ __( 'شمارهٔ %1$s · %2$s', 'shola-jawid' ), shola_to_persian_digits( $number ), shola_publication_status_label( $pub ? $pub->slug : '' ) )
 							: shola_publication_status_label( $pub ? $pub->slug : '' )
 					);
 					?>
@@ -101,7 +101,7 @@ while ( have_posts() ) :
 					<?php
 					echo esc_html(
 						$number && $pub
-							? sprintf( '%1$s · %2$s', $pub->name, sprintf( __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) )
+							? sprintf( '%1$s · %2$s', $pub->name, sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) )
 							: get_the_title()
 					);
 					?>

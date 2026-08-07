@@ -113,7 +113,7 @@ $current_issue_query = new WP_Query(
 		'order'          => 'DESC',
 	)
 );
-$current_issue = $current_issue_query->have_posts() ? $current_issue_query->posts[0] : null;
+$current_issue       = $current_issue_query->have_posts() ? $current_issue_query->posts[0] : null;
 ?>
 <?php if ( $current_issue ) : ?>
 	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
@@ -151,7 +151,7 @@ $current_issue = $current_issue_query->have_posts() ? $current_issue_query->post
 							}
 							?>
 						</p>
-						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>" class="link-quiet"><?php echo esc_html( ( $issue_pub_term ? $issue_pub_term->name . ' · ' : '' ) . ( $issue_number ? sprintf( __( 'شمارهٔ %s', 'shola-jawid' ), $issue_number ) : get_the_title( $current_issue ) ) ); ?></a></h3>
+						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>" class="link-quiet"><?php echo esc_html( ( $issue_pub_term ? $issue_pub_term->name . ' · ' : '' ) . ( $issue_number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), $issue_number ) : get_the_title( $current_issue ) ) ); ?></a></h3>
 						<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $current_issue ), 30 ) ); ?></p>
 						<dl class="issue-meta">
 							<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>

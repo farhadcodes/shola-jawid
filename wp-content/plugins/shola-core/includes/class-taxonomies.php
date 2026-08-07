@@ -229,10 +229,10 @@ class Taxonomies {
 		}
 
 		$collections = array(
-			'classics'                => 'آثار کلاسیک',
+			'classics'               => 'آثار کلاسیک',
 			'international-movement' => 'جنبش بین‌المللی',
-			'party-documents'         => 'اسناد حزب',
-			'critique-polemic'        => 'نقد و پلمیک',
+			'party-documents'        => 'اسناد حزب',
+			'critique-polemic'       => 'نقد و پلمیک',
 		);
 		foreach ( $collections as $slug => $name ) {
 			self::maybe_insert_term( $name, 'collection', $slug );

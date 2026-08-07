@@ -19,8 +19,8 @@ $term       = get_queried_object();
 $is_current = 'shola-jawid' === $term->slug;
 $meta_line  = shola_get_publication_meta_line( $term );
 
-$latest_issue    = null;
-$exclude_ids     = array();
+$latest_issue = null;
+$exclude_ids  = array();
 if ( $is_current ) {
 	$latest = get_posts(
 		array(
@@ -43,7 +43,7 @@ if ( $is_current ) {
 	}
 }
 
-$paged = max( 1, get_query_var( 'paged' ) );
+$paged         = max( 1, get_query_var( 'paged' ) );
 $archive_query = new WP_Query(
 	array(
 		'post_type'      => 'issue',
@@ -84,7 +84,7 @@ $archive_query = new WP_Query(
 				<h2 class="h-section mt-sm mb-lg">
 					<?php
 					$number = get_post_meta( $latest_issue->ID, 'shcore_issue_number', true );
-					echo esc_html( $number ? sprintf( __( 'شمارهٔ %s · جاری', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : get_the_title( $latest_issue ) );
+					echo esc_html( $number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s · جاری', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : get_the_title( $latest_issue ) );
 					?>
 				</h2>
 
@@ -113,7 +113,7 @@ $archive_query = new WP_Query(
 		<?php endif; ?>
 
 		<?php if ( $archive_query->have_posts() ) : ?>
-			<p class="section-marker" lang="en">Archive<?php echo $exclude_ids ? ' · ' . shola_to_persian_digits( $archive_query->found_posts ) . ' Issues' : ''; ?></p>
+			<p class="section-marker" lang="en">Archive<?php echo $exclude_ids ? esc_html( ' · ' . shola_to_persian_digits( $archive_query->found_posts ) . ' Issues' ) : ''; ?></p>
 			<h2 class="h-section mt-sm mb-lg"><?php echo $is_current ? esc_html__( 'شماره‌های پیشین', 'shola-jawid' ) : esc_html__( 'همهٔ شماره‌ها', 'shola-jawid' ); ?></h2>
 
 			<div class="issue-grid">
@@ -131,9 +131,9 @@ $archive_query = new WP_Query(
 					<?php
 					$links = paginate_links(
 						array(
-							'total'   => $archive_query->max_num_pages,
-							'current' => $paged,
-							'type'    => 'array',
+							'total'     => $archive_query->max_num_pages,
+							'current'   => $paged,
+							'type'      => 'array',
 							'prev_text' => '→',
 							'next_text' => '←',
 						)

@@ -377,7 +377,7 @@ function shola_get_publication_meta_line( $term ) {
 		$years[] = shola_get_gregorian_year( $issue );
 	}
 	sort( $years );
-	$year_range = ( $years[0] === end( $years ) )
+	$year_range = ( end( $years ) === $years[0] )
 		? shola_to_persian_digits( $years[0] )
 		: shola_to_persian_digits( $years[0] ) . '–' . shola_to_persian_digits( end( $years ) );
 

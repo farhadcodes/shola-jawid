@@ -2214,4 +2214,126 @@ trail of *why* the build deviated from — or newly applied — a rule in
   complete. Next per the plan: Phase 7 — final QC, credit verification,
   and handover.
   Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** first-ever local phpcs run against this codebase. It had
+  only ever run via CI (`phpcs.xml.dist`/`.github/workflows/lint.yml`,
+  WordPress-Extra); never locally, since neither `phpcs` nor a
+  `vendor/` directory existed on this machine before now. Installed the
+  exact same tool versions CI uses
+  (`squizlabs/php_codesniffer:^3.9`, `wp-coding-standards/wpcs:^3.1`,
+  `phpcompatibility/phpcompatibility-wp:^2.1`) via a global Composer
+  install, so the local result matches what CI would actually report.
+  First run: 57 errors + 38 warnings across 22 of 34 scanned files.
+  Reported the actual composition to Farhad before touching anything,
+  per his request to see the real scope first — 43 were pure
+  cosmetic/alignment (auto-fixable), 8 were missing `translators:`
+  comments, 1 matched-but-flagged Yoda-condition/output-escaping/naming
+  issues each, and 40 were `WordPress.WP.GlobalVariablesOverride.
+  Prohibited` flagging completely ordinary template variables
+  (`$term`, `$paged`) that happen to share a name with a WordPress
+  global — ordinary, expected WP template-hierarchy code, not a bug.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved (deliberate ruleset decision, not a silent suppression):**
+  excluded `WordPress.WP.GlobalVariablesOverride.Prohibited`
+  project-wide in `phpcs.xml.dist`, with an inline comment explaining
+  why, per Farhad's explicit approval of that option over renaming
+  ~20-30 variables across many already-closed-out templates for a
+  purely cosmetic naming collision. All 40 of that sniff's findings
+  were confirmed to be this exact false-positive pattern before
+  excluding it, not assumed.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed:** the remaining real findings, each individually — 8 missing
+  `/* translators: */` comments added (footer.php, front-page.php,
+  page-library.php, page-topics.php, single-issue.php ×3,
+  taxonomy-publication.php), one genuine Yoda-condition violation
+  fixed (`inc/template-tags.php`), one `shola_to_persian_digits()`
+  output wrapped in `esc_html()` in `taxonomy-publication.php` (the
+  value is always digit-safe by construction, but matches this
+  project's own "escape everything, no exceptions" rule rather than
+  arguing the technicality), and two naming nits resolved (the
+  `admin_footer_text` callback's required-but-unused `$text` parameter
+  documented with a `phpcs:ignore` explaining why it can't be removed;
+  the plugin autoloader's `$class` parameter renamed to `$class_name`,
+  a trivial zero-risk rename). Ran `phpcbf` for the 43 auto-fixable
+  cosmetic violations; manually cleaned up two spots afterward where
+  its automatic reformatting of alternative-syntax control structures
+  (`single-issue.php`'s conditional `href`, `card.php`'s term-link
+  conditional) produced functionally-correct but inconsistently-indented
+  output — simplified the first to a plain ternary expression instead
+  of fighting the formatter, hand-fixed the second's indentation.
+  Re-ran phpcs after every fix: **0 errors, 0 warnings, all 34 files
+  clean.** `php -l` re-run on every touched file, and the live site
+  re-verified across 9 page types (front page, all archives, search,
+  a topic page) plus the specific manually-rewritten PDF-link markup —
+  all `200`, zero PHP errors, real PDF URL/`download` attribute intact.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Phase 7.1's test-content cleanup, re-confirmed live
+  before deleting anything rather than trusted from the CHANGELOG log,
+  per Farhad's explicit instruction. That live check found a real
+  discrepancy: a **third** test taxonomy term
+  ("پست آزمایشی" under `collection`, term_id 15) existed that neither
+  `EXECUTION_PLAN.md` nor any prior CHANGELOG entry had ever mentioned
+  — only the topic and publication test terms were documented. Found
+  by listing every term across all three taxonomies directly instead
+  of searching only for the terms already expected. Deleted all of it:
+  3 test posts (مقاله آزمایشی/شماره ای آزمایشی/سند آزمایشی, IDs 11/10/8),
+  3 test taxonomy terms (موضوع آزمایشی/نشریه ازمایشی/پست آزمایشی —
+  confirmed `count: 0` on all three before deleting, none attached to
+  real content), and the 4 test role accounts from Phase 5.1
+  (`test_admin`/`test_editor`/`test_author`/`test_contributor`).
+  Verified live afterward: site healthy across 7 page types, zero PHP
+  errors, real seeded content unaffected.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Phase 7.1's mobile/desktop/no-JS check. No-JS: homepage
+  rendered via headless Chrome with JavaScript disabled — full content
+  and primary navigation (site nav, search link, تماس/اطلاعیه‌ها links)
+  remain visible and functional; only the hamburger-menu panel itself
+  needs JS to open, an acceptable, expected degradation matching this
+  project's stated "progressive enhancement, not JS-required" standard
+  (`CLAUDE.md` §5). Mobile: a first headless-Chrome screenshot at
+  390px appeared to show clipped/cut-off content (masthead icons,
+  hero title text) — investigated properly rather than reported as a
+  bug on a visual impression alone: real DOM measurements via the
+  interactive browser's actual mobile emulation (375px, proper UA/touch
+  emulation) showed **zero** horizontal overflow
+  (`body.scrollWidth === window.innerWidth` exactly) and every
+  element's `getBoundingClientRect()` fully within viewport bounds,
+  hero title text fully present and un-truncated. The initial headless-
+  Chrome screenshot was a misleading rendering artifact of that
+  specific capture method, not a real bug — confirmed by cross-checking
+  with a more reliable measurement method before reporting anything,
+  the same discipline applied all session to visual findings.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** decision #1 from `EXECUTION_PLAN.md` Appendix B's open-
+  decisions tracker ("جنبش بین‌المللی" dual-listing) formally logged
+  here, closing a real gap: the plan's own tracker said this was
+  "Confirmed in IA doc itself; formalize in CHANGELOG.md at Phase 3.2"
+  — that formalization never actually happened, confirmed by searching
+  this file directly rather than trusting the tracker's "Confirmed"
+  status at face value. The IA doc's exact §9 text: *""Int'l movement /
+  جنبش بین‌المللی" appears twice — once under Topics (articles) and
+  once under Library (documents). Confirm this is intentional; they
+  hold different content types."* — posed as a question to confirm,
+  not a settled fact, in the source doc. Confirmed intentional and
+  already correctly built: `topic` term "جنبش بین‌المللی" (term_id 7)
+  holds real article content, `collection` term "جنبش بین‌المللی"
+  (term_id 12) holds real document content — genuinely different
+  content types under the same name, exactly as the IA doc's own
+  reasoning describes, verified via real seeded content counts (both
+  non-zero), not asserted from the label alone.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** decision #3 from the same tracker (issue model:
+  PDF-only vs. PDF + separate web articles) — already built against
+  this assumption throughout Phase 4 (`single-issue.php`,
+  `EXECUTION_PLAN.md`'s own Phase 0.3 resolved-assumption note) and
+  never revisited, since no client request to change it ever came up.
+  Confirmed still the correct assumption; no code or content-model
+  change needed.
+  Approved by: Farhad, in this session (2026-08-07).
   Approved by: Farhad, in this session (2026-08-06).

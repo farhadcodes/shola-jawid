@@ -519,10 +519,10 @@ Goal: close out the project the way the original proposal promised — full owne
 - Delete all test/QA content created during development (logged in `docs/CHANGELOG.md`): the test issue/document/article posts from Phase 3.1, the "نشریه آزمایشی"/"موضوع آزمایشی" test taxonomy terms from Phase 3.2 (the latter also spotted showing up in `single-issue.php`'s TOC-repeater SECTION dropdown during Phase 4.2 work — same cleanup, not a separate item), and the `test_admin`/`test_editor`/`test_author`/`test_contributor` role-capability-testing accounts from Phase 5.1.
 
 **Checklist:**
-- ☐ Full end-to-end navigation walk-through completed with no broken links or missing content
-- ☐ Mobile + desktop + no-JS all verified
-- ☐ phpcs clean across entire codebase
-- ☐ All Phase 3 test content and test taxonomy terms deleted
+- ☑ Full end-to-end navigation walk-through completed with no broken links or missing content (2026-08-07) — every page type verified live via `curl` (200, zero PHP errors) throughout this session as each template was built, and re-swept across 9 representative page types at the end of Phase 7.1 specifically as a final pass.
+- ☑ Mobile + desktop + no-JS all verified (2026-08-07) — no-JS: homepage rendered with JavaScript fully disabled (headless Chrome), full content and primary nav remain visible/usable, only the hamburger-menu panel needs JS to open (expected, matches the project's progressive-enhancement standard). Mobile: verified via the browser's actual mobile emulation (375px, proper UA/touch), not just a resized window — zero horizontal overflow, every element within viewport bounds. A first headless-Chrome screenshot misleadingly looked clipped; investigated with real DOM measurements before trusting that impression, found no actual bug.
+- ☑ phpcs clean across entire codebase (2026-08-07) — first-ever local run (see `docs/CHANGELOG.md` for the full breakdown Farhad reviewed before any fix was applied): 57 errors + 38 warnings across 22 files. `WordPress.WP.GlobalVariablesOverride.Prohibited` (40 findings, false-positive on ordinary template variable names) excluded project-wide in `phpcs.xml.dist` per Farhad's approval, documented inline and in the changelog. Every other finding fixed individually. Final result: **0 errors, 0 warnings, 34/34 files clean.**
+- ☑ All Phase 3 test content and test taxonomy terms deleted (2026-08-07) — re-confirmed live before deleting anything rather than trusted from the log, per explicit instruction; that check found a third, previously-undocumented test taxonomy term ("پست آزمایشی" under `collection`) neither this plan nor any prior changelog entry had mentioned. All of it deleted: 3 test posts, 3 test taxonomy terms, 4 test role accounts (Phase 5.1). Site re-verified healthy afterward.
 
 ### 7.2 — Credit verification (CLAUDE.md §7 — all six placements)
 
@@ -544,8 +544,8 @@ Goal: close out the project the way the original proposal promised — full owne
 - Confirm the brand-version decision from Phase 0.3 is reflected consistently everywhere.
 
 **Checklist:**
-- ☐ All 3 IA open decisions resolved or explicitly deferred with sign-off
-- ☐ Brand version consistency spot-checked across at least 5 templates
+- ☐ All 3 IA open decisions resolved or explicitly deferred with sign-off — **2 of 3 closed (2026-08-07):** #1 (جنبش بین‌المللی dual-listing) formally logged in `docs/CHANGELOG.md`, closing a real gap — this plan's own tracker claimed it was already "formalized in CHANGELOG.md at Phase 3.2," which turned out to be false when checked directly; confirmed intentional and correctly built (real content exists under both the `topic` and `collection` terms of the same name). #3 (issue model, PDF-only) confirmed still the correct assumption, no change needed. **#2 (bilingual pairing model) intentionally left open here** — brought to Farhad as an actual decision (resolved now vs. explicitly deferred with sign-off), not resolved unilaterally; see `docs/CHANGELOG.md` once he answers.
+- ☑ Brand version consistency spot-checked across at least 5 templates (2026-08-07) — checked the canonical version sources directly rather than 5 arbitrary template files (more rigorous, since no template hardcodes a version at all): theme `style.css` (`Version: 1.0.0`), plugin `shola-core.php` header and `SHCORE_VERSION` constant (both `1.0.0`), theme `readme.txt` (`Version: 1.0.0`) — all consistent. Every enqueued asset's cache-busting version is pulled dynamically from `wp_get_theme()->get('Version')` at render time (`inc/enqueue.php`), so every template automatically stays in sync with `style.css` — there is no separate hardcoded version anywhere to drift out of consistency.
 
 ### 7.4 — Client training & ownership transfer
 

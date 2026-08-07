@@ -42,7 +42,7 @@ $documents_query = new WP_Query(
 				?>
 				<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 					<span class="name"><?php echo esc_html( $term->name ); ?></span>
-					<span class="count"><?php echo esc_html( sprintf( _n( '%s سند', '%s سند', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
+					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
 			<?php endforeach; ?>
 		</ul>
 

@@ -82,7 +82,7 @@ add_action( 'after_setup_theme', 'shola_setup' );
  * @param string $text Default admin footer text.
  * @return string
  */
-function shola_admin_footer_text( $text ) {
+function shola_admin_footer_text( $text ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- required by the admin_footer_text filter signature; this callback replaces the text entirely rather than modifying it.
 	return sprintf(
 		/* translators: %s: linked author name, not translatable. */
 		__( 'ساخته‌شده با قالب شعله جاوید، توسط %s', 'shola-jawid' ),

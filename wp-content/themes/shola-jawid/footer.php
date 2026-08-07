@@ -73,7 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="footer-base">
-			<p><?php echo esc_html( sprintf( __( '© ۱۴۰۵ · %s · بازنشر با ذکر منبع آزاد است', 'shola-jawid' ), get_bloginfo( 'name' ) ) ); ?></p>
+			<p><?php echo esc_html( sprintf( /* translators: %s: site name. */ __( '© ۱۴۰۵ · %s · بازنشر با ذکر منبع آزاد است', 'shola-jawid' ), get_bloginfo( 'name' ) ) ); ?></p>
 			<p lang="en">FA · <a href="#" class="link-quiet">EN</a></p>
 		</div>
 	</div>

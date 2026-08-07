@@ -24,13 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 $tabs = array(
-	'about'       => __( 'دربارهٔ ما', 'shola-jawid' ),
-	'team'        => __( 'هیئت تحریریه', 'shola-jawid' ),
-	'contact'     => __( 'تماس', 'shola-jawid' ),
-	'guidelines'  => __( 'راهنمای همکاری', 'shola-jawid' ),
-	'republish'   => __( 'بازنشر', 'shola-jawid' ),
-	'support'     => __( 'حمایت مالی', 'shola-jawid' ),
-	'write'       => __( 'نوشتن برای ما', 'shola-jawid' ),
+	'about'      => __( 'دربارهٔ ما', 'shola-jawid' ),
+	'team'       => __( 'هیئت تحریریه', 'shola-jawid' ),
+	'contact'    => __( 'تماس', 'shola-jawid' ),
+	'guidelines' => __( 'راهنمای همکاری', 'shola-jawid' ),
+	'republish'  => __( 'بازنشر', 'shola-jawid' ),
+	'support'    => __( 'حمایت مالی', 'shola-jawid' ),
+	'write'      => __( 'نوشتن برای ما', 'shola-jawid' ),
 );
 ?>
 	<section class="wrap section-top">

@@ -28,9 +28,9 @@ get_header();
 				if ( ! $term ) {
 					continue;
 				}
-				$is_current  = 'shola-jawid' === $slug;
-				$meta_line   = shola_get_publication_meta_line( $term );
-				$latest_args = array(
+				$is_current   = 'shola-jawid' === $slug;
+				$meta_line    = shola_get_publication_meta_line( $term );
+				$latest_args  = array(
 					'post_type'      => 'issue',
 					'posts_per_page' => 1,
 					'orderby'        => 'date',

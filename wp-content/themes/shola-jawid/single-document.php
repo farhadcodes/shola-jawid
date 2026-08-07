@@ -17,12 +17,12 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$col_terms = get_the_terms( get_the_ID(), 'collection' );
+	$col_terms  = get_the_terms( get_the_ID(), 'collection' );
 	$collection = ( $col_terms && ! is_wp_error( $col_terms ) ) ? reset( $col_terms ) : false;
 	$author     = get_post_meta( get_the_ID(), 'shcore_author_source', true );
 
-	$pdf_id  = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
-	$pdf_url = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
+	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
+	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	$pdf_size = '';
 	if ( $pdf_id ) {
 		$pdf_file = get_attached_file( $pdf_id );
@@ -65,7 +65,14 @@ while ( have_posts() ) :
 		<div class="issue-hero">
 
 			<a
-				<?php if ( $pdf_url ) : ?>href="<?php echo esc_url( $pdf_url ); ?>" download<?php else : ?>href="#"<?php endif; ?>
+				<?php
+				if ( $pdf_url ) :
+					?>
+					href="<?php echo esc_url( $pdf_url ); ?>" download
+					<?php
+else :
+	?>
+					href="#"<?php endif; ?>
 				class="issue-cover"
 				aria-label="<?php esc_attr_e( 'دریافت PDF', 'shola-jawid' ); ?>"
 			>

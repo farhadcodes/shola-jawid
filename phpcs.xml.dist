@@ -12,6 +12,19 @@
 
 	<rule ref="WordPress-Extra">
 		<exclude name="WordPress.Files.FileName"/>
+		<!--
+			GlobalVariablesOverride flags ordinary local variables (`$term`,
+			`$paged`, etc.) that happen to share a name with a WordPress
+			global, even in template files where assigning `$term =
+			get_queried_object();` or `$paged = get_query_var('paged');` is
+			completely standard WP template-hierarchy code, not a real
+			collision risk. Excluded project-wide after a full phpcs run
+			(2026-08-07) confirmed every one of its 40 findings across this
+			codebase was exactly this false-positive pattern in a template
+			file, none in shola-core. Logged as a deliberate ruleset
+			decision in docs/CHANGELOG.md, not a silent suppression.
+		-->
+		<exclude name="WordPress.WP.GlobalVariablesOverride.Prohibited"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">

@@ -33,14 +33,14 @@ if ( ! $card_post ) {
 }
 
 if ( 'document' === $card_type ) {
-	$permalink   = get_permalink( $card_post );
-	$type_label  = __( 'سند', 'shola-jawid' );
-	$terms       = get_the_terms( $card_post, 'collection' );
-	$term        = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
-	$term_link   = $term ? get_term_link( $term ) : '';
-	$term_name   = $term ? $term->name : '';
-	$byline      = __( 'کتابخانه', 'shola-jawid' );
-	$type_icon   = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1"/></svg>';
+	$permalink           = get_permalink( $card_post );
+	$type_label          = __( 'سند', 'shola-jawid' );
+	$terms               = get_the_terms( $card_post, 'collection' );
+	$term                = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
+	$term_link           = $term ? get_term_link( $term ) : '';
+	$term_name           = $term ? $term->name : '';
+	$byline              = __( 'کتابخانه', 'shola-jawid' );
+	$type_icon           = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1"/></svg>';
 	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
 } else {
 	$permalink   = get_permalink( $card_post );
@@ -68,7 +68,7 @@ if ( 'document' === $card_type ) {
 	 * v6 changes both together.
 	 */
 	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
-	$type_icon            = $on_own_term_archive
+	$type_icon           = $on_own_term_archive
 		? '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Z"/></svg>'
 		: '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>';
 }
@@ -84,21 +84,21 @@ if ( 'document' === $card_type ) {
 			<?php if ( $term_name ) : ?>
 				<span class="divider">/</span>
 				<?php
-					// v6 shows the term as plain text, not a link, when the card
-					// appears on that same term's own archive page — avoids a
-					// redundant self-link (confirmed against
-					// body-topic-economy.html: no <a> around "اقتصاد" there, vs. a
-					// real link on the homepage's equivalent card). Every other
-					// context keeps the link. $on_own_term_archive is computed
-					// above, alongside the matching icon-style decision.
-					if ( $on_own_term_archive ) :
-						echo esc_html( $term_name );
-					else :
-						?>
-						<a href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_name ); ?></a>
-						<?php
-					endif;
+				// v6 shows the term as plain text, not a link, when the card
+				// appears on that same term's own archive page — avoids a
+				// redundant self-link (confirmed against
+				// body-topic-economy.html: no <a> around "اقتصاد" there, vs. a
+				// real link on the homepage's equivalent card). Every other
+				// context keeps the link. $on_own_term_archive is computed
+				// above, alongside the matching icon-style decision.
+				if ( $on_own_term_archive ) :
+					echo esc_html( $term_name );
+				else :
 					?>
+					<a href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_name ); ?></a>
+					<?php
+				endif;
+				?>
 			<?php endif; ?>
 		</p>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $card_post ) ); ?></a></h3>

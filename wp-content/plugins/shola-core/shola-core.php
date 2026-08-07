@@ -28,17 +28,17 @@ define( 'SHCORE_URL', plugin_dir_url( __FILE__ ) );
  * using WP's own class-file naming convention (class-{kebab-case}.php).
  * No Composer dependency needed at this project's size.
  *
- * @param string $class Fully-qualified class name being loaded.
+ * @param string $class_name Fully-qualified class name being loaded.
  * @return void
  */
-function shcore_autoload( $class ) {
+function shcore_autoload( $class_name ) {
 	$prefix = 'SholaCore\\';
 
-	if ( 0 !== strpos( $class, $prefix ) ) {
+	if ( 0 !== strpos( $class_name, $prefix ) ) {
 		return;
 	}
 
-	$relative = substr( $class, strlen( $prefix ) );
+	$relative = substr( $class_name, strlen( $prefix ) );
 	$file     = SHCORE_PATH . 'includes/class-' . strtolower( str_replace( '_', '-', $relative ) ) . '.php';
 
 	if ( file_exists( $file ) ) {
