@@ -53,6 +53,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Contact_Settings::init();
 \SholaCore\Roles::init();
 \SholaCore\SEO::init();
+\SholaCore\Security::init();
 
 /**
  * On activation: register post types and taxonomies, seed the fixed term

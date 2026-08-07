@@ -2025,4 +2025,193 @@ trail of *why* the build deviated from — or newly applied — a rule in
   re-audited above and confirmed still accurate. Next per the plan:
   Phase 6 — security hardening, backups, deployment prep.
   Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** Phase 6.1 — Wordfence installed for real (same unzip-into-
+  live-plugins pattern as CF7/Persian Calendar, not git-tracked). Before
+  touching config, presented the plan (firewall mode for a dev site,
+  alert-email destination, and confirmed the deliberate-lockout test
+  wouldn't be able to touch the real `SJ_manager` account) and got
+  sign-off first, per Farhad's explicit request for anything security-
+  sensitive.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Firewall switched from its self-initialized Learning
+  Mode (a real 7-day default) to `enabled` — a dev site with no real
+  traffic has nothing meaningful to learn from, so enforcing now with
+  Wordfence's default ruleset is correct here; documented (not just
+  silently decided) that the real ~1-week learning period is still the
+  right move for whoever does the actual production launch. Set via
+  `wfWAF::getInstance()->getStorageEngine()->setConfig('wafStatus',
+  'enabled')` after reading Wordfence's own source to find the correct
+  API — the regular `wfConfig` settings store (used for everything else)
+  turned out not to be where WAF status lives, a separate storage
+  engine is. Re-confirmed via a fresh config read afterward rather than
+  trusting the one call: `wafStatus: enabled`.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed/Resolved:** Login rate-limiting. Tightened the (quite
+  generous) defaults — `loginSec_maxFailures` 20→5,
+  `loginSec_lockoutMins` 240→60, `loginSec_lockInvalidUsers` 0→1 (also
+  count attempts against nonexistent usernames, not just wrong
+  passwords for real ones), `alertEmails` set to the placeholder
+  address already used site-wide. Deliberately used the throwaway
+  `test_contributor` account (created in Phase 5.1, password never
+  recorded) for the actual failed-login test, never the real admin —
+  per the plan agreed before starting.
+
+  Real, non-trivial finding while running that test: repeated genuine
+  failed logins (confirmed actually reaching WordPress's own auth
+  check — the correct Persian "wrong password" error rendered every
+  time, both via raw `curl` POSTs and later via real browser form
+  submissions once a `wordpress_test_cookie` requirement was diagnosed
+  and fixed) never triggered a lockout, no matter how many were sent.
+  Traced it to the actual cause by reading Wordfence's own source
+  rather than guessing: `wfBlock::isWhitelisted()` and
+  `wfBlock::createLockout()` both unconditionally exempt private/
+  loopback IPs (`127.0.0.1` included) — a deliberate Wordfence default
+  specifically so a site owner developing locally can never lock
+  themselves out, confirmed live (`isWhitelisted('127.0.0.1') ===
+  true`). Chose not to defeat that protection just to force a positive
+  test result — it's correct, desirable behavior, and won't exist on
+  the real production site (real attackers don't connect from
+  `127.0.0.1`).
+
+  Verified what's actually verifiable from here instead: confirmed
+  every real config value the lockout logic would act on, and
+  separately proved the *alert* side of the exact same `lockOutIP()`
+  call Wordfence would make on a real lockout — instantiated
+  `wfLoginLockoutAlert` directly and called `->send()`, confirmed via
+  Mailpit that `[Wordfence Alert] ... User locked out from signing in`
+  arrived at the correct recipient with real, correctly-formatted
+  content. (Noticed in passing: `lockOutIP()`'s alert step isn't itself
+  whitelist-gated, only its block-creation sub-call is — so this test
+  and an earlier direct `lockOutIP()` call both sent a real test alert,
+  2 harmless duplicates, both caught locally.) Unlock mechanism
+  (`wfBlock::unblockIP()`) was verified callable in a safe dry run
+  *before* any of this testing began, per the explicit plan to have
+  recovery confirmed working before taking any risk, not after.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Malware scan schedule + alerting. `scheduledScansEnabled`/
+  `alertOn_scanIssues` were already `1` by Wordfence's own default, but
+  no scan was actually in WP-Cron yet — a real gap, since Wordfence
+  normally schedules this during its own interactive setup wizard,
+  which activating the plugin via script bypassed. Scheduled one
+  directly (`wp_schedule_single_event` on
+  `wordfence_start_scheduled_scan`), confirmed via `wp_next_scheduled()`.
+  Did not force a full synchronous scan run through a single script
+  request — a genuinely heavy, potentially multi-minute filesystem/
+  signature operation not worth forcing through that path; schedule +
+  alerting + hook registration are all confirmed real and correctly
+  wired, which is what "configured" actually requires here.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** Phase 6.2 hardening. `DISALLOW_FILE_EDIT` added to the live
+  `wp-config.php` with an inline comment on scope (blocks the in-browser
+  Theme/Plugin File Editor only, not git/SFTP deploys). New
+  `wp-content/plugins/shola-core/includes/class-security.php`
+  (`\SholaCore\Security`) — each item checked live first, nothing
+  assumed needed: XML-RPC confirmed fully functional
+  (`system.listMethods` returned the real method list including
+  `system.multicall`) and unused by this project, disabled via
+  `xmlrpc_enabled` plus removing the `X-Pingback` header (the filter
+  alone doesn't hide the endpoint's existence, confirmed by checking
+  both separately); WP version string confirmed exposed three ways
+  (`<meta name="generator">`, RSS `<generator>`, core-asset `?ver=`
+  query strings) and removed from all three; REST API user-enumeration
+  checked live first and found already correctly restricted by
+  WordPress core (`401 rest_user_cannot_view` for anonymous requests) —
+  zero code needed, recorded so it's clear this was verified, not
+  overlooked.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed:** real bug caught before it shipped, not after — the first
+  version of the core-asset version-string filter stripped `?ver=` from
+  *every* enqueued script/style indiscriminately, which would have also
+  broken the theme's own legitimate cache-busting
+  (`main.css?ver=1.0.0`, `shola_enqueue_assets()`) the moment a real
+  deploy needed browsers to fetch a fresh file. Caught by re-reading the
+  filter's own effect before verifying it live, not after a report came
+  in. Fixed by scoping the strip to `/wp-includes/`/`/wp-admin/` paths
+  only. Verified live afterward on a real admin page with genuine core
+  assets present (the sparser front page didn't have any core `?ver=`
+  URLs to test against, confirmed and switched test pages rather than
+  reporting an inconclusive result as a pass): all core `?ver=` strings
+  gone, all 17 real third-party plugin/theme `?ver=` strings on that
+  same page still intact. XML-RPC's actual protection was also
+  re-verified correctly, after a first test mistakenly used the
+  unauthenticated `system.listMethods` (not gated by the disable filter
+  — pure introspection, no login involved) and wrongly looked like the
+  filter wasn't working; re-tested with `wp.getUsersBlogs`, the real
+  authenticated method attackers target, which now correctly returns
+  the standard "XML-RPC services are disabled on this site" fault.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** All `CLAUDE.md` §6 requirements individually verified
+  against the actual current state, not assumed from memory of when
+  each was originally built: input sanitization/output escaping
+  (ongoing since Phase 4), nonces on forms (CF7's own handling plus
+  `wp_nonce_field`/`check_admin_referer` on every custom admin form,
+  e.g. the issue-contents repeater), the PDF MIME-type allowlist
+  (`Meta_Fields::sanitize_pdf_id()`, Phase 3.3), `DISALLOW_FILE_EDIT`
+  (above), least-privilege roles (Phase 5.1), SSL/headers (documented
+  this phase), Wordfence (this phase), daily backups (documented and a
+  real restore tested, this phase).
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** Phase 6.3/6.4 — new `docs/DEPLOYMENT.md`, written
+  specifically for Hostinger rather than generic host-agnostic
+  language. Confirmed Hostinger as the actual intended host by
+  searching the project directory rather than assuming — a credentials
+  file and a purchase-guide video both specifically named "Hostinger"
+  in `00_received`/`04_Sent`, no other provider named anywhere. Covers:
+  free auto-SSL + Force HTTPS toggle in hPanel; exactly where
+  `FORCE_SSL_ADMIN` belongs (the production `wp-config.php` only —
+  explicitly *not* the local dev config, which has no certificate and
+  would lock out local admin access with a redirect loop); security
+  headers via `.htaccess` (checked live first that the front end
+  currently has none of X-Frame-Options/CSP/X-Content-Type-Options/
+  Referrer-Policy — WP core only adds a couple of these to
+  `wp-login.php`/`wp-admin`, not site-wide) — no `wp_headers` PHP
+  fallback added, since Hostinger supports `.htaccess` on all standard
+  plans and covers every header on the list, matching `CLAUDE.md` §6's
+  stated host-level-first priority; also caught and documented in
+  passing that `X-Powered-By: PHP/8.2.29` is currently exposed (found
+  via the same header check), a separate disclosure from the WP-version
+  hardening already done in code.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Backup mechanism documented (Hostinger's native daily
+  backups as primary, an exact WP-CLI cron job as the documented
+  fallback/supplement, per `EXECUTION_PLAN.md`'s own instruction) *and*
+  a real restore proven end-to-end, not just described in theory —
+  installed WP-CLI (none was available on this machine before),
+  real-`mysqldump`-backed up the live local DB (~1.2MB, all real
+  content), created a throwaway clearly-labeled test post
+  (`wp post create`, ID 80), confirmed it existed, restored the
+  database from the pre-test-post backup, and confirmed the test post
+  was gone afterward — proof the restore actually reverted state, not
+  just that the import command exited without an error. Also confirmed
+  the site and all real seeded content (41 items across all four
+  content types) survived the restore fully intact. Hit and worked
+  through a real LocalWP-specific connection quirk along the way
+  (this site's MySQL runs on a non-default port, `10090`, found via
+  LocalWP's own `sites.json` rather than guessed) — documented clearly
+  in `docs/DEPLOYMENT.md` as a local-environment detail, not a
+  production concern, since Hostinger's own `wp db export`/
+  `wp db import` need no such override. All backup files and WP-CLI
+  temp state were kept entirely outside the git-tracked repo throughout
+  and cleaned up afterward.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** `EXECUTION_PLAN.md` updated — every Phase 6 checklist
+  item (§6.1–§6.4) checked off with the evidence above, not just marked
+  done. Also added the `test_admin`/`test_editor`/`test_author`/
+  `test_contributor` accounts (Phase 5.1) to Phase 7.1's existing
+  test-content cleanup list, so they aren't forgotten before handover —
+  noticed they weren't already on that list while reviewing it. Phase 6
+  (security hardening, backups, deployment prep) is functionally
+  complete. Next per the plan: Phase 7 — final QC, credit verification,
+  and handover.
+  Approved by: Farhad, in this session (2026-08-07).
   Approved by: Farhad, in this session (2026-08-06).
