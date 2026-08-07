@@ -51,6 +51,8 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Taxonomies::init();
 \SholaCore\Meta_Fields::init();
 \SholaCore\Contact_Settings::init();
+\SholaCore\Roles::init();
+\SholaCore\SEO::init();
 
 /**
  * On activation: register post types and taxonomies, seed the fixed term

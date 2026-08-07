@@ -378,7 +378,7 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 - Confirm no custom role/capability plugin is needed — a zero-plugin win per `CLAUDE.md` §3.
 
 **Checklist:**
-- ☐ Four accounts created (one per role) and spot-tested: each can/cannot do what the IA doc §7 specifies
+- ☑ Four accounts created (one per role) and spot-tested: each can/cannot do what the IA doc §7 specifies (2026-08-07). One real gap found against stock WP: the IA doc gives Editor "manage categories & menus," but stock Editor lacks `edit_theme_options` (required for nav-menu editing) — Farhad approved granting it (`\SholaCore\Roles`, new `includes/class-roles.php`), the simplest option over a bespoke per-screen capability. `test_admin`/`test_editor`/`test_author`/`test_contributor` accounts created for the spot-test; capability-flag checks confirmed all four roles match the IA doc table exactly post-fix, and two were also verified via real live UI access (not just capability flags): `test_editor` genuinely reaches Appearance → Menus, `test_contributor` is genuinely blocked from it with WP's own permission-denied error page.
 
 ### 5.2 — Custom SEO (no SEO plugin, per CLAUDE.md §3)
 
@@ -387,8 +387,8 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 - Add hreflang scaffolding (inert/self-referential only, since English isn't live) so the eventual bilingual rollout doesn't require re-touching this file.
 
 **Checklist:**
-- ☐ Meta tags verified in page source on at least one of each template type
-- ☐ sitemap.xml accessible and includes posts, issues, documents, announcements
+- ☑ Meta tags verified in page source on at least one of each template type (2026-08-07) — `<title>` was already correct site-wide via core's `add_theme_support('title-tag')` (confirmed in `inc/setup.php`, no new code needed); meta description/OG tags/canonical built new in `class-seo.php` and verified via `curl` on an article (singular), a topic archive (taxonomy), the front page, search results, and a 404. One real bug caught and fixed during that verification: the canonical-URL builder used `$wp->request`, which is empty for a query-string-only view like search, so every search page's canonical silently resolved to the front page instead of the search URL — fixed by using WP's own per-context URL functions (`get_search_link()`, `get_term_link()`, etc.) instead of reconstructing one generically.
+- ☑ sitemap.xml accessible and includes posts, issues, documents, announcements (2026-08-07) — confirmed via `curl` before writing any code: WP core already includes all four by default (all `public => true`). Also removed the `users` provider entirely and `post_format`/`category` from the taxonomies sitemap via `wp_sitemaps_add_provider`/`wp_sitemaps_taxonomies` — none have a real front-end destination on this site (no `author.php` template was ever in the page-to-template map; `post_format`/native `category` aren't used as content destinations here, `topic` is).
 
 ### 5.3 — Search
 
@@ -396,18 +396,19 @@ Goal: the functional non-visual requirements from the proposal's امکانات 
 - Style to match v6's search.html exactly.
 
 **Checklist:**
-- ☐ Search returns results across posts, issues, and documents, not just native posts
+- ☑ Search returns results across posts, issues, and documents, not just native posts — already built and extensively tested in Phase 4.2 (`search.php`'s closing entries, `docs/CHANGELOG.md` 2026-08-06); re-confirmed live 2026-08-07 rather than assumed still true, no rebuild needed.
 
 ### 5.4 — Performance baseline
 
-- Self-host all fonts (Vazirmatn, Markazi Text, Newsreader if/when English is live, JetBrains Mono) in `assets/fonts/`, enqueued with proper `font-display: swap`.
+- Self-host all fonts (Farhang2, ModamPro — corrected 2026-08-07; this bullet originally named Vazirmatn/Markazi Text, which were never the fonts actually used once the v6 brand fonts were finalized — plus Newsreader, Inter, JetBrains Mono) in `assets/fonts/`, enqueued with proper `font-display: swap`.
 - Confirm native WP image sizes/srcset are actually serving responsive images, not just the full-size original.
 - Run a baseline Lighthouse/PageSpeed pass on the LocalWP site.
 - Only if this baseline pass reveals a genuine caching gap that host-level caching (Phase 6) can't cover: flag it as a candidate for the `CLAUDE.md` §3 whitelist discussion. Do not install a caching plugin pre-emptively.
 
 **Checklist:**
-- ☐ Fonts self-hosted, font-display: swap confirmed
-- ☐ Responsive images confirmed serving srcset, not full-size only
+- ☑ Fonts self-hosted, font-display: swap confirmed (2026-08-07) — Newsreader/Inter/JetBrains Mono moved from Google Fonts CDN to `assets/fonts/{family}/woff2/`, alongside Farhang2/ModamPro (already self-hosted since Phase 4.1). Zero Google Fonts requests remain on any page (verified via `curl`); all 4 downloaded files return `200`. Full detail (including a real behavior worth remembering — Google serves one variable-font file covering multiple discrete weights, confirmed by fetching a family in isolation before trusting it) in `docs/screenshots/phase5-perf-baseline.md`.
+- ☑ Responsive images confirmed serving srcset, not full-size only (2026-08-07) — confirmed via `curl`, not assumed from reading the code: real `srcset` with all registered intermediate sizes present on the homepage's featured images. No code change needed.
+- ☑ Baseline performance pass documented in `docs/screenshots/phase5-perf-baseline.md` (2026-08-07) — Lighthouse via `npx lighthouse`: Performance 94, Accessibility 100, Best Practices 78 (both misses are `is-on-https`/`redirects-http`, expected on a local dev site with no SSL — Phase 6 scope, not a Phase 5 gap), SEO 100. No caching gap found — Best Practices' only misses are the HTTPS ones above, so no `CLAUDE.md` §3 whitelist discussion needed. Two real accessibility bugs the first audit run surfaced were fixed here, not deferred: a redundant, unlabeled `aria-hidden="true"` link left focusable in the tab order (`front-page.php`'s hero image link, plus the same pattern found by code search — not by a second audit run — in `template-parts/cards/card.php` and `taxonomy-publication.php`) fixed by adding `tabindex="-1"` alongside the existing `aria-hidden`. Re-ran Lighthouse after the fix to confirm, rather than assume: Accessibility 93 → 100.
 - ☐ Baseline performance pass documented in docs/screenshots/phase5-perf-baseline.md
 
 ### 5.5 — Jalali-calendar date localization

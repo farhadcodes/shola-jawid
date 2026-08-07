@@ -202,6 +202,64 @@
 }
 
 /* -------------------------------------------------------------------------
+   ۰۱د · Inter / JetBrains Mono / Newsreader — self-hosted (Phase 5.4).
+   Previously loaded from Google Fonts CDN in header.php; downloaded here
+   as the exact files Google's own css2 API serves (fetched with a
+   modern-Chrome User-Agent so it returns woff2, then filtered to just
+   the "latin" unicode-range subset — this site never renders these
+   fonts for anything but Latin text: English mono-labels, brand code,
+   the eventual English rollout. Persian text always uses
+   Farhang2/ModamPro instead).
+
+   Only one file each for Inter and JetBrains Mono despite requesting 3
+   and 2 discrete weights respectively: Google served the identical
+   file for every requested weight — confirmed by fetching Inter alone
+   in isolation before trusting it, not assumed from the combined
+   request. That's correct, expected behavior for a variable-font
+   response scoped to just the requested weight range, not a fetch
+   bug — the browser reads the intended weight from the `font-weight`
+   *descriptor* below and renders it via the file's own variable axis,
+   even though the bytes are identical across the range. Declared as a
+   weight range (`400 600`) in one @font-face rule per family/style,
+   the standard way to describe a variable font's covered range, rather
+   than three redundant blocks pointing at the same file.
+
+   No .woff fallback for these three (unlike Farhang2/ModamPro's woff2+
+   woff pairs) — Google's response for this exact request didn't include
+   one, and woff2 support is universal in any browser this project
+   otherwise targets; not worth a second round-trip to fetch a legacy
+   format for near-zero real reach.
+   ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/inter/woff2/Inter-Variable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono/woff2/JetBrainsMono-Variable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("../fonts/newsreader/woff2/Newsreader-Variable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/newsreader/woff2/Newsreader-Italic-Variable.woff2") format("woff2");
+}
+
+/* -------------------------------------------------------------------------
    ۰۲ · Reset & base
    ------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

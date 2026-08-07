@@ -89,7 +89,7 @@ $archive_query = new WP_Query(
 				</h2>
 
 				<div class="issue-hero issue-hero--embedded">
-					<a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="issue-cover">
+					<a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="issue-cover" aria-hidden="true" tabindex="-1">
 						<?php echo shola_get_featured_image( $latest_issue, 'shola_issue_cover', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>
 					<div>

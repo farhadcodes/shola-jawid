@@ -1815,4 +1815,214 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Gregorian mono-label (`AUG ۲۰۲۶`). §5.5's checkmarks remain accurate;
   no update needed there.
   Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** §5.1 (roles & permissions). Read the IA doc's §7 role table
+  directly rather than assuming stock WP already matches it: three of
+  four roles (Administrator/Author/Contributor) map cleanly, but
+  Editor's spec — "manage categories & menus" — doesn't, since nav-menu
+  editing needs `edit_theme_options`, a capability stock WP only grants
+  Administrator. No narrower "menus only" capability exists in core,
+  so satisfying the doc's letter means Editor also gains
+  Customizer/widget access as a side effect. Presented this as a real
+  fork before touching anything (grant the broader stock capability vs.
+  leave menus admin-only vs. build a bespoke per-screen capability
+  check) — Farhad chose granting `edit_theme_options`, the simplest
+  option, over hand-rolling permissions complexity for a narrow gain.
+  New `wp-content/plugins/shola-core/includes/class-roles.php`
+  (`\SholaCore\Roles`), gated on `admin_init` so it's cheap and
+  self-healing if a role reset ever clears the capability, rather than
+  only on plugin activation.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Created `test_admin`/`test_editor`/`test_author`/
+  `test_contributor` accounts (one per role, random generated
+  passwords not recorded anywhere — these are local capability-testing
+  fixtures, not real accounts) and spot-tested all four against the
+  IA doc §7 table via capability flags
+  (`manage_options`/`edit_users`/`edit_theme_options`/
+  `manage_categories`/`publish_posts`/`edit_others_posts`/
+  `delete_others_posts`/`upload_files`/`edit_posts`) — all four match
+  the table exactly post-fix. Went further than flag-checking for two
+  of them, per the standing pattern this session of verifying real UI
+  behavior rather than trusting a capability check alone: generated a
+  real authenticated session for `test_editor` (same
+  `wp_set_auth_cookie()` technique used earlier for the TOC-repeater
+  admin verification) and confirmed it genuinely reaches Appearance →
+  Menus (page title, not a redirect); did the same for
+  `test_contributor` and confirmed it's genuinely blocked with WP's own
+  "› خطا" permission-denied page, not just that the capability flag
+  reads false. Logged out cleanly afterward both times.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** §5.2 (custom SEO, no plugin per `CLAUDE.md` §3). New
+  `wp-content/plugins/shola-core/includes/class-seo.php`
+  (`\SholaCore\SEO`) — meta description (post excerpt for singular,
+  term description for taxonomy archives, site tagline fallback
+  everywhere else), Open Graph tags (title/description/url/type/
+  site_name/locale/image), and the canonical link for the non-singular
+  contexts core doesn't already cover (`<title>` and singular
+  `rel_canonical` were already correct via core — confirmed live before
+  writing anything, not assumed). Inert, self-referential `hreflang`
+  scaffolding (`fa` + `x-default`, both pointing at the current page)
+  per `CLAUDE.md` §1 — English isn't live this phase, so this avoids
+  re-touching the file later without claiming a second language exists
+  now.
+
+  Sitemap: confirmed via `curl` before writing any customization code
+  that `issue`/`document`/`announcement` already appear in
+  `wp-sitemap.xml` by default (all `public => true`) — the checklist's
+  "includes posts, issues, documents, announcements" requirement needed
+  zero new code. Did trim the default sitemap via
+  `wp_sitemaps_add_provider` (drops the `users` provider — no
+  `author.php` template was ever in the page-to-template map, so
+  publishing author-archive URLs would point nowhere real) and
+  `wp_sitemaps_taxonomies` (drops `post_format` and native `category` —
+  neither is a real content destination on this site; `topic` is the
+  actual classification taxonomy).
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed:** real bug caught during live verification, not from reading
+  the code: the first version of `class-seo.php`'s canonical-URL
+  builder used `global $wp; home_url( add_query_arg( array(), $wp->
+  request ) . '/' )` — `$wp->request` holds only the matched rewrite
+  *path*, which is empty for a query-string-only view like search
+  (`?s=...`), so every search page's canonical silently resolved to the
+  front page instead of the actual search URL. `curl` showed
+  `<link rel="canonical" href=".../"/>` on a search-results page before
+  this was caught. Fixed by using WP's own per-context URL functions
+  instead of reconstructing one generically: `get_search_link()` for
+  search, `get_term_link()` for taxonomy archives,
+  `get_post_type_archive_link()` for post-type archives, `home_url('/')`
+  for the front page, and the raw request URI only as the true fallback
+  (404 and anything else uncovered — there's no "real" canonical target
+  to guess for a genuine 404). Re-verified live across search, a
+  taxonomy archive, an `is_post_type_archive()` case
+  (`archive-announcement.php`), the front page, and a 404 — every one
+  now correct.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** the site's WordPress tagline (`blogdescription` option)
+  was empty, which meant `class-seo.php`'s fallback description
+  (`get_bloginfo('description')`) silently rendered `content=""` on the
+  front page, search, and 404. Rather than duplicate the footer's
+  existing tagline text (`footer.php`) as a second hardcoded string in
+  the plugin, fixed it at the actual right layer: set the real WP
+  tagline to that same text via `update_option('blogdescription', ...)`
+  — the tagline is precisely what that option is *for*, so this isn't a
+  workaround, it's filling in a genuine site-configuration gap. Verified
+  the expected, correct side effect this has on the front page's
+  `<title>` tag too (core's `wp_get_document_title()` appends the
+  tagline to the site name specifically on the front page) — a more
+  descriptive, SEO-appropriate title than the site name alone, not a
+  regression.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** §5.3 (search) — already built and thoroughly tested in
+  Phase 4.2 (`search.php`'s own closing entries above). Re-confirmed
+  live via `curl` that results still span articles/notes, issues, and
+  documents rather than trusting the old entry to still hold — no
+  rebuild needed, checklist marked complete.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** §5.4 fonts — Newsreader, Inter, and JetBrains Mono
+  (previously Google Fonts CDN, per `header.php`'s own Phase-5.4-
+  deferral comment) are now self-hosted in
+  `assets/fonts/{inter,jetbrains-mono,newsreader}/woff2/`, matching the
+  existing Farhang2/ModamPro pattern from Phase 4.1. Fetched each
+  family's actual CSS from Google's `css2` endpoint with a modern
+  Chrome User-Agent (to get `woff2`, not legacy formats), filtered to
+  just the `latin` unicode-range subset (this site never renders these
+  three fonts for anything but Latin text — mono-labels, the brand
+  code; Persian always uses Farhang2/ModamPro).
+
+  Real finding worth remembering, confirmed empirically rather than
+  assumed: requesting 3 discrete weights for Inter (400/500/600) and 2
+  for JetBrains Mono (400/500) returned the *same* file URL for every
+  weight in each case — re-fetched Inter alone, in isolation, to
+  confirm this wasn't a combined-request artifact before trusting it.
+  This is correct, expected behavior for Google's variable-font
+  serving scoped to a requested weight range, not a fetch bug — the
+  browser renders the intended weight from each rule's `font-weight`
+  descriptor via the file's own variable axis despite the identical
+  bytes. Declared as a weight range (`font-weight: 400 600` etc.) in
+  one `@font-face` rule per family/style rather than three redundant
+  blocks pointing at the same file. Only 4 distinct files needed as a
+  result, not 6. No `.woff` legacy fallback for these three (unlike
+  Farhang2/ModamPro's woff2+woff pairs) — Google's response didn't
+  include one for this request and woff2 support is universal in any
+  browser this project targets; not worth a second round-trip for
+  near-zero real reach.
+
+  `header.php`'s Google Fonts `<link>`/`<preconnect>` tags removed
+  entirely. Verified live: zero `fonts.googleapis`/`fonts.gstatic`
+  requests remain on any page (`curl`), all 4 new font files return
+  `200`. The interactive browser tool's JS-eval capability became
+  unresponsive mid-session (a tooling-level issue, not caused by this
+  change — even a trivial `'ping'` script timed out on a fresh tab) —
+  fell back to the same headless-Chrome screenshot technique already
+  proven reliable earlier this session rather than assuming the fonts
+  loaded correctly: visually confirmed clean, correctly-styled
+  typography (mono labels, no fallback/tofu glyphs, no layout
+  breakage).
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** §5.4 responsive images — confirmed via `curl`, not
+  assumed from reading `shola_get_featured_image()`'s delegation to
+  core: real `srcset` with all registered intermediate sizes
+  (300w/768w/800w/1024w/1536w/1920w) present on the homepage's featured
+  images. No code change needed.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Added:** §5.4 performance baseline — ran Lighthouse (`npx
+  lighthouse`, headless Chrome) against the homepage. First run:
+  Performance 96, Accessibility 93, Best Practices 78, SEO 100. Full
+  metrics and reasoning in `docs/screenshots/phase5-perf-baseline.md`
+  (along with the raw `.report.html`/`.report.json`). Best Practices'
+  only misses (`is-on-https`, `redirects-http`) are expected on a
+  local dev site with no SSL certificate — Phase 6 scope, not a Phase 5
+  gap. No caching gap found, so no `CLAUDE.md` §3 whitelist discussion
+  needed.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Fixed:** two real accessibility bugs the Lighthouse run itself
+  surfaced — acted on them rather than just recording the score, since
+  a baseline audit that finds real bugs and doesn't fix them isn't
+  doing its job. `aria-hidden-focus`: `front-page.php`'s hero-image
+  link (`<a class="hero-media" aria-hidden="true">`) is a deliberate
+  duplicate of the properly-labeled link on the article title right
+  below it, but `aria-hidden="true"` alone doesn't remove a focusable
+  `<a>` from the keyboard tab order — screen-reader/keyboard users hit
+  an "invisible," unlabeled stop. `link-name`: the same root cause on
+  `template-parts/cards/card.php`'s `.card-media` link, flagged by the
+  audit on a document card with no distinguishing image alt text.
+  Searched the codebase for the same structural pattern rather than
+  waiting for a second audit run to catch it template-by-template:
+  found and fixed the identical issue in
+  `taxonomy-publication.php`'s embedded current-issue `.issue-cover`
+  link too. All three fixed by adding `tabindex="-1"` alongside the
+  existing `aria-hidden="true"`, fully excluding the redundant link
+  from assistive-tech interaction instead of leaving it half-hidden.
+  Checked the *other* `.issue-cover` links
+  (`single-issue.php`/`single-document.php`) too before assuming they
+  needed the same fix — they don't: those aren't duplicates of another
+  link, they're the only way to reach the PDF, and already carry a real
+  `aria-label`. Re-ran Lighthouse after the fix to confirm rather than
+  assume it worked: Accessibility 93 → 100, both audits now pass
+  (Performance's 96 → 94 shift between runs is normal local-audit
+  variance — the change touched only accessibility-tree attributes,
+  nothing render- or load-affecting). Verified live via `curl` on three
+  affected templates that nothing rendered differently and no PHP
+  errors/warnings appeared.
+  Approved by: Farhad, in this session (2026-08-07).
+
+- **Resolved:** Phase 5 (Roles, SEO, search, performance) is
+  functionally complete — every §5.1–§5.4 checklist item in
+  `EXECUTION_PLAN.md` verified and checked off, one stale reference
+  corrected along the way (§5.4's own text still named Vazirmatn/
+  Markazi Text as the fonts to self-host — leftover from before the v6
+  brand fonts were finalized as Farhang2/ModamPro; corrected in place
+  rather than left to confuse a future reader). §5.5 (Jalali calendar)
+  re-audited above and confirmed still accurate. Next per the plan:
+  Phase 6 — security hardening, backups, deployment prep.
+  Approved by: Farhad, in this session (2026-08-07).
   Approved by: Farhad, in this session (2026-08-06).

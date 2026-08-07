@@ -19,16 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php
 	/*
-	 * Farhang2/ModamPro (Persian) are already self-hosted via @font-face in
-	 * main.css. Newsreader/Inter/JetBrains Mono still load from Google
-	 * Fonts here, exactly matching what v6 currently does (its own README
-	 * flags self-hosting these as a to-do) — self-hosting them is Phase
-	 * 5.4 scope, not done early here.
+	 * All fonts are now self-hosted via @font-face in main.css
+	 * (Farhang2/ModamPro since Phase 4.1; Newsreader/Inter/JetBrains
+	 * Mono added Phase 5.4) — no Google Fonts CDN request on this page
+	 * at all anymore.
 	 */
 	?>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 
 	<?php wp_head(); ?>
 </head>
