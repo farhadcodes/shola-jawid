@@ -65,8 +65,10 @@ $archive_query = new WP_Query(
 	<section class="wrap section-top">
 
 		<header class="page-header<?php echo $is_current ? '' : ' page-header--muted'; ?>">
-			<p class="section-marker" lang="en">Publication<?php echo $is_current ? '' : ' · Archived'; ?></p>
-			<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
 			<?php endif; ?>
@@ -80,13 +82,15 @@ $archive_query = new WP_Query(
 
 		<?php if ( $latest_issue ) : ?>
 			<div class="publication-current">
-				<p class="section-marker" lang="en">Current</p>
-				<h2 class="h-section mt-sm mb-lg">
-					<?php
-					$number = get_post_meta( $latest_issue->ID, 'shcore_issue_number', true );
-					echo esc_html( $number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s · جاری', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : get_the_title( $latest_issue ) );
-					?>
-				</h2>
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section mt-sm mb-lg">
+						<?php
+						$number = get_post_meta( $latest_issue->ID, 'shcore_issue_number', true );
+						echo esc_html( $number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s · جاری', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : get_the_title( $latest_issue ) );
+						?>
+					</h2>
+				</div>
 
 				<div class="issue-hero issue-hero--embedded">
 					<a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="issue-cover" aria-hidden="true" tabindex="-1">
@@ -113,8 +117,22 @@ $archive_query = new WP_Query(
 		<?php endif; ?>
 
 		<?php if ( $archive_query->have_posts() ) : ?>
-			<p class="section-marker" lang="en">Archive<?php echo $exclude_ids ? esc_html( ' · ' . shola_to_persian_digits( $archive_query->found_posts ) . ' Issues' ) : ''; ?></p>
-			<h2 class="h-section mt-sm mb-lg"><?php echo $is_current ? esc_html__( 'شماره‌های پیشین', 'shola-jawid' ) : esc_html__( 'همهٔ شماره‌ها', 'shola-jawid' ); ?></h2>
+			<div class="kicker-row">
+				<p class="section-marker">
+					<?php
+					if ( $exclude_ids ) {
+						echo esc_html(
+							sprintf(
+								/* translators: %s: archived issue count. */
+								_n( '%s شماره', '%s شماره', $archive_query->found_posts, 'shola-jawid' ),
+								shola_to_persian_digits( $archive_query->found_posts )
+							)
+						);
+					}
+					?>
+				</p>
+				<h2 class="h-section mt-sm mb-lg"><?php echo $is_current ? esc_html__( 'شماره‌های پیشین', 'shola-jawid' ) : esc_html__( 'همهٔ شماره‌ها', 'shola-jawid' ); ?></h2>
+			</div>
 
 			<div class="issue-grid">
 				<?php

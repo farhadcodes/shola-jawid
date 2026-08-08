@@ -124,8 +124,10 @@ else :
 
 		<?php if ( get_the_content() ) : ?>
 			<div class="wrap-read doc-about">
-				<p class="section-marker" lang="en">About the Text</p>
-				<h2 class="h-section"><?php esc_html_e( 'دربارهٔ این متن', 'shola-jawid' ); ?></h2>
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'دربارهٔ این متن', 'shola-jawid' ); ?></h2>
+				</div>
 				<div class="prose">
 					<?php the_content(); ?>
 				</div>
@@ -133,8 +135,10 @@ else :
 		<?php endif; ?>
 
 		<?php if ( $related_query && $related_query->have_posts() ) : ?>
-			<p class="section-marker" lang="en">Related</p>
-			<h2 class="h-section doc-related-head"><?php esc_html_e( 'اسناد مرتبط', 'shola-jawid' ); ?></h2>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h2 class="h-section doc-related-head"><?php esc_html_e( 'اسناد مرتبط', 'shola-jawid' ); ?></h2>
+			</div>
 			<ul class="doc-related-list">
 				<?php
 				while ( $related_query->have_posts() ) :

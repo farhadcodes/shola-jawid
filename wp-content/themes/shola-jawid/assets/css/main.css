@@ -391,10 +391,25 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
    on _header.html's menu/search separator, search icon link, and
    nameplate-link wrapper — same computed values, moved to classes per
    CLAUDE.md §5. */
-.mast-slash { opacity: .5; margin-inline: .35rem; }
+.mast-slash { color: var(--paper); opacity: .5; margin-inline: .35rem; }
 .mast-slash-light { color: var(--paper); opacity: .4; }
 .mast-icon-link { display: inline-flex; }
 .mast-brand { text-align: center; }
+
+/*
+ * Fix (2026-08-08): the search icon is an <a class="link-quiet
+ * mast-icon-link"> — `a { color: inherit }` (§01) means it fell through to
+ * the page's default ink color instead of the masthead's white scheme
+ * (nothing between it and <body> sets color on the crimson field), and
+ * .link-quiet:hover's crimson-on-crimson hover was effectively invisible.
+ * Mirrors .mast-sister a's exact color values (same white family as the
+ * neighboring "شعله جاوید"/"جهان برای فتح" links) but intentionally omits
+ * .mast-sister a's border-bottom — no underline on this icon, hover only
+ * changes color. Higher specificity than .link-quiet:hover so it always
+ * wins regardless of source order.
+ */
+.masthead .mast-icon-link { color: color-mix(in oklab, var(--paper) 85%, transparent); }
+.masthead .mast-icon-link:hover { color: var(--paper); }
 
 /* -------------------------------------------------------------------------
    ۰۶ · Popup menu — the signature move
@@ -442,7 +457,11 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .menu-topic {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2.4rem, 6vw, 3.5rem);
+  /* Reduced ~30% (2026-08-08, Farhad) from clamp(2.4rem, 6vw, 3.5rem) —
+     the popup Topics list is no longer a fixed 6 items now that it's a
+     real editable menu, so the labels needed headroom to not look
+     oversized/unbalanced as the content team adds more. */
+  font-size: clamp(1.7rem, 4.2vw, 2.45rem);
   line-height: 1.15;
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -571,6 +590,19 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 }
 .section-head { margin-bottom: 2.5rem; }
 .section-head .h-section { margin-top: .5rem; }
+
+/*
+ * Kicker sweep (Phase 7.5, 2026-08-07): once the English kicker word is
+ * removed, the surviving .section-marker is just its ::before dash — Farhad
+ * asked for that dash to sit inline before the Persian heading (same line,
+ * rightmost in RTL) instead of stacked above it. .kicker-row groups the two
+ * elements into one flex row; scoped to this class only so it can be rolled
+ * out instance-by-instance without touching .section-marker's other still-
+ * English-labelled usages elsewhere in the site.
+ */
+.kicker-row { display: inline-flex; align-items: center; gap: .75rem; }
+.kicker-row .h-section,
+.kicker-row > h1 { margin-top: 0; }
 
 /* -------------------------------------------------------------------------
    ۰۸ · Links & buttons

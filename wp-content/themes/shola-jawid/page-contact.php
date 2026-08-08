@@ -23,8 +23,10 @@ get_header();
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--narrow">
-			<p class="section-marker" lang="en">Contact</p>
-			<h1 class="h-page"><?php esc_html_e( 'ارتباط با حزب', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'ارتباط با حزب', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'پیشنهاد مقاله، پرسش‌های تحریری، همکاری ترجمه یا نکته‌ای دربارهٔ سایت — از هر مسیر که برایتان راحت‌تر است.', 'shola-jawid' ); ?></p>
 		</header>
 

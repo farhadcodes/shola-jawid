@@ -16,8 +16,10 @@ get_header();
 	<section class="wrap section-top">
 
 		<header class="page-header">
-			<p class="section-marker" lang="en">Publications</p>
-			<h1 class="h-page"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'دو نشریه با آرشیو کامل PDF. «شعله جاوید» جاری منتشر می‌شود؛ «جهان برای فتح» به‌صورت آرشیو تاریخی نگه‌داری می‌شود.', 'shola-jawid' ); ?></p>
 		</header>
 

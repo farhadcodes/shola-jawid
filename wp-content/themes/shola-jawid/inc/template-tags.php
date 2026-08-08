@@ -178,23 +178,81 @@ function shola_topic_color_class( $slug ) {
 }
 
 /**
- * Fixed v6 display order for the 6 topic terms (economy=c1 ...
- * science-and-art=c6). get_terms()'s default orderby is alphabetical by
- * name, which wouldn't match — this is the actual, deliberate order.
+ * Editor-controlled display order for the `topic` taxonomy terms, read from
+ * the real `menu_topics` nav menu (Appearance → Menus) that
+ * `shola_maybe_seed_nav_menus()` (inc/setup.php) creates and seeds with
+ * today's v6 default order on first run. Until 2026-08-08 this returned a
+ * hardcoded array — found by Farhad to silently fail the IA doc's "staff
+ * can add a topic without a developer" requirement, since a newly added
+ * term was never in the fixed array. get_terms()'s default orderby is
+ * alphabetical by name, which doesn't match the intended editorial order,
+ * so a real ordered menu is the source of truth now instead. The hardcoded
+ * array is kept as a last-resort fallback only (menu not yet seeded/
+ * assigned — shouldn't normally happen post-seeding).
  *
  * @return string[] Topic slugs, in display order.
  */
 function shola_get_topic_slugs_ordered() {
+	$slugs = shola_get_ordered_term_slugs_from_menu( 'menu_topics', 'topic' );
+	if ( $slugs ) {
+		return $slugs;
+	}
 	return array( 'economy', 'world', 'afghanistan', 'women', 'international-movement', 'science-and-art' );
 }
 
 /**
- * Fixed v6 display order for the 2 publication terms (current first).
+ * Editor-controlled display order for the `publication` taxonomy terms,
+ * read from the real `menu_publications` nav menu. See
+ * shola_get_topic_slugs_ordered() docblock for the full history — same
+ * mechanism, same fix, applied to the second of the two taxonomies that had
+ * this problem.
  *
  * @return string[] Publication slugs, in display order.
  */
 function shola_get_publication_slugs_ordered() {
+	$slugs = shola_get_ordered_term_slugs_from_menu( 'menu_publications', 'publication' );
+	if ( $slugs ) {
+		return $slugs;
+	}
 	return array( 'shola-jawid', 'a-world-to-win' );
+}
+
+/**
+ * Shared helper: resolves a registered nav menu location to the ordered
+ * list of term slugs for one taxonomy, from whichever of that taxonomy's
+ * terms are present as menu items at that location. Non-matching item
+ * types (custom links, other taxonomies/post types an editor might
+ * mistakenly add) are skipped rather than erroring, since this only feeds
+ * display order — a stray item type just doesn't contribute a slug.
+ *
+ * @param string $location Registered nav menu location (see
+ *                          register_nav_menus() in inc/setup.php).
+ * @param string $taxonomy  Taxonomy slug to filter menu items by.
+ * @return string[] Term slugs in menu order; empty array if no menu is
+ *                   assigned to the location, or it has no matching items.
+ */
+function shola_get_ordered_term_slugs_from_menu( $location, $taxonomy ) {
+	$menu_locations = get_nav_menu_locations();
+	if ( empty( $menu_locations[ $location ] ) ) {
+		return array();
+	}
+
+	$menu_items = wp_get_nav_menu_items( $menu_locations[ $location ] );
+	if ( ! $menu_items ) {
+		return array();
+	}
+
+	$slugs = array();
+	foreach ( $menu_items as $item ) {
+		if ( 'taxonomy' !== $item->type || $taxonomy !== $item->object ) {
+			continue;
+		}
+		$term = get_term( $item->object_id, $taxonomy );
+		if ( $term && ! is_wp_error( $term ) ) {
+			$slugs[] = $term->slug;
+		}
+	}
+	return $slugs;
 }
 
 /**

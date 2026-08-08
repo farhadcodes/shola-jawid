@@ -556,7 +556,210 @@ Goal: close out the project the way the original proposal promised — full owne
 - ☐ Admin guide delivered
 - ☐ Ownership transfer completed and confirmed by client
 
-### 7.5 — Release tag
+### 7.5 — Kicker-label Persian conversion sweep — ☑ COMPLETE (2026-08-08)
+
+**Outcome (final, supersedes the Stage-1 translation plan below):** the
+translate-with-alternate-wording approach documented in Tables A/B/C never
+shipped. After seeing the Stage 1 findings, Farhad simplified the
+requirement twice:
+1. Remove the English kicker word entirely (don't translate it — just
+   delete it, keep the decorative dash, don't reorder or restyle anything
+   else).
+2. Once he saw the "Latest" kicker with the word gone, he asked for the
+   dash to sit inline *before* the Persian heading (same line, rightmost —
+   read first — in RTL order) rather than stacked above it as a separate
+   line, which is how it rendered by default.
+
+Both changes were applied to the homepage "Latest" instance first, screen-
+shotted, and confirmed live before the full site-wide rollout. All 23
+`.section-marker` instances found in the original Stage 1 grep (Tables A,
+B, and C below) were updated the same way: English text and `lang="en"`
+removed, marker + heading wrapped in a new `.kicker-row` flex class
+(`assets/css/main.css`). One exception: `taxonomy-publication.php`'s
+"Archive" kicker carried a real, not-shown-elsewhere issue count (see
+`docs/CHANGELOG.md` 2026-08-08 for the full reasoning) — the count was
+kept and only the English word translated, rather than deleted outright.
+`header.php`'s bilingual `menu-section-title` spans and the three
+`.meta-mono` field labels (`EMAIL`/`RESPONSE TIME`/`PRIVACY`, `TAGS`,
+per-entry TOC `SECTION · …`) were confirmed out of scope — see
+Open Questions below and `docs/CHANGELOG.md` for the reasoning on each.
+Verified live on every affected page (screenshots +
+`getBoundingClientRect()` dash-ordering checks); phpcs clean (0/0, 26
+files). Full writeup: `docs/CHANGELOG.md` 2026-08-08.
+
+The original Stage 1 plan (kept below for the historical record of what
+was actually found and considered, per this project's own "don't discard
+the trail" convention) proposed translating every kicker to an alternate
+Persian word rather than removing it — that approach was superseded before
+any file was touched, per the outcome above.
+
+---
+
+**Original Stage 1 plan (superseded — see Outcome above):** Per Farhad's
+explicit request before the v1.0.0 tag: convert the remaining English
+section-header "kicker" labels (`.section-marker`/`.meta-mono`,
+`lang="en"`) to Persian across every template, except the deliberate
+typographic conventions listed below. **Stage 1 (this section): plan only,
+no files touched.** Found by grepping every `lang="en"` occurrence in
+`wp-content/themes/shola-jawid` directly — not from memory of screenshots —
+so nothing pattern-matching but visually unnoticed gets missed.
+
+**Explicitly excluded (per Farhad's list — do not touch):**
+- `SHOLA JAWID` masthead brand code
+- English month abbreviation + Persian digit date mono-labels (`AUG ۲۰۲۶`)
+- `PDF`/`KB`/`MB` technical units
+- Issue-range mono-labels (`۳۲ ISSUES · ۲۰۱۸–۲۰۲۶`, from
+  `shola_get_publication_meta_line()`)
+- The `EN` language-switcher label itself (and by the same logic, `FA` next
+  to it in `footer.php` — a language code, not a kicker)
+
+**Real finding worth flagging before any translation is chosen:** most of
+these kickers sit directly above an `<h1>`/`<h2>` that already displays
+a Persian heading. Checked every single instance's pairing (not assumed
+uniform) — the pairings split into three real categories:
+
+- **Safe to translate directly** — the heading below is a *different*
+  concept (a specific term name, a longer descriptive phrase, or plain
+  unrelated text), so a literal Persian kicker doesn't repeat it.
+- **Exact-duplicate risk** — the heading below already says the *same
+  thing* the literal kicker translation would say. Translating literally
+  here would stack the identical phrase twice, which is a real visual
+  regression, not a translation task. These need either a distinct-but-
+  related word or an explicit decision to accept the repetition.
+  Alternatives are drafted below for each engineering both to still be
+  a genuine choice, not resolved unilaterally.
+- **Partial/substring overlap** — the kicker word appears *inside* a
+  longer heading (e.g. kicker "جاری" inside heading "شمارهٔ ۳۲ · جاری").
+  Lower severity — a kicker being a short preview fragment of a fuller
+  heading below it is a common, generally acceptable editorial pattern —
+  flagged for awareness, not necessarily blocking.
+
+#### Table A — safe to translate directly (no heading conflict)
+
+| # | File(s) | Line(s) | Current | Proposed | Heading below (for reference) |
+|---|---|---|---|---|---|
+| 1 | `front-page.php` | 223 | Library | کتابخانه | h2: "تازه‌ترین اسناد" — different |
+| 2 | `front-page.php` | 277 | Newsletter | خبرنامه | h2: "هر شمارهٔ تازه، در صندوق شما" — different |
+| 3 | `page-contact.php` | 26 | Contact | تماس | h1: "ارتباط با حزب" — different |
+| 4 | `page-topics.php` | 19 | Sections | بخش‌ها | h1: "موضوعات" — different (generic "site sections" vs. this page's specific topic) |
+| 5 | `404.php` | 23 | Error | خطا | h1: "۴۰۴" — different |
+| 6 | `page-about.php` | 39 | About | درباره | h1: "دربارهٔ شعله جاوید" — kicker is a short prefix-like word, not identical |
+| 7 | `taxonomy-topic.php` | 40 | Topic | موضوع | h1: dynamic term name (e.g. "اقتصاد") — never identical |
+| 8 | `taxonomy-publication.php` | 68 | Publication / Publication · Archived | نشریه / نشریه · آرشیوی (reusing the existing `shola_publication_status_label()` value for consistency, not a new word) | h1: dynamic term name — never identical |
+| 9 | `taxonomy-publication.php` | 116 | Archive (+ dynamic "· N Issues" suffix) | آرشیو (+ "· ۵ شماره" — **flagged separately below, this suffix is a different string than the excluded year-range mono-label**) | h2: "شماره‌های پیشین"/"همهٔ شماره‌ها" — different |
+| 10 | `taxonomy-collection.php` | 42 | Library Collection | مجموعه | h1: dynamic term name — never identical |
+| 11 | `single.php` | 154 | Related Essays | مقالات مرتبط | h2: "ادامهٔ خواندن" — different |
+| 12 | `page-contact.php` | 37, 39, 41 | EMAIL / RESPONSE TIME / PRIVACY | ایمیل / زمان پاسخ‌گویی / حریم خصوصی | not a heading pair at all — each is a field label above a value, like a definition list |
+| 13 | `single.php` | 113 | TAGS | برچسپ‌ها (matches the exact word WP's own admin UI already uses for tags on this `fa_AF` install, confirmed in wp-admin's own sidebar label) | not a heading pair — label above a tag list |
+
+#### Table B — exact-duplicate risk, needs a real decision (not resolved here)
+
+| # | File(s) | Line(s) | Current kicker | Heading immediately below | Literal translation (would duplicate) | Alternative options |
+|---|---|---|---|---|---|---|
+| 1 | `front-page.php` | 85 | Latest | h2: "تازه‌ترین" | تازه‌ترین (exact dup) | **(a)** تازه‌ها (distinct word, same general meaning) · **(b)** accept the literal duplicate — some sites repeat a short kicker under/over an identical-meaning heading deliberately for emphasis · **(c)** something else Farhad prefers |
+| 2 | `page-library.php` | 55 | Latest | h2: "تازه‌ترین اسناد" | same word as #1 | Same options as #1 — **(a)** تازه‌ها (this one's only a *partial* overlap since the h2 adds "اسناد", could reasonably just take the literal translation without much concern) |
+| 3 | `front-page.php` | 123 | Current Issue | h2: "شمارهٔ جاری" | شمارهٔ جاری (exact dup) | **(a)** accept the literal duplicate (short 2-word kicker directly above a matching heading is a very standard "eyebrow" pattern many sites use deliberately) · **(b)** چاپ تازه ("new print/edition", distinct wording) |
+| 4 | `front-page.php` | 254 | Announcements | h2: "اطلاعیه‌ها" | اطلاعیه‌ها (exact dup) | **(a)** خبر و اعلان (distinct phrasing) · **(b)** accept the literal duplicate |
+| 5 | `archive-announcement.php` | 30 | Announcements | h1: "اطلاعیه‌ها" | same as #4 | Same options as #4 |
+| 6 | `page-library.php` | 30 | Library (page header, not the "Latest" one) | h1: "کتابخانه" | کتابخانه (exact dup) | **(a)** آرشیو اسناد (distinct phrasing, "document archive") · **(b)** accept the literal duplicate |
+| 7 | `page-publications.php` | 19 | Publications | h1: "نشرات" | نشرات (exact dup) | **(a)** آرشیو نشریات (distinct phrasing) · **(b)** accept the literal duplicate |
+| 8 | `search.php` | 35 | Search | h1: "جست‌وجو" | جست‌وجو (exact dup) | **(a)** یافتن (distinct word, "find") · **(b)** accept the literal duplicate |
+| 9 | `single-issue.php` | 146 | Contents | h2: "فهرست مطالب" | فهرست مطالب (exact dup) | **(a)** درون شماره ("inside this issue", distinct phrasing) · **(b)** accept the literal duplicate |
+| 10 | `single-document.php` | 127 | About the Text | h2: "دربارهٔ این متن" | دربارهٔ این متن (near-exact dup) | **(a)** توضیح (short, distinct, "explanation") · **(b)** accept the literal duplicate |
+
+#### Table C — partial/substring overlap (lower severity, flagged for awareness)
+
+| # | File(s) | Line(s) | Current kicker | Heading context | Note |
+|---|---|---|---|---|---|
+| 1 | `taxonomy-publication.php` | 83 | Current | h2 ends in "· جاری" | Proposed کیکر "جاری" would echo the end of the heading. Likely fine as-is (common pattern), included for awareness only. |
+| 2 | `single-document.php` | 136 | Related | h2: "اسناد مرتبط" | Proposed "مرتبط" is a substring of the h2. Likely fine, included for awareness only. |
+
+#### Open questions (not simple translations — need an explicit answer)
+
+1. **`header.php`'s menu-panel section titles** (lines 97, 119, 133, 147: `"Topics · موضوعات"`, `"Sections · بخش‌ها"`, `"More · بیشتر"`, `"Publications · نشرات"`) are already *bilingual pairs*, not English-only — they don't strictly match "English kicker label," and weren't named in Farhad's list. Leave as-is, or convert to Persian-only to match the rest of the sweep?
+2. **`taxonomy-publication.php`'s dynamic "· N Issues" suffix** (line 116, e.g. "Archive · 5 Issues") — this is a different string from the explicitly-excluded year-range mono-label (`۳۲ ISSUES · ۲۰۱۸–۲۰۲۶`), so it isn't covered by that exception. Proposed: translate to "· ۵ شماره". Confirm this is in scope for the sweep (it reads as a related but distinct convention from the excluded one).
+3. **`single-issue.php`'s per-entry TOC mono-label** (line 153: `"۰۱ · SECTION · ECONOMY"`) — this is the same kind of established mono/wayfinding convention as the excluded date and issue-range labels (confirmed intentional, logged in `docs/CHANGELOG.md` when `single-issue.php` was built). Recommend leaving untouched as the same category of deliberate typographic convention, but flagging explicitly since it wasn't named in Farhad's exclude list either.
+
+**Checklist:**
+- ☑ Full findings reported and plan approved by Farhad before any file was touched
+- ☑ Table B collisions resolved — superseded by the removal-only approach (no
+  duplicate-wording decision was ultimately needed; see Outcome above)
+- ☑ Open questions answered — `header.php` menu titles and the `.meta-mono`
+  field labels confirmed out of scope; the "· N Issues" suffix kept (count
+  preserved, word translated); the per-entry TOC label confirmed a
+  deliberate convention, left untouched
+- ☑ All approved replacements (English-removal + `.kicker-row` inline
+  layout) applied across every affected template
+- ☑ Every affected page re-verified live (screenshots + bounding-box checks)
+- ☑ Full sweep logged in `docs/CHANGELOG.md` (2026-08-08)
+
+### 7.6 — Post-QC fixes (found by Farhad's own side-by-side testing against v6) — ☑ COMPLETE (2026-08-08)
+
+Five issues found and fixed during final review, each verified live and
+logged in full in `docs/CHANGELOG.md` (2026-08-08 entries):
+
+- **Masthead search-icon color regression** — rendered black instead of
+  white (`a { color: inherit }` gap, nothing in the ancestor chain set an
+  explicit color); hover also went crimson-on-crimson (near-invisible).
+  Fixed with a scoped `.masthead .mast-icon-link` rule matching the
+  neighboring nav links' exact color, with their color-brightening hover
+  behavior but deliberately without their underline.
+- **"/" separator black instead of white** (`.mast-slash`, between the
+  menu button and search icon) — same category of bug, no `color` set
+  anywhere in its ancestor chain. Audited every other "/" in the
+  masthead for the same gap before closing this out (Farhad's explicit
+  ask, "fix it everywhere at once") — confirmed the only other instance.
+- **Popup-menu Topics/Publications architecture** — not real, editable
+  WordPress menus despite looking like the same UI as the two locations
+  next to them that were. Registered two more real `wp_nav_menu()`
+  locations (`menu_topics`, `menu_publications`); reimplemented
+  `shola_get_topic_slugs_ordered()` / `shola_get_publication_slugs_
+  ordered()` to read the assigned menu's live item order instead of a
+  hardcoded array (all 8 call sites across the theme fixed at once, no
+  template changes needed); auto-seeded real starter menus for all four
+  popup locations (including `menu_sections`/`menu_more`, extended for
+  consistency) so Appearance → Menus is honest and populated from the
+  start, not an empty screen backed by fallback logic. Verified against
+  the real site database (wp-admin credentials aren't available this
+  session) — ran the actual seed function, and tested genuine
+  add/remove/reorder editability, not just that the code compiles.
+- **Popup Topics font size** — reduced ~30% (`clamp(2.4rem, 6vw, 3.5rem)`
+  → `clamp(1.7rem, 4.2vw, 2.45rem)`) now that the list is a real, growable
+  menu rather than a fixed 6 items, so it won't look oversized/unbalanced
+  as the content team adds entries. Applied only after the menu fix was
+  confirmed working, per Farhad's sequencing.
+- **Topics/Publications taxonomy panels missing from the menu editor** —
+  found immediately after the fix above: Appearance → Menus' "Add menu
+  items" sidebar had no موضوعات/نشریات panel at all, so there was still
+  no way to actually add a term through the UI. Re-verified the "already
+  `public`/`show_in_nav_menus`, no override" assumption directly against
+  the live database — it held; `get_taxonomy()` confirmed both correctly
+  report `show_in_nav_menus: true`. The real cause was one level up:
+  Farhad's own admin account already had a saved Screen Options
+  preference (`metaboxhidden_nav-menus` usermeta) hiding those three
+  panels — a stored per-user WP-admin UI setting, not a registration
+  bug. Fixed with a `hidden_meta_boxes` filter (not `default_hidden_
+  meta_boxes`, which only applies when no saved preference exists yet)
+  that always keeps `add-topic`/`add-publication`/`add-collection`
+  visible regardless of any saved state, for every account. `collection`
+  had the same gap and is covered by the same fix.
+
+**Checklist:**
+- ☑ Search-icon color and hover fixed, verified against v6 reference
+- ☑ `.mast-slash` fixed; every other masthead "/" audited for the same bug
+- ☑ Popup Topics/Publications now real, editable `wp_nav_menu()` locations
+- ☑ All 8 call sites of the old hardcoded-order functions verified live
+- ☑ Starter menus seeded for all 4 popup locations, editability tested
+  (add/remove/reorder) against the real database
+- ☑ `.menu-topic` font-size reduced ~30%, verified live
+- ☑ Taxonomy panels (topic/publication/collection) confirmed always
+  visible in the menu editor, verified against Farhad's real saved data
+- ☑ Full end-to-end add-a-term test performed for real (not simulated):
+  "سلامت و روان" added to the live موضوعات menu, confirmed rendering on
+  the front end
+- ☑ Full writeup in `docs/CHANGELOG.md` (2026-08-08)
+
+### 7.7 — Release tag
 
 - Bump `style.css Version:` and `shola-core.php Version:` to 1.0.0 if not already.
 - Tag the repo `v1.0.0`, write a release note summarizing what's included and what's explicitly out of scope (English/bilingual rollout).

@@ -20,8 +20,10 @@ get_header();
 ?>
 	<section class="wrap section-top error-404">
 
-		<p class="section-marker" lang="en">Error</p>
-		<h1 class="h-display">۴۰۴</h1>
+		<div class="kicker-row">
+			<p class="section-marker"></p>
+			<h1 class="h-display">۴۰۴</h1>
+		</div>
 		<p class="dek"><?php esc_html_e( 'صفحه‌ای که به دنبال آن هستید یافت نشد. ممکن است نشانی اشتباه باشد یا این صفحه جابه‌جا یا حذف شده باشد.', 'shola-jawid' ); ?></p>
 
 		<div class="error-404-actions">

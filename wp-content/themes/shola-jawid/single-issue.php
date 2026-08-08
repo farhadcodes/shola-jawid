@@ -143,8 +143,10 @@ while ( have_posts() ) :
 
 		<?php if ( $toc ) : ?>
 			<div class="issue-toc-head">
-				<p class="section-marker" lang="en">Contents</p>
-				<h2 class="h-section mt-sm mb-lg"><?php esc_html_e( 'فهرست مطالب', 'shola-jawid' ); ?></h2>
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section mt-sm mb-lg"><?php esc_html_e( 'فهرست مطالب', 'shola-jawid' ); ?></h2>
+				</div>
 
 				<ul class="issue-toc">
 					<?php foreach ( $toc as $i => $entry ) : ?>

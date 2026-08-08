@@ -37,8 +37,10 @@ $archive_query = new WP_Query(
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--narrow page-header--tight">
-			<p class="section-marker" lang="en">Topic</p>
-			<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
 			<?php endif; ?>

@@ -2384,4 +2384,359 @@ trail of *why* the build deviated from — or newly applied — a rule in
   image-editing tool. Replaced `screenshot.png` (now 918KB, real
   content). Verified live via `curl` that the new file is actually
   served at the theme's real screenshot URL, not just present on disk.
-  Approved by: Farhad, in this session (2026-08-07).
+
+## 2026-08-08
+
+- **Resolved:** Phase 7.5 — site-wide kicker-label sweep, closed after a
+  three-stage process that changed shape twice as Farhad narrowed the
+  actual requirement:
+  1. **Stage 1 (plan only):** grepped every `lang="en"` occurrence
+     across the theme (not relying on memory of screenshots), found 23
+     `.section-marker` "kicker" instances (small mono eyebrow labels
+     above a heading, e.g. "LATEST", "CURRENT ISSUE"), and drafted
+     literal Persian translations for each. Surfaced a real design
+     problem before touching any file: several literal translations
+     (e.g. "Latest" → "تازه‌ترین") would exactly duplicate the Persian
+     heading directly beside them, which is a visual regression, not a
+     translation task. Findings written into `EXECUTION_PLAN.md` §7.5
+     for review, per Farhad's explicit "plan first, implement second"
+     instruction — no template touched at this stage.
+  2. **Simplified requirement:** Farhad disregarded the
+     translate-with-alternate-wording approach entirely and asked
+     instead for the English kicker word to be **removed outright**,
+     leaving only the decorative dash. Confirmed via `main.css` that
+     the dash is a `.section-marker::before` pseudo-element attached to
+     the label element itself, not separate markup — so emptying the
+     `<p class="section-marker">` of text (and dropping its now-moot
+     `lang="en"`) removes the English word while the dash keeps
+     rendering unchanged. Applied to the homepage "Latest" instance
+     first per Farhad's request, screenshotted live, and confirmed
+     before any further rollout.
+  3. **Layout correction:** from a screenshot Farhad circled, the dash
+     needed to sit inline before the Persian heading (same line,
+     rightmost — i.e. read first — in RTL order) rather than stacked
+     on its own line above it, which is how `.section-marker` and its
+     sibling heading rendered by default (each a separate block).
+     Added a new `.kicker-row` utility class (`main.css`, `assets/css`)
+     — `display: inline-flex; align-items: center; gap: .75rem;`,
+     wrapping the marker `<p>` and its heading (`h1`/`h2`) in one flex
+     row — scoped narrowly so it wouldn't affect any kicker not yet
+     rolled out. Applied to the homepage "Latest" instance, verified
+     live (screenshot + `getBoundingClientRect()` check confirming the
+     dash sits to the right of, i.e. before, the heading text), and
+     confirmed by Farhad against his circled reference before full
+     rollout.
+  Approved by: Farhad, in this session (2026-08-08), at each of the
+  three stages above.
+
+- **Applied site-wide** once the `.kicker-row` pattern was confirmed:
+  all 23 `.section-marker` instances updated — text and `lang="en"`
+  removed, each wrapped in `.kicker-row` alongside its heading. Files
+  touched: `404.php`, `page-about.php`, `page-contact.php`,
+  `page-library.php` (×2), `page-publications.php`, `page-topics.php`,
+  `search.php`, `archive-announcement.php`, `taxonomy-collection.php`,
+  `taxonomy-topic.php`, `taxonomy-publication.php` (×3),
+  `single-document.php` (×2), `single.php`, `single-issue.php`,
+  `front-page.php` (×6). `header.php`'s four `menu-section-title`
+  spans (e.g. "Topics · موضوعات") were confirmed out of scope — they
+  are already bilingual pairs, not English-only labels, and Farhad
+  explicitly excluded them when approving the site-wide rollout.
+  Meta-mono field labels found during the original Stage 1 grep
+  (`EMAIL`, `RESPONSE TIME`, `PRIVACY` on `page-contact.php`; `TAGS` on
+  `single.php`; the per-entry `SECTION · …` TOC label on
+  `single-issue.php`) were left untouched: these are value labels, not
+  headline eyebrows, have no adjacent dash/heading pair, and blanking
+  them would delete real information rather than fix a layout/
+  translation issue — a structurally different case from the "kicker"
+  pattern this sweep targeted, so left for a separate decision if
+  Farhad wants them addressed.
+
+- **Exception, flagged rather than silently resolved:**
+  `taxonomy-publication.php`'s "Archive" kicker included a dynamic
+  issue count (e.g. "Archive · 5 Issues") that appears nowhere else on
+  the page — unlike the other two `.section-marker` instances on that
+  same template (`Publication · Archived` and `Current`), whose
+  information is already duplicated elsewhere (the `badge-current`/
+  `badge-archive` status pill, and the "· جاری" suffix already present
+  in the current-issue heading, respectively) so blanking those two
+  loses nothing. Deleting the count outright would have been real
+  information loss, not a cosmetic fix, so instead of blanking it the
+  count was kept and only the English word translated:
+  "Archive · 5 Issues" → "۵ شماره" (kept as marker text, inside the
+  same `.kicker-row`, dash + count + heading all inline). Noted here
+  explicitly since it is the one instance in this sweep that isn't a
+  pure removal.
+
+- **Verified:** phpcs clean (0 errors, 0 warnings, 26 files) after the
+  full sweep. Every affected template checked live — front page (all
+  six kickers), `page-library.php`, `page-topics.php`,
+  `page-publications.php`, `search.php` (with a live query), `404.php`,
+  `archive-announcement.php`, `page-about.php`, `page-contact.php`,
+  `taxonomy-topic.php`, `taxonomy-collection.php`,
+  `taxonomy-publication.php` (all three kickers, including the
+  count-preserving exception), `single.php`, `single-issue.php`
+  (including the untouched per-entry TOC labels), `single-document.php`
+  — via a mix of headless-Chrome screenshots and, for the exact
+  dash-before-heading ordering, `getBoundingClientRect()` checks
+  confirming the marker's bounding box sits to the right of (i.e.
+  before, in RTL reading order) every paired heading's bounding box, on
+  every page checked. No leftover English text found in any
+  `.section-marker` element anywhere in the theme (grepped after the
+  fact to confirm, not just checked the files touched).
+  Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 (continued)
+
+- **Fixed:** two masthead search-icon bugs, reported by Farhad with
+  side-by-side screenshots against the v6 prototype (`header.php:45-47`,
+  the `<a class="link-quiet mast-icon-link">` wrapping the search SVG).
+  1. **Color regression:** the icon rendered dark/black instead of the
+     white used by every other masthead element. Root cause: `a { color:
+     inherit }` (`main.css` §01) — nothing in the icon link's ancestor
+     chain (`.masthead` → `.masthead-left` → the `<a>` itself) sets an
+     explicit `color`, so it fell through to the page's default ink
+     color instead of the masthead's white scheme. The SVG uses
+     `stroke="currentColor"`, so it inherited the same wrong color.
+  2. **Hover treatment:** `.link-quiet:hover` (the icon's other class)
+     sets `color: var(--crimson)` — crimson text on the crimson masthead
+     background, effectively invisible on hover. Farhad asked for the
+     same hover behavior as the neighboring "شعله جاوید"/"جهان برای فتح"
+     links (`.mast-sister a`) — a color brightening — but explicitly
+     without the underline those links get (`.mast-sister a`'s
+     `border-bottom`).
+  Fix: added `.masthead .mast-icon-link` / `.masthead .mast-icon-link:
+  hover` rules (`assets/css/main.css`, §05 Masthead) using the exact
+  same color values as `.mast-sister a` (`color-mix(in oklab, var(--paper)
+  85%, transparent)` default → `var(--paper)` on hover), without adopting
+  `.mast-sister a`'s `border-bottom` — so the icon brightens on hover with
+  no underline. Used a `.masthead` prefix for specificity so this
+  reliably wins over `.link-quiet:hover` regardless of stylesheet order.
+  Verified live: default computed color matches `.mast-sister a`'s
+  computed color exactly (confirmed via `getComputedStyle` — both
+  `oklab(... / 0.85)`); hover state verified with a real synthesized
+  pointer event via the Chrome DevTools Protocol (`Input.dispatchMouseEvent`
+  — genuine `:hover` cannot be forced through a dispatched `mouseover`
+  event, and this session's browser tooling required per-action approval
+  not available for the local dev host), confirming the computed color
+  transitions to solid white (`rgb(255, 255, 255)`) with
+  `textDecorationLine: none` and `borderBottomStyle: none` throughout.
+  Screenshots taken of both states. No PHP touched, CSS-only fix.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed:** same color-regression bug found in one more masthead
+  element by Farhad — the "/" separator between the menu button and the
+  search icon (`.mast-slash`, `header.php:44`) rendered black instead of
+  white. Different mechanism than the search-icon bug (not the `a {
+  color: inherit }` gap, since this is a plain `<span>`, not an anchor)
+  but the same underlying category: `.mast-slash` (`main.css` §05,
+  originally `opacity: .5; margin-inline: .35rem;` only) never had an
+  explicit `color` at all, and neither did any of its ancestors
+  (`.masthead-left`, `.masthead-inner`, `.masthead`), so it fell through
+  to the page's default ink color. The file's own conversion-era comment
+  (§05, "replaces inline style="" attributes that were on _header.html's
+  menu/search separator, search icon link...") confirms this was the
+  same incomplete Phase 4.1 port as the search-icon bug, just not caught
+  at the time. Fixed by adding `color: var(--paper);` to `.mast-slash`,
+  keeping its existing `opacity: .5`.
+  Audited every other "/" separator in the masthead/nav for the same gap
+  before calling this done, per Farhad's request to fix it everywhere at
+  once rather than instance-by-instance: `.mast-slash-light` (the two
+  separators in `.masthead-right`, between "اطلاعیه‌ها"/"تماس"/"EN")
+  already had an explicit `color: var(--paper)` — not buggy.
+  `.mast-sister .sep` (the "/" between publication names, e.g. "شعله
+  جاوید / جهان برای فتح") has no color of its own but correctly inherits
+  from `.mast-sister`'s own explicit `color-mix(...)` rule — not buggy,
+  a plain `<span>` inherits color normally (only `<a>` needed the
+  explicit `color: inherit` reset). `.mast-slash` was the only actual
+  instance of this bug.
+  Verified live: `getComputedStyle` on `.mast-slash` now returns `rgb(255,
+  255, 255)` (at the existing 0.5 opacity); confirmed visually via a
+  3x-scaled headless-Chrome screenshot of the masthead.
+  Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 (continued)
+
+- **Fixed:** real architectural gap found and confirmed by Farhad through
+  his own testing — the popup menu's "Topics · موضوعات" column (and, by
+  the same mechanism, "Publications · نشرات") was not backed by a real,
+  editor-manageable WordPress menu. Confirmed the exact mechanism:
+  `shola_get_topic_slugs_ordered()` / `shola_get_publication_slugs_
+  ordered()` (`inc/template-tags.php`) returned a hardcoded 6/2-slug PHP
+  array — a deliberate Phase 3.2/4.1 decision at the time (documented in
+  the original `inc/setup.php` comment: "Topics and Publications are
+  generated from the taxonomy terms directly... not editor-managed
+  menus"), but one that directly violates the IA doc's "editable by staff
+  without a developer" requirement, exactly as Farhad's test showed
+  (deleting a hardcoded term made `get_term_by()` fail silently and drop
+  the item; adding a new term did nothing, since it was never in the
+  fixed array to begin with). Investigated and confirmed the *adjacent*
+  "Sections · بخش‌ها" and "More · بیشتر" popup columns were, by contrast,
+  already real `wp_nav_menu()` locations (`menu_sections`/`menu_more`)
+  with a `fallback_cb` for the empty-menu case — Appearance → Menus
+  looking completely empty was because *no* menu had ever been created
+  for *any* of the (then two, now four) registered locations, not because
+  those two locations were fake.
+
+  **Plan reported and approved by Farhad before implementation** (his
+  explicit instruction, consistent with how every other architectural
+  decision this session was handled): fix centrally rather than touching
+  all 8 call sites (`header.php` popup ×2, `front-page.php`, `footer.php`,
+  `page-topics.php`, `page-publications.php`, `taxonomy-topic.php`,
+  the masthead sister-links) individually — reimplement the two ordering
+  functions themselves to read a real menu's item order, with the old
+  hardcoded array kept only as a last-resort fallback. Farhad's one
+  change to the plan: seed real, pre-populated starter menus (not a
+  silent fallback-only approach) so Appearance → Menus honestly reflects
+  what's driving the site — reasoning: the confusion he'd just hit
+  (menus looking empty while the site still worked) shouldn't just move
+  from "4 of 4 empty" to "2 of 4 empty." Also applied the same real-menu
+  treatment to `menu_sections`/`menu_more` for consistency across all
+  four locations, per his invitation to make that call — flagging it
+  here as the deliberate choice it was, not an oversight.
+
+  **Implementation:**
+  1. `inc/setup.php`: registered two more locations, `menu_topics`
+     ("منو — موضوعات") and `menu_publications` ("منو — نشریات"). Both
+     taxonomies already have `public => true` with no `show_ui`/
+     `show_in_nav_menus` override (`class-taxonomies.php`), so WordPress
+     automatically shows a taxonomy-term picker for them in the
+     Appearance → Menus editor — no plugin change needed.
+  2. `inc/setup.php`: added `shola_maybe_seed_nav_menus()`, hooked to
+     `admin_init`, guarded by a persisted `shola_seeded_nav_menus` option
+     so each of the four locations is seeded exactly once — not re-run
+     every admin page load, and not re-created if an editor later
+     deliberately empties/unassigns a menu. Creates and assigns a real
+     menu per location, pre-populated with today's v6 default content
+     (the same 6 topics / 2 publications / 4+4 curated links already
+     live), via `wp_create_nav_menu()` + `wp_update_nav_menu_item()`. If
+     creation fails for a location, the flag is left unset so it's
+     retried next time rather than silently marked done.
+  3. `inc/template-tags.php`: `shola_get_topic_slugs_ordered()` /
+     `shola_get_publication_slugs_ordered()` now call a shared helper,
+     `shola_get_ordered_term_slugs_from_menu()`, which resolves the
+     assigned menu at the location, walks `wp_get_nav_menu_items()`
+     (already returned in menu order), and extracts the slug of each
+     taxonomy-type item matching that taxonomy. Falls back to the
+     original hardcoded array only if no menu is assigned. No template
+     changes needed anywhere — all 8 call sites keep working unmodified,
+     since they only ever consumed whatever these two functions return.
+
+  **Verified**, since wp-admin login credentials aren't available in this
+  session (same constraint noted earlier in this file for the issue-TOC
+  repeater work) — used LocalWP's actual MySQL instance directly instead
+  of the browser admin. Found the site's real DB port (10090, from
+  `~/AppData/Roaming/Local/sites.json`, since `DB_HOST` in `wp-config.php`
+  is just `localhost` and only resolves correctly under LocalWP's own
+  PHP-FPM); wrote a CLI bootstrap that pre-defines `DB_HOST` before
+  `wp-load.php` runs (constants don't get overwritten once set, so this
+  reliably wins) to get a real, full WordPress bootstrap from ordinary
+  PHP CLI. This runs the actual theme code, not a reimplementation —
+  genuine verification, not a mock.
+  - Ran `shola_maybe_seed_nav_menus()` directly: all four menus created
+    correctly, correct items, correct order, confirmed idempotent (a
+    second run makes no changes, same menu IDs).
+  - **Editability, tested for real** (add/remove/reorder), matching
+    Farhad's explicit ask to confirm this rather than assume it: created
+    a new topic term and added it to the menu the same way the taxonomy
+    picker in Appearance → Menus would — appeared correctly in
+    `shola_get_topic_slugs_ordered()`'s output. Removed a seeded item —
+    disappeared correctly. Reordered an item to the end — moved
+    correctly. (First reorder attempt failed by only patching
+    `menu-item-position` without resending the item's type/object/
+    object-id, which `wp_update_nav_menu_item()` requires on every call —
+    a bug in the test script, not the theme code; wp-admin's real "Save
+    Menu" always resubmits full item data, so a real editor dragging a
+    row would never hit this. Fixed the test, reran, confirmed correct.)
+    All test data cleaned up afterward, seeded menus restored to their
+    exact original state.
+  - All 8 call sites checked live against the real seeded data: popup
+    menu (screenshotted, both columns), `page-topics.php`,
+    `page-publications.php`, `taxonomy-topic.php` (sister-links),
+    homepage topics table, footer — all correct.
+  - phpcs clean on both changed files (`inc/setup.php`,
+    `inc/template-tags.php`).
+
+  **Found during verification, not touched:** a pre-existing topic term,
+  "سلامت و روان" (`health`, term_id 26, 0 posts) — almost certainly the
+  exact term Farhad created himself while confirming the original bug
+  ("adding a new one does NOT appear"). Left as-is since it's his data,
+  not a test artifact of this fix; it won't appear in the popup nav until
+  someone deliberately adds it to the "موضوعات" menu at Appearance →
+  Menus, which is now possible for the first time.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Changed:** `.menu-topic` font-size reduced ~30%, from
+  `clamp(2.4rem, 6vw, 3.5rem)` to `clamp(1.7rem, 4.2vw, 2.45rem)`
+  (confirmed via computed style: 56px → 39.2px at 1280px viewport, an
+  exact 30% reduction). Reason: the popup Topics list was designed around
+  a fixed 6 items; now that it's a real, growable menu (per the fix
+  above), the large size would look unbalanced/oversized as the content
+  team adds more entries. Applied only after the real-menu fix was
+  implemented and verified, per Farhad's explicit sequencing instruction.
+  Verified live via a headless-Chrome screenshot of the open popup menu.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed:** the Topics/Publications taxonomy panels didn't appear at all
+  in Appearance → Menus' "Add menu items" sidebar, confirmed by Farhad's
+  live testing (screenshot: only Pages, Post types, Custom links, and
+  دسته‌ها visible) and consistent with his other finding in the same
+  report — adding "سلامت و روان" as a new topic still didn't show up in
+  the live popup menu even after the real-menu fix above, since with no
+  taxonomy panel there was no way to add it to the menu in the first
+  place. Re-verified the earlier "already `public => true`, no `show_ui`/
+  `show_in_nav_menus` override" assumption directly against the live
+  site's database rather than trusting the registration code alone —
+  confirmed it was in fact correct: `get_taxonomy('topic')` and
+  `get_taxonomy('publication')` both report `show_in_nav_menus: true`,
+  and `get_taxonomies( array( 'show_in_nav_menus' => true ) )` correctly
+  lists both. No filter on `register_taxonomy_args` was suppressing
+  anything either. So the taxonomy registration itself was never the
+  problem — the assumption held, but something else downstream of it
+  didn't.
+  Found the real cause querying `wp_usermeta` directly: Farhad's own
+  admin account (`SJ_manager`, user ID 1) already had a saved
+  `metaboxhidden_nav-menus` Screen Options preference that explicitly
+  listed `add-topic`, `add-publication`, *and* `add-collection` as
+  hidden — a standard WordPress admin-UI mechanism (every "Add menu
+  items" panel can be individually hidden per-user via the screen's
+  "Screen Options" tab), unrelated to taxonomy registration. Read WP
+  core's actual `get_hidden_meta_boxes()` (`wp-admin/includes/screen.php`)
+  to find the correct fix: `default_hidden_meta_boxes` only applies when
+  a user has *no* saved preference yet for that screen — since his
+  account already had one, that filter would never reach him. Used
+  `hidden_meta_boxes` instead (fires unconditionally, regardless of any
+  saved per-user state), added as `shola_always_show_taxonomy_nav_menu_
+  panels()` in `inc/setup.php`, scoped to the `nav-menus` screen only,
+  stripping just `add-topic`/`add-publication`/`add-collection` from
+  whatever hidden list comes through — every other hidden item (his
+  existing post-type/tag/format panel preferences) is left untouched.
+  `collection` had the identical gap and is fixed by the same filter,
+  per Farhad's ask to check for it.
+  Trade-off flagged, not silently decided: this makes the three panels
+  permanently un-hideable via Screen Options, for anyone. Judged correct
+  given these taxonomies are core to the "editable without a developer"
+  requirement the whole fix exists for — but it's a real, deliberate
+  choice worth knowing about, not an incidental side effect.
+  **Verified against Farhad's exact real saved data**, not just in the
+  abstract: pulled his actual `metaboxhidden_nav-menus` row from the
+  database, ran it through the new filter function directly, confirmed
+  all three of his hidden panels are removed from the result while his
+  five other hidden items (post-type/tag/format panels) pass through
+  unchanged, and confirmed a different admin screen (`post`) is
+  completely unaffected by the filter.
+  **Full end-to-end test performed for real**, exactly as asked, not
+  simulated: added the "سلامت و روان" topic term (the one Farhad had
+  created himself while testing the original bug) to the real `موضوعات`
+  menu via `wp_update_nav_menu_item()` — the same underlying WordPress
+  call the now-visible panel's "Add to Menu" button makes — then loaded
+  the live popup menu and confirmed it now renders as the 7th topic,
+  and separately confirmed it also flows through correctly to
+  `page-topics.php`'s topic-count table. **This was left live** (not
+  reverted, unlike the earlier throwaway QA test) since Farhad's
+  instruction explicitly named this exact term/menu/outcome as the test
+  to perform — flagging clearly here rather than leaving it as a silent
+  side effect: "سلامت و روان" is now a real, publicly visible 7th topic
+  on the site. Remove/reorder it via Appearance → Menus (now genuinely
+  possible) if that wasn't the intended outcome.
+  phpcs clean on `inc/setup.php`.
+  Approved by: Farhad, in this session (2026-08-08).

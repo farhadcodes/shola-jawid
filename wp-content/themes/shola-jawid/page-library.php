@@ -27,8 +27,10 @@ $documents_query = new WP_Query(
 	<section class="wrap section-top">
 
 		<header class="page-header">
-			<p class="section-marker" lang="en">Library</p>
-			<h1 class="h-page"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'چهار مجموعه از اسناد PDF: متن‌های پایهٔ نظری، بیانیه‌های جنبش‌های جهانی، اسناد رسمی حزب، و پلمیک‌ها. پیش‌نمایش درون‌مرورگری و دریافت آزاد.', 'shola-jawid' ); ?></p>
 		</header>
 
@@ -51,8 +53,8 @@ $documents_query = new WP_Query(
 	<?php if ( $documents_query->have_posts() ) : ?>
 		<section class="wrap sect" aria-label="<?php esc_attr_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?>">
 			<div class="section-head row-between">
-				<div>
-					<p class="section-marker" lang="en">Latest</p>
+				<div class="kicker-row">
+					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?></h2>
 				</div>
 				<?php

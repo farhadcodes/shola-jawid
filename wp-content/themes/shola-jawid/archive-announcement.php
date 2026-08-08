@@ -27,8 +27,10 @@ $paged = max( 1, get_query_var( 'paged' ) );
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--narrow">
-			<p class="section-marker" lang="en">Announcements</p>
-			<h1 class="h-page"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'خبرهای نشریه، فراخوان‌های ارسال مقاله، و اعلان‌های عمومی.', 'shola-jawid' ); ?></p>
 		</header>
 

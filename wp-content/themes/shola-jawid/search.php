@@ -32,8 +32,10 @@ $filters = array(
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--narrow">
-			<p class="section-marker" lang="en">Search</p>
-			<h1 class="h-page"><?php esc_html_e( 'جست‌وجو', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'جست‌وجو', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'در مقالات، شماره‌ها و اسناد کتابخانه — به فارسی یا انگلیسی.', 'shola-jawid' ); ?></p>
 		</header>
 

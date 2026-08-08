@@ -36,8 +36,10 @@ $tabs = array(
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--tight">
-			<p class="section-marker" lang="en">About</p>
-			<h1 class="h-page"><?php esc_html_e( 'دربارهٔ شعله جاوید', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'دربارهٔ شعله جاوید', 'shola-jawid' ); ?></h1>
+			</div>
 		</header>
 
 		<nav class="about-tabs" aria-label="<?php esc_attr_e( 'بخش‌های دربارهٔ ما', 'shola-jawid' ); ?>">

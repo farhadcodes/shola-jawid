@@ -150,8 +150,8 @@ while ( have_posts() ) :
 		<?php if ( $related_query && $related_query->have_posts() ) : ?>
 			<section class="wrap related-rail" aria-label="<?php esc_attr_e( 'ادامهٔ خواندن', 'shola-jawid' ); ?>">
 
-				<div class="section-head">
-					<p class="section-marker" lang="en">Related Essays</p>
+				<div class="section-head kicker-row">
+					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'ادامهٔ خواندن', 'shola-jawid' ); ?></h2>
 				</div>
 

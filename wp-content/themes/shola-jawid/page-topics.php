@@ -16,8 +16,10 @@ get_header();
 	<section class="wrap section-top">
 
 		<header class="page-header page-header--narrow">
-			<p class="section-marker" lang="en">Sections</p>
-			<h1 class="h-page"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></h1>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></h1>
+			</div>
 			<p class="dek"><?php esc_html_e( 'شش موضوع ثابت؛ چهارچوبی که نشریه پیرامون آن مقاله سفارش می‌دهد و مقاله می‌پذیرد.', 'shola-jawid' ); ?></p>
 		</header>
 

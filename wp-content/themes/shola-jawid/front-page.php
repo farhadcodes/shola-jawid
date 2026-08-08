@@ -81,8 +81,8 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 <?php if ( $latest_posts ) : ?>
 	<section class="wrap sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?>">
 		<div class="section-head row-between">
-			<div>
-				<p class="section-marker" lang="en">Latest</p>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
 				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></h2>
 			</div>
 			<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ موضوعات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
@@ -119,8 +119,8 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
-				<div>
-					<p class="section-marker" lang="en">Current Issue</p>
+				<div class="kicker-row">
+					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></h2>
 				</div>
 				<?php
@@ -187,8 +187,10 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 
 <section class="wrap sect" aria-label="<?php esc_attr_e( 'موضوعات', 'shola-jawid' ); ?>">
 	<div class="section-head center">
-		<p class="section-marker" lang="en">Topics</p>
-		<h2 class="h-section"><?php esc_html_e( 'همهٔ موضوعات', 'shola-jawid' ); ?></h2>
+		<div class="kicker-row">
+			<p class="section-marker"></p>
+			<h2 class="h-section"><?php esc_html_e( 'همهٔ موضوعات', 'shola-jawid' ); ?></h2>
+		</div>
 	</div>
 	<ul class="topic-list">
 		<?php foreach ( shola_get_topic_slugs_ordered() as $slug ) : ?>
@@ -219,8 +221,8 @@ $documents_query = new WP_Query(
 <?php if ( $documents_query->have_posts() ) : ?>
 	<section class="wrap sect" aria-label="<?php esc_attr_e( 'کتابخانه', 'shola-jawid' ); ?>">
 		<div class="section-head row-between">
-			<div>
-				<p class="section-marker" lang="en">Library</p>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
 				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?></h2>
 			</div>
 			<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
@@ -250,8 +252,8 @@ $announcements_query = new WP_Query(
 <?php if ( $announcements_query->have_posts() ) : ?>
 	<section class="wrap sect" aria-label="<?php esc_attr_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?>">
 		<div class="section-head row-between">
-			<div>
-				<p class="section-marker" lang="en">Announcements</p>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
 				<h2 class="h-section"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></h2>
 			</div>
 			<a class="link-more" href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'همهٔ اطلاعیه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
@@ -274,8 +276,10 @@ $announcements_query = new WP_Query(
 <section class="newsletter" aria-label="<?php esc_attr_e( 'خبرنامه', 'shola-jawid' ); ?>">
 	<div class="wrap newsletter-inner">
 		<div>
-			<p class="section-marker" lang="en">Newsletter</p>
-			<h2 class="h-section"><?php esc_html_e( 'هر شمارهٔ تازه، در صندوق شما', 'shola-jawid' ); ?></h2>
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h2 class="h-section"><?php esc_html_e( 'هر شمارهٔ تازه، در صندوق شما', 'shola-jawid' ); ?></h2>
+			</div>
 			<p class="dek"><?php esc_html_e( 'اعلان انتشار شماره‌های تازه و مقالات برگزیده؛ ماهی یک بار، بدون هرزنامه؛ لغو اشتراک با یک کلیک.', 'shola-jawid' ); ?></p>
 		</div>
 		<form action="#" method="post" aria-label="<?php esc_attr_e( 'عضویت در خبرنامه', 'shola-jawid' ); ?>">
