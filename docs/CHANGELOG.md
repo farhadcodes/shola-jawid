@@ -3141,3 +3141,55 @@ trail of *why* the build deviated from — or newly applied — a rule in
   - Desktop screenshot confirmed unchanged (still the original
     flush-bottom overlay treatment).
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — same mobile-hero treatment extended to single.php
+
+- **Fixed:** Farhad found the same category of mobile hero problem on
+  article pages (`single.php`), confirmed via an iPhone 16 Pro Max
+  screenshot — the photo, title, and meta were cramped into a short
+  band with the image barely visible, same underlying issue as the
+  homepage hero B4 fixed, just in a different template.
+  **Confirmed the actual markup/CSS first, per his ask, rather than
+  assuming it matched the homepage's classes**: `single.php` uses its
+  own separate `.article-hero`/`.article-hero-visual`/
+  `.article-hero-media` structure (not `.hero-lead`/`.hero-media`).
+  Root cause here was different in kind from the homepage's original
+  bug: `.article-hero-media` uses a fixed `aspect-ratio: 21/9` — a
+  wide letterbox ratio that looks right on a wide desktop viewport but
+  produces a tiny image (~184px tall at a 430px-wide mobile viewport)
+  on mobile, leaving almost no room for the already-existing overlaid
+  title/crumb/dek text (`.article-hero-visual .article-header`, already
+  `position: absolute` with the same gray-wash + gradient scrim
+  treatment as the homepage — that part was already correct and needed
+  no changes).
+  **Fix, mobile only (`@media max-width: 720px`)**: overrides
+  `.article-hero-media` to `aspect-ratio: auto` with
+  `height: calc(100dvh - var(--masthead-h, 128px))` (reusing the
+  `--masthead-h` custom property + `main.js` measurement already added
+  for the homepage hero — no JS changes needed, it already runs
+  site-wide), plus the same `top: 42%; bottom: 0;` flex-column-
+  justify-end repositioning of `.article-header` used on the homepage,
+  so a long title grows upward within the image instead of depending
+  on exact block height. Desktop's `21/9` ratio is untouched.
+  **Checked whether `single-issue.php`/`single-document.php` share the
+  same root cause, per Farhad's explicit ask, before considering this
+  closed** — they don't: both use a completely different `.issue-hero`
+  pattern (a `display: grid` book/PDF-cover thumbnail beside a plain
+  white-background text panel, not a full-bleed photo with overlaid
+  white text). Verified live at the same mobile viewport rather than
+  reasoning from CSS alone: renders as a normal stacked layout on
+  mobile, cover image above a fully legible white-background info
+  card — no cramping, no scrim needed, nothing to fix. Left both
+  templates untouched.
+  **Verified with the same rigor as B4**: exact iPhone 16 Pro Max
+  viewport (430×932) forced via Chrome DevTools Protocol's
+  `Emulation.setDeviceMetricsOverride` (not the unreliable
+  `--window-size` flag). Current (short) headline fits fully within
+  the image, confirmed via `getBoundingClientRect()`
+  (`heroMediaBottom` exactly equals `innerHeight`; `dekBottom` well
+  under it) and a screenshot. Long-headline stress test: temporarily
+  set post 21's title to the same 5-line-wrapping test headline used
+  for the homepage check, confirmed it grows upward within the image
+  with everything still visible with no scroll, then reverted the
+  title immediately after. Desktop screenshot confirmed unchanged.
+  Approved by: Farhad, in this session (2026-08-08).

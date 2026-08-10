@@ -910,6 +910,34 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .article-hero-visual .article-crumb .active { color: var(--paper); }
 .article-hero-visual .article-title { color: var(--paper); max-width: 900px; text-shadow: 0 2px 20px rgba(0, 0, 0, .85), 0 1px 3px rgba(0, 0, 0, .9); }
 .article-hero-visual .article-dek { color: rgba(255, 255, 255, .96); text-shadow: 0 2px 14px rgba(0, 0, 0, .8), 0 1px 2px rgba(0, 0, 0, .9); }
+@media (max-width: 720px) {
+  /* Mobile article hero (2026-08-08, Farhad): the fixed 21:9 aspect
+     ratio that works well on wide desktop viewports produces a tiny
+     image band on a narrow mobile viewport (e.g. ~184px tall at
+     430px wide) — the overlaid title/crumb/dek then has almost no
+     room and reads cramped. Same treatment as the homepage hero
+     (B4/its revisit): a real viewport-height image using the live
+     --masthead-h var, with the text confined to the lower ~58% of the
+     image instead of a pure bottom:0 anchor, so a long title can grow
+     upward within the image rather than depending on exact block
+     height. The existing gray-wash + dark-gradient scrim
+     (.article-hero-visual::before/::after) already covers the full
+     image and needed no changes. Desktop's 21:9 ratio is untouched. */
+  .article-hero-media {
+    aspect-ratio: auto;
+    height: calc(100vh - 128px);
+    height: calc(100dvh - var(--masthead-h, 128px));
+    min-height: 240px;
+    max-height: 900px;
+  }
+  .article-hero-visual .article-header {
+    top: 42%;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+}
 .article-hero-caption {
   max-width: var(--wrap-wide);
   margin-inline: auto;
