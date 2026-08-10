@@ -16,23 +16,37 @@ get_header();
 
 $term  = get_queried_object();
 $paged = max( 1, get_query_var( 'paged' ) );
+$sort  = sanitize_key( get_query_var( 'sort' ) );
 
-$archive_query = new WP_Query(
-	array(
-		'post_type'      => 'post',
-		'posts_per_page' => 6,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-			array(
-				'taxonomy' => 'topic',
-				'field'    => 'term_id',
-				'terms'    => $term->term_id,
-			),
+$query_args = array(
+	'post_type'      => 'post',
+	'posts_per_page' => 6,
+	'paged'          => $paged,
+	'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+		array(
+			'taxonomy' => 'topic',
+			'field'    => 'term_id',
+			'terms'    => $term->term_id,
 		),
-	)
+	),
 );
+
+if ( 'views' === $sort && class_exists( '\SholaCore\View_Counter' ) ) {
+	// meta_value_num ordering only matches posts that already carry the
+	// shcore_view_count meta key — View_Counter seeds every post with 0
+	// on publish (and backfills pre-existing ones), so a never-viewed
+	// post still sorts in, tied at the bottom via the date DESC tiebreak.
+	$query_args['orderby']  = array(
+		'meta_value_num' => 'DESC',
+		'date'           => 'DESC',
+	);
+	$query_args['meta_key'] = \SholaCore\View_Counter::META_KEY; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+} else {
+	$query_args['orderby'] = 'date';
+	$query_args['order']   = 'DESC';
+}
+
+$archive_query = new WP_Query( $query_args );
 ?>
 	<section class="wrap section-top">
 
@@ -59,9 +73,8 @@ $archive_query = new WP_Query(
 		</nav>
 
 		<div class="filter-tabs">
-			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></a>
-			<?php /* "پرخواننده‌ترین" (most-read) needs view-count tracking this project doesn't have — kept as an inert placeholder, matching v6's own href="#" for it, rather than faking sort behavior with no real data behind it. */ ?>
-			<a href="#"><?php esc_html_e( 'پرخواننده‌ترین', 'shola-jawid' ); ?></a>
+			<a class="<?php echo ( 'views' !== $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></a>
+			<a class="<?php echo ( 'views' === $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'sort', 'views', get_term_link( $term ) ) ); ?>"><?php esc_html_e( 'پرخواننده‌ترین', 'shola-jawid' ); ?></a>
 		</div>
 
 		<?php if ( $archive_query->have_posts() ) : ?>
@@ -85,6 +98,7 @@ $archive_query = new WP_Query(
 							'type'      => 'array',
 							'prev_text' => '→',
 							'next_text' => '←',
+							'add_args'  => $sort ? array( 'sort' => $sort ) : array(),
 						)
 					);
 					if ( $links ) {

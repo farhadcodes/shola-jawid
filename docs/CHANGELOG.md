@@ -3489,3 +3489,77 @@ trail of *why* the build deviated from — or newly applied — a rule in
   ("Hello world!" and قالین‌بافان...) both render the new file
   correctly at its native 1200×800.
   Approved by: Farhad, in this session (2026-08-10).
+
+## 2026-08-10 — Phase E
+- **Added:** taxonomy-topic.php's "پرخواننده‌ترین" (most read) tab is
+  real — was an inert `href="#"` placeholder since Phase 4.2 (this
+  file's own 2026-08-06 entry documents why: no view-tracking
+  infrastructure existed to sort by). New `SholaCore\View_Counter`
+  class (plugin), wired into `shola-core.php`'s existing `init()`
+  list, first system-written (not editor-authored) meta field in the
+  plugin.
+  **Mechanism**: `shcore_view_count` post meta on `post`/`document`/
+  `issue` (`announcement` excluded — no single view template),
+  incremented on `template_redirect` via a single atomic
+  `UPDATE ... SET meta_value = meta_value + 1` rather than
+  `get_post_meta()` + `update_post_meta()`, which can silently lose
+  increments when two requests for the same popular post land
+  concurrently. Excludes: previews, logged-in users (this project's
+  only accounts are staff — CLAUDE.md's IA doc's four roles, never
+  public readers, so a logged-in view is always staff), a
+  lightweight known-bot user-agent check (not a Wordfence
+  replacement — CLAUDE.md §3 — just enough to keep obvious
+  crawler/scraper noise out of an editorial signal), and repeat
+  views from the same browser within a 24h cookie-based dedupe
+  window.
+  **Scope/window**: topic-scoped (matches where the tab lives — no
+  unrequested site-wide "most read" was built) and all-time (a
+  rolling window would need a timestamped view-log table this
+  project has no infrastructure for and no confirmed need of yet —
+  flagged as the natural upgrade path if that ever changes).
+  **Correctness fix found during this feature's own build**: WP_Query's
+  `orderby => meta_value_num` only matches posts that already carry
+  the meta key — without seeding, a never-viewed post would silently
+  vanish from "most read" instead of sorting to the bottom. Fixed
+  with `seed_on_publish()` (hooked to `transition_post_status`, so it
+  covers scheduled-post cron publishes too) for future posts, plus a
+  one-time idempotent `maybe_backfill()` for this project's 30
+  already-published posts across all three tracked types — gated by
+  an option flag so it runs at most once, not on every request.
+  **Second correctness fix found during live verification**: the
+  atomic `$wpdb` UPDATE bypasses WordPress's postmeta object cache
+  (only `update_post_meta()`/`add_post_meta()` clear it automatically
+  for you). Without an explicit `wp_cache_delete( $post_id,
+  'post_meta' )` after the raw SQL write, a `get_post_meta()` call
+  later in the same request — or on this site's future if it ever
+  gains a persistent object cache such as Redis — would keep
+  returning the pre-increment value even though the DB row was
+  already correct. Caught by direct testing before this shipped, not
+  a hypothetical left for later.
+  `taxonomy-topic.php`: new `sort=views` query var (registered by
+  `View_Counter`, same pattern as `search.php`'s existing
+  `result_type`), swaps the archive query to
+  `orderby => [meta_value_num DESC, date DESC]` (date as tiebreak
+  among equal view counts) when active; both filter-tab links and
+  pagination links (`add_args`) updated to preserve/reflect the
+  active sort. Guarded with `class_exists( '\SholaCore\View_Counter' )`
+  so the template degrades to date-order, not a fatal error, if the
+  plugin is ever inactive (CLAUDE.md §2).
+  **Verified live**: confirmed atomic increment is exact under
+  repeated calls (5 calls → exactly 5, no lost writes); confirmed
+  bot/logged-in/preview exclusion end-to-end through the real
+  `maybe_count_view()` path, not just the bot-check helper in
+  isolation; confirmed the 24h dedupe cookie blocks a second count
+  from the same browser and allows a new one once the cookie is
+  cleared; confirmed all three tracked post types (post, document,
+  issue) increment correctly; confirmed the backfill seeded all 30
+  pre-existing published posts to 0 with zero mismatches; confirmed
+  the "پرخواننده‌ترین" tab's ordering tracks live view-count data
+  exactly (re-checked after values changed mid-session and the
+  displayed order changed to match, not a one-time coincidence) and
+  differs from the "تازه‌ترین" (date) tab's ordering on the same
+  posts, proving the sort is real. All test view-count data reset to
+  0 across all 30 posts before shipping — same "leave it in a
+  genuinely clean state" precedent as the D1 social-links session.
+  phpcs clean on all 3 changed/new files.
+  Approved by: Farhad, in this session (2026-08-10).
