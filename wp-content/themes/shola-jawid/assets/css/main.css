@@ -1619,6 +1619,19 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
    generated <input> isn't directly attribute-editable the same way, so
    this achieves the identical result via CSS instead. */
 #c-email { direction: ltr; }
+/* Validation error text (2026-08-08, Farhad): CF7's default is plain
+   ink-colored text, same as ordinary body copy — indistinguishable
+   from a normal message at a glance. Crimson (not crimson-deep/tint)
+   matches the site's single "error/attention" accent used elsewhere
+   (e.g. .rule-crimson, .progress-bar) without borrowing the exact
+   tone used for links (.link, underlined) or buttons (.btn-primary,
+   solid crimson fill) — plain crimson text with neither of those
+   treatments reads as its own distinct thing, not a mislabeled link
+   or button. Applies to both the error summary
+   (.wpcf7-response-output) and each field's inline tip
+   (.wpcf7-not-valid-tip).  */
+.wpcf7-response-output,
+.wpcf7-not-valid-tip { color: var(--crimson); }
 
 .contact-aside { padding-top: 2rem; border-top: 1px solid var(--line); }
 .contact-aside .meta-mono { margin-bottom: .75rem; }

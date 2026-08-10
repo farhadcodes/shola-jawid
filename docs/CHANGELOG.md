@@ -3193,3 +3193,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   with everything still visible with no scroll, then reverted the
   title immediately after. Desktop screenshot confirmed unchanged.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — B1 follow-up: crimson validation-message color
+
+- **Fixed:** CF7 validation error text (already correctly translated to
+  Persian earlier in B1) rendered in plain ink-colored text,
+  indistinguishable from ordinary body copy at a glance — Farhad
+  wanted it in the site's crimson accent to actually stand out, per
+  standard error-state UX convention.
+  Added `.wpcf7-response-output, .wpcf7-not-valid-tip { color:
+  var(--crimson); }` to `main.css` §25 (the contact-page section,
+  where CF7's markup is already styled directly since
+  `wpcf7_load_css` is deliberately filtered off — see that section's
+  existing header comment). Covers both the error summary
+  (`.wpcf7-response-output`) and each field's inline tip
+  (`.wpcf7-not-valid-tip`).
+  Deliberately used plain `--crimson` (not `--crimson-deep`/
+  `--crimson-tint`) with neither underline nor background fill, so it
+  reads as its own distinct "attention" treatment rather than being
+  confused with `.link` (crimson + underline) or `.btn-primary`
+  (solid crimson fill) — checked against nearby elements on the same
+  page (the crimson `.h-page` heading, in a much larger/heavier
+  weight) and confirmed no visual clash.
+  Verified live by triggering a real validation error on the actual
+  contact form (empty submit) rather than just checking the CSS rule
+  exists: `getComputedStyle` on both elements returned `rgb(142, 27,
+  27)` — exactly `#8E1B1B`, `--crimson`'s value — confirmed via a
+  screenshot showing the summary message and all four inline field
+  tips rendering in crimson against the page's normal black body text.
+  Approved by: Farhad, in this session (2026-08-08).
