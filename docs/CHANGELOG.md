@@ -3222,3 +3222,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   screenshot showing the summary message and all four inline field
   tips rendering in crimson against the page's normal black body text.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — B1 follow-up #2: duplicate un-hidden CF7 status region
+
+- **Fixed:** Farhad's iPhone 16 Pro Max screenshot showed one block of
+  validation text still black despite the fix above — circled in his
+  screenshot, sitting right after the "ارتباط با حزب" heading.
+  Investigated rather than assuming it was the same element with a
+  cascade issue: it wasn't `.wpcf7-response-output` at all (confirmed
+  that one was already correctly crimson) — it was CF7's separate
+  `.screen-reader-response` region, which duplicates the same summary
+  message plus a repeated "لطفا این قسمت را تکمیل کنید." link per
+  invalid field (confirmed via its live `outerHTML`: a `[role="status"]`
+  span holding the duplicate summary, plus a `<ul>` of per-field
+  `<li><a>` links). Per its own name and CF7's own intent, this region
+  is meant to be screen-reader-only, but the theme never applied the
+  visually-hidden treatment it needs (`display: block`, `position:
+  static`, `clip: auto`, full width — fully visible, not hidden at
+  all), so it was rendering as a second, unstyled, black, cluttering
+  copy of the same messages for sighted users too.
+  **Chose to actually hide it rather than also color the duplicate
+  crimson** — recoloring would have left two crimson copies of every
+  message on screen, which is a worse outcome than what was reported,
+  not a real fix of it. Added the standard WordPress-core visually-
+  hidden pattern (`position: absolute; width/height: 1px; overflow:
+  hidden; clip: rect(1px,1px,1px,1px);` — accessible to screen readers,
+  removed from sighted layout/paint) scoped to `.screen-reader-response`
+  in `main.css` §25, right next to the crimson-color rule this
+  follows up on.
+  Verified live by triggering a real validation error again: the
+  region's visible box now measures 1×1px with `overflow: hidden`
+  (confirmed no longer painting anything), while
+  `.wpcf7-response-output` and all three `.wpcf7-not-valid-tip`
+  elements remain crimson as before — screenshotted at the same
+  440×956 mobile viewport Farhad's report used, confirming the
+  duplicate block is gone and only the correctly-crimson messages
+  remain visible.
+  Approved by: Farhad, in this session (2026-08-08).

@@ -1632,6 +1632,27 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
    (.wpcf7-not-valid-tip).  */
 .wpcf7-response-output,
 .wpcf7-not-valid-tip { color: var(--crimson); }
+/* Found while checking Farhad's screenshot of the above fix (2026-08-08):
+   the circled black text wasn't .wpcf7-response-output at all (that part
+   was already correctly crimson) — it was CF7's separate
+   `.screen-reader-response` region, which duplicates the same summary
+   message plus a repeated "Please fill out this field." link per invalid
+   field. Per its own name/CF7's own intent this is meant to be screen-
+   reader-only, but the theme never applied the visually-hidden treatment
+   it needs, so it was rendering as a second, unstyled, black, cluttering
+   copy of the same messages for sighted users too. The real fix isn't to
+   also color the duplicate crimson (that would just leave two crimson
+   copies on screen); it's to actually hide it, matching CF7's intended
+   behavior — after which the only visible messages are the two rules
+   above, both already crimson. Standard WP-core visually-hidden pattern
+   (accessible to screen readers, removed from sighted layout/paint). */
+.screen-reader-response {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  word-wrap: normal !important;
+}
 
 .contact-aside { padding-top: 2rem; border-top: 1px solid var(--line); }
 .contact-aside .meta-mono { margin-bottom: .75rem; }
