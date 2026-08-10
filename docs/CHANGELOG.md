@@ -3259,3 +3259,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   duplicate block is gone and only the correctly-crimson messages
   remain visible.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — leftover from Farhad's original walkthrough notes (item #7)
+
+- **Fixed:** `page-contact.php`'s sidebar still had three English field
+  labels — "EMAIL", "RESPONSE TIME", "PRIVACY" — left over from the
+  original walkthrough notes and never addressed during the Phase 7.5
+  kicker sweep. Confirmed first that these are a different pattern from
+  that sweep, not a leftover instance of it: they're `.meta-mono` field
+  labels (a `<dt>`-like heading directly above a value, e.g. the email
+  address, the response-time sentence), not `.section-marker` kickers
+  paired with a decorative dash and a heading — the kicker sweep's
+  "remove the English word, keep the dash" treatment doesn't apply
+  here since there's no dash and the label carries real, load-bearing
+  meaning for the value below it. Translated directly instead:
+  - "EMAIL" → "ایمیل" — matches the exact word already used on this
+    same page in the form's own field label ("نشانی ایمیل").
+  - "RESPONSE TIME" → "زمان پاسخ‌دهی" — no prior instance of this
+    concept existed elsewhere on the site to match against; chosen to
+    fit the short 2-3-word noun-phrase convention already used by the
+    `.issue-meta` `<dt>` labels elsewhere (e.g. "تاریخ نشر", "سردبیر
+    مسئول").
+  - "PRIVACY" → "حریم خصوصی" — matches the exact phrase already used
+    in this same sidebar's own body text one line below ("جزئیات در
+    سیاست حریم خصوصی"), confirmed by reading the surrounding markup
+    rather than assumed.
+  Also removed the now-inapplicable `lang="en"` attribute from all
+  three (checked `.meta-mono`'s CSS first: it hardcodes `font-family:
+  var(--font-nav)` regardless of `lang`, and — same specificity,
+  declared later in the stylesheet — already overrode the generic
+  `[lang="en"] { font-family: var(--font-en) }` rule, so removing the
+  attribute has no visual side effect, confirmed rather than assumed).
+  **Searched the whole template for any other remaining English**, per
+  Farhad's request, not just the three reported labels — none found;
+  the only other Latin-script text on the page is the contact email
+  address itself (`info.sholajawid@gmail.com`, correctly `dir="ltr"`,
+  not translatable content).
+  phpcs clean. Verified live: all three labels render in Persian,
+  "حریم خصوصی" visually consistent with the matching phrase directly
+  below it, no other English text found anywhere on the page.
+  Approved by: Farhad, in this session (2026-08-08).

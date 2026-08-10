@@ -36,11 +36,11 @@ get_header();
 				<?php echo do_shortcode( '[contact-form-7 id="71"]' ); ?>
 
 				<aside class="contact-aside">
-					<p class="meta-mono" lang="en">EMAIL</p>
+					<p class="meta-mono"><?php esc_html_e( 'ایمیل', 'shola-jawid' ); ?></p>
 					<p class="contact-aside-value"><a class="link" href="mailto:info.sholajawid@gmail.com" dir="ltr">info.sholajawid@gmail.com</a></p>
-					<p class="meta-mono" lang="en">RESPONSE TIME</p>
+					<p class="meta-mono"><?php esc_html_e( 'زمان پاسخ‌دهی', 'shola-jawid' ); ?></p>
 					<p class="contact-aside-value"><?php esc_html_e( 'پیام‌ها معمولاً ظرف یک هفته پاسخ داده می‌شوند.', 'shola-jawid' ); ?></p>
-					<p class="meta-mono" lang="en">PRIVACY</p>
+					<p class="meta-mono"><?php esc_html_e( 'حریم خصوصی', 'shola-jawid' ); ?></p>
 					<p>
 						<?php
 						echo wp_kses_post(
