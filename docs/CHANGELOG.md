@@ -3017,3 +3017,63 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `single.php`, and `single-document.php` — first word of the first
   paragraph in each now renders as normal, undistorted Persian prose.
   Approved by: Farhad, in this session (2026-08-08).
+
+- **Closed (B2):** the non-functional ذخیره/اشتراک buttons on
+  `single.php`. Farhad's decisions on the reported plan:
+  - **ذخیره (save) — removed entirely, not built.** A real save/
+    bookmark feature needs an account system to be meaningful (sync
+    across devices, survive a browser data clear); this site has no
+    reader-account system by design (WP login is editorial-staff
+    only). Rather than ship a fragile localStorage-only approximation,
+    the button was deleted from `single.php` outright — no replacement
+    markup. Verified live that the remaining `.row` (now a single
+    child) has no leftover gap/misalignment where the second button
+    used to sit.
+  - **اشتراک (share) — built for real**, with explicit platform icons
+    rather than relying only on the Web Share API (better desktop
+    coverage, matches the site's existing icon-based social-link
+    pattern): Facebook, Telegram, WhatsApp, X, and Copy Link, in a
+    dropdown triggered by the اشتراک button. Each platform link is a
+    real share-intent URL (`facebook.com/sharer/sharer.php`,
+    `t.me/share/url`, `api.whatsapp.com/send`, `twitter.com/intent/
+    tweet`) built server-side from `get_permalink()`/`get_the_title()`,
+    `rawurlencode()`'d per parameter and `esc_url()`'d on output.
+    Copy Link uses the async Clipboard API with a
+    `document.execCommand('copy')` fallback (added after live testing
+    surfaced that `navigator.clipboard` is unavailable on this local
+    dev site specifically — it requires a secure context/HTTPS, which
+    this HTTP-only LocalWP environment doesn't have; production will
+    be HTTPS per the Phase 6 SSL commitment, but the fallback makes it
+    robust regardless), showing "لینک کپی شد" for 2 seconds before
+    reverting.
+    Icon glyphs reuse the same 24×24 `currentColor` SVG-path style and
+    hover-to-crimson treatment as the existing `.footer-social`/
+    `.menu-social` icons for visual consistency (Telegram/X paths
+    literally reused from `header.php`'s existing icons; Facebook/
+    WhatsApp/copy-link are new simplified glyphs in the same minimal
+    single-path style the codebase already uses for Telegram/X/RSS —
+    not official brand SVGs, matching the codebase's existing
+    approach).
+    **Progressive enhancement, not overlooked**: the dropdown does
+    *not* rely on the HTML `hidden` attribute (which would make it
+    permanently unreachable with JS disabled) — it renders as a plain,
+    always-visible list of links by default, and is only collapsed
+    into a toggleable dropdown once `.js` is confirmed on `<html>`
+    (the same site-wide no-JS pattern already used for `.reveal`
+    animations etc.), per CLAUDE.md §5's "must work without JS"
+    requirement.
+    **Verified beyond "the buttons render"**, per Farhad's explicit
+    ask: fetched the real generated share URLs from the live DOM and
+    hit all four platforms for real — Facebook and X both correctly
+    recognized the intent request and redirected to their login flow
+    with the URL/text preserved (expected unauthenticated behavior,
+    confirms the request format is valid); Telegram and WhatsApp's
+    endpoints returned `HTTP 200` directly. Also verified: dropdown
+    open/close and outside-click/Escape-to-close; copy-link's full
+    cycle (click → label changes to "لینک کپی شد" → reverts after
+    2s) using the fallback path specifically, since that's the path
+    this dev environment actually exercises; the dropdown's computed
+    `display` with `.js` removed (confirms the no-JS fallback list is
+    genuinely visible, not just assumed).
+    phpcs clean on `single.php`.
+  Approved by: Farhad, in this session (2026-08-08).

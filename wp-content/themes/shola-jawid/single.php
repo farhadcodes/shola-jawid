@@ -120,8 +120,56 @@ while ( have_posts() ) :
 				<?php endif; ?>
 
 				<div class="row">
-					<a class="link-more" href="#" aria-label="<?php esc_attr_e( 'ذخیره برای بعد', 'shola-jawid' ); ?>"><?php esc_html_e( 'ذخیره', 'shola-jawid' ); ?> <span class="arr">↓</span></a>
-					<a class="link-more" href="#" aria-label="<?php esc_attr_e( 'اشتراک‌گذاری', 'shola-jawid' ); ?>"><?php esc_html_e( 'اشتراک', 'shola-jawid' ); ?> <span class="arr">↗</span></a>
+					<?php
+					$share_id    = 'share-menu-' . get_the_ID();
+					$share_url   = get_permalink();
+					$share_title = get_the_title();
+					$share_links = array(
+						'facebook' => array(
+							'label' => __( 'فیس‌بوک', 'shola-jawid' ),
+							'href'  => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $share_url ),
+							'icon'  => '<path d="M22 12a10 10 0 1 0-11.5 9.95v-7.04H7.9V12h2.6V9.8c0-2.6 1.55-4 3.9-4 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6V12h2.9l-.5 2.9h-2.4v7.04A10 10 0 0 0 22 12Z"/>',
+						),
+						'telegram' => array(
+							'label' => __( 'تلگرام', 'shola-jawid' ),
+							'href'  => 'https://t.me/share/url?url=' . rawurlencode( $share_url ) . '&text=' . rawurlencode( $share_title ),
+							'icon'  => '<path d="M21.9 4.6 18.8 19c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6L18 6.9c.4-.3-.1-.5-.5-.2L7 13.2l-4.4-1.4c-1-.3-1-1 .2-1.4L20.6 3.2c.8-.3 1.5.2 1.3 1.4Z"/>',
+						),
+						'whatsapp' => array(
+							'label' => __( 'واتساپ', 'shola-jawid' ),
+							'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode( $share_title . ' ' . $share_url ),
+							'icon'  => '<path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.7-.8c.2-.3.4-.2.7-.1l1.7.8c.2.1.4.2.5.3.1.2.1.9-.1 1.5Z"/>',
+						),
+						'x'        => array(
+							'label' => __( 'ایکس', 'shola-jawid' ),
+							'href'  => 'https://twitter.com/intent/tweet?url=' . rawurlencode( $share_url ) . '&text=' . rawurlencode( $share_title ),
+							'icon'  => '<path d="M17.8 3h3l-6.7 7.7L22 21h-6.2l-4.8-6.3L5.4 21h-3l7.2-8.2L2 3h6.3l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/>',
+						),
+					);
+					?>
+					<div class="share-menu">
+						<button type="button" class="link-more share-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="<?php echo esc_attr( $share_id ); ?>">
+							<?php esc_html_e( 'اشتراک', 'shola-jawid' ); ?> <span class="arr">↗</span>
+						</button>
+						<div class="share-dropdown" id="<?php echo esc_attr( $share_id ); ?>">
+							<?php foreach ( $share_links as $key => $link ) : ?>
+								<a
+									class="share-option"
+									href="<?php echo esc_url( $link['href'] ); ?>"
+									target="_blank"
+									rel="noopener"
+									aria-label="<?php echo esc_attr( sprintf( /* translators: %s: platform name (Facebook, Telegram, etc.). */ __( 'اشتراک‌گذاری در %s', 'shola-jawid' ), $link['label'] ) ); ?>"
+								>
+									<svg class="glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><?php echo $link['icon']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG defined above, not user input. ?></svg>
+									<span><?php echo esc_html( $link['label'] ); ?></span>
+								</a>
+							<?php endforeach; ?>
+							<button type="button" class="share-option share-copy" data-url="<?php echo esc_url( $share_url ); ?>" data-copied-label="<?php esc_attr_e( 'لینک کپی شد', 'shola-jawid' ); ?>">
+								<svg class="glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.9 3.5a5 5 0 0 1 7.07 7.07l-2.5 2.5a5 5 0 0 1-7.07 0 1 1 0 1 1 1.41-1.41 3 3 0 0 0 4.25 0l2.5-2.5a3 3 0 0 0-4.25-4.25l-1.2 1.2a1 1 0 1 1-1.41-1.42l1.2-1.19Zm-1.8 17a5 5 0 0 1-7.07-7.07l2.5-2.5a5 5 0 0 1 7.07 0 1 1 0 1 1-1.41 1.41 3 3 0 0 0-4.25 0l-2.5 2.5a3 3 0 0 0 4.25 4.25l1.2-1.2a1 1 0 1 1 1.41 1.42l-1.2 1.19Z"/></svg>
+								<span class="share-copy-label"><?php esc_html_e( 'کپی لینک', 'shola-jawid' ); ?></span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

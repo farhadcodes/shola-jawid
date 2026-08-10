@@ -68,6 +68,74 @@
     reveals.forEach(function (el) { el.classList.add("is-in"); });
   }
 
+  /* ---------- منوی اشتراک‌گذاری (single.php) ---------- */
+  var shareMenus = document.querySelectorAll(".share-menu");
+  shareMenus.forEach(function (menu) {
+    var trigger  = menu.querySelector(".share-trigger");
+    var dropdown = menu.querySelector(".share-dropdown");
+    if (!trigger || !dropdown) return;
+
+    function closeShare() {
+      dropdown.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+    function openShare() {
+      dropdown.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+    }
+
+    trigger.addEventListener("click", function () {
+      if (dropdown.classList.contains("is-open")) closeShare(); else openShare();
+    });
+    document.addEventListener("click", function (e) {
+      if (!menu.contains(e.target)) closeShare();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && dropdown.classList.contains("is-open")) {
+        closeShare();
+        trigger.focus();
+      }
+    });
+
+    var copyBtn = dropdown.querySelector(".share-copy");
+    if (copyBtn) {
+      var label      = copyBtn.querySelector(".share-copy-label");
+      var origText   = label ? label.textContent : "";
+      var copiedText = copyBtn.getAttribute("data-copied-label") || origText;
+
+      function showCopied() {
+        if (!label) return;
+        label.textContent = copiedText;
+        setTimeout(function () { label.textContent = origText; }, 2000);
+      }
+
+      /* Legacy fallback for contexts without the async Clipboard API
+         (e.g. non-HTTPS — this API requires a secure context). Still
+         widely supported despite being deprecated, and needs no
+         permission prompt. */
+      function copyFallback(text) {
+        var input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        try { document.execCommand("copy"); showCopied(); } catch (err) { /* no-op: nothing more we can do */ }
+        document.body.removeChild(input);
+      }
+
+      copyBtn.addEventListener("click", function () {
+        var url = copyBtn.getAttribute("data-url") || "";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(showCopied, function () { copyFallback(url); });
+        } else {
+          copyFallback(url);
+        }
+      });
+    }
+  });
+
   /* ---------- نوار پیشرفت خواندن (فقط در مقالهٔ تکی) ---------- */
   var bar     = document.querySelector(".progress-bar");
   var article = document.querySelector("[data-progress-scope]");

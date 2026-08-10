@@ -1058,6 +1058,52 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .article-footer .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; }
 .article-footer .meta-mono { margin-bottom: .5rem; }
 
+/*
+ * Share menu (2026-08-08): dropdown triggered by the اشتراک link-more
+ * button, replacing the previously non-functional ذخیره/اشتراک pair —
+ * ذخیره removed entirely (no reader-account system to back a real save
+ * feature, per Farhad). Icon treatment matches .footer-social a (same
+ * 24x24 viewBox glyph, currentColor, hover → crimson) for visual
+ * consistency with the site's existing social icons.
+ */
+.share-menu { position: relative; }
+.share-trigger { background: transparent; border: 0; cursor: pointer; }
+.share-dropdown {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + .5rem);
+  z-index: 20;
+  min-width: 11rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+  padding: .5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+/* Progressive enhancement (CLAUDE.md §5 — must work without JS): only
+   hidden-by-default when JS confirmed active (.js on <html>, set by an
+   inline script in header.php before first paint); no-JS visitors see
+   the share links as a plain static list under the trigger instead. */
+.js .share-dropdown { display: none; }
+.js .share-dropdown.is-open { display: flex; }
+.share-option {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .5rem .6rem;
+  font-family: var(--font-fa);
+  font-size: var(--t-small);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: start;
+  width: 100%;
+}
+.share-option .glyph { width: 1.1rem; height: 1.1rem; flex-shrink: 0; color: var(--stone); }
+.share-option:hover { background: var(--cream); color: var(--crimson); }
+.share-option:hover .glyph { color: var(--crimson); }
+
 /* Related essays rail — reuses card anatomy */
 .related-rail {
   margin-top: 5rem;
