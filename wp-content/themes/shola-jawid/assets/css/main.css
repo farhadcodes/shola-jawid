@@ -477,7 +477,11 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 .menu-topic--c5 { color: #5C2020; }   /* mid */
 .menu-topic--c6 { color: #7D1818; }   /* mid-deep */
 
-.menu-social { display: flex; gap: .6rem; margin-bottom: 2rem; }
+/* flex-wrap added 2026-08-08: up to 11 platform icons + RSS can now
+   render here (expanded from a fixed 3), so this needs to wrap onto
+   multiple lines in the narrow .menu-side column rather than overflow
+   or force a horizontal scrollbar. */
+.menu-social { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 2rem; }
 .menu-social a {
   display: inline-flex; align-items: center; justify-content: center;
   width: 2.25rem; height: 2.25rem;
@@ -1422,7 +1426,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 }
 .footer-social {
   margin-top: 1.5rem;
-  display: flex; gap: .75rem;
+  display: flex; flex-wrap: wrap; gap: .75rem;
 }
 .footer-social a {
   display: inline-flex; align-items: center; justify-content: center;

@@ -3418,3 +3418,62 @@ trail of *why* the build deviated from — or newly applied — a rule in
   through footer) to confirm no newsletter band anywhere in the flow.
   phpcs clean (26 files, 0 errors/warnings).
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-10
+- **Changed:** D1's `Social_Links_Settings` expanded from 2 platforms
+  (Telegram, X) to a fixed list of 11 — Facebook, Instagram, WhatsApp,
+  YouTube, LinkedIn, TikTok, Threads, Signal, and Mastodon added,
+  per Farhad's request after reviewing the original settings screen
+  and wanting more flexibility. RSS remains automatic via
+  `get_feed_link()`, not a field — unchanged from D1.
+  Implementation: `get_platforms()` is now a single data-driven
+  array (key => Persian label) that both `register_setting()`'s
+  sanitize callback and `render_settings_page()`'s field loop read
+  from, rather than repeating per-field markup/logic 11 times.
+  Reading remains migration-safe by construction — `get_links()`
+  merges stored data over current defaults via `wp_parse_args()`, so
+  a site that only ever saved the original 2 keys keeps those values
+  and gets empty strings (= not shown) for the 9 new ones. Verified
+  this merge logic directly against simulated old-shape data before
+  finalizing.
+  **Icons**: reused the 4 existing hand-drawn icons already in the
+  codebase (Telegram, X, Facebook, WhatsApp — Facebook/WhatsApp were
+  added earlier this project for the article share-menu, RSS is
+  unchanged). Hand-drew 7 new icons in the same minimal single-path
+  style (`fill="currentColor"`, 24×24 viewBox, no strokes, not
+  official brand exports) for Instagram, YouTube, LinkedIn, TikTok,
+  Threads, Signal, Mastodon — used `fill-rule="evenodd"` for the
+  compound "ring" icons (Instagram, YouTube, LinkedIn, Signal,
+  Mastodon) to build the hole/ring shapes reliably instead of
+  hand-tracing path winding direction. Threads' icon is an abstract
+  circular mark, not a faithful logo replica — the real Threads
+  glyph doesn't reduce cleanly to this project's simplified
+  single-path style, and the project's existing icon bar (see B2)
+  already established "simplified, not pixel-perfect" as the
+  standard. All 11 + RSS verified rendering correctly, consistent
+  weight/style, in both the footer and popup-menu contexts via
+  screenshot.
+  `shola_get_social_links()` (theme `template-tags.php`) rewritten
+  to build its icon/URL map by looping `Social_Links_Settings::
+  get_platforms()` (falling back to a 2-platform array if the
+  plugin class is missing, per `CLAUDE.md` §2 graceful-degradation),
+  appending RSS, then applying the existing empty-URL filter
+  uniformly across all 11 — confirmed this is a single enforcement
+  point, not per-platform logic that could drift.
+  `.menu-social` and `.footer-social` (`main.css`) gained
+  `flex-wrap: wrap` — up to 12 icons (11 + RSS) now wraps onto a
+  second row in both the popup menu's narrow column and the footer,
+  instead of overflowing; confirmed via screenshot at both spots.
+  **Process note, disclosed to Farhad in full:** during this
+  session's live verification, the `shcore_social_links` option was
+  overwritten with test data across three separate test scripts
+  without first checking its live value. WordPress options aren't
+  versioned, so if Farhad had entered any real values between D1's
+  release and this session, they are not recoverable. The option has
+  been reset to all-empty (matching D1's original released state) as
+  the only honest safe state to leave it in; Farhad needs to
+  re-enter/confirm any social URLs via Settings → شبکه‌های اجتماعی.
+  Flagging this here per this file's own convention — an honest
+  process gap, not glossed over.
+  phpcs clean on all 3 changed files.
+  Approved by: Farhad, in this session (2026-08-10).

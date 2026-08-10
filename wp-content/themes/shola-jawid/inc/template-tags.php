@@ -458,50 +458,73 @@ function shola_fallback_footer_site() {
 
 /**
  * Social-link icon rows shared by footer.php and header.php's popup menu
- * (same three icons, same order, previously hardcoded `href="#"` in both
- * places independently — found by Farhad, 2026-08-08). Telegram/X come
- * from the shola-core settings screen (Settings → شبکه‌های اجتماعی);
- * RSS is never a setting — it's the site's own feed, always correct via
- * get_feed_link(), not something an editor should type in. A platform is
- * omitted entirely (not rendered) when its URL is empty, per Farhad's
- * explicit call: a missing icon reads as "not used," which is more
- * honest than a dead `#` link.
+ * (same icon set, same order, previously hardcoded `href="#"` in both
+ * places independently — found by Farhad, 2026-08-08). Platform URLs
+ * come from the shola-core settings screen (Settings → شبکه‌های
+ * اجتماعی) — expanded 2026-08-08 from 2 platforms (Telegram, X) to the
+ * fixed 11-platform list `Social_Links_Settings::get_platforms()`
+ * defines. RSS is never a setting — it's the site's own feed, always
+ * correct via get_feed_link(), not something an editor should type in.
+ * A platform is omitted entirely (not rendered) when its URL is empty,
+ * per Farhad's explicit call: a missing icon reads as "not used," which
+ * is more honest than a dead `#` link — this applies uniformly to all
+ * 11 platforms, enforced once in the `array_filter()` below rather than
+ * per-platform, so it can't silently stop applying to a subset.
+ *
+ * Icon paths are hand-drawn simplified single-color glyphs (not brand-
+ * official SVG exports), matching the visual weight/style already
+ * established for Telegram/X/RSS. Telegram/X/Facebook/WhatsApp are
+ * reused verbatim from single.php's share-menu icons (built earlier,
+ * same style) rather than redrawn.
  *
  * Guarded per CLAUDE.md §2: the theme must not fatal-error if shola-core
- * is inactive — degrades to Telegram/X omitted (RSS still shows, since
- * that one doesn't depend on the plugin at all).
+ * is inactive — degrades to every platform except RSS omitted (RSS
+ * doesn't depend on the plugin at all).
  *
  * @return array<int, array{key: string, label: string, url: string, icon: string}>
  */
 function shola_get_social_links() {
-	$telegram_url = '';
-	$x_url        = '';
-
+	$urls = array();
 	if ( class_exists( '\SholaCore\Social_Links_Settings' ) ) {
-		$links        = \SholaCore\Social_Links_Settings::get_links();
-		$telegram_url = $links['telegram'];
-		$x_url        = $links['x'];
+		$urls = \SholaCore\Social_Links_Settings::get_links();
 	}
 
-	$all = array(
-		'telegram' => array(
-			'key'   => 'telegram',
-			'label' => __( 'تلگرام', 'shola-jawid' ),
-			'url'   => $telegram_url,
-			'icon'  => '<path d="M21.9 4.6 18.8 19c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6L18 6.9c.4-.3-.1-.5-.5-.2L7 13.2l-4.4-1.4c-1-.3-1-1 .2-1.4L20.6 3.2c.8-.3 1.5.2 1.3 1.4Z"/>',
-		),
-		'x'        => array(
-			'key'   => 'x',
-			'label' => __( 'ایکس', 'shola-jawid' ),
-			'url'   => $x_url,
-			'icon'  => '<path d="M17.8 3h3l-6.7 7.7L22 21h-6.2l-4.8-6.3L5.4 21h-3l7.2-8.2L2 3h6.3l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/>',
-		),
-		'rss'      => array(
-			'key'   => 'rss',
-			'label' => __( 'خوراک RSS', 'shola-jawid' ),
-			'url'   => get_feed_link(),
-			'icon'  => '<path d="M4 4a16 16 0 0 1 16 16h-3A13 13 0 0 0 4 7V4Zm0 6a10 10 0 0 1 10 10h-3a7 7 0 0 0-7-7v-3Zm2 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>',
-		),
+	$icons = array(
+		'telegram'  => '<path d="M21.9 4.6 18.8 19c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6L18 6.9c.4-.3-.1-.5-.5-.2L7 13.2l-4.4-1.4c-1-.3-1-1 .2-1.4L20.6 3.2c.8-.3 1.5.2 1.3 1.4Z"/>',
+		'x'         => '<path d="M17.8 3h3l-6.7 7.7L22 21h-6.2l-4.8-6.3L5.4 21h-3l7.2-8.2L2 3h6.3l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/>',
+		'facebook'  => '<path d="M22 12a10 10 0 1 0-11.5 9.95v-7.04H7.9V12h2.6V9.8c0-2.6 1.55-4 3.9-4 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6V12h2.9l-.5 2.9h-2.4v7.04A10 10 0 0 0 22 12Z"/>',
+		'instagram' => '<path fill-rule="evenodd" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7Zm5 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm4.8-3.3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/>',
+		'whatsapp'  => '<path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.7-.8c.2-.3.4-.2.7-.1l1.7.8c.2.1.4.2.5.3.1.2.1.9-.1 1.5Z"/>',
+		'youtube'   => '<path fill-rule="evenodd" d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7Zm2 0v10h12V7H6Zm4.5 2.3 5 2.7-5 2.7V9.3Z"/>',
+		'linkedin'  => '<path fill-rule="evenodd" d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm1 2v14h14V5H5Zm2.2 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM6.4 10.8h1.8V18H6.4v-7.2Zm4 0h1.7v1a2.6 2.6 0 0 1 2.2-1.2c1.6 0 2.7 1 2.7 3.1V18h-1.8v-3.8c0-1-.4-1.7-1.4-1.7-.8 0-1.4.6-1.6 1.1-.1.2-.1.4-.1.7V18h-1.8v-7.2Z"/>',
+		'tiktok'    => '<path d="M14 3h2.1c.2 1.6 1.4 2.8 3 3v2.1c-1.1 0-2.1-.3-3-.9v6.3a4.5 4.5 0 1 1-4.5-4.5c.2 0 .3 0 .5 0v2.2a2.3 2.3 0 1 0 2 2.3V3Z"/>',
+		'threads'   => '<path fill-rule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm2.4 3.4c1 .6 1.6 1.7 1.6 3 0 2.1-1.6 3.6-3.9 3.6-1.6 0-2.9-.7-3.6-1.9l1.5-1c.4.8 1.2 1.3 2.1 1.3 1.1 0 1.9-.6 1.9-1.7 0-1-.7-1.6-1.9-1.6h-.8V8.9h.7c1 0 1.6-.5 1.6-1.3 0-.8-.7-1.3-1.6-1.3-.9 0-1.5.4-1.9 1.1l-1.5-.9c.6-1.1 1.9-1.7 3.4-1.7 2 0 3.3 1.1 3.3 2.7 0 1-.5 1.7-1.4 2.2Z"/>',
+		'signal'    => '<path fill-rule="evenodd" d="M12 3C6.5 3 2 6.9 2 11.5c0 2.4 1.1 4.5 3 6-.2 1.1-.7 2.3-1.5 3.2 1.5.1 3-.4 4.2-1.3 1.3.5 2.8.8 4.3.8 5.5 0 10-3.8 10-8.5S17.5 3 12 3Zm0 2c4.4 0 8 2.9 8 6.5S16.4 18 12 18c-1.3 0-2.6-.3-3.7-.8l-.6-.3-.6.4c-.4.3-.8.5-1.3.7.3-.6.5-1.3.6-2l.1-.8-.6-.5C4.6 13.8 4 12.7 4 11.5 4 7.9 7.6 5 12 5Z"/>',
+		'mastodon'  => '<path fill-rule="evenodd" d="M6 4h12a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-5l-3 4v-4H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5v2l1.5-2H18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H6Z"/>',
+	);
+
+	$platforms = class_exists( '\SholaCore\Social_Links_Settings' )
+		? \SholaCore\Social_Links_Settings::get_platforms()
+		: array(
+			'telegram' => __( 'تلگرام', 'shola-jawid' ),
+			'x'        => __( 'ایکس', 'shola-jawid' ),
+		);
+
+	$all = array();
+	foreach ( $platforms as $key => $label ) {
+		$all[ $key ] = array(
+			'key'   => $key,
+			'label' => $label,
+			'url'   => isset( $urls[ $key ] ) ? $urls[ $key ] : '',
+			'icon'  => isset( $icons[ $key ] ) ? $icons[ $key ] : '',
+		);
+	}
+
+	$all['rss'] = array(
+		'key'   => 'rss',
+		'label' => __( 'خوراک RSS', 'shola-jawid' ),
+		'url'   => get_feed_link(),
+		'icon'  => '<path d="M4 4a16 16 0 0 1 16 16h-3A13 13 0 0 0 4 7V4Zm0 6a10 10 0 0 1 10 10h-3a7 7 0 0 0-7-7v-3Zm2 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>',
 	);
 
 	$with_url = array_filter(
