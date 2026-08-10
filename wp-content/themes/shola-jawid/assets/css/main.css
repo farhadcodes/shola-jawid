@@ -777,7 +777,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   display: block;
   width: 100%;
   height: calc(100vh - 128px);
-  height: calc(100dvh - 128px);
+  height: calc(100dvh - var(--masthead-h, 128px));
   min-height: 240px;
   max-height: 900px;
   overflow: hidden;
@@ -786,7 +786,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 @media (max-width: 900px) and (max-height: 500px) {
   /* Short landscape screens (phones rotated) — header eats proportionally more
      of the viewport, so ease off the subtraction to avoid a taller-than-screen total */
-  .hero-media { height: calc(100vh - 120px); height: calc(100dvh - 120px); min-height: 180px; }
+  .hero-media { height: calc(100vh - 120px); height: calc(100dvh - var(--masthead-h, 120px)); min-height: 180px; }
 }
 .hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -816,6 +816,24 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   bottom: 0;
   z-index: 3;
   padding-block-end: 5rem;
+}
+@media (max-width: 720px) {
+  /* Mobile hero text overlay (2026-08-08, Farhad): confine the badge/
+     title/dek/byline block to the lower-middle-to-bottom band of the
+     photo — not flush against the very bottom edge — so a long,
+     multi-line headline has room to grow upward within the image
+     instead of relying on the block being exactly the right height.
+     .hero-lead::before/::after (gray wash + dark gradient) already
+     cover the full image, so the existing scrim still grounds text
+     anywhere in this band without any change needed there. */
+  .hero-lead > .wrap {
+    top: 42%;
+    bottom: 0;
+    padding-block-end: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
 }
 .hero-body {
   margin-top: 0;

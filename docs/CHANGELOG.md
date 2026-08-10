@@ -3077,3 +3077,67 @@ trail of *why* the build deviated from — or newly applied — a rule in
     genuinely visible, not just assumed).
     phpcs clean on `single.php`.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — B4 revisited: real overlay positioning + root cause of the overflow
+
+- **Fixed:** the earlier B4 `dvh` fix addressed the mobile-address-bar
+  viewport quirk but wasn't sufficient — Farhad's follow-up, with a
+  screenshot circling the target area, made clear the actual ask was
+  (a) confining the title/badge/dek/byline block to a specific
+  lower-middle-to-bottom band as a genuine overlay, not just fixing the
+  container's total height, and (b) that the overflow was still
+  happening.
+  **Found the real, more fundamental cause while re-investigating**:
+  `.hero-media`'s height formula (`calc(100dvh - 128px)`) subtracts a
+  *hardcoded* masthead-height constant that doesn't necessarily match
+  the masthead's actual rendered position — confirmed directly: with
+  the wp-admin toolbar showing (this session's browser is logged in;
+  `body` class included `admin-bar`), the real space consumed above
+  the hero was measured at ~169px, not 128px, a ~41px gap that
+  reproduced the exact overflow amount independent of the vh/dvh
+  toolbar issue entirely — a logged-in visitor (or any other drift
+  between the constant and reality) would overflow the viewport no
+  matter how correctly `dvh` behaves.
+  **Fix, two parts:**
+  1. `main.js`: added a small measurement that reads the masthead's
+     *actual* `getBoundingClientRect().bottom` (not `.height` — a fixed
+     admin-bar sitting above the masthead changes its distance from the
+     viewport top without changing the masthead element's own height,
+     so `.bottom` is what's actually needed) and exposes it as
+     `--masthead-h` on `<html>`, updated on load and resize. `main.css`
+     now reads `calc(100dvh - var(--masthead-h, 128px))`, falling back
+     to the old hardcoded constant if JS hasn't run yet or is disabled.
+  2. `main.css`, mobile only (`@media max-width: 720px`): repositioned
+     `.hero-lead > .wrap` from a pure `bottom: 0` anchor to `top: 42%;
+     bottom: 0;` with `display: flex; flex-direction: column;
+     justify-content: flex-end;` — confines the text block to the
+     lower ~58% of the image (matching the circled reference) while
+     letting a long, multi-line headline grow *upward* within that
+     band instead of depending on getting the block's exact height
+     right. The existing gray-wash + dark-gradient scrim
+     (`.hero-lead::before`/`::after`) already covers the full image
+     and needed no changes to keep working for text positioned higher
+     in the band. Desktop is untouched — both changes are scoped to
+     the mobile media query and the `--masthead-h` var (which desktop
+     already effectively had via the old hardcoded constant, just now
+     accurate instead of guessed).
+  **Verified at an exact iPhone 16 Pro Max viewport (430×932)**, not
+  an approximate one — headless Chrome's `--window-size` flag turned
+  out to apply Windows display-scaling and silently produced a 504px-
+  wide viewport instead of 430px on this machine (caught by checking
+  `window.innerWidth` rather than trusting the flag); switched to
+  driving Chrome DevTools Protocol's `Emulation.setDeviceMetricsOverride`
+  directly to force the exact viewport, confirmed via
+  `window.innerWidth`/`innerHeight` before every screenshot.
+  - Current (short) headline: fits fully within the image, no scroll
+    needed, confirmed both via `getBoundingClientRect()` math
+    (`heroMediaBottom` now equals `innerHeight` exactly, `bylineBottom
+    < innerHeight`) and a real screenshot.
+  - **Long-headline stress test**: temporarily set post 21's title to
+    an intentionally long 5-line-wrapping headline, screenshotted —
+    grew upward within the image as designed, dek and byline still
+    fully visible at the bottom, no scroll required — then reverted
+    the title back to its original text immediately after.
+  - Desktop screenshot confirmed unchanged (still the original
+    flush-bottom overlay treatment).
+  Approved by: Farhad, in this session (2026-08-08).

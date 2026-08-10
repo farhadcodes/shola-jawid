@@ -3,6 +3,32 @@
 (function () {
   "use strict";
 
+  /* ---------- ارتفاع واقعی هدر برای هیرو (main.css §10) ----------
+     .hero-media's height subtracts a hardcoded masthead-height constant
+     — found (2026-08-08) to drift from the masthead's *actual* rendered
+     height (e.g. the wp-admin toolbar adds extra height above it for
+     logged-in visitors, and the constant was never meant to account for
+     that), pushing the hero taller than the viewport and the bottom-
+     anchored title below the fold on mobile. Measuring the real height
+     and exposing it as a CSS custom property is more robust than
+     guessing a bigger constant. Falls back to the CSS default (128px)
+     until this runs, and if JS is disabled entirely. */
+  var masthead = document.querySelector(".masthead");
+  if (masthead) {
+    var setMastheadHeightVar = function () {
+      /* .bottom, not .height: a logged-in wp-admin toolbar (fixed,
+         pushes <body> down via margin) sits above the masthead without
+         changing the masthead element's own height — .bottom captures
+         that offset too, since it's measured from the viewport top. */
+      document.documentElement.style.setProperty(
+        "--masthead-h",
+        masthead.getBoundingClientRect().bottom + "px"
+      );
+    };
+    setMastheadHeightVar();
+    window.addEventListener("resize", setMastheadHeightVar);
+  }
+
   /* ---------- منوی بازشو (پاپ‌آپ کل‌صفحه) ---------- */
   var menuOpen  = document.getElementById("menu-open");
   var menuClose = document.getElementById("menu-close");
