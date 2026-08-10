@@ -2740,3 +2740,76 @@ trail of *why* the build deviated from — or newly applied — a rule in
   possible) if that wasn't the intended outcome.
   phpcs clean on `inc/setup.php`.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — Phase A: Afghan Dari Jalali month names (site-wide correctness fix)
+
+- **Fixed:** Farhad's full manual walkthrough of the live site and
+  wp-admin (first amendment round after Phase 7 close-out) surfaced a
+  site-wide correctness bug: every Jalali date rendered the Iranian Solar
+  Hijri month names (فروردین, اردیبهشت, خرداد, ...) via the Persian
+  Calendar plugin, when this site needs the Afghan Dari names (حمل,
+  ثور, جوزا, ...) instead, matching the project's `fa_AF` locale
+  identity (the same reasoning that ruled out ParsiDate back in Phase
+  5.5 — see that entry for the full history).
+  **Investigated before implementing, per Farhad's request:** read
+  Persian Calendar's actual source rather than assuming. Confirmed it
+  has **no** built-in Afghan/Dari variant — three independent checks,
+  all negative: (1) the 12 Iranian names live in a hardcoded,
+  non-`apply_filters()`-wrapped `private $months_fa` property on its
+  date-converter class; (2) its complete settings list
+  (`class-persca-admin.php::get_default_settings()`) has no locale/
+  dialect/variant field; (3) its only locale-related gate anywhere in
+  the plugin is `is_rtl()` — it never calls `get_locale()`, so it can't
+  distinguish `fa_AF` from `fa_IR` (consistent with why it was chosen
+  over ParsiDate in the first place). Also confirmed its actual
+  rendering mechanism: it hooks six WordPress-core filters —
+  `date_i18n`, `wp_date`, `get_comment_date`, `get_comment_time`,
+  `get_the_modified_date`, `get_the_modified_time` — all at priority 10,
+  doing its own internal Gregorian→Jalali conversion and building the
+  final string itself (it does not touch `$wp_locale->month`), so those
+  six filters are the only stable interception points available without
+  forking the plugin.
+  **Approach (approved by Farhad before implementation):** added
+  `shola_convert_jalali_months_to_dari()` (`inc/template-tags.php`),
+  registered on the same six filters at **priority 20** (after the
+  plugin's conversion), doing a single-pass `strtr()` swap of all 12
+  Iranian month names to their Dari equivalents on whatever string comes
+  back. Deliberately anchored to the plugin's *public* contract — that
+  it filters these six hooks and outputs literal Persian month-name
+  strings — rather than any private property/method, since changing
+  that public behavior would break Persian Calendar for its whole
+  non-Afghan user base too, not just this site. This is exactly what
+  makes the fix survive plugin updates instead of reverting with them,
+  per Farhad's explicit requirement (and exactly the risk category the
+  ParsiDate/regional_settings incidents in Phase 5.5 already burned this
+  project on once).
+  **Surface area, found by grep and independently re-verified:** despite
+  sounding like it could touch dozens of files, only 7 call sites across
+  5 files actually render a Jalali month name — `archive-announcement.php`,
+  `front-page.php` (×3: hero byline, current-issue date, announcements
+  list), `inc/template-tags.php`'s `shola_get_masthead_runner()` (site-
+  wide, every page header), `template-parts/search/result.php`, and
+  `template-parts/cards/card.php` (shared by the homepage grid,
+  `taxonomy-topic.php`, and `single.php`'s related-essays rail). Every
+  other date-rendering spot in the theme (`single-issue.php`,
+  `single-document.php`, `taxonomy-publication.php`,
+  `issue-card.php`, and the `shola_get_english_month_abbr()`/
+  `shola_get_gregorian_year()` helpers) was already hardened back on
+  2026-08-06 to bypass Jalali conversion entirely (Gregorian mono-label
+  dates) — confirmed still out of scope, not re-touched.
+  **Verified, not assumed:** direct PHP-level unit check of the filter
+  function against all 12 month pairs (all correct); confirmed via the
+  real site database that Persian Calendar's callback is registered at
+  priority 10 and this theme's at priority 20 on `date_i18n` (correct
+  run order); a real `get_the_date()` call against a live post returned
+  the Dari month. Live-checked all 7 call sites, including — per
+  Farhad's specific ask — `card.php` on **three different consuming
+  pages** (homepage grid, `taxonomy-topic.php`'s topic archive, and
+  `single.php`'s related-essays rail), not just wherever it was first
+  tested, confirming both "اسد" (مرداد) and "سرطان" (تیر) render
+  correctly across different months, not just one repeated case. Ran a
+  site-wide sweep (fetching `/`, `/announcements/`, a topic archive, a
+  search results page, and a publication archive, checking each page's
+  raw HTML for all 12 Iranian month names as whole words) and confirmed
+  zero leftover instances anywhere sampled. phpcs clean.
+  Approved by: Farhad, in this session (2026-08-08).

@@ -110,6 +110,61 @@ function shola_get_iso_datetime( $post = null ) {
 }
 
 /**
+ * Rewrites Jalali month names from the Iranian variant (فروردین,
+ * اردیبهشت, ...) that the Persian Calendar plugin hardcodes, to the
+ * Afghan Dari variant (حمل, ثور, ...) this site actually needs — found by
+ * Farhad (2026-08-08), site-wide, matching the project's `fa_AF` locale
+ * identity (CLAUDE.md, and the same reasoning that ruled out ParsiDate
+ * for this project back in Phase 5.5).
+ *
+ * Persian Calendar has no built-in setting/filter for this (confirmed by
+ * reading its source: the 12 names live in a hardcoded, non-filterable
+ * `private $months_fa` property, and the plugin's only locale check
+ * anywhere is `is_rtl()`, never `get_locale()`). Its month names only
+ * ever reach a page as a substring of what it returns from the six
+ * WordPress-core filters it hooks (`date_i18n`, `wp_date`,
+ * `get_comment_date`, `get_comment_time`, `get_the_modified_date`,
+ * `get_the_modified_time` — all at its own priority 10), so those are
+ * the only stable interception points available without forking the
+ * plugin. Registered at priority 20 (after the plugin's conversion) on
+ * the same six hooks, doing a single-pass `strtr()` swap on the
+ * resulting string.
+ *
+ * Deliberately anchored to the plugin's *public* contract (that it
+ * filters these six hooks and outputs literal Persian month-name
+ * strings) rather than any internal method/property — that public
+ * contract is exactly what an update can't change without breaking the
+ * plugin for its whole non-Afghan user base too, which is what makes
+ * this survive plugin updates instead of reverting with them.
+ *
+ * @param string $formatted_date The date string as already formatted
+ *                                (and possibly Jalali-converted) by
+ *                                WordPress core / Persian Calendar.
+ * @return string
+ */
+function shola_convert_jalali_months_to_dari( $formatted_date ) {
+	static $map = array(
+		'فروردین'  => 'حمل',
+		'اردیبهشت' => 'ثور',
+		'خرداد'    => 'جوزا',
+		'تیر'      => 'سرطان',
+		'مرداد'    => 'اسد',
+		'شهریور'   => 'سنبله',
+		'مهر'      => 'میزان',
+		'آبان'     => 'عقرب',
+		'آذر'      => 'قوس',
+		'دی'       => 'جدی',
+		'بهمن'     => 'دلو',
+		'اسفند'    => 'حوت',
+	);
+	return strtr( $formatted_date, $map );
+}
+foreach ( array( 'date_i18n', 'wp_date', 'get_comment_date', 'get_comment_time', 'get_the_modified_date', 'get_the_modified_time' ) as $shola_jalali_hook ) {
+	add_filter( $shola_jalali_hook, 'shola_convert_jalali_months_to_dari', 20 );
+}
+unset( $shola_jalali_hook );
+
+/**
  * Site-wide featured-image fallback (Phase 4.2, logged in
  * docs/CHANGELOG.md and CLAUDE.md 2026-08-06): drop-in replacement for
  * get_the_post_thumbnail() — same signature, same return type (an <img>
