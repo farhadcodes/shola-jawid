@@ -3477,3 +3477,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   process gap, not glossed over.
   phpcs clean on all 3 changed files.
   Approved by: Farhad, in this session (2026-08-10).
+
+- **Changed:** Site-wide featured-image fallback asset
+  (`assets/images/fallback.png`, used by `shola_get_featured_image()`
+  per `CLAUDE.md` §5) swapped for Farhad's new gray version. Pure
+  asset replacement, same filename/path, no code changes — old file
+  was 1536×1024, new file is 1200×800, same 3:2 aspect ratio, so
+  `object-fit: cover` crops it the same way everywhere it's already
+  used (front-page grid, card partials, single templates). Verified
+  live on the front page: two posts with no featured image
+  ("Hello world!" and قالین‌بافان...) both render the new file
+  correctly at its native 1200×800.
+  Approved by: Farhad, in this session (2026-08-10).
