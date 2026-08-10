@@ -57,23 +57,6 @@
     }
   });
 
-  /* ---------- کلید زبان (نمایشی) ----------
-     در وردپرس: به آیتم متناظر en/ پیوند داده می‌شود. */
-  var langToggle = document.getElementById("lang-toggle");
-  if (langToggle) {
-    langToggle.addEventListener("click", function () {
-      var html = document.documentElement;
-      var toEn = html.getAttribute("dir") === "rtl";
-      html.setAttribute("dir",  toEn ? "ltr" : "rtl");
-      html.setAttribute("lang", toEn ? "en"  : "fa");
-      langToggle.textContent = toEn ? "FA" : "EN";
-      langToggle.setAttribute(
-        "aria-label",
-        toEn ? "تغییر به فارسی" : "Switch to English"
-      );
-    });
-  }
-
   /* ---------- اسکرول‌ریویل ---------- */
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var reveals = document.querySelectorAll(".reveal");

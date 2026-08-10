@@ -1391,36 +1391,6 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 }
 
 /* -------------------------------------------------------------------------
-   ۱۸ · Newsletter band (subtle tint, not crimson)
-   ------------------------------------------------------------------------- */
-.newsletter {
-  background: var(--crimson-tint);
-  padding-block: 3.5rem;
-}
-.newsletter-inner {
-  display: grid; gap: 2rem;
-  grid-template-columns: 1fr;
-  align-items: center;
-}
-@media (min-width: 900px) {
-  .newsletter-inner { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
-}
-.newsletter h2 { color: var(--crimson-deep); }
-/* WP conversion (Phase 4.2): replaces an inline style="" on
-   body-index.html's newsletter dek. */
-.newsletter .dek { margin-top: 1rem; max-width: 500px; }
-.newsletter-form {
-  display: flex; gap: .75rem; flex-direction: column;
-}
-@media (min-width: 500px) { .newsletter-form { flex-direction: row; } }
-.newsletter-form .field {
-  background: var(--paper);
-  border-color: color-mix(in oklab, var(--crimson) 30%, transparent);
-}
-.newsletter-form .field:focus { border-color: var(--crimson); }
-.newsletter-form .btn { flex-shrink: 0; }
-
-/* -------------------------------------------------------------------------
    ۱۹ · Footer — quiet, thin, paper-based
    ------------------------------------------------------------------------- */
 .footer {

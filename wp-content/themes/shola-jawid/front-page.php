@@ -5,7 +5,10 @@
  * Converted from 03_UI_Design/shola-jawid-ui/pages/body-index.html
  * (Phase 4.2): hero, latest grid (articles + the confirmed document-in-
  * card exception, see docs/CHANGELOG.md 2026-08-06), current issue,
- * topics table, latest documents, announcements, newsletter band.
+ * topics table, latest documents, announcements. (The original
+ * conversion also had a newsletter signup band; removed 2026-08-08 per
+ * Farhad — no working subscription mechanism ever existed behind it,
+ * see docs/CHANGELOG.md.)
  * Zero inline style="" attributes — all replaced with classes already in
  * assets/css/main.css or added during this conversion (see the "WP
  * conversion (Phase 4.2)" comments in that file).
@@ -272,24 +275,5 @@ $announcements_query = new WP_Query(
 		</ul>
 	</section>
 <?php endif; ?>
-
-<section class="newsletter" aria-label="<?php esc_attr_e( 'خبرنامه', 'shola-jawid' ); ?>">
-	<div class="wrap newsletter-inner">
-		<div>
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'هر شمارهٔ تازه، در صندوق شما', 'shola-jawid' ); ?></h2>
-			</div>
-			<p class="dek"><?php esc_html_e( 'اعلان انتشار شماره‌های تازه و مقالات برگزیده؛ ماهی یک بار، بدون هرزنامه؛ لغو اشتراک با یک کلیک.', 'shola-jawid' ); ?></p>
-		</div>
-		<form action="#" method="post" aria-label="<?php esc_attr_e( 'عضویت در خبرنامه', 'shola-jawid' ); ?>">
-			<label class="label" for="nl-email"><?php esc_html_e( 'نشانی ایمیل', 'shola-jawid' ); ?></label>
-			<div class="newsletter-form">
-				<input class="field" type="email" id="nl-email" name="email" dir="ltr" placeholder="you@example.com" autocomplete="email" required>
-				<button class="btn btn-primary" type="submit"><?php esc_html_e( 'عضویت', 'shola-jawid' ); ?></button>
-			</div>
-		</form>
-	</div>
-</section>
 
 <?php get_footer(); ?>

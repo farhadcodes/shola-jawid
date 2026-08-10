@@ -74,8 +74,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<a href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>" class="mast-btn hide-mobile"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
 			<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="mast-btn hide-mobile"><?php esc_html_e( 'تماس', 'shola-jawid' ); ?></a>
-			<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
-			<button type="button" id="lang-toggle" class="mast-btn" aria-label="Switch to English">EN</button>
 		</div>
 
 	</div>
@@ -94,7 +92,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="menu-grid">
 
 		<nav aria-label="<?php esc_attr_e( 'موضوعات', 'shola-jawid' ); ?>">
-			<p class="menu-section-title" lang="en">Topics · موضوعات</p>
+			<p class="menu-section-title"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></p>
 			<ul class="menu-topics">
 				<?php foreach ( shola_get_topic_slugs_ordered() as $slug ) : ?>
 					<?php
@@ -116,7 +114,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<nav aria-label="<?php esc_attr_e( 'بخش‌های سایت', 'shola-jawid' ); ?>">
-				<p class="menu-section-title" lang="en">Sections · بخش‌ها</p>
+				<p class="menu-section-title"><?php esc_html_e( 'بخش‌ها', 'shola-jawid' ); ?></p>
 				<?php
 				wp_nav_menu(
 					array(
@@ -130,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</nav>
 
 			<nav aria-label="<?php esc_attr_e( 'پیوندهای کمکی', 'shola-jawid' ); ?>">
-				<p class="menu-section-title" lang="en">More · بیشتر</p>
+				<p class="menu-section-title"><?php esc_html_e( 'بیشتر', 'shola-jawid' ); ?></p>
 				<?php
 				wp_nav_menu(
 					array(
@@ -144,7 +142,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</nav>
 
 			<div class="menu-publications">
-				<p class="menu-section-title" lang="en">Publications · نشرات</p>
+				<p class="menu-section-title"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></p>
 				<ul class="menu-list menu-list-small">
 					<?php foreach ( shola_get_publication_slugs_ordered() as $slug ) : ?>
 						<?php

@@ -3353,3 +3353,68 @@ trail of *why* the build deviated from — or newly applied — a rule in
   This closes out the full manual-walkthrough amendment round (Phases
   A, B, and this final D1 item).
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — Phase C, actually done this time (C1/C2/C3)
+
+- **Investigated first, per Farhad's explicit instruction**: Farhad
+  reported the homepage newsletter section was still live, meaning
+  Phase C (C1: remove newsletter sections, C2: remove "SECTIONS"/
+  "MORE" English words from the popup menu, C3: remove the "EN"
+  language switcher) had been treated as closed when Phase D was
+  released, despite never actually being done. Checked `git log` and
+  grepped `docs/CHANGELOG.md` for any trace of "Phase C" before
+  touching anything: **found none** — no commit exists anywhere
+  between the Phase B work and D1, and no CHANGELOG section for it
+  either. The honest answer, stated plainly rather than guessed at:
+  there is no evidence Phase C's actual C1/C2/C3 instructions were
+  ever received and then dropped in this session — the record shows
+  no trace of it ever being worked on at all. Reported this finding to
+  Farhad before proceeding, rather than assuming a story that isn't
+  supported by the evidence.
+  **C1 — newsletter sections, removed site-wide.** Searched
+  systematically rather than relying on memory: grepped the entire
+  theme (and plugin) for "newsletter" case-insensitively. Found
+  exactly one instance — `front-page.php`'s `<section class=
+  "newsletter">` band (heading, dek, and a signup `<form action="#">`
+  that, like the earlier-removed ذخیره button, never had a working
+  backend behind it). Removed the section entirely, updated the
+  template's own docblock to note the removal and why, and deleted
+  the now-orphaned `.newsletter`/`.newsletter-inner`/`.newsletter-form`
+  CSS block (`main.css` §18) rather than leaving dead rules behind.
+  **C2 — English words removed from all four popup-menu column
+  headers**, not just the two Farhad named ("SECTIONS"/"MORE").
+  Searching turned up four `.menu-section-title` elements, not two —
+  "Topics · موضوعات", "Sections · بخش‌ها", "More · بیشتر",
+  "Publications · نشرات" — all four the same bilingual pattern.
+  Applying the fix to only the two named would have left the popup
+  menu in a visibly inconsistent state (two columns Persian-only, two
+  still bilingual), so extended the same treatment to all four —
+  flagging this here as the deliberate choice it was, not a silent
+  scope change. Removed the English word + `lang="en"` from each;
+  confirmed `.menu-section-title`'s CSS (`font-family: var(--font-nav)`,
+  unconditional regardless of `lang`) has no dependency on the
+  attribute, so nothing else needed to change.
+  **C3 — "EN" language switcher removed entirely**, both instances of
+  it: the masthead's `#lang-toggle` button (`header.php`) and the
+  footer's "FA · EN" line (`footer.php`) — the same feature duplicated
+  in two places, same as the social icons were before D1. Removed the
+  masthead's preceding `/` separator along with the button (would
+  otherwise have been left dangling with nothing after it). Also
+  removed the button's now-dead click handler in `main.js` (toggled
+  `dir`/`lang` demonstratively — harmless but orphaned code with the
+  button gone). Note: `CLAUDE.md` §1 previously allowed "a static/
+  inert menu item that matches the prototype's visual language
+  toggle" to remain as long as it didn't link anywhere real — Farhad's
+  instruction here is a deliberate tightening of that allowance to
+  full removal, not an oversight; logged here per this file's own
+  convention for rule deviations/changes, not silently done.
+  **Verified live, all three**: `.newsletter` confirmed absent from
+  the homepage DOM; `#lang-toggle` confirmed absent; all four popup
+  menu titles confirmed Persian-only via live DOM query; footer's
+  `.footer-base` confirmed down to exactly one child (the copyright
+  line, no dangling separator or empty second line); masthead
+  screenshotted to confirm it now ends cleanly at "تماس" with no
+  trailing "/" or button; homepage screenshotted end-to-end (hero
+  through footer) to confirm no newsletter band anywhere in the flow.
+  phpcs clean (26 files, 0 errors/warnings).
+  Approved by: Farhad, in this session (2026-08-08).
