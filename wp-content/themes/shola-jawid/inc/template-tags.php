@@ -457,6 +457,64 @@ function shola_fallback_footer_site() {
 }
 
 /**
+ * Social-link icon rows shared by footer.php and header.php's popup menu
+ * (same three icons, same order, previously hardcoded `href="#"` in both
+ * places independently — found by Farhad, 2026-08-08). Telegram/X come
+ * from the shola-core settings screen (Settings → شبکه‌های اجتماعی);
+ * RSS is never a setting — it's the site's own feed, always correct via
+ * get_feed_link(), not something an editor should type in. A platform is
+ * omitted entirely (not rendered) when its URL is empty, per Farhad's
+ * explicit call: a missing icon reads as "not used," which is more
+ * honest than a dead `#` link.
+ *
+ * Guarded per CLAUDE.md §2: the theme must not fatal-error if shola-core
+ * is inactive — degrades to Telegram/X omitted (RSS still shows, since
+ * that one doesn't depend on the plugin at all).
+ *
+ * @return array<int, array{key: string, label: string, url: string, icon: string}>
+ */
+function shola_get_social_links() {
+	$telegram_url = '';
+	$x_url        = '';
+
+	if ( class_exists( '\SholaCore\Social_Links_Settings' ) ) {
+		$links        = \SholaCore\Social_Links_Settings::get_links();
+		$telegram_url = $links['telegram'];
+		$x_url        = $links['x'];
+	}
+
+	$all = array(
+		'telegram' => array(
+			'key'   => 'telegram',
+			'label' => __( 'تلگرام', 'shola-jawid' ),
+			'url'   => $telegram_url,
+			'icon'  => '<path d="M21.9 4.6 18.8 19c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6L18 6.9c.4-.3-.1-.5-.5-.2L7 13.2l-4.4-1.4c-1-.3-1-1 .2-1.4L20.6 3.2c.8-.3 1.5.2 1.3 1.4Z"/>',
+		),
+		'x'        => array(
+			'key'   => 'x',
+			'label' => __( 'ایکس', 'shola-jawid' ),
+			'url'   => $x_url,
+			'icon'  => '<path d="M17.8 3h3l-6.7 7.7L22 21h-6.2l-4.8-6.3L5.4 21h-3l7.2-8.2L2 3h6.3l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/>',
+		),
+		'rss'      => array(
+			'key'   => 'rss',
+			'label' => __( 'خوراک RSS', 'shola-jawid' ),
+			'url'   => get_feed_link(),
+			'icon'  => '<path d="M4 4a16 16 0 0 1 16 16h-3A13 13 0 0 0 4 7V4Zm0 6a10 10 0 0 1 10 10h-3a7 7 0 0 0-7-7v-3Zm2 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>',
+		),
+	);
+
+	$with_url = array_filter(
+		$all,
+		static function ( $item ) {
+			return ! empty( $item['url'] );
+		}
+	);
+
+	return array_values( $with_url );
+}
+
+/**
  * "۳۲ ISSUES · ۲۰۱۸–۲۰۲۶" style meta line for a publication term
  * (page-publications.php) — computed from real published `issue` posts
  * tagged with that term, not fabricated. Returns an empty string if the

@@ -51,6 +51,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Taxonomies::init();
 \SholaCore\Meta_Fields::init();
 \SholaCore\Contact_Settings::init();
+\SholaCore\Social_Links_Settings::init();
 \SholaCore\Roles::init();
 \SholaCore\SEO::init();
 \SholaCore\Security::init();

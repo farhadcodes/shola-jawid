@@ -3299,3 +3299,57 @@ trail of *why* the build deviated from — or newly applied — a rule in
   "حریم خصوصی" visually consistent with the matching phrase directly
   below it, no other English text found anywhere on the page.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — D1: CMS-editable social links (final item, walkthrough round)
+
+- **Fixed:** the footer and popup-menu social icons (Telegram, X, RSS)
+  were hardcoded `href="#"` — dead links, duplicated identically in
+  both `footer.php` and `header.php`'s popup menu.
+  **Investigated and reported before implementing**, per Farhad's
+  request: confirmed the existing settings-page precedent to model
+  this on (`Contact_Settings`, the "موضوعات فرم تماس" screen) and
+  proposed treating RSS differently from Telegram/X, since it's not
+  really "social configuration" — it's the site's own feed, always
+  correct via `get_feed_link()`. Approved as proposed, including the
+  empty-field decision (omit the icon entirely rather than show a dead
+  link).
+  **Implementation:**
+  1. `SholaCore\Social_Links_Settings`
+     (`wp-content/plugins/shola-core/includes/class-social-links-
+     settings.php`) — new plugin class, same shape as
+     `Contact_Settings`: `register_setting()` + `add_options_page()`
+     + a sanitize callback, storing `shcore_social_links` (an
+     associative array: `telegram`, `x`), sanitized with
+     `esc_url_raw()`. Settings → "شبکه‌های اجتماعی", two URL fields,
+     no RSS field (deliberately — see above). Initialized in
+     `shola-core.php` alongside the plugin's other `::init()` calls,
+     autoloaded via the existing `class-{kebab-case}.php` convention.
+  2. `shola_get_social_links()` (`inc/template-tags.php`) — theme
+     helper reading the plugin option (guarded per CLAUDE.md §2: the
+     theme must not fatal-error if shola-core is inactive — degrades
+     to Telegram/X omitted, RSS still works since it doesn't depend on
+     the plugin), building RSS from `get_feed_link()` directly. Any
+     platform with an empty URL is filtered out of the returned array
+     entirely — the single point where the "omit, don't dead-link"
+     decision is enforced, so both consuming templates get it for
+     free.
+  3. `footer.php` and `header.php` — both refactored from three
+     hardcoded `<a href="#">` elements each to a `foreach` over
+     `shola_get_social_links()`, removing the duplication that existed
+     between them (same icon markup was previously maintained twice).
+  **Verified live, not just that the code runs**: set real test
+  Telegram/X URLs via the actual settings storage mechanism and
+  confirmed both `footer.php` and `header.php`'s popup menu render
+  identical, correct hrefs (single source of truth, not just visually
+  similar); confirmed `get_feed_link()` resolves to the real site feed
+  (`/feed/`); tested the empty-field case (cleared Telegram, kept X)
+  and confirmed the icon is correctly omitted in **both** locations
+  simultaneously, screenshotted to confirm no layout gap/misalignment
+  where it's missing. Reset the option back to empty (its real
+  default) afterward, since the test URLs weren't real — Farhad can
+  fill in the actual ones via the new settings screen.
+  phpcs clean across the full theme and plugin (35 files, 0 errors/
+  warnings).
+  This closes out the full manual-walkthrough amendment round (Phases
+  A, B, and this final D1 item).
+  Approved by: Farhad, in this session (2026-08-08).
