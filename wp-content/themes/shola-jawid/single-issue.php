@@ -107,7 +107,7 @@ while ( have_posts() ) :
 					?>
 				</h1>
 				<?php if ( has_excerpt() ) : ?>
-					<p class="article-dek mt-sm"><?php echo esc_html( get_the_excerpt() ); ?></p>
+					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 				<?php endif; ?>
 
 				<dl class="issue-meta">

@@ -53,7 +53,7 @@ while ( have_posts() ) :
 
 					<h1 class="article-title"><?php the_title(); ?></h1>
 					<?php if ( has_excerpt() ) : ?>
-						<p class="article-dek"><?php echo esc_html( get_the_excerpt() ); ?></p>
+						<p class="article-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 					<?php endif; ?>
 				</header>
 			</div>

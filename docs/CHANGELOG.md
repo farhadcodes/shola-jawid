@@ -2813,3 +2813,207 @@ trail of *why* the build deviated from — or newly applied — a rule in
   raw HTML for all 12 Iranian month names as whole words) and confirmed
   zero leftover instances anywhere sampled. phpcs clean.
   Approved by: Farhad, in this session (2026-08-08).
+
+## 2026-08-08 — Phase B: genuine bugs from Farhad's manual walkthrough
+
+- **Fixed (B1):** Contact Form 7's validation/error messages
+  ("Please fill out this field.", "One or more fields have an error...")
+  rendered in English on `/contact/`, found by Farhad. Investigated
+  rather than assumed: confirmed the site's CF7 *translation files
+  are correctly installed and load correctly* — `wp-content/languages/
+  plugins/contact-form-7-fa_AF.mo` exists, `get_locale()`/
+  `determine_locale()` both correctly resolve to `fa_AF`, and a direct
+  `__( 'Please fill out this field.', 'contact-form-7' )` call returns
+  the correct Persian string. The bug wasn't a translation-loading
+  problem at all: `WPCF7_ContactForm::message( $status )` reads
+  directly from the *form's own stored* `messages` property
+  (`$this->prop('messages')[$status]`) with no fallback to the
+  plugin's live, translatable `wpcf7_messages()` defaults — and the
+  live contact form (post ID 71, "ارتباط با حزب") had all 23 of its
+  message strings stored as literal English text, baked in at
+  form-creation time and never updated since. Confirmed via the same
+  REST endpoint the live form actually calls
+  (`POST /wp-json/contact-form-7/v1/contact-forms/71/feedback` with
+  empty fields) both before (English) and after (Persian) the fix.
+  **Fix:** updated the form's stored `messages` property to the
+  plugin's own correct Persian defaults (read live from
+  `wpcf7_messages()`, all 23 keys — not just the 2 Farhad happened to
+  notice, since all 23 were English) via `WPCF7_ContactForm::
+  set_properties()` + `save()`, CF7's own supported save API — not raw
+  SQL. This is form *content*, stored the same way the CF7 admin
+  "Messages" tab stores an editor's own overrides — completely
+  unaffected by future plugin code updates, satisfying "must not break
+  on plugin updates" even more directly than a code-level fix would,
+  since it doesn't depend on any plugin hook/internal at all.
+  **Related finding, investigated and confirmed harmless, no fix
+  needed:** CF7's own `wpcf7_is_rtl()` (`includes/l10n.php`) has a
+  hardcoded RTL-locale list containing `fa_IR` but not `fa_AF` — the
+  same locale-completeness gap already seen twice this project
+  (ParsiDate, Persian Calendar) — causing the `.wpcf7` wrapper's `dir`
+  attribute to render `ltr`. Checked its actual effect via
+  `getComputedStyle()`: the theme's own CSS already sets an explicit
+  `direction: rtl` on form elements, which wins over the HTML `dir`
+  attribute, so this has zero real visual/functional impact on this
+  site — confirmed empirically, not assumed, so left alone rather than
+  "fixing" something that isn't actually broken.
+  Noted, not touched: a second, unused CF7 form exists (post ID 70,
+  "Contact form 1" — CF7's default sample form from plugin activation,
+  never referenced by any template; `page-contact.php` only renders
+  form 71). Left as-is since it's never displayed; flagged here in
+  case Farhad wants it deleted as housekeeping.
+  Verified live in-browser (real form submission, not just the REST
+  call) — both the response-output summary and the per-field
+  `wpcf7-not-valid-tip` inline messages render correct Persian.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed (B3):** mobile footer text (`.footer-tagline`, `.footer-col a`,
+  `.footer-col h3`) read too small on mobile, found by Farhad. These
+  used the same fixed sizes (13-14px) at every viewport — no CSS bug
+  causing an actual desktop/mobile size *difference*, just the same
+  absolute size reading too small against normal mobile-UX readability
+  norms (~16px floor for link/body text) on an actual phone screen.
+  Added a `@media (max-width: 720px)` override in `main.css` §19
+  raising `.footer-tagline`/`.footer-col a` to `var(--t-body)` (17px)
+  and `.footer-col h3` to `var(--t-small)` (14px, kept smaller than
+  body text since it's an uppercase category label, not primary
+  reading content) — reusing existing design tokens rather than
+  inventing new arbitrary values. Desktop rules above the media query
+  are untouched.
+  Verified via computed style at both viewports: mobile (375px) now
+  17px/17px/14px; desktop (1280px) unchanged at 14px/14px/13px.
+  Confirmed visually via a mobile screenshot.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed (B4):** homepage mobile hero — the featured image filled the
+  screen and the headline required a scroll to see, found by Farhad.
+  Diagnosed as the well-documented mobile-browser "`100vh` doesn't
+  account for the collapsing address bar" issue: `.hero-media` used
+  `height: calc(100vh - 128px)` (`main.css` §10) with the title
+  (`.hero-lead > .wrap`) absolutely bottom-anchored inside it — `100vh`
+  on mobile Safari/Chrome resolves to the *largest possible* viewport
+  (as if the address bar were already hidden), which is taller than
+  what's actually visible at page load (address bar still showing), so
+  the bottom-anchored title lands below the actually-visible area until
+  the user scrolls (which is what triggers the toolbar to collapse).
+  Fixed with `100dvh` (dynamic viewport height — tracks the *current*
+  visible area, not the nominal maximum) as a cascade-layered addition
+  after the existing `100vh` line, so older browsers without `dvh`
+  support keep the untouched `vh` fallback and nothing regresses; kept
+  the same treatment for the short-landscape media query variant.
+  Desktop is unaffected (`dvh`≈`vh` there — no toolbar-collapse
+  behavior on desktop browsers).
+  **Verification limitation, noted rather than glossed over:** the
+  actual bug (toolbar eating extra space at load) can't be reproduced
+  in this session's headless/emulated mobile testing environment — no
+  real collapsing address bar to simulate — so I could not screenshot
+  the literal "before" broken state or literally prove the "after" fix
+  visually. Confirmed instead: `CSS.supports('height', '100dvh')` is
+  true and the property is live in computed style (cascade applying
+  correctly, no parse error), the page renders with no regression at
+  a standard mobile viewport, and `dvh` is exactly the standard,
+  widely-documented fix for this exact category of bug. Recommend
+  Farhad re-confirm on an actual phone during his walkthrough.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed (B5):** article excerpt/dek text had no length ceiling, found
+  by Farhad — an editor-set `post_excerpt` has no built-in length limit
+  in WordPress, so a very long one could overflow its container.
+  Two layers, since the existing `wp_trim_words()` calls at most call
+  sites (word-count trimming) don't by themselves guarantee no
+  layout overflow — a container narrower than expected, or the excerpt
+  supplied through a path with no word-count guard at all, could still
+  break:
+  1. Found three call sites with no truncation whatsoever — raw
+     `get_the_excerpt()` in `single.php:56`, `single-issue.php:110`,
+     `single-document.php:86` — added `wp_trim_words( ..., 34 )` to
+     all three, matching the word-count pattern already used
+     everywhere else in the theme.
+  2. Added a CSS line-clamp safety net (`main.css`) to `.dek`,
+     `.card-dek`, and `.article-dek` — `display: -webkit-box;
+     -webkit-box-orient: vertical; -webkit-line-clamp: N; overflow:
+     hidden;` (3 lines for the tighter card-grid context, 4 elsewhere)
+     — a hard ceiling independent of whatever text reaches the DOM,
+     which is the actual "can never break the layout regardless of
+     length" guarantee. `.dek` is shared by several *static*,
+     developer-authored descriptions (page headers, 404, newsletter)
+     as well as dynamic excerpts — harmless to those, since a clamp is
+     a ceiling that only engages once content exceeds it; short fixed
+     copy renders identically to before.
+  **Verified with a real stress test, not just short sample text**:
+  temporarily set a live post's excerpt to an intentionally extreme
+  1,760-character block, screenshotted it rendering correctly (clamped,
+  no overflow) in three different contexts at once — the homepage hero
+  dek, and the same post's own `.article-dek` on its single-article
+  page — then reverted the post's excerpt back to its original text
+  immediately after.
+  phpcs clean on all three changed PHP files.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Fixed (B6):** clicking a tag at the bottom of an article
+  (`/tag/{slug}/`) led to a broken-looking layout — blank space on the
+  left, content pushed right — found by Farhad. Investigated the
+  suspected cause first (per his instruction) rather than assuming: the
+  theme has no `tag.php`/`archive.php`/`category.php`, so tag archives
+  fall through the WP template hierarchy to the theme's `index.php` —
+  but that file already correctly calls `get_header()`/`get_footer()`
+  and wraps content in the standard `.wrap sect` container, so it's
+  *not* a bare/unstyled WP default missing the site's RTL treatment,
+  contrary to the natural first guess.
+  Found the real cause by inspecting computed styles directly:
+  `<body>`'s own computed `width` was constrained to ~1127px (of a
+  1280px viewport) with `display: inline-block` — matching exactly
+  what an `inline-block` `<body>` does in RTL (shrinks to content
+  width, right-aligns, leaving blank space on the left). Traced this
+  to `main.css`: WordPress's `body_class()` outputs a literal `tag`
+  class on every tag-archive page, and the theme separately had its
+  own `.tag { display: inline-block; ... }` rule (a "tag pill"
+  component, `main.css` ~line 665) — an accidental selector collision
+  between a generic single-word theme class and one of WP core's
+  reserved-ish auto-generated body classes, applying `inline-block` to
+  the entire `<body>` on every tag archive.
+  Confirmed `.tag`/`.tag:hover` were themselves orphaned/unused in
+  current markup before touching anything — grepped every template and
+  found actual tag links use `.tag-outline`/`.tag-list` (`single.php`),
+  not bare `.tag`; the old rule was leftover from an earlier rename
+  that never got cleaned up. Deleted both orphaned rules entirely
+  rather than just scoping them, since nothing in the theme depends on
+  them — removes the collision at its root with zero risk to any
+  current styling.
+  **Not done, flagged as a separate, optional follow-up**: the tag
+  archive still renders via `index.php`'s bare fallback (post title +
+  full content, no card grid, no archive polish) now that the layout
+  bug itself is fixed — a plain page, not a broken one. Building a
+  dedicated `tag.php` matching `taxonomy-topic.php`'s card-grid
+  treatment would be a real quality improvement but is a feature
+  addition, not the reported bug; left for Farhad to decide whether
+  it's worth doing as its own item.
+  Verified live: `/tag/بازار-غیررسمی/` renders full-width, masthead and
+  footer correctly flush edge-to-edge, matching every other page.
+  Approved by: Farhad, in this session (2026-08-08).
+
+- **Removed (B7):** drop-cap styling, site-wide — Farhad's call that it
+  works for Latin typography but breaks/obscures the first word in
+  Persian (Arabic-script letters take different joined/initial/medial/
+  final forms depending on position in a word; isolating and enlarging
+  just the first character via CSS `::first-letter` grabs the wrong
+  glyph shape and visually detaches it from the rest of the word).
+  Grepped the whole theme rather than assuming it was only on
+  `single-document.php`: the mechanism was a single shared rule,
+  `.prose > p:first-child::first-letter` (+ its `[dir="ltr"]`
+  mirror-flip variant) in `main.css`, applying to every template using
+  the shared `.prose` wrapper — three consuming templates, not one:
+  `single-document.php` ("About the Text", the one Farhad noticed),
+  `single.php` (main article body), and `page-about.php` (درباره
+  tabs content). Deleted both rules entirely; `.prose`'s normal
+  paragraph styling (font size, line-height, spacing) is untouched.
+  Note for context, not a code change: `docs/screenshots/
+  phase1-refactor-notes.md` documents this drop-cap's `float` as "the
+  only directional CSS in the stylesheet" from the original Phase 1
+  RTL audit — that note is now stale/historical since the feature no
+  longer exists; left the historical doc as-is (a snapshot of that
+  phase, not a live reference) rather than editing old phase notes,
+  per this file's own established practice.
+  Verified live on all three consuming pages — `page-about.php`,
+  `single.php`, and `single-document.php` — first word of the first
+  paragraph in each now renders as normal, undistorted Persian prose.
+  Approved by: Farhad, in this session (2026-08-08).

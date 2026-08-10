@@ -83,7 +83,7 @@ else :
 				<p class="badge-current"><?php esc_html_e( 'در کتابخانه', 'shola-jawid' ); ?></p>
 				<h1 class="article-title mt-sm"><?php the_title(); ?></h1>
 				<?php if ( has_excerpt() ) : ?>
-					<p class="article-dek mt-sm"><?php echo esc_html( get_the_excerpt() ); ?></p>
+					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 				<?php endif; ?>
 
 				<dl class="issue-meta">
