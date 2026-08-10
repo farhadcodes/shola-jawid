@@ -82,13 +82,13 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 <?php endif; ?>
 
 <?php if ( $latest_posts ) : ?>
-	<section class="wrap sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?>">
+	<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_articles_section_aria' ) ); ?>">
 		<div class="section-head row-between">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></h2>
+				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_heading' ) ); ?></h2>
 			</div>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ موضوعات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'home_topics_link_more' ) ); ?> <span class="arr">←</span></a>
 		</div>
 		<div class="grid-cards">
 			<?php
@@ -192,7 +192,7 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 	<div class="section-head center">
 		<div class="kicker-row">
 			<p class="section-marker"></p>
-			<h2 class="h-section"><?php esc_html_e( 'همهٔ موضوعات', 'shola-jawid' ); ?></h2>
+			<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_topics_section_heading' ) ); ?></h2>
 		</div>
 	</div>
 	<ul class="topic-list">
@@ -226,7 +226,7 @@ $documents_query = new WP_Query(
 		<div class="section-head row-between">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?></h2>
+				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'latest_documents_heading' ) ); ?></h2>
 			</div>
 			<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 		</div>

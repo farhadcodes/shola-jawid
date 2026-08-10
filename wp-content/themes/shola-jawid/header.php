@@ -91,8 +91,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="menu-grid">
 
-		<nav aria-label="<?php esc_attr_e( 'موضوعات', 'shola-jawid' ); ?>">
-			<p class="menu-section-title"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></p>
+		<nav aria-label="<?php echo esc_attr( shola_get_label( 'nav_topics_label' ) ); ?>">
+			<p class="menu-section-title"><?php echo esc_html( shola_get_label( 'nav_topics_label' ) ); ?></p>
 			<ul class="menu-topics">
 				<?php foreach ( shola_get_topic_slugs_ordered() as $slug ) : ?>
 					<?php
@@ -128,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</nav>
 
 			<nav aria-label="<?php esc_attr_e( 'پیوندهای کمکی', 'shola-jawid' ); ?>">
-				<p class="menu-section-title"><?php esc_html_e( 'بیشتر', 'shola-jawid' ); ?></p>
+				<p class="menu-section-title"><?php echo esc_html( shola_get_label( 'nav_more_label' ) ); ?></p>
 				<?php
 				wp_nav_menu(
 					array(

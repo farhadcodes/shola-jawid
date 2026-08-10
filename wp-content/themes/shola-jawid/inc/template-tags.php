@@ -538,6 +538,43 @@ function shola_get_social_links() {
 }
 
 /**
+ * Reads one CMS-editable UI label (تازه‌ترین, موضوعات, etc.) — see
+ * SholaCore\Label_Settings::get_defaults() for the full key list and
+ * where each one renders. Guarded per CLAUDE.md §2: the theme must not
+ * fatal-error if shola-core is inactive, so it carries its own inline
+ * copy of the same defaults (kept translatable via `__()` under the
+ * `shola-jawid` text-domain) rather than depending on the plugin class
+ * existing — same pattern as shola_get_social_links()'s platform-name
+ * fallback above. An unrecognized key returns an empty string rather
+ * than warning, since every call site here passes a literal key it
+ * controls, not user input.
+ *
+ * @param string $key One of Label_Settings::get_defaults()'s keys.
+ * @return string
+ */
+function shola_get_label( $key ) {
+	if ( class_exists( '\SholaCore\Label_Settings' ) ) {
+		return \SholaCore\Label_Settings::get_label( $key );
+	}
+
+	$fallback_defaults = array(
+		'home_articles_section_aria'  => __( 'تازه‌ترین مقالات', 'shola-jawid' ),
+		'home_latest_heading'         => __( 'تازه‌ترین', 'shola-jawid' ),
+		'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-jawid' ),
+		'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-jawid' ),
+		'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-jawid' ),
+		'nav_topics_label'            => __( 'موضوعات', 'shola-jawid' ),
+		'nav_more_label'              => __( 'بیشتر', 'shola-jawid' ),
+		'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-jawid' ),
+		'topic_tab_latest'            => __( 'تازه‌ترین', 'shola-jawid' ),
+		'topic_tab_most_read'         => __( 'پرخواننده‌ترین', 'shola-jawid' ),
+		'topics_page_title'           => __( 'موضوعات', 'shola-jawid' ),
+	);
+
+	return isset( $fallback_defaults[ $key ] ) ? $fallback_defaults[ $key ] : '';
+}
+
+/**
  * "۳۲ ISSUES · ۲۰۱۸–۲۰۲۶" style meta line for a publication term
  * (page-publications.php) — computed from real published `issue` posts
  * tagged with that term, not fabricated. Returns an empty string if the

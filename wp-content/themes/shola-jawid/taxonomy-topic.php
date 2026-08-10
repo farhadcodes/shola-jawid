@@ -73,8 +73,8 @@ $archive_query = new WP_Query( $query_args );
 		</nav>
 
 		<div class="filter-tabs">
-			<a class="<?php echo ( 'views' !== $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php esc_html_e( 'تازه‌ترین', 'shola-jawid' ); ?></a>
-			<a class="<?php echo ( 'views' === $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'sort', 'views', get_term_link( $term ) ) ); ?>"><?php esc_html_e( 'پرخواننده‌ترین', 'shola-jawid' ); ?></a>
+			<a class="<?php echo ( 'views' !== $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_latest' ) ); ?></a>
+			<a class="<?php echo ( 'views' === $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'sort', 'views', get_term_link( $term ) ) ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_most_read' ) ); ?></a>
 		</div>
 
 		<?php if ( $archive_query->have_posts() ) : ?>

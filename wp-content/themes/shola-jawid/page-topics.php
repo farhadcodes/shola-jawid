@@ -18,7 +18,7 @@ get_header();
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( shola_get_label( 'topics_page_title' ) ); ?></h1>
 			</div>
 			<p class="dek"><?php esc_html_e( 'شش موضوع ثابت؛ چهارچوبی که نشریه پیرامون آن مقاله سفارش می‌دهد و مقاله می‌پذیرد.', 'shola-jawid' ); ?></p>
 		</header>

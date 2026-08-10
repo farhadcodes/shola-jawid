@@ -3563,3 +3563,81 @@ trail of *why* the build deviated from — or newly applied — a rule in
   genuinely clean state" precedent as the D1 social-links session.
   phpcs clean on all 3 changed/new files.
   Approved by: Farhad, in this session (2026-08-10).
+
+## 2026-08-10 — Phase F
+- **Added:** a bounded set of hardcoded, chrome-style Persian UI labels
+  (تازه‌ترین, پرخواننده‌ترین, همهٔ موضوعات, موضوعات, بیشتر) is now
+  editable from wp-admin without touching code. Deliberately *not*
+  "every string on the site" — scoped to 11 keys across 7 template
+  files, same architecture as `Social_Links_Settings`/
+  `Contact_Settings`: one option (`shcore_label_overrides`), one
+  settings page (Settings → متن‌های رابط کاربری), one sanitize
+  callback.
+  **Scope decisions**: excluded `inc/setup.php`'s nav-menu location
+  labels (admin-only, never rendered front end) and its menu-seed
+  data (already real, editable `wp_nav_menu()` items via Appearance →
+  Menus — building a second override path for text already editable
+  elsewhere would be redundant infrastructure). Excluded
+  `inc/template-tags.php`'s `shola_fallback_menu_sections()` /
+  `shola_fallback_footer_topics()` — fallback-only renders that never
+  fire since real menus are already seeded, so wiring them up would
+  be dead code. Confirmed no overlap with the earlier 2026-08-08
+  "kicker sweep" (Phase 7.5) — that removed English eyebrow words
+  like "LATEST"; this touches the Persian copy underneath, which was
+  never in scope there. Farhad added `page-topics.php`'s `<h1>`
+  ("موضوعات") to the approved scope after the initial proposal,
+  bringing the total to 11 keys / 7 files.
+  **Key design — shared vs. separate keys**: a visible label and its
+  own `aria-label` share one key wherever their current text is
+  byte-identical (`nav_topics_label` covers both footer.php's and
+  header.php's "موضوعات" pair; `latest_documents_heading` covers
+  front-page.php's and page-library.php's "تازه‌ترین اسناد") — this
+  keeps a visible label and what a screen reader announces for it
+  from ever silently drifting apart after an edit. Correction made
+  during implementation: the original proposal loosely described
+  front-page.php's "تازه‌ترین" heading and its section's
+  aria-label ("تازه‌ترین مقالات") as one shared pair too — on closer
+  reading they're not byte-identical (the aria is the compound
+  "Latest Articles," the heading is just "Latest"), so merging them
+  would have silently changed the aria-label's wording on save. Kept
+  as two separate keys (`home_latest_heading`,
+  `home_articles_section_aria`) instead — flagging this here since it
+  deviates from the approved proposal's exact wording, even though
+  the resulting behavior is more conservative/correct, not less.
+  Conversely, `breadcrumb_topics_label` (single.php) and
+  `topics_page_title` (page-topics.php) keep the same default word
+  "موضوعات" as `nav_topics_label` but are separate keys on purpose —
+  their UI role differs enough (breadcrumb crumb / page `<h1>` vs.
+  nav section header) that sharing would let an edit to one silently
+  change the others somewhere an editor might not expect.
+  **Empty-value behavior**: an empty override always falls back to
+  the hardcoded default text, never renders blank — the opposite
+  convention from Social Links' "empty = omit the icon," since a UI
+  label always needs something to display. Enforced once in
+  `Label_Settings::get_labels()` (filters out empty stored values
+  before merging over defaults), not per call site.
+  `shola_get_label( $key )` (theme `template-tags.php`) added,
+  guarded per CLAUDE.md §2 with the same `class_exists()` +
+  inline-fallback-defaults pattern as `shola_get_social_links()` — the
+  theme carries its own copy of the same 11 defaults (translatable
+  via `__()` under `shola-jawid`) so it never fatals if `shola-core`
+  is inactive.
+  **Verified live**: confirmed the zero-override (fresh-install)
+  state renders byte-identical default text to before this feature
+  existed. Set real overrides across 5 keys spanning different files
+  and confirmed each rendered correctly in place, including
+  confirming `nav_topics_label`'s override appeared correctly and
+  identically in both footer.php and header.php's popup menu at once
+  (proving the shared-key behavior), and that a visible label and its
+  paired aria-label updated together, never independently. Confirmed
+  an untouched key kept showing its default alongside overridden keys
+  on the same page (proving keys are genuinely independent, not
+  accidentally shared). Confirmed clearing an override through the
+  real `sanitize_labels()` path falls back to default text, not
+  blank. Rendered the actual settings-page HTML and screenshotted it
+  to confirm all 11 fields, their location descriptions, and
+  placeholders render correctly. `shcore_label_overrides` reset to
+  unset before shipping — same clean-state precedent as D1 and Phase
+  E.
+  phpcs clean on all 10 changed/new files.
+  Approved by: Farhad, in this session (2026-08-10).

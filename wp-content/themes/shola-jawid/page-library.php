@@ -51,11 +51,11 @@ $documents_query = new WP_Query(
 	</section>
 
 	<?php if ( $documents_query->have_posts() ) : ?>
-		<section class="wrap sect" aria-label="<?php esc_attr_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?>">
+		<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'latest_documents_heading' ) ); ?>">
 			<div class="section-head row-between">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین اسناد', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'latest_documents_heading' ) ); ?></h2>
 				</div>
 				<?php
 				// v6's own text/target here differs from front-page.php's equivalent

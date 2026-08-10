@@ -44,7 +44,7 @@ while ( have_posts() ) :
 					<nav class="article-crumb" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
 						<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 						<span aria-hidden="true"> / </span>
-						<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
+						<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
 						<?php if ( $topic ) : ?>
 							<span aria-hidden="true"> / </span>
 							<a class="active" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a>

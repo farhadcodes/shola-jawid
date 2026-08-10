@@ -42,8 +42,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</ul>
 			</nav>
 
-			<nav class="footer-col" aria-label="<?php esc_attr_e( 'موضوعات', 'shola-jawid' ); ?>">
-				<h3><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></h3>
+			<nav class="footer-col" aria-label="<?php echo esc_attr( shola_get_label( 'nav_topics_label' ) ); ?>">
+				<h3><?php echo esc_html( shola_get_label( 'nav_topics_label' ) ); ?></h3>
 				<?php
 				wp_nav_menu(
 					array(
