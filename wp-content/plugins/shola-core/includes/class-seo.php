@@ -115,6 +115,36 @@ class SEO {
 	}
 
 	/**
+	 * The image behind og:image — never empty, so every shared link gets
+	 * a thumbnail, not just posts with a real featured image. Three
+	 * cases, in order: (1) a singular post/document/issue with a real
+	 * featured image uses it at the existing `shola_card` size; (2) a
+	 * singular post without one falls back to the same
+	 * assets/images/fallback.png every card/hero on the site already
+	 * falls back to (shola_get_featured_image()'s logic, reused here
+	 * rather than duplicated as a new rule) — a `has_post_thumbnail()`
+	 * check alone previously missed this case entirely, which is what
+	 * caused link previews to show no image at all; (3) every
+	 * non-singular view (front page, archives, search) uses a dedicated
+	 * site-wide share image, assets/images/og-share.png — Farhad-
+	 * approved artwork (crimson background, masthead wordmark, the same
+	 * flame/halftone treatment as fallback.png), sized at the standard
+	 * 1200×630 og:image dimension.
+	 *
+	 * @return string
+	 */
+	private static function get_share_image_url() {
+		if ( is_singular() ) {
+			if ( has_post_thumbnail() ) {
+				return get_the_post_thumbnail_url( null, 'shola_card' );
+			}
+			return get_theme_file_uri( 'assets/images/fallback.png' );
+		}
+
+		return get_theme_file_uri( 'assets/images/og-share.png' );
+	}
+
+	/**
 	 * Outputs the meta description, Open Graph tags, the canonical link
 	 * for the non-singular contexts core doesn't cover, and inert
 	 * self-referential hreflang tags. Skipped entirely in wp-admin
@@ -138,11 +168,7 @@ class SEO {
 		$canonical   = self::get_canonical_url();
 		$title       = self::get_title();
 		$is_singular = is_singular();
-		$image_url   = '';
-
-		if ( $is_singular && has_post_thumbnail() ) {
-			$image_url = get_the_post_thumbnail_url( null, 'shola_card' );
-		}
+		$image_url   = self::get_share_image_url();
 
 		echo "\n<!-- Shola Core SEO (class-seo.php) -->\n";
 
@@ -164,9 +190,15 @@ class SEO {
 		printf( '<meta property="og:description" content="%s" />' . "\n", esc_attr( $description ) );
 		printf( '<meta property="og:url" content="%s" />' . "\n", esc_url( $canonical ) );
 		printf( '<meta property="og:locale" content="%s" />' . "\n", esc_attr( is_rtl() ? 'fa_AF' : get_locale() ) );
+		printf( '<meta property="og:image" content="%s" />' . "\n", esc_url( $image_url ) );
 
-		if ( $image_url ) {
-			printf( '<meta property="og:image" content="%s" />' . "\n", esc_url( $image_url ) );
+		if ( ! $is_singular ) {
+			// Only the dedicated site-wide image has known, fixed
+			// dimensions worth hinting — a post's real featured image
+			// varies per upload, and platforms fetch it to measure
+			// anyway.
+			printf( '<meta property="og:image:width" content="1200" />' . "\n" );
+			printf( '<meta property="og:image:height" content="630" />' . "\n" );
 		}
 	}
 

@@ -3666,3 +3666,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   editing the original entry, per this file's own convention of not
   rewriting history.
   Approved by: Farhad, in this session (2026-08-11).
+
+- **Fixed:** shared links (WhatsApp, Facebook, Messenger, etc.) showed
+  no thumbnail at all for the homepage and every archive/search page,
+  and for any article without a real featured image — found by
+  Farhad sharing the live site link and seeing no preview image.
+  Root cause: `class-seo.php`'s `og:image` tag was only ever output
+  when `is_singular() && has_post_thumbnail()` — both conditions had
+  to be true, so the front page, topic/publication/collection
+  archives, and search never got a tag at all, and a post using the
+  site's existing gray fallback image (via `shola_get_featured_image()`
+  elsewhere in the theme) still got skipped, since the SEO code
+  checked `has_post_thumbnail()` directly rather than going through
+  that same fallback logic.
+  New `SEO::get_share_image_url()` (three cases, always returns
+  something — `og:image` is no longer ever omitted): a singular post
+  with a real featured image uses it at the existing `shola_card`
+  size (unchanged); a singular post without one now falls back to
+  `assets/images/fallback.png`, the same image every card/hero on the
+  site already falls back to; every non-singular view uses a new
+  dedicated site-wide share image.
+  **New asset**: `assets/images/og-share.png` (1200×630, the standard
+  og:image dimension) — Farhad's own finished artwork (crimson
+  background, masthead wordmark in Farhang2, a flame silhouette + the
+  halftone-dot corner treatment matching `fallback.png`'s visual
+  family), supplied directly rather than approximated — several
+  earlier attempts at hand-tracing/generating the flame shape from
+  code didn't match closely enough, and pixel-extracting it from
+  `fallback.png` wasn't viable either (the tonal difference between
+  the flame and its background there is only ~5–7 levels out of 255,
+  too subtle to threshold cleanly) — so the real finished image was
+  used as-is rather than continuing to approximate it. Cropped from
+  Farhad's original 1672×941 file to the standard 1200×630 via a
+  symmetric top/bottom crop (no distortion, composition untouched).
+  Also added `og:image:width`/`og:image:height` for the site-wide
+  image (skipped for singular posts, where the real featured image's
+  dimensions vary per upload and platforms measure it themselves on
+  fetch).
+  **Verified live** (local): homepage/archives now emit `og:image`
+  pointing at `og-share.png` with correct width/height; a post with a
+  real featured image still uses that photo, unchanged; a post
+  without one (`Hello world!`) now correctly falls back to
+  `fallback.png` instead of omitting the tag; all three image URLs
+  confirmed to actually load (200, correct content-type) via direct
+  request, not just present in the HTML.
+  phpcs clean.
+  Approved by: Farhad, in this session (2026-08-11).
