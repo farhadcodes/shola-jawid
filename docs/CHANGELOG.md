@@ -3712,3 +3712,11 @@ trail of *why* the build deviated from — or newly applied — a rule in
   request, not just present in the HTML.
   phpcs clean.
   Approved by: Farhad, in this session (2026-08-11).
+
+- **Changed:** `single.php`'s related-essays section label — "ادامهٔ
+  خواندن" ("Continue reading") → "مطالب دیگر" ("More articles"),
+  Farhad's wording call. Both the visible `<h2>` and its aria-label
+  (identical text, kept in sync as a pair) updated. Only occurrence
+  in the codebase (`document`/`issue` singles don't have this
+  section). phpcs clean.
+  Approved by: Farhad, in this session (2026-08-11).

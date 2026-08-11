@@ -196,11 +196,11 @@ while ( have_posts() ) :
 		}
 		?>
 		<?php if ( $related_query && $related_query->have_posts() ) : ?>
-			<section class="wrap related-rail" aria-label="<?php esc_attr_e( 'ادامهٔ خواندن', 'shola-jawid' ); ?>">
+			<section class="wrap related-rail" aria-label="<?php esc_attr_e( 'مطالب دیگر', 'shola-jawid' ); ?>">
 
 				<div class="section-head kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'ادامهٔ خواندن', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php esc_html_e( 'مطالب دیگر', 'shola-jawid' ); ?></h2>
 				</div>
 
 				<div class="grid-cards">
