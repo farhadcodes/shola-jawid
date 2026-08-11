@@ -3641,3 +3641,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   E.
   phpcs clean on all 10 changed/new files.
   Approved by: Farhad, in this session (2026-08-10).
+
+## 2026-08-11 — Correction to the Phase F entry above
+- **Correction:** the Phase F entry above (2026-08-10) states that
+  `inc/template-tags.php`'s four fallback functions
+  (`shola_fallback_menu_sections()`, `shola_fallback_menu_more()`,
+  `shola_fallback_footer_topics()`, `shola_fallback_footer_site()`)
+  are "dead code in practice" since real menus are already seeded —
+  **true for only two of the four.** Found during the post-Phase-F
+  site-wide spot-check, by checking `shola_maybe_seed_nav_menus()`'s
+  `$to_seed` array directly rather than trusting the earlier
+  assumption: it seeds real, editor-assignable menus for
+  `menu_topics`, `menu_publications`, `menu_sections`, and
+  `menu_more` only. `footer_topics` and `footer_site` are
+  **deliberately excluded** from that seed list — confirmed live via
+  `get_nav_menu_locations()`, neither has an assigned menu — so
+  `shola_fallback_footer_topics()`/`shola_fallback_footer_site()`
+  are the live, by-design code path, not dead code: the footer's
+  topics column intentionally shows a curated 3-topic subset
+  (economy/afghanistan/women) plus "همهٔ موضوعات", not the full
+  taxonomy or an editor-maintained menu. Nothing was broken by this
+  — the footer has rendered correctly throughout — this is a
+  documentation-accuracy correction only, left in place rather than
+  editing the original entry, per this file's own convention of not
+  rewriting history.
+  Approved by: Farhad, in this session (2026-08-11).

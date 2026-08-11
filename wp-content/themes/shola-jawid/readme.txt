@@ -32,7 +32,13 @@ visual redesign was performed during conversion.
 == Changelog ==
 
 = 1.0.0 =
-* Initial scaffold.
+* Initial public release. Full theme + shola-core plugin conversion of the
+  v6 "Quiet Press" static prototype: articles, issues (PDF publications),
+  and library documents, with the topic/publication/collection content
+  model, CMS-editable social links and UI labels, real "most read"
+  tracking, custom SEO/sitemap, and site-wide RTL/logical-property
+  discipline. See docs/CHANGELOG.md in the repository for the full
+  development history.
 
 == Credits ==
 
