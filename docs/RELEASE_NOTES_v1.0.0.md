@@ -25,7 +25,7 @@ This is the first tagged release: a complete conversion of the `shola-jawid-ui-v
 - Least-privilege WordPress roles mapped to the IA doc's four roles (مدیر, سردبیر, نویسنده, همکار) — native capabilities, no role-management plugin.
 - Custom SEO: title tags, meta description, Open Graph tags, canonical URLs, and `sitemap.xml` via WordPress core's `wp_sitemaps_*` API — no SEO plugin.
 - Native search extended to include articles, notes, issues, and documents together, with real filter tabs (`result_type` query var).
-- Self-hosted fonts (Vazirmatn, Markazi Text, JetBrains Mono); Lighthouse performance baseline passed with no caching gap found.
+- Self-hosted fonts (Farhang2, ModamPro, Inter, JetBrains Mono, Newsreader); Lighthouse performance baseline passed with no caching gap found.
 
 **Security hardening**
 - Wordfence (firewall/malware-scan/brute-force) installed per the `CLAUDE.md` §3 whitelist.
