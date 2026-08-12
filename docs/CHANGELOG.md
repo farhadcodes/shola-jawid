@@ -3806,3 +3806,14 @@ trail of *why* the build deviated from — or newly applied — a rule in
   requested a full 7-item nav; this is the agreed compromise. خانه
   and درباره ما are not yet addressed, pending further discussion.
   Approved by: Farhad, in this session (2026-08-12).
+
+- **Changed (same-day follow-up, approved):** removed نشریات's
+  hover/focus dropdown from the desktop main nav (added earlier this
+  session) — Farhad's call that it's redundant, since the same
+  publication listing already exists in the popup menu
+  (`.menu-publications`). نشریات is now a plain link to
+  `/publications/`, same as موضوعات/کتابخانه; `.mast-nav-dropdown`/
+  `.mast-nav-panel` markup and CSS deleted outright, not just hidden
+  — confirmed neither exists in the rendered DOM anymore. `.mast-btn`
+  typography/spacing unchanged for all three items.
+  Approved by: Farhad, in this session (2026-08-12).

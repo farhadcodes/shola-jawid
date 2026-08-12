@@ -366,59 +366,27 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   text-transform: uppercase;
 }
 
-/* Main nav (desktop-only): نشریات (with its publication-switcher
-   dropdown) · موضوعات · کتابخانه — replaces the old bare publication-
-   switcher (شعله جاوید / جهان برای فتح) that used to sit here
-   directly; those two links now live one level down, in
-   .mast-nav-panel under "نشریات". Same .mast-btn typography/hover
-   treatment as the rest of the nav row (اطلاعیه‌ها/تماس in
-   .masthead-right) — no new nav-item styling pattern introduced.
-   2026-08-12, approved client change; see docs/CHANGELOG.md.
+/* Main nav (desktop-only): نشریات · موضوعات · کتابخانه — replaces the
+   old bare publication-switcher (شعله جاوید / جهان برای فتح) that used
+   to sit here directly. نشریات originally carried a hover/focus
+   dropdown to the two publication links (2026-08-12) — removed the
+   same day per Farhad: that listing already exists in the popup menu
+   (.menu-publications), redundant here. نشریات is now a plain link to
+   /publications/ like its siblings, no submenu markup left behind
+   (.mast-nav-dropdown/.mast-nav-panel deleted, not just hidden). Same
+   .mast-btn typography/hover treatment as the rest of the nav row
+   (اطلاعیه‌ها/تماس in .masthead-right) — no new nav-item styling
+   pattern introduced. See docs/CHANGELOG.md.
 
    nav.mast-pub-nav (element+class, not just .mast-pub-nav): a bare
    class selector here loses the cascade to .hide-mobile's `display:
    initial` (same specificity, .hide-mobile defined later in this
-   file) — found live, computed display was falling back to <nav>'s
-   default `block`, which turned .mast-nav-dropdown into a block-level
-   line-breaker and wrapped موضوعات/کتابخانه onto a second row. The
-   extra element-type selector wins regardless of source order. */
+   file) — found live when this rule only had نشریات's now-removed
+   dropdown div to break on, but the underlying specificity issue is
+   unrelated to the dropdown and still applies to this plain three-
+   link row, so the fix stays. The extra element-type selector wins
+   regardless of source order. */
 nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
-.mast-nav-dropdown { display: inline-block; position: relative; }
-/* Pure-CSS reveal (:hover/:focus-within) — no JS dependency, so this
-   works identically with or without JS, per CLAUDE.md §5. :focus-within
-   fires the moment "نشریات" itself receives keyboard focus, which is
-   what lets Tab reach the two links inside — they're unreachable while
-   display:none, but become focusable the instant the trigger is
-   focused since the panel switches to visible before the browser moves
-   focus onward. */
-.mast-nav-panel {
-  position: absolute;
-  inset-inline-start: 0;
-  top: calc(100% + .5rem);
-  z-index: 20;
-  min-width: 10rem;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
-  padding: .5rem;
-  display: none;
-  flex-direction: column;
-  gap: .15rem;
-}
-.mast-nav-dropdown:hover .mast-nav-panel,
-.mast-nav-dropdown:focus-within .mast-nav-panel {
-  display: flex;
-}
-.mast-nav-panel a {
-  display: block;
-  padding: .5rem .6rem;
-  font-family: var(--font-fa);
-  font-size: var(--t-small);
-  color: var(--ink);
-  text-align: start;
-  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-.mast-nav-panel a:hover { background: var(--cream); color: var(--crimson); }
 
 @media (max-width: 720px) {
   .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: 1rem; }
@@ -448,8 +416,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
  * .link-quiet:hover's crimson-on-crimson hover was effectively invisible.
  * Originally mirrored the old .mast-sister a's color values (same white
  * family as the publication-switcher links that used to sit in this row —
- * .mast-sister itself was removed 2026-08-12 when that switcher moved into
- * .mast-nav-panel, but these values are independent and still correct, so
+ * .mast-sister was removed 2026-08-12 along with the nav rework that
+ * followed it, but these values are independent and still correct, so
  * kept as-is). Intentionally no border-bottom — no underline on this icon,
  * hover only changes color. Higher specificity than .link-quiet:hover so it
  * always wins regardless of source order.

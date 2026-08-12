@@ -47,20 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</a>
 
 			<nav class="mast-pub-nav" aria-label="<?php esc_attr_e( 'پیوندهای اصلی', 'shola-jawid' ); ?>">
-				<div class="mast-nav-dropdown">
-					<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
-					<div class="mast-nav-panel">
-						<?php foreach ( shola_get_publication_slugs_ordered() as $slug ) : ?>
-							<?php
-							$term = get_term_by( 'slug', $slug, 'publication' );
-							if ( ! $term ) {
-								continue;
-							}
-							?>
-							<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
-						<?php endforeach; ?>
-					</div>
-				</div>
+				<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true" class="mast-slash-light">/</span>
 				<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true" class="mast-slash-light">/</span>
