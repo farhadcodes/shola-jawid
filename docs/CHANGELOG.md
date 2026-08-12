@@ -3741,3 +3741,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Reason: per client review of the live site — Farhad requested only
   the nameplate and date remain visible in the masthead.
   Approved by: Farhad, in this session (2026-08-12).
+
+- **Fixed:** `single.php`'s article hero (title/breadcrumb/dek
+  overlaid on the header photo) ran below the fold on real desktop
+  browser windows — found by Farhad on the live site, screenshot
+  showing the title cut off mid-word. Root cause: `.article-hero-media`
+  used a fixed `21/9` aspect-ratio on desktop, which can render taller
+  than the actually-visible viewport once real browser chrome
+  (bookmarks bar, tabs) is accounted for — the bottom-anchored text
+  then sits partly below the fold. The homepage hero (`.hero-media`)
+  already solved this exact problem by sizing itself to
+  `calc(100dvh - var(--masthead-h))` at every width, not just mobile;
+  the article hero only had that treatment inside its
+  `max-width: 720px` mobile media query (added 2026-08-08 for B4),
+  leaving desktop on the old fixed-ratio behavior. Extended the same
+  viewport-height sizing to the desktop default, removed the now-
+  redundant duplicate rule from the mobile media query (which kept
+  only its mobile-specific text-positioning override), matching the
+  homepage hero exactly — same CSS variable, same values, no JS
+  changes needed (`--masthead-h` is already set live by
+  `assets/js/main.js`, `.hero-media` and `.article-hero-media` just
+  both read it now).
+  Verified live at 1440×900 (a realistic constrained desktop window,
+  the scenario from Farhad's screenshot): title, breadcrumb, and dek
+  all fully visible without scrolling.
+  Approved by: Farhad, in this session (2026-08-12).
