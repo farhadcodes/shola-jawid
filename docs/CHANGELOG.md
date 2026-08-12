@@ -3720,3 +3720,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   in the codebase (`document`/`issue` singles don't have this
   section). phpcs clean.
   Approved by: Farhad, in this session (2026-08-11).
+
+## 2026-08-12
+- **Changed (approved v6 deviation):** masthead subtitle simplified
+  from "date · issue number · SHOLA JAWID" to date only —
+  `shola_get_masthead_runner()` (`inc/template-tags.php`) no longer
+  appends `شماره %s` or the fixed Latin brand code
+  (`shola_get_masthead_code()`), just `get_the_date()` for the latest
+  published issue (unchanged date logic — still runs through the
+  Persian Calendar plugin + `shola_convert_jalali_months_to_dari()`).
+  Falls back to an empty string, not the brand code, when no issue is
+  published yet, since there's nothing to date the masthead by in
+  that case. `shola_get_masthead_code()` itself is now unused by this
+  function — left in place rather than deleted, since removing it
+  wasn't part of this request; flagged to Farhad separately.
+  No CSS changes needed: `.mast-brand { text-align: center; }` already
+  centers the runner regardless of its length. Verified live: masthead
+  now reads exactly "۱۵ اسد ۱۴۰۵" under the nameplate, no separators,
+  centered.
+  Reason: per client review of the live site — Farhad requested only
+  the nameplate and date remain visible in the masthead.
+  Approved by: Farhad, in this session (2026-08-12).

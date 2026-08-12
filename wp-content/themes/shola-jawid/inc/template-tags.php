@@ -339,23 +339,22 @@ function shola_get_masthead_code() {
 }
 
 /**
- * Masthead runner text ("SHOLA JAWID · شماره ۳۲ · سرطان ۱۴۰۵" in v6) —
- * built from the latest published issue's number + date if one exists,
- * falling back to just the brand code so the masthead never shows stale
- * placeholder data once real content exists.
+ * Masthead runner text — date only, per Farhad's 2026-08-12 review of
+ * the live site (previously "SHOLA JAWID · شماره ۳۲ · ۱۵ اسد ۱۴۰۵";
+ * see docs/CHANGELOG.md). Uses the latest published issue's date so
+ * the masthead never shows stale placeholder data once real content
+ * exists; empty when no issue is published yet (nothing to date it
+ * by), rather than falling back to a brand-code string that no longer
+ * has a place in this design.
  *
- * Bug fixed 2026-08-06 (found by Farhad comparing page-topics.php and
- * page-publications.php against v6): this previously used
- * get_bloginfo('name') — the Persian site title — for the first segment,
- * when v6's actual source uses the fixed Latin brand code instead. The
- * Persian nameplate is already shown separately in header.php; this
- * function only builds the mono-label runner beneath it.
+ * get_the_date() here is what actually renders the Jalali date via
+ * the Persian Calendar plugin + shola_convert_jalali_months_to_dari()
+ * — untouched by this change, only the surrounding code/issue-number
+ * segments were removed.
  *
  * @return string
  */
 function shola_get_masthead_runner() {
-	$code = shola_get_masthead_code();
-
 	$latest = get_posts(
 		array(
 			'post_type'      => 'issue',
@@ -366,21 +365,10 @@ function shola_get_masthead_runner() {
 	);
 
 	if ( ! $latest ) {
-		return $code;
+		return '';
 	}
 
-	$number = get_post_meta( $latest[0]->ID, 'shcore_issue_number', true );
-	if ( ! $number ) {
-		return $code;
-	}
-
-	return sprintf(
-		/* translators: 1: fixed Latin brand code (not translatable), 2: issue number, 3: issue date. */
-		__( '%1$s · شماره %2$s · %3$s', 'shola-jawid' ),
-		$code,
-		$number,
-		get_the_date( '', $latest[0] )
-	);
+	return get_the_date( '', $latest[0] );
 }
 
 /**
