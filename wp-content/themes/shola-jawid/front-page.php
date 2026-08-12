@@ -108,6 +108,164 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 <?php endif; ?>
 
 <?php
+/*
+ * گزارشات (Reports) — articles tagged with the گزارشات topic term.
+ * Computed here, ahead of its own section below, because مقالات's
+ * exclusion pool (next) needs its post IDs — گزارشات is itself one of
+ * the موضوعات topics مقالات draws from, so without this exclusion the
+ * same article could legitimately appear in both new sections at
+ * once. Not part of the original spec's explicit instructions (that
+ * part was left as an open question); resolved this way and logged in
+ * docs/CHANGELOG.md, not decided silently. get_term_by( 'name', ... )
+ * rather than 'slug' — this term's slug is Persian and gets URL-
+ * encoded by sanitize_title(), 'name' avoids that entirely.
+ */
+$reports_term  = get_term_by( 'name', 'گزارشات', 'topic' );
+$reports_query = null;
+if ( $reports_term ) {
+	$reports_query = new WP_Query(
+		array(
+			'post_type'      => 'post',
+			'posts_per_page' => 6,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'topic',
+					'field'    => 'term_id',
+					'terms'    => $reports_term->term_id,
+				),
+			),
+		)
+	);
+}
+
+/*
+ * مقالات (Articles) — every topic combined, explicitly excluding
+ * anything already shown in تازه‌ترین‌ها above (same query args as
+ * $latest_query, including the post that became the hero — it was
+ * fetched by that exact query before the hero-extraction logic ran,
+ * so it counts as "shown" too) plus گزارشات's own posts (see comment
+ * above). post__not_in, not an offset/date cutoff, per the explicit
+ * requirement: no drift if either query's args ever change
+ * independently. This makes مقالات a self-refreshing "next tier
+ * down" — as newer posts rotate into تازه‌ترین‌ها, whatever ages out
+ * starts appearing here automatically, no manual curation.
+ */
+$articles_excluded_ids = wp_list_pluck( $latest_query->posts, 'ID' );
+if ( $reports_query ) {
+	$articles_excluded_ids = array_merge( $articles_excluded_ids, wp_list_pluck( $reports_query->posts, 'ID' ) );
+}
+$articles_query = new WP_Query(
+	array(
+		'post_type'      => 'post',
+		'posts_per_page' => 6,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'post__not_in'   => $articles_excluded_ids,
+	)
+);
+?>
+
+<?php if ( $articles_query->have_posts() ) : ?>
+	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'مقالات', 'shola-jawid' ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'مقالات', 'shola-jawid' ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="grid-cards">
+				<?php
+				while ( $articles_query->have_posts() ) :
+					$articles_query->the_post();
+					get_template_part(
+						'template-parts/cards/card',
+						null,
+						array(
+							'post' => get_post(),
+							'type' => 'article',
+						)
+					);
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php if ( $reports_query && $reports_query->have_posts() ) : ?>
+	<section class="wrap sect" aria-label="<?php esc_attr_e( 'گزارشات', 'shola-jawid' ); ?>">
+		<div class="section-head row-between">
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h2 class="h-section"><?php esc_html_e( 'گزارشات', 'shola-jawid' ); ?></h2>
+			</div>
+			<a class="link-more" href="<?php echo esc_url( get_term_link( $reports_term ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+		</div>
+		<div class="grid-cards">
+			<?php
+			while ( $reports_query->have_posts() ) :
+				$reports_query->the_post();
+				get_template_part(
+					'template-parts/cards/card',
+					null,
+					array(
+						'post' => get_post(),
+						'type' => 'article',
+					)
+				);
+			endwhile;
+			wp_reset_postdata();
+			?>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
+// انتشارات حزب (Party Publications) — recent issues across both
+// publications, no publication-term restriction. issue-card.php, not
+// card.php: structurally distinct anatomy (portrait cover, box-shadow,
+// no dek/byline) confirmed in docs/CHANGELOG.md Phase 1.2 — not a
+// variant of the article card. .issue-grid, the same shelf-density
+// wrapper class taxonomy-publication.php already uses (1 col mobile ->
+// 3 -> 4 -> 5 col desktop), not .grid-cards.
+$party_issues_query = new WP_Query(
+	array(
+		'post_type'      => 'issue',
+		'posts_per_page' => 10,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+);
+?>
+<?php if ( $party_issues_query->have_posts() ) : ?>
+	<section class="sect-tint sect" aria-label="<?php esc_attr_e( 'انتشارات حزب', 'shola-jawid' ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'همهٔ نشرات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="issue-grid">
+				<?php
+				while ( $party_issues_query->have_posts() ) :
+					$party_issues_query->the_post();
+					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
 $current_issue_query = new WP_Query(
 	array(
 		'post_type'      => 'issue',

@@ -3817,3 +3817,60 @@ trail of *why* the build deviated from — or newly applied — a rule in
   — confirmed neither exists in the rendered DOM anymore. `.mast-btn`
   typography/spacing unchanged for all three items.
   Approved by: Farhad, in this session (2026-08-12).
+
+- **Added (approved v6 deviation, implements client feedback item #3):**
+  three new homepage sections after تازه‌ترین‌ها — مقالات، گزارشات،
+  انتشارات حزب. Homepage originally had no per-category sections
+  below تازه‌ترین‌ها; added per client request to increase homepage
+  content density.
+  مقالات pulls from all موضوعات topics combined (`post_type => post`,
+  no topic restriction), explicitly excluding any article already
+  shown in تازه‌ترین‌ها via `post__not_in` — built from
+  `$latest_query`'s own post IDs (the same 7-post query تازه‌ترین‌ها
+  already runs, hero included, since the hero post was fetched by
+  that exact query before the hero-extraction logic split it out) so
+  there's no drift if either query's args change independently. This
+  makes مقالات a self-refreshing "next tier down": as newer posts
+  rotate into تازه‌ترین‌ها, whatever ages out starts appearing in
+  مقالات automatically, no manual curation.
+  Resolved the one open question from the original spec, not left
+  silent: گزارشات articles are *also* excluded from مقالات's pool
+  (same `post__not_in` treatment, گزارشات's post IDs added to the
+  exclusion list) — since گزارشات is itself one of the موضوعات topics
+  مقالات draws from, leaving it unexcluded would let the same article
+  legitimately appear in both new sections at once. Verified against
+  real content this was the right call: without it, posts 21/1/22/23
+  would have appeared in both گزارشات and مقالات simultaneously.
+  گزارشات itself pulls from the existing گزارشات topic term
+  (`get_term_by( 'name', 'گزارشات', 'topic' )` — its slug is Persian
+  and gets URL-encoded by `sanitize_title()`, 'name' avoids that
+  entirely), same `tax_query` pattern as `taxonomy-topic.php`. No
+  exclusion relative to تازه‌ترین‌ها — overlap there is expected and
+  fine per spec (confirmed live: تنهایی/قالین‌بافان/آب-زمین articles
+  correctly appear in both).
+  مقالات/گزارشات use the existing `card.php` article-card partial
+  (`.grid-cards`, same 2–3 column density as تازه‌ترین‌ها) — no new
+  card component. انتشارات حزب uses the existing `issue-card.php`
+  partial (`.issue-grid`, the same shelf-density wrapper class
+  `taxonomy-publication.php` already uses, 1→3→4→5 columns) since
+  `.issue-card` is a structurally distinct component, not a `.card`
+  variant (Phase 1.2 finding). Recent issues across both publications,
+  no publication-term restriction.
+  Background bands alternate through existing tokens only — مقالات
+  `.sect-cream`, گزارشات default/paper (no class, same as
+  تازه‌ترین‌ها), انتشارات حزب `.sect-tint` — no new colors, `.sect-tint`
+  already existed as a utility class (used nowhere before this).
+  Full sequence confirmed with no two adjacent sections sharing a
+  background: تازه‌ترین‌ها (paper) → مقالات (cream) → گزارشات (paper)
+  → انتشارات حزب (tint) → شمارهٔ جاری (cream, pre-existing, unchanged).
+  Verified live: zero-overlap cross-checked at the post-ID level (not
+  just titles) between تازه‌ترین‌ها∩مقالات and گزارشات∩مقالات — both
+  empty; all three sections confirmed pulling real seeded content, not
+  placeholders (6/6/8 posts respectively); desktop and mobile (390px)
+  both screenshotted, card grids and the issue shelf grid both collapse
+  correctly at mobile width, matching the same responsive behavior
+  already used elsewhere for each component; zero console errors.
+  تازه‌ترین‌ها itself, and everything from شمارهٔ جاری downward, left
+  completely untouched — just shifted down in page order.
+  phpcs clean.
+  Approved by: Farhad, in this session (2026-08-12).
