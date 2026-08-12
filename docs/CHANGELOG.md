@@ -3766,3 +3766,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the scenario from Farhad's screenshot): title, breadcrumb, and dek
   all fully visible without scrolling.
   Approved by: Farhad, in this session (2026-08-12).
+
+- **Changed (approved client change):** main nav updated on desktop —
+  the publication switcher (شعله جاوید / جهان برای فتح, previously a
+  bare `.mast-sister` span sitting directly in the nav row) moved
+  into a dropdown under a new "نشریات" top-level item
+  (`.mast-nav-dropdown` / `.mast-nav-panel`, pure-CSS `:hover`/
+  `:focus-within` reveal, no JS dependency per CLAUDE.md §5). Two more
+  top-level items added alongside it — موضوعات (`/topics/`) and
+  کتابخانه (`/library/`) — using the same `.mast-btn` typography/
+  hover treatment as the rest of the nav row (اطلاعیه‌ها/تماس), no new
+  nav-item styling pattern. **Mobile nav intentionally left
+  unchanged** — the new `.mast-pub-nav` is desktop-only; the mobile
+  popup menu's own separate "نشرات" listing
+  (`.menu-publications` in the `#menu-panel` markup) is a different
+  block entirely and was never touched.
+  Two real bugs found and fixed during this change's own live
+  verification, not left as known issues: (1) `.mast-pub-nav`'s
+  `display: inline-flex` was losing the cascade to `.hide-mobile`'s
+  own unconditional `display: initial` (same specificity, `.hide-
+  mobile` defined later in the file) — computed display fell back to
+  `<nav>`'s default `block`, and the block-level `.mast-nav-dropdown`
+  div then force-wrapped موضوعات/کتابخانه onto a second line. Fixed
+  by bumping the selector to `nav.mast-pub-nav`. (2) That same
+  specificity bump then made `.mast-pub-nav` beat `.hide-mobile`'s
+  mobile `display: none` too, leaking the new nav items onto the
+  mobile masthead — fixed with an explicit, equal-specificity
+  `nav.mast-pub-nav { display: none }` inside the existing
+  `max-width: 720px` media query, and removed the now-redundant
+  `hide-mobile` class from the element in `header.php` entirely
+  (relying on the shared utility class was what caused both bugs).
+  Verified live: desktop nav reads نشریات · موضوعات · کتابخانه on one
+  line, RTL order correct (منو → search → نشریات/موضوعات/کتابخانه →
+  رest of nav, right to left); hover on نشریات reveals the two
+  publication links; mobile masthead and mobile popup menu re-checked
+  after the fix and confirmed identical to before this change — same
+  items, same order, same publication-switcher behavior.
+  Partial implementation of client feedback item #2 — client
+  requested a full 7-item nav; this is the agreed compromise. خانه
+  and درباره ما are not yet addressed, pending further discussion.
+  Approved by: Farhad, in this session (2026-08-12).

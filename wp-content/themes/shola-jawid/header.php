@@ -46,23 +46,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
 
-			<span class="mast-sister mast-sister-desktop hide-mobile" aria-label="<?php esc_attr_e( 'نشریات', 'shola-jawid' ); ?>">
-				<?php
-				$sister_slugs = shola_get_publication_slugs_ordered();
-				foreach ( $sister_slugs as $i => $slug ) :
-					$term = get_term_by( 'slug', $slug, 'publication' );
-					if ( ! $term ) {
-						continue;
-					}
-					if ( $i > 0 ) :
-						?>
-						<span class="sep" aria-hidden="true">/</span>
-					<?php endif; ?>
-					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
-					<?php
-				endforeach;
-				?>
-			</span>
+			<nav class="mast-pub-nav" aria-label="<?php esc_attr_e( 'پیوندهای اصلی', 'shola-jawid' ); ?>">
+				<div class="mast-nav-dropdown">
+					<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
+					<div class="mast-nav-panel">
+						<?php foreach ( shola_get_publication_slugs_ordered() as $slug ) : ?>
+							<?php
+							$term = get_term_by( 'slug', $slug, 'publication' );
+							if ( ! $term ) {
+								continue;
+							}
+							?>
+							<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<span aria-hidden="true" class="mast-slash-light">/</span>
+				<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
+				<span aria-hidden="true" class="mast-slash-light">/</span>
+				<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			</nav>
 		</div>
 
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>" class="mast-brand">
