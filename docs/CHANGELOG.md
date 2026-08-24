@@ -3954,3 +3954,115 @@ trail of *why* the build deviated from — or newly applied — a rule in
   تازه‌ها/`home_latest_heading`, مقالات) and after موضوعات (کتابخانه,
   اطلاعیه‌ها) are unaffected, left in their existing positions.
   Approved by: Farhad, in this session (2026-08-24).
+
+## 2026-08-24 — Phase C (topic taxonomy migration)
+- **Changed:** `topic` taxonomy migrated from six terms to the client's
+  nine-term list, in this exact order: جهان، افغانستان، کارگری، زنان،
+  سیاست، اقتصاد، علم و هنر، جنبش کمونیستی بین‌المللی، جنبش چپ
+  افغانستان. Full read-only audit performed first (post counts, every
+  call site querying `topic` by slug/term-ID, confirmation `collection`
+  term_id 12 — journeying the same name, جنبش بین‌المللی, for the
+  library — is a fully distinct term record from the old `topic`
+  term_id 7 of the same name); DB backup taken via direct `mysqldump`
+  invocation (`wp db export` silently defaulted to the wrong MySQL
+  port for this LocalWP site — the site's actual port only exists in
+  `php.ini`, not something the standalone `mysqldump`/`mysql` binaries
+  know) before any write.
+  - Deleted `سلامت و روان` (term_id 26, 0 posts, confirmed empty
+    immediately before deletion).
+  - `گزارشات` (term_id 42) was a placeholder term, never part of the
+    client's real taxonomy. Its 6 posts (all of which already carried
+    a real topic term alongside گزارشات) were each given one
+    additional term from the new nine-term set, round-robin, before
+    گزارشات was deleted — two of the six (posts 1 and 55) coincided
+    with a term they already had (افغانستان, اقتصاد respectively), a
+    harmless no-op given "no need to match by content/topic" was the
+    explicit instruction.
+  - Created the five missing terms (کارگری/`labor`,
+    سیاست/`politics`, علم و هنر/`science-and-art` — this one also
+    resolves a pre-existing code/DB mismatch flagged in the audit: the
+    slug was hardcoded in three files but the term didn't exist in the
+    DB, جنبش کمونیستی بین‌المللی/`international-communist-movement`,
+    جنبش چپ افغانستان/`afghanistan-left-movement`). Slugs weren't
+    specified by the client; chosen to match the existing English-slug
+    convention, flagged for review.
+  - جنبش بین‌المللی (`topic`, term_id 7) migrated to جنبش کمونیستی
+    بین‌المللی (new term_id 46): post 25 reassigned, old term then
+    deleted. `collection` term_id 12 (same name, library-side)
+    confirmed untouched throughout — verified both before and after
+    the topic-side deletion.
+  - Term display order (`shola_get_topic_slugs_ordered()` reads the
+    `menu_topics` nav menu, not a DB term-order field — found the menu
+    was already out of sync with code, missing 2 of the original 6
+    items) rebuilt from scratch with all 9 terms in the client's exact
+    order.
+  - `wp rewrite flush` run after term creation — new terms 404'd on
+    their `/topics/{slug}/` archive until rewrite rules regenerated;
+    not a data change, standard post-taxonomy-change maintenance.
+  - Three guarded/idempotent hardcoded fallback arrays updated to the
+    new 9-slug set (`class-taxonomies.php`'s `create_default_terms()`,
+    `inc/setup.php`'s `shola_maybe_seed_nav_menus()`, `inc/
+    template-tags.php`'s `shola_get_topic_slugs_ordered()` fallback) —
+    code hygiene only, none of the three re-fire on this live site
+    (all guarded by an already-set option/existing terms), so this is
+    not a functional change to the live site.
+  All 11 call sites from the audit re-verified live post-migration
+  (homepage sections, taxonomy archives — both populated and 0-post
+  terms — single.php breadcrumb/badge, search results, footer's
+  curated fallback subset, `filter_post_permalink()`'s generated
+  URLs, admin metabox term dropdown already self-updating by design).
+  Approved by: Farhad, in this session (2026-08-24).
+
+- **Removed:** The گزارشات homepage section (`front-page.php`) removed
+  entirely — heading, view-all link, card grid markup, the
+  `$reports_term`/`$reports_query` block including the
+  `get_term_by('name', 'گزارشات', 'topic')` call that the term
+  deletion above left permanently returning false, and its
+  contribution to مقالات's post-exclusion pool. No commented-out code
+  left behind. Confirmed no other file (header.php's popup menu,
+  `menu_sections`, etc.) referenced this section.
+  Background-band alternation broke as a direct result (مقالات
+  `.sect-cream` became adjacent to شمارهٔ جاری `.sect-cream`, previously
+  separated by گزارشات's paper band) — fixed by reverting شمارهٔ جاری
+  from `.sect-cream` to plain/paper, since its cream banding was
+  originally justified specifically by گزارشات's now-gone paper band
+  (see the Phase A entry above). New sequence, live-verified via DOM:
+  تازه‌ها (paper) → مقالات (cream) → شمارهٔ جاری (paper) → انتشارات حزب
+  (tint) → موضوعات (paper) — no adjacent repeats at either touched
+  boundary; palette itself unchanged, only which existing class
+  applies to شمارهٔ جاری.
+  Approved by: Farhad, in this session (2026-08-24).
+
+- **Added:** New brand token `--cinder-red` (`#330A0A`), "Cinder Red",
+  same `:root` sub-block as Winston Red. New utility class
+  `.menu-topic--c7` (`color: var(--cinder-red)`) added alongside the
+  existing hardcoded `.menu-topic--c1..c6` — this one uses the CSS
+  custom property rather than a bare hex, matching Winston Red's
+  precedent rather than the older classes' pattern.
+  Reason: the Phase C topic migration grew `topic` from 6 to 9 terms,
+  but only 6 crimson-family shades existed for
+  `shola_topic_color_class()` — 4 of the 9 slugs (`labor`, `politics`,
+  `international-communist-movement`, `afghanistan-left-movement`)
+  were silently collapsing onto the same fallback shade (`c1`).
+  Originally proposed 3 new shades for review; Farhad approved a
+  cheaper 2-shade path instead — reassign the orphaned `c5` (its
+  original owner, `international-movement`, was deleted in this same
+  migration, leaving the shade unused) rather than minting a shade for
+  every gap, and add only one genuinely new shade. One of the three
+  originally-proposed shades ("Vanguard Red", `#B23535`) was dropped
+  entirely on Farhad's explicit call, specifically because it was
+  flagged as risking a drift toward pink — no reason to accept that
+  risk once a cheaper path existed.
+  Final mapping — `economy` → c1, `world` → c2, `afghanistan` → c3,
+  `women` → c4, `politics` → c5 (reassigned from the orphaned slot),
+  `science-and-art` → c6, `international-communist-movement` → c7
+  (Cinder Red, new), `labor` → c1 (deliberate reuse, shared with
+  economy — the other "material" topic, as opposed to the
+  movement/politics topics on the newer/reassigned shades; color here
+  is a secondary accent, topic-name text is the primary identifier),
+  `afghanistan-left-movement` → unmapped/falls back to c1 (0 posts,
+  left for later per the original proposal). Live DOM-verified in the
+  rendered popup menu: all 9 topics show a real, correctly-resolved
+  color (Cinder Red's `var(--cinder-red)` computed to `rgb(51,10,10)`
+  = `#330A0A` exactly).
+  Approved by: Farhad, in this session (2026-08-24).

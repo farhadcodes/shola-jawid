@@ -21,6 +21,7 @@
 
   /* Approved v6 deviations (see docs/CHANGELOG.md) */
   --winston-red:    #CC0000;
+  --cinder-red:     #330A0A;
 
   /* Functional */
   --ok:             #1E7B4F;
@@ -496,6 +497,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .menu-topic--c4 { color: #A83232; }   /* lighter crimson mix */
 .menu-topic--c5 { color: #5C2020; }   /* mid */
 .menu-topic--c6 { color: #7D1818; }   /* mid-deep */
+.menu-topic--c7 { color: var(--cinder-red); }   /* Cinder Red — Phase C topic migration, 2026-08-24, see docs/CHANGELOG.md */
 
 /* flex-wrap added 2026-08-08: up to 11 platform icons + RSS can now
    render here (expanded from a fixed 3), so this needs to wrap onto

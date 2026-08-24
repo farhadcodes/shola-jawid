@@ -109,54 +109,25 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 
 <?php
 /*
- * گزارشات (Reports) — articles tagged with the گزارشات topic term.
- * Computed here, ahead of its own section below, because مقالات's
- * exclusion pool (next) needs its post IDs — گزارشات is itself one of
- * the موضوعات topics مقالات draws from, so without this exclusion the
- * same article could legitimately appear in both new sections at
- * once. Not part of the original spec's explicit instructions (that
- * part was left as an open question); resolved this way and logged in
- * docs/CHANGELOG.md, not decided silently. get_term_by( 'name', ... )
- * rather than 'slug' — this term's slug is Persian and gets URL-
- * encoded by sanitize_title(), 'name' avoids that entirely.
- */
-$reports_term  = get_term_by( 'name', 'گزارشات', 'topic' );
-$reports_query = null;
-if ( $reports_term ) {
-	$reports_query = new WP_Query(
-		array(
-			'post_type'      => 'post',
-			'posts_per_page' => 6,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'topic',
-					'field'    => 'term_id',
-					'terms'    => $reports_term->term_id,
-				),
-			),
-		)
-	);
-}
-
-/*
  * مقالات (Articles) — every topic combined, explicitly excluding
- * anything already shown in تازه‌ترین‌ها above (same query args as
+ * anything already shown in تازه‌ها above (same query args as
  * $latest_query, including the post that became the hero — it was
  * fetched by that exact query before the hero-extraction logic ran,
- * so it counts as "shown" too) plus گزارشات's own posts (see comment
- * above). post__not_in, not an offset/date cutoff, per the explicit
- * requirement: no drift if either query's args ever change
- * independently. This makes مقالات a self-refreshing "next tier
- * down" — as newer posts rotate into تازه‌ترین‌ها, whatever ages out
- * starts appearing here automatically, no manual curation.
+ * so it counts as "shown" too). post__not_in, not an offset/date
+ * cutoff, per the explicit requirement: no drift if $latest_query's
+ * args ever change independently. This makes مقالات a self-refreshing
+ * "next tier down" — as newer posts rotate into تازه‌ها, whatever ages
+ * out starts appearing here automatically, no manual curation.
+ *
+ * Previously also excluded a گزارشات section's posts (Phase B); that
+ * section pulled from a placeholder topic term that was never part of
+ * the client's real taxonomy and has since been deleted (Phase C topic
+ * migration, 2026-08-24, docs/CHANGELOG.md) — the section itself
+ * (and its exclusion contribution here) was removed in the same
+ * migration, not left as dead code.
  */
 $articles_excluded_ids = wp_list_pluck( $latest_query->posts, 'ID' );
-if ( $reports_query ) {
-	$articles_excluded_ids = array_merge( $articles_excluded_ids, wp_list_pluck( $reports_query->posts, 'ID' ) );
-}
-$articles_query = new WP_Query(
+$articles_query        = new WP_Query(
 	array(
 		'post_type'      => 'post',
 		'posts_per_page' => 6,
@@ -197,34 +168,6 @@ $articles_query = new WP_Query(
 	</section>
 <?php endif; ?>
 
-<?php if ( $reports_query && $reports_query->have_posts() ) : ?>
-	<section class="wrap sect" aria-label="<?php esc_attr_e( 'گزارشات', 'shola-jawid' ); ?>">
-		<div class="section-head row-between">
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'گزارشات', 'shola-jawid' ); ?></h2>
-			</div>
-			<a class="link-more" href="<?php echo esc_url( get_term_link( $reports_term ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-		</div>
-		<div class="grid-cards">
-			<?php
-			while ( $reports_query->have_posts() ) :
-				$reports_query->the_post();
-				get_template_part(
-					'template-parts/cards/card',
-					null,
-					array(
-						'post' => get_post(),
-						'type' => 'article',
-					)
-				);
-			endwhile;
-			wp_reset_postdata();
-			?>
-		</div>
-	</section>
-<?php endif; ?>
-
 <?php
 $current_issue_query = new WP_Query(
 	array(
@@ -240,11 +183,18 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 	<?php
 	/*
 	 * شمارهٔ جاری reordered ahead of انتشارات حزب, 2026-08-24 (Phase A,
-	 * client-approved) — .sect-cream unchanged (still distinct from
-	 * گزارشات's paper band directly above it). See docs/CHANGELOG.md.
+	 * client-approved). Background changed from .sect-cream to plain
+	 * (paper), 2026-08-24 (Phase C, گزارشات-section removal) — its
+	 * cream banding depended on گزارشات's paper band sitting directly
+	 * above it (see Phase A's comment, since removed); with that paper
+	 * band gone, مقالات's own .sect-cream now sits immediately above,
+	 * so this section reverts to plain to keep background-band
+	 * alternation intact (مقالات cream → شمارهٔ جاری paper → انتشارات
+	 * حزب tint → موضوعات paper, no adjacent repeats). See
+	 * docs/CHANGELOG.md.
 	 */
 	?>
-	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
+	<section class="sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
 				<div class="kicker-row">

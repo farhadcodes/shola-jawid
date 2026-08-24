@@ -211,10 +211,14 @@ function shola_get_featured_image( $post = null, $size = 'post-thumbnail', $attr
 }
 
 /**
- * The six topic terms cycle through six fixed crimson-family shades in the
- * v6 popup menu (main.css §06, .menu-topic--c1..c6). v6 hardcodes each
- * topic to a specific shade in a fixed order (economy=c1 ... science-and-art
- * =c6); mapped here by slug rather than by term_id/position so it doesn't
+ * Topic terms cycle through fixed crimson-family shades in the v6 popup
+ * menu (main.css §06, .menu-topic--c1..c7 — c7/Cinder Red added Phase C,
+ * 2026-08-24, docs/CHANGELOG.md). Originally six terms/six shades
+ * (economy=c1 ... science-and-art=c6, one-to-one); the Phase C topic
+ * migration grew the vocabulary to nine terms without adding six new
+ * shades, so this is now a many-to-one mapping in places (see the
+ * in-array comments below for which topics share a shade and why).
+ * Mapped here by slug rather than by term_id/position so it doesn't
  * depend on get_terms() ordering.
  *
  * @param string $slug Topic term slug.
@@ -222,12 +226,25 @@ function shola_get_featured_image( $post = null, $size = 'post-thumbnail', $attr
  */
 function shola_topic_color_class( $slug ) {
 	$map = array(
-		'economy'                => 'menu-topic--c1',
-		'world'                  => 'menu-topic--c2',
-		'afghanistan'            => 'menu-topic--c3',
-		'women'                  => 'menu-topic--c4',
-		'international-movement' => 'menu-topic--c5',
-		'science-and-art'        => 'menu-topic--c6',
+		'economy'                           => 'menu-topic--c1',
+		'world'                             => 'menu-topic--c2',
+		'afghanistan'                       => 'menu-topic--c3',
+		'women'                             => 'menu-topic--c4',
+		'science-and-art'                   => 'menu-topic--c6',
+		// Phase C topic migration (2026-08-24, docs/CHANGELOG.md): c5
+		// was orphaned when its old owner, international-movement, was
+		// deleted — reassigned here to politics rather than adding a
+		// new shade. international-communist-movement gets the one new
+		// shade approved (Cinder Red, c7). labor deliberately reuses
+		// c1 (shared with economy — the other "material" topic, as
+		// opposed to the movement/politics topics on the newer/
+		// reassigned shades); color here is a secondary accent, not the
+		// primary identifier (topic name text is), so this reuse is
+		// low-risk. afghanistan-left-movement (0 posts) intentionally
+		// left unmapped — falls back to c1 until it has content.
+		'politics'                          => 'menu-topic--c5',
+		'international-communist-movement'  => 'menu-topic--c7',
+		'labor'                             => 'menu-topic--c1',
 	);
 	return isset( $map[ $slug ] ) ? $map[ $slug ] : 'menu-topic--c1';
 }
@@ -252,7 +269,10 @@ function shola_get_topic_slugs_ordered() {
 	if ( $slugs ) {
 		return $slugs;
 	}
-	return array( 'economy', 'world', 'afghanistan', 'women', 'international-movement', 'science-and-art' );
+	// Phase C topic migration (2026-08-24, docs/CHANGELOG.md): nine
+	// terms, client-specified order — was six (economy, world,
+	// afghanistan, women, international-movement, science-and-art).
+	return array( 'world', 'afghanistan', 'labor', 'women', 'politics', 'economy', 'science-and-art', 'international-communist-movement', 'afghanistan-left-movement' );
 }
 
 /**

@@ -115,7 +115,11 @@ function shola_maybe_seed_nav_menus() {
 						'slug'     => $slug,
 					);
 				},
-				array( 'economy', 'world', 'afghanistan', 'women', 'international-movement', 'science-and-art' )
+				// Phase C topic migration (2026-08-24, docs/CHANGELOG.md): nine
+				// terms, this exact client-specified order — was six
+				// (economy, world, afghanistan, women,
+				// international-movement, science-and-art).
+				array( 'world', 'afghanistan', 'labor', 'women', 'politics', 'economy', 'science-and-art', 'international-communist-movement', 'afghanistan-left-movement' )
 			),
 		),
 		'menu_publications' => array(

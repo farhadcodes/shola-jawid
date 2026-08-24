@@ -198,23 +198,36 @@ class Taxonomies {
 	 * Idempotently create the fixed term vocabularies. Safe to call on
 	 * every activation — term_exists() guards against duplicates.
 	 *
-	 * "جنبش بین‌المللی" is deliberately created under both `topic` and
-	 * `collection` — IA doc Open Decision #1, confirmed intentional
-	 * (articles vs. documents are different content types). WP scopes
-	 * term slugs per-taxonomy (since the 4.2 term-splitting change), so
-	 * the same slug in two different taxonomies is fully supported, not a
-	 * collision.
+	 * `topic`'s nine-term vocabulary and order per client-approved
+	 * Phase C migration (2026-08-24, see docs/CHANGELOG.md) — was six
+	 * terms (economy, world, afghanistan, women, international-movement,
+	 * science-and-art). "جنبش بین‌المللی" (topic) was renamed/migrated
+	 * to "جنبش کمونیستی بین‌المللی" (slug
+	 * international-communist-movement) in that migration.
+	 *
+	 * Historical note, still accurate for `collection`: "جنبش
+	 * بین‌المللی" remains deliberately created under `collection` too —
+	 * IA doc Open Decision #1, confirmed intentional (articles vs.
+	 * documents are different content types). WP scopes term slugs
+	 * per-taxonomy (since the 4.2 term-splitting change), so the same
+	 * slug in two different taxonomies is fully supported, not a
+	 * collision. The `collection` term was explicitly NOT touched by
+	 * the Phase C topic migration — confirmed distinct term_id, verified
+	 * unaffected post-migration.
 	 *
 	 * @return void
 	 */
 	public static function create_default_terms() {
 		$topics = array(
-			'economy'                => 'اقتصاد',
-			'world'                  => 'جهان',
-			'afghanistan'            => 'افغانستان',
-			'women'                  => 'زنان',
-			'international-movement' => 'جنبش بین‌المللی',
-			'science-and-art'        => 'علم و هنر',
+			'world'                             => 'جهان',
+			'afghanistan'                       => 'افغانستان',
+			'labor'                             => 'کارگری',
+			'women'                             => 'زنان',
+			'politics'                          => 'سیاست',
+			'economy'                           => 'اقتصاد',
+			'science-and-art'                   => 'علم و هنر',
+			'international-communist-movement'  => 'جنبش کمونیستی بین‌المللی',
+			'afghanistan-left-movement'         => 'جنبش چپ افغانستان',
 		);
 		foreach ( $topics as $slug => $name ) {
 			self::maybe_insert_term( $name, 'topic', $slug );
