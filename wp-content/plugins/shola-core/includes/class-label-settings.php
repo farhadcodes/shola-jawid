@@ -68,15 +68,15 @@ class Label_Settings {
 	 */
 	public static function get_defaults() {
 		return array(
-			'home_articles_section_aria'  => __( 'تازه‌ترین مقالات', 'shola-core' ),
-			'home_latest_heading'         => __( 'تازه‌ترین', 'shola-core' ),
+			'home_articles_section_aria'  => __( 'تازه‌ها مقالات', 'shola-core' ),
+			'home_latest_heading'         => __( 'تازه‌ها', 'shola-core' ),
 			'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-core' ),
 			'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-core' ),
 			'nav_topics_label'            => __( 'موضوعات', 'shola-core' ),
 			'nav_more_label'              => __( 'بیشتر', 'shola-core' ),
 			'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-core' ),
-			'topic_tab_latest'            => __( 'تازه‌ترین', 'shola-core' ),
+			'topic_tab_latest'            => __( 'تازه‌ها', 'shola-core' ),
 			'topic_tab_most_read'         => __( 'پرخواننده‌ترین', 'shola-core' ),
 			'topics_page_title'           => __( 'موضوعات', 'shola-core' ),
 		);
@@ -91,15 +91,15 @@ class Label_Settings {
 	 */
 	public static function get_descriptions() {
 		return array(
-			'home_articles_section_aria'  => __( 'صفحهٔ اصلی — برچسب دسترس‌پذیری بخش «تازه‌ترین»', 'shola-core' ),
-			'home_latest_heading'         => __( 'صفحهٔ اصلی — عنوان بخش «تازه‌ترین»', 'shola-core' ),
+			'home_articles_section_aria'  => __( 'صفحهٔ اصلی — برچسب دسترس‌پذیری بخش «تازه‌ها»', 'shola-core' ),
+			'home_latest_heading'         => __( 'صفحهٔ اصلی — عنوان بخش «تازه‌ها»', 'shola-core' ),
 			'home_topics_link_more'       => __( 'صفحهٔ اصلی — پیوند «همهٔ موضوعات» کنار بخش تازه‌ترین', 'shola-core' ),
 			'home_topics_section_heading' => __( 'صفحهٔ اصلی — عنوان بخش موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'صفحهٔ اصلی و کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
 			'nav_topics_label'            => __( 'پاورقی و منوی بازشو — برچسب «موضوعات»', 'shola-core' ),
 			'nav_more_label'              => __( 'منوی بازشو — عنوان بخش «بیشتر»', 'shola-core' ),
 			'breadcrumb_topics_label'     => __( 'صفحهٔ مقاله — پیوند «موضوعات» در مسیر ناوبری', 'shola-core' ),
-			'topic_tab_latest'            => __( 'آرشیو موضوع — دکمهٔ مرتب‌سازی «تازه‌ترین»', 'shola-core' ),
+			'topic_tab_latest'            => __( 'آرشیو موضوع — دکمهٔ مرتب‌سازی «تازه‌ها»', 'shola-core' ),
 			'topic_tab_most_read'         => __( 'آرشیو موضوع — دکمهٔ مرتب‌سازی «پرخواننده‌ترین»', 'shola-core' ),
 			'topics_page_title'           => __( 'صفحهٔ «موضوعات» — عنوان اصلی', 'shola-core' ),
 		);

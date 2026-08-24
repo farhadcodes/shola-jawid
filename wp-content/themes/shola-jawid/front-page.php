@@ -226,46 +226,6 @@ $articles_query = new WP_Query(
 <?php endif; ?>
 
 <?php
-// انتشارات حزب (Party Publications) — recent issues across both
-// publications, no publication-term restriction. issue-card.php, not
-// card.php: structurally distinct anatomy (portrait cover, box-shadow,
-// no dek/byline) confirmed in docs/CHANGELOG.md Phase 1.2 — not a
-// variant of the article card. .issue-grid, the same shelf-density
-// wrapper class taxonomy-publication.php already uses (1 col mobile ->
-// 3 -> 4 -> 5 col desktop), not .grid-cards.
-$party_issues_query = new WP_Query(
-	array(
-		'post_type'      => 'issue',
-		'posts_per_page' => 10,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
-?>
-<?php if ( $party_issues_query->have_posts() ) : ?>
-	<section class="sect-tint sect" aria-label="<?php esc_attr_e( 'انتشارات حزب', 'shola-jawid' ); ?>">
-		<div class="wrap">
-			<div class="section-head row-between">
-				<div class="kicker-row">
-					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></h2>
-				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'همهٔ نشرات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-			</div>
-			<div class="issue-grid">
-				<?php
-				while ( $party_issues_query->have_posts() ) :
-					$party_issues_query->the_post();
-					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
-				endwhile;
-				wp_reset_postdata();
-				?>
-			</div>
-		</div>
-	</section>
-<?php endif; ?>
-
-<?php
 $current_issue_query = new WP_Query(
 	array(
 		'post_type'      => 'issue',
@@ -277,6 +237,13 @@ $current_issue_query = new WP_Query(
 $current_issue       = $current_issue_query->have_posts() ? $current_issue_query->posts[0] : null;
 ?>
 <?php if ( $current_issue ) : ?>
+	<?php
+	/*
+	 * شمارهٔ جاری reordered ahead of انتشارات حزب, 2026-08-24 (Phase A,
+	 * client-approved) — .sect-cream unchanged (still distinct from
+	 * گزارشات's paper band directly above it). See docs/CHANGELOG.md.
+	 */
+	?>
 	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
@@ -341,6 +308,52 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 					</div>
 
 				</div>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
+// انتشارات حزب (Party Publications) — recent issues across both
+// publications, no publication-term restriction. issue-card.php, not
+// card.php: structurally distinct anatomy (portrait cover, box-shadow,
+// no dek/byline) confirmed in docs/CHANGELOG.md Phase 1.2 — not a
+// variant of the article card. .issue-grid, the same shelf-density
+// wrapper class taxonomy-publication.php already uses (1 col mobile ->
+// 3 -> 4 -> 5 col desktop), not .grid-cards.
+//
+// Reordered to appear after شمارهٔ جاری (was before it), 2026-08-24
+// (Phase A, client-approved) — see docs/CHANGELOG.md. .sect-tint
+// unchanged; still distinct from شمارهٔ جاری's cream band directly
+// above and موضوعات's paper band directly below, so background-band
+// alternation still holds with no adjacent repeats.
+$party_issues_query = new WP_Query(
+	array(
+		'post_type'      => 'issue',
+		'posts_per_page' => 10,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+);
+?>
+<?php if ( $party_issues_query->have_posts() ) : ?>
+	<section class="sect-tint sect" aria-label="<?php esc_attr_e( 'انتشارات حزب', 'shola-jawid' ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'همهٔ نشرات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="issue-grid">
+				<?php
+				while ( $party_issues_query->have_posts() ) :
+					$party_issues_query->the_post();
+					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
 			</div>
 		</div>
 	</section>

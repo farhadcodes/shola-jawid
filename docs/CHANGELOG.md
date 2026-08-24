@@ -3874,3 +3874,83 @@ trail of *why* the build deviated from — or newly applied — a rule in
   completely untouched — just shifted down in page order.
   phpcs clean.
   Approved by: Farhad, in this session (2026-08-12).
+
+## 2026-08-24 — Phase A
+- **Added:** New brand token `--winston-red` (`#CC0000`), "Winston Red",
+  alongside the eleven locked tokens in `main.css` `:root` (own
+  "Approved v6 deviations" sub-block, same bare-kebab naming
+  convention as `--crimson`/`--maroon`/etc. — not `--color-*`).
+  Applied to exactly one property: `.masthead`'s `background`
+  (previously `var(--crimson)`). `.masthead`'s `border-bottom` stays
+  `var(--maroon)`, untouched. `--crimson` (`#8E1B1B`) itself is
+  unchanged everywhere else on the site (nav hovers, buttons, tags,
+  focus rings, `.publication-item`/`.publication-current` borders,
+  etc.) — confirmed via full-codebase grep of `var(--crimson)`
+  post-change, no other occurrence altered.
+  Reason: client-requested masthead color change. Two ambiguities were
+  resolved in-session rather than guessed: (1) the brief described the
+  target as "the masthead's 2px bottom rule ... than the existing
+  crimson" — the actual 2px border-bottom was already `var(--maroon)`,
+  not crimson; Farhad confirmed the real target is the masthead's
+  background (which does use `var(--crimson)`), not the border. (2) a
+  first answer ("the main Crimson color") could have meant redefining
+  `--crimson`'s value site-wide instead of a scoped substitution —
+  Farhad confirmed scoped-to-masthead-background was intended; the
+  `--crimson` token itself was not redefined.
+  Approved by: Farhad, in this session (2026-08-24).
+
+- **Changed:** Masthead runner date (`shola_get_masthead_runner()`,
+  `inc/template-tags.php`) now prepends the Dari weekday name —
+  `get_the_date( 'l j F Y', ... )`, was `get_the_date( '', ... )`.
+  Reason: client-requested weekday addition. Investigated rather than
+  assumed which of two paths applied: Persian Calendar's own `l`
+  output (`PERSCA_Plugin::filter_date_i18n`, priority 10 on
+  `date_i18n`) already returns correct Dari weekday names natively —
+  confirmed live via `wp eval` across a full week — because, unlike
+  month names, weekday names don't diverge between fa_IR and fa_AF
+  usage. No sibling filter alongside
+  `shola_convert_jalali_months_to_dari()` was needed. The explicit
+  format string is scoped to this one `get_the_date()` call only —
+  the site-wide `date_format` option (`j F Y`) was deliberately left
+  unchanged, since editing it would have added the weekday to every
+  date rendered on the site, not just the masthead.
+  Approved by: Farhad, in this session (2026-08-24).
+
+- **Changed:** Renamed the "تازه‌ترین"-default CMS label text to
+  "تازه‌ها" for all three keys that defaulted to it:
+  `home_latest_heading` ("تازه‌ترین" → "تازه‌ها", homepage section
+  heading), `topic_tab_latest` ("تازه‌ترین" → "تازه‌ها", topic-archive
+  sort-tab button), and `home_articles_section_aria` ("تازه‌ترین
+  مقالات" → "تازه‌ها مقالات", aria-label — only the "تازه‌ترین"
+  word substituted, "مقالات" left as-is, per instruction to not touch
+  the rest of a compound string). Edited in both
+  `SholaCore\Label_Settings::get_defaults()` (canonical, plugin
+  active) and `shola_get_label()`'s inline fallback defaults in
+  `inc/template-tags.php` (theme's soft-dependency copy per CLAUDE.md
+  §2) so the two stay in sync; `get_descriptions()`'s admin-facing
+  field-description text (which quotes the label's current value in
+  Persian guillemets) updated to match for the same three keys.
+  Reason: client-requested label rename. The brief's literal string
+  "تازه‌ترین‌ها" doesn't exist anywhere in the codebase — grepped
+  theme + plugin, zero matches; only "تازه‌ترین" (no `ها` suffix)
+  exists, as the default for these three distinct labels. No DB-stored
+  override exists for any of the three (`shcore_label_overrides`
+  option absent entirely, confirmed via `wp option get`), so this is a
+  pure code-default change with nothing to also update via wp-admin.
+  Farhad confirmed all three "تازه‌ترین"-default labels should be
+  renamed, not just the homepage heading.
+  Approved by: Farhad, in this session (2026-08-24).
+
+- **Changed:** Homepage section order — شمارهٔ جاری now renders
+  immediately before انتشارات حزب (was: انتشارات حزب then شمارهٔ
+  جاری), in `front-page.php`. Both blocks moved as-is: no query, card,
+  or styling changes to either. Background-band alternation confirmed
+  to still hold at both new adjacency points — گزارشات (paper) →
+  شمارهٔ جاری (`.sect-cream`) → انتشارات حزب (`.sect-tint`) → موضوعات
+  (paper) — no two adjacent sections share a background; no
+  alternation counter/index existed to adjust (classes are hardcoded
+  per section, not computed), so the palette itself needed no changes.
+  Reason: client-requested reorder. Sections before گزارشات (hero,
+  تازه‌ها/`home_latest_heading`, مقالات) and after موضوعات (کتابخانه,
+  اطلاعیه‌ها) are unaffected, left in their existing positions.
+  Approved by: Farhad, in this session (2026-08-24).

@@ -339,18 +339,26 @@ function shola_get_masthead_code() {
 }
 
 /**
- * Masthead runner text — date only, per Farhad's 2026-08-12 review of
- * the live site (previously "SHOLA JAWID · شماره ۳۲ · ۱۵ اسد ۱۴۰۵";
- * see docs/CHANGELOG.md). Uses the latest published issue's date so
- * the masthead never shows stale placeholder data once real content
- * exists; empty when no issue is published yet (nothing to date it
- * by), rather than falling back to a brand-code string that no longer
- * has a place in this design.
+ * Masthead runner text — weekday + date, per Farhad's 2026-08-12 review
+ * of the live site (previously "SHOLA JAWID · شماره ۳۲ · ۱۵ اسد ۱۴۰۵";
+ * see docs/CHANGELOG.md) and the client-approved weekday addition
+ * logged there. Uses the latest published issue's date so the masthead
+ * never shows stale placeholder data once real content exists; empty
+ * when no issue is published yet (nothing to date it by), rather than
+ * falling back to a brand-code string that no longer has a place in
+ * this design.
  *
- * get_the_date() here is what actually renders the Jalali date via
- * the Persian Calendar plugin + shola_convert_jalali_months_to_dari()
- * — untouched by this change, only the surrounding code/issue-number
- * segments were removed.
+ * get_the_date() here is what actually renders the Jalali date via the
+ * Persian Calendar plugin + shola_convert_jalali_months_to_dari() —
+ * untouched by this change. The explicit 'l j F Y' format (rather than
+ * the empty string / site date_format option used elsewhere) is
+ * deliberately scoped to only this one call site: Persian Calendar's
+ * own 'l' output is already correct Dari (weekday names, unlike month
+ * names, don't diverge between fa_IR and fa_AF, so no sibling filter is
+ * needed alongside shola_convert_jalali_months_to_dari()) — confirmed
+ * live via `wp eval`. Changing the site-wide date_format option instead
+ * would have added the weekday to every date on the site, not just the
+ * masthead.
  *
  * @return string
  */
@@ -368,7 +376,7 @@ function shola_get_masthead_runner() {
 		return '';
 	}
 
-	return get_the_date( '', $latest[0] );
+	return get_the_date( 'l j F Y', $latest[0] );
 }
 
 /**
@@ -546,15 +554,15 @@ function shola_get_label( $key ) {
 	}
 
 	$fallback_defaults = array(
-		'home_articles_section_aria'  => __( 'تازه‌ترین مقالات', 'shola-jawid' ),
-		'home_latest_heading'         => __( 'تازه‌ترین', 'shola-jawid' ),
+		'home_articles_section_aria'  => __( 'تازه‌ها مقالات', 'shola-jawid' ),
+		'home_latest_heading'         => __( 'تازه‌ها', 'shola-jawid' ),
 		'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-jawid' ),
 		'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-jawid' ),
 		'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-jawid' ),
 		'nav_topics_label'            => __( 'موضوعات', 'shola-jawid' ),
 		'nav_more_label'              => __( 'بیشتر', 'shola-jawid' ),
 		'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-jawid' ),
-		'topic_tab_latest'            => __( 'تازه‌ترین', 'shola-jawid' ),
+		'topic_tab_latest'            => __( 'تازه‌ها', 'shola-jawid' ),
 		'topic_tab_most_read'         => __( 'پرخواننده‌ترین', 'shola-jawid' ),
 		'topics_page_title'           => __( 'موضوعات', 'shola-jawid' ),
 	);
