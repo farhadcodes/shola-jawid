@@ -4218,3 +4218,18 @@ trail of *why* the build deviated from — or newly applied — a rule in
   page-publications.php's sentence) flagged for Farhad's approval
   before being applied, rather than guessed and shipped — see the
   session report for the exact proposed wording.
+
+## 2026-08-26 — Phase D, Step 4 (blogdescription applied)
+- **Changed:** The `blogdescription` replacement text proposed in the
+  entry above ("Phase D, Step 3") was approved by Farhad and applied
+  via `wp option update blogdescription`. DB-only option change, no
+  file diff, nothing to commit — this entry is the record of it, per
+  this project's existing convention of logging `wp_options` changes
+  inline in CHANGELOG.md rather than treating them as somehow outside
+  its scope (see the `blogname` entry above, and the earlier
+  `shcore_label_overrides` DB-state notes elsewhere in this file).
+  Live-verified across all three surfaces Step 1 identified for this
+  option — browser `<title>` tag and the meta-description/
+  `og:description` fallback on the front page, search results, and
+  404 — desktop and mobile, both old-name-free, zero console errors.
+  Approved by: Farhad, in this session (2026-08-26).
