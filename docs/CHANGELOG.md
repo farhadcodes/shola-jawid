@@ -4161,3 +4161,60 @@ trail of *why* the build deviated from — or newly applied — a rule in
   0 → 1 → 0 correctly across creation and deletion. No test or
   verification content left in the database afterward.
   Approved by: Farhad, across this session (2026-08-24–25).
+
+## 2026-08-26 — Phase D, Step 3 (organization rename: شعله جاوید → حزب کمونیست (مائوئیست) افغانستان)
+- **Changed:** `publication` term_id 9 renamed شعله جاوید → حزب کمونیست
+  (مائوئیست) افغانستان (`wp term update publication 9 --name=...`).
+  **Slug deliberately left unchanged** (`shola-jawid`) — a considered
+  decision, not an oversight: this is a live public site
+  (`sholajawid.com`) with 7 issues already published under
+  `/publications/shola-jawid/...` URLs that may already be
+  indexed/shared; changing the slug would break all 7 without a
+  redirect layer this step doesn't build. URL stability was chosen
+  over cosmetic slug/name matching. Live-verified after rename, not
+  assumed: `shola_publication_status_label()`
+  (`inc/template-tags.php:341-343`) keys off the *slug*
+  (`'shola-jawid' === $slug`), not the name — since the slug is
+  unchanged, both the renamed publication's "جاری" (current) badge and
+  جهان برای فتح's "آرشیوی" (archived) badge continued to render
+  correctly with zero code change needed, confirmed on نشرات, the
+  نشریات popup-menu switcher, and single-issue.php. Also confirmed
+  live: 2 of the 7 issue permalinks resolve unchanged at their
+  original `/publications/shola-jawid/...` paths — no broken links, no
+  redirects needed. No name-based term lookup exists anywhere for
+  `publication` (confirmed in Step 2's audit, re-confirmed here) — a
+  plain rename propagated correctly everywhere without the گزارشات-
+  style fragility Phase C hit.
+  Deliberately out of scope, confirmed untouched: the 7 issue posts'
+  own titles (still prefixed "شعله جاوید · شمارهٔ …" — Farhad's to
+  edit directly in wp-admin if wanted), the About WP Page's own title
+  (post ID 73) and its two body paragraphs (same), theme/plugin/repo
+  internal identity ("Shola Jawid" in `style.css`/`shola-core.php`/
+  folder names/git repo, permanently locked per CLAUDE.md §0), and the
+  domain (`sholajawid.com`).
+  Approved by: Farhad, across this session (2026-08-25–26).
+
+- **Changed:** Two hardcoded visitor-facing strings updated (found in
+  Phase D Step 1's audit — neither pulls from `bloginfo()` or the
+  renamed term, both literal strings in template files):
+  `page-about.php`'s `<h1>` ("دربارهٔ شعله جاوید" → "دربارهٔ حزب
+  کمونیست (مائوئیست) افغانستان") and `page-publications.php`'s dek
+  paragraph (same substitution within the existing sentence
+  structure, جهان برای فتح reference and sentence shape unchanged).
+  Approved by: Farhad, across this session (2026-08-25–26).
+
+- **Changed:** `blogname` option updated directly via
+  `wp option update blogname` (already in-session, WP-CLI access
+  established) to حزب کمونیست (مائوئیست) افغانستان — per Phase D Step
+  1's finding, this alone propagates the new name to the masthead,
+  browser `<title>` (`wp_get_document_title()`), all `og:*`/meta tags
+  (`class-seo.php`), and the footer, with zero code change, confirmed
+  live across desktop and mobile.
+  `blogdescription` (the tagline, used only as the meta-description/
+  `og:description` fallback per Phase D Step 1's finding — not
+  rendered as visible on-page UI anywhere) still references شعله
+  جاوید as of this entry. Proposed replacement text (mirroring the
+  same substitution pattern approved above for
+  page-publications.php's sentence) flagged for Farhad's approval
+  before being applied, rather than guessed and shipped — see the
+  session report for the exact proposed wording.

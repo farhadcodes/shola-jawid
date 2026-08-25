@@ -20,7 +20,15 @@ get_header();
 				<p class="section-marker"></p>
 				<h1 class="h-page"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></h1>
 			</div>
-			<p class="dek"><?php esc_html_e( 'دو نشریه با آرشیو کامل PDF. «شعله جاوید» جاری منتشر می‌شود؛ «جهان برای فتح» به‌صورت آرشیو تاریخی نگه‌داری می‌شود.', 'shola-jawid' ); ?></p>
+			<?php
+			/*
+			 * Publication name updated, Phase D (2026-08-26,
+			 * docs/CHANGELOG.md) — organization-name rename; sentence
+			 * structure and the جهان برای فتح reference left unchanged
+			 * per instruction.
+			 */
+			?>
+			<p class="dek"><?php esc_html_e( 'دو نشریه با آرشیو کامل PDF. «حزب کمونیست (مائوئیست) افغانستان» جاری منتشر می‌شود؛ «جهان برای فتح» به‌صورت آرشیو تاریخی نگه‌داری می‌شود.', 'shola-jawid' ); ?></p>
 		</header>
 
 		<div class="publications-list">
