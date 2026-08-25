@@ -4066,3 +4066,98 @@ trail of *why* the build deviated from — or newly applied — a rule in
   color (Cinder Red's `var(--cinder-red)` computed to `rgb(51,10,10)`
   = `#330A0A` exactly).
   Approved by: Farhad, in this session (2026-08-24).
+
+## 2026-08-25 — Phase B (homepage restructure)
+- **Changed:** `front-page.php` restructured to the client-specified
+  section order: تازه‌ها → مقالات → گزارش → اسناد حزب → شمارهٔ جاری →
+  انتشارات حزب → موضوعات. اطلاعیه‌ها removed from the homepage
+  entirely (inline markup deleted, no shared partial); the
+  `announcement` CPT, `archive-announcement.php`, and the masthead nav
+  link to `/announcements/` are untouched — a homepage-section removal
+  only, not a content-type removal, confirmed both by grep and live.
+  Background-band alternation re-verified at every step of the
+  restructure (paper → cream → paper → cream → paper → tint → paper,
+  zero adjacent repeats) — one existing section's background class
+  changed (شمارهٔ جاری: `.sect-cream` → plain) to keep it intact, no
+  new palette colors.
+  Investigated rather than assumed the "شمارهٔ جاری و کتابخانه"
+  combined-section question raised going into this phase: the two were
+  already independent `<section>` elements in the template — the
+  combined aria-label was stale copy, not a structural coupling. No
+  split was needed; corrected the label to just "شمارهٔ جاری."
+  Approved by: Farhad, across this session (2026-08-24–25).
+
+- **Changed:** `issue-card.php` generalized to accept both `issue` and
+  `document` CPTs (previously issue-only in its docblock, though every
+  field it actually rendered — featured image, title, date — was
+  already post-type-agnostic, so no conditional-by-type logic was
+  needed, only the docblock/variable naming). انتشارات حزب's own
+  rendering re-verified byte-for-byte unaffected: identical markup,
+  same 8 cards, same `.issue-grid` wrapper, same responsive column
+  count as اسناد حزب at 375px — confirmed live, desktop and mobile.
+
+- **Changed:** اسناد حزب (was "تازه‌ترین اسناد") restyled from the
+  `document-row.php` list partial onto the generalized `issue-card.php`
+  + `.issue-grid`, matching انتشارات حزب's anatomy. Query unchanged
+  (`post_type => document`, `posts_per_page => 4`, no collection
+  restriction) — rendering only.
+  Label split: `latest_documents_heading` is a key shared with
+  `page-library.php`'s own heading, which covers the whole library
+  (آثار کلاسیک/اسناد حزب/نقد و پلمیک/جنبش بین‌المللی), not just party
+  documents — renaming the shared key to "اسناد حزب" would have
+  silently mis-labeled that page too. Split into a new
+  `home_latest_documents_heading` key (homepage only, = "اسناد حزب")
+  while `latest_documents_heading` stays untouched for
+  `page-library.php` (= "تازه‌ترین اسناد", unchanged). No DB-stored
+  override existed for the original key (confirmed via `wp option get`
+  before changing anything, same discipline as Phase A's A3).
+
+- **Added:** گزارش homepage section, `card.php` anatomy (full article
+  cards, dek/byline — same as مقالات, since these are normal posts).
+  Hidden entirely when empty (no heading, no empty grid) — the same
+  `have_posts()` guard every other homepage section already uses, not
+  a new pattern.
+  **Architectural finding, `category` vs. `post_tag`:** originally
+  built on WP core's `category` taxonomy per the initial brief. Found
+  that `post` had `category` deliberately disconnected from it in an
+  earlier phase (`SholaCore\Class_Taxonomies::remove_core_category_from_post()`,
+  predating this phase) specifically to avoid a redundant
+  "Uncategorized" editor panel — creating a `category` term for
+  `post`-type content re-triggered exactly that conflict: no admin UI
+  to assign it (block editor's taxonomy panel and the classic metabox
+  both stay hidden regardless of the term existing), and WordPress's
+  default term-count updater (`_update_post_term_count()`) silently
+  excludes `post` from `category` counts, so the term's `count` read 0
+  permanently even with a real, verified post assignment (proven via
+  `wp_set_object_terms()` + `WP_Query`, which bypass the object-type
+  check that WP-CLI's own `post term` commands enforce more strictly).
+  Reversing the disconnect would have restored the *entire* category
+  UI for every article editor, not just گزارش — a bigger change than
+  this one section warranted without sign-off, so it wasn't done
+  silently.
+  Rebuilt on `post_tag` instead: confirmed via `is_object_in_taxonomy()`
+  it's still fully registered for `post` (unmodified, no other code
+  disables it), already actively used and rendered as visible tag
+  chips on `single.php`, normal Add-New-Tag editor UI, and term counts
+  track correctly (verified 0 → 1 → 0 across a real create/delete
+  cycle). The original `category` term (term_id 48) was deleted; a
+  `post_tag` term گزارش (slug `reports`, matching the project's
+  clean-English-slug convention rather than an auto-generated
+  Persian-encoded one) was created and seeded idempotently in
+  `create_default_terms()` — deliberately added there rather than left
+  as a one-off `wp-cli` term, to avoid repeating the exact
+  `science-and-art` gap Phase C found (a slug referenced in code but
+  never actually seeded in the DB).
+  Verified end-to-end with a temporary post (WP-CLI-created, tagged via
+  `--tags_input`, not clicked through the real wp-admin UI — a
+  browser-based auth-cookie injection to prove the click-through was
+  attempted and blocked by this environment's own permission
+  guardrails on credential/session actions; Farhad opted to skip that
+  specific proof rather than share real admin credentials, given the
+  underlying mechanism — tag registration, query, term counting — was
+  already independently confirmed): homepage picked it up correctly in
+  the right position with the right background, the tag chip rendered
+  correctly on the post's own single view, and the term count tracked
+  0 → 1 → 0 correctly across creation and deletion. No test or
+  verification content left in the database afterward.
+  Approved by: Farhad, across this session (2026-08-24–25).

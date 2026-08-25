@@ -51,18 +51,28 @@ class Label_Settings {
 	 * user-entered content already does.
 	 *
 	 * Some keys are deliberately shared across more than one call site
-	 * (e.g. `latest_documents_heading` covers both front-page.php's and
-	 * page-library.php's "تازه‌ترین اسناد" heading, `nav_topics_label`
-	 * covers both footer.php's and header.php's "موضوعات" nav label) —
-	 * always where the current rendered text is byte-identical, so one
-	 * edit keeps every instance of that exact concept in sync rather
-	 * than letting them drift into two different-sounding labels for the
-	 * same idea. Elsewhere (`breadcrumb_topics_label`,
-	 * `topics_page_title`), the word is the same today but the UI role
-	 * differs enough (breadcrumb crumb vs. nav section header vs. page
-	 * `<h1>`) that a shared key would let editing one silently change the
-	 * others somewhere an editor might not expect — kept as separate
-	 * keys instead.
+	 * (e.g. `nav_topics_label` covers both footer.php's and header.php's
+	 * "موضوعات" nav label) — always where the current rendered text is
+	 * byte-identical, so one edit keeps every instance of that exact
+	 * concept in sync rather than letting them drift into two
+	 * different-sounding labels for the same idea. Elsewhere
+	 * (`breadcrumb_topics_label`, `topics_page_title`), the word is the
+	 * same today but the UI role differs enough (breadcrumb crumb vs.
+	 * nav section header vs. page `<h1>`) that a shared key would let
+	 * editing one silently change the others somewhere an editor might
+	 * not expect — kept as separate keys instead.
+	 *
+	 * `latest_documents_heading` (page-library.php's own heading,
+	 * covering the whole library across all collections) and
+	 * `home_latest_documents_heading` (front-page.php's کتابخانه/اسناد
+	 * حزب card section only) were a single shared key until Phase B
+	 * (2026-08-24, docs/CHANGELOG.md), when the homepage instance was
+	 * client-relabeled to "اسناد حزب" specifically — split into two
+	 * keys at that point, same reasoning as breadcrumb_topics_label/
+	 * topics_page_title above: "اسناد حزب" is accurate for the
+	 * homepage's party-documents-only card section, but would be wrong
+	 * on page-library.php, which covers آثار کلاسیک/نقد و پلمیک/جنبش
+	 * بین‌المللی too, not just party documents.
 	 *
 	 * @return array<string, string>
 	 */
@@ -73,6 +83,8 @@ class Label_Settings {
 			'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-core' ),
 			'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-core' ),
+			'home_latest_documents_heading' => __( 'اسناد حزب', 'shola-core' ),
+			'home_reports_heading'        => __( 'گزارش', 'shola-core' ),
 			'nav_topics_label'            => __( 'موضوعات', 'shola-core' ),
 			'nav_more_label'              => __( 'بیشتر', 'shola-core' ),
 			'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-core' ),
@@ -95,7 +107,9 @@ class Label_Settings {
 			'home_latest_heading'         => __( 'صفحهٔ اصلی — عنوان بخش «تازه‌ها»', 'shola-core' ),
 			'home_topics_link_more'       => __( 'صفحهٔ اصلی — پیوند «همهٔ موضوعات» کنار بخش تازه‌ترین', 'shola-core' ),
 			'home_topics_section_heading' => __( 'صفحهٔ اصلی — عنوان بخش موضوعات', 'shola-core' ),
-			'latest_documents_heading'    => __( 'صفحهٔ اصلی و کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
+			'latest_documents_heading'    => __( 'کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
+			'home_latest_documents_heading' => __( 'صفحهٔ اصلی — عنوان بخش «اسناد حزب»', 'shola-core' ),
+			'home_reports_heading'        => __( 'صفحهٔ اصلی — عنوان بخش «گزارش»', 'shola-core' ),
 			'nav_topics_label'            => __( 'پاورقی و منوی بازشو — برچسب «موضوعات»', 'shola-core' ),
 			'nav_more_label'              => __( 'منوی بازشو — عنوان بخش «بیشتر»', 'shola-core' ),
 			'breadcrumb_topics_label'     => __( 'صفحهٔ مقاله — پیوند «موضوعات» در مسیر ناوبری', 'shola-core' ),

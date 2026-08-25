@@ -579,6 +579,8 @@ function shola_get_label( $key ) {
 		'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-jawid' ),
 		'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-jawid' ),
 		'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-jawid' ),
+		'home_latest_documents_heading' => __( 'اسناد حزب', 'shola-jawid' ),
+		'home_reports_heading'        => __( 'گزارش', 'shola-jawid' ),
 		'nav_topics_label'            => __( 'موضوعات', 'shola-jawid' ),
 		'nav_more_label'              => __( 'بیشتر', 'shola-jawid' ),
 		'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-jawid' ),

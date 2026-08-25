@@ -169,6 +169,119 @@ $articles_query        = new WP_Query(
 <?php endif; ?>
 
 <?php
+/*
+ * گزارش (Reports) — a native WP `post_tag` term (not `category`: a
+ * `category` term was tried first, but `post` had `category`
+ * deliberately disconnected in an earlier phase to avoid a redundant
+ * "Uncategorized" editor panel — see
+ * SholaCore\Class_Taxonomies::create_default_terms()'s comment for the
+ * full finding. `post_tag` has none of that conflict: still fully
+ * registered for `post`, normal Add-New-Tag editor UI, correct term
+ * counts. Also deliberately not `topic` — confirmed separate from the
+ * 9-term topic vocabulary: no موضوعات nav/archive presence, no
+ * shola_topic_color_class() entry). Phase B (2026-08-25,
+ * docs/CHANGELOG.md). card.php, same anatomy as مقالات (full article
+ * cards, dek/byline) — these are normal posts, not documents. Hidden
+ * entirely when empty (no heading, no empty grid), same have_posts()
+ * guard every other section on this page already uses — not a new
+ * empty-state pattern.
+ */
+$reports_query = new WP_Query(
+	array(
+		'post_type'      => 'post',
+		'posts_per_page' => 6,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'tag'            => 'reports',
+	)
+);
+?>
+<?php if ( $reports_query->have_posts() ) : ?>
+	<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_reports_heading' ) ); ?>">
+		<div class="section-head row-between">
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_reports_heading' ) ); ?></h2>
+			</div>
+		</div>
+		<div class="grid-cards">
+			<?php
+			while ( $reports_query->have_posts() ) :
+				$reports_query->the_post();
+				get_template_part(
+					'template-parts/cards/card',
+					null,
+					array(
+						'post' => get_post(),
+						'type' => 'article',
+					)
+				);
+			endwhile;
+			wp_reset_postdata();
+			?>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
+$documents_query = new WP_Query(
+	array(
+		'post_type'      => 'document',
+		'posts_per_page' => 4,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+);
+?>
+<?php if ( $documents_query->have_posts() ) : ?>
+	<?php
+	/*
+	 * Restyled from a document-row.php list onto the generalized
+	 * issue-card.php partial, Phase B (2026-08-24, see
+	 * docs/CHANGELOG.md) — query unchanged (still post_type=document,
+	 * no collection restriction), only the rendering. .issue-grid, the
+	 * same wrapper class انتشارات حزب uses.
+	 *
+	 * Relabeled "تازه‌ترین اسناد" → "اسناد حزب" (client-approved,
+	 * home_latest_documents_heading — split from the shared
+	 * latest_documents_heading key so page-library.php's own heading,
+	 * which covers the whole library not just party documents, isn't
+	 * silently renamed too; see class-label-settings.php).
+	 *
+	 * Reordered to sit right after مقالات (was after موضوعات, near the
+	 * bottom of the page) and given .sect-cream (was plain/no class).
+	 * NOT YET FINAL: this currently sits directly adjacent to مقالات
+	 * (also .sect-cream) — a background-band collision — because گزارش
+	 * (client-specified to sit between them) hasn't been inserted yet;
+	 * its query/term is an open question flagged for Farhad, not
+	 * guessed (see TODO comment above). Resolves once گزارش (planned
+	 * as plain/paper) is inserted between them. Do not commit with this
+	 * collision still present.
+	 */
+	?>
+	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'اسناد حزب', 'shola-jawid' ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_documents_heading' ) ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="issue-grid">
+				<?php
+				while ( $documents_query->have_posts() ) :
+					$documents_query->the_post();
+					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
 $current_issue_query = new WP_Query(
 	array(
 		'post_type'      => 'issue',
@@ -186,15 +299,19 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 	 * client-approved). Background changed from .sect-cream to plain
 	 * (paper), 2026-08-24 (Phase C, گزارشات-section removal) — its
 	 * cream banding depended on گزارشات's paper band sitting directly
-	 * above it (see Phase A's comment, since removed); with that paper
-	 * band gone, مقالات's own .sect-cream now sits immediately above,
-	 * so this section reverts to plain to keep background-band
-	 * alternation intact (مقالات cream → شمارهٔ جاری paper → انتشارات
-	 * حزب tint → موضوعات paper, no adjacent repeats). See
-	 * docs/CHANGELOG.md.
+	 * above it; with that paper band gone, plain keeps alternation
+	 * intact against its neighbors.
+	 *
+	 * aria-label corrected from "شمارهٔ جاری و کتابخانه" to just
+	 * "شمارهٔ جاری", Phase B (2026-08-24, see docs/CHANGELOG.md) — this
+	 * section has only ever contained شمارهٔ جاری content; کتابخانه is
+	 * (and always was) a fully separate section elsewhere in this file,
+	 * confirmed before this reorder rather than assumed. The combined
+	 * label was stale/inaccurate, not a sign the two needed splitting
+	 * apart.
 	 */
 	?>
-	<section class="sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری و کتابخانه', 'shola-jawid' ); ?>">
+	<section class="sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
 				<div class="kicker-row">
@@ -342,59 +459,12 @@ $documents_query = new WP_Query(
 	)
 );
 ?>
-<?php if ( $documents_query->have_posts() ) : ?>
-	<section class="wrap sect" aria-label="<?php esc_attr_e( 'کتابخانه', 'shola-jawid' ); ?>">
-		<div class="section-head row-between">
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'latest_documents_heading' ) ); ?></h2>
-			</div>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-		</div>
-		<ul>
-			<?php
-			while ( $documents_query->have_posts() ) :
-				$documents_query->the_post();
-				get_template_part( 'template-parts/rows/document-row', null, array( 'post' => get_post() ) );
-			endwhile;
-			wp_reset_postdata();
-			?>
-		</ul>
-	</section>
-<?php endif; ?>
-
 <?php
-$announcements_query = new WP_Query(
-	array(
-		'post_type'      => 'announcement',
-		'posts_per_page' => 3,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
+/*
+ * اطلاعیه‌ها section removed from the homepage, Phase B (2026-08-24,
+ * client-approved, see docs/CHANGELOG.md) — homepage-section removal
+ * only. The announcement CPT, its archive.php template, and any nav
+ * link to /announcements/ are untouched.
+ */
 ?>
-<?php if ( $announcements_query->have_posts() ) : ?>
-	<section class="wrap sect" aria-label="<?php esc_attr_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?>">
-		<div class="section-head row-between">
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></h2>
-			</div>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'همهٔ اطلاعیه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-		</div>
-		<ul class="announce-list">
-			<?php
-			while ( $announcements_query->have_posts() ) :
-				$announcements_query->the_post();
-				?>
-				<li>
-					<time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-					<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-				</li>
-			<?php endwhile; ?>
-			<?php wp_reset_postdata(); ?>
-		</ul>
-	</section>
-<?php endif; ?>
-
 <?php get_footer(); ?>

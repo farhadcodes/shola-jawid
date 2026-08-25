@@ -250,6 +250,30 @@ class Taxonomies {
 		foreach ( $collections as $slug => $name ) {
 			self::maybe_insert_term( $name, 'collection', $slug );
 		}
+
+		/*
+		 * گزارش, Phase B (2026-08-25, docs/CHANGELOG.md) — the
+		 * homepage's گزارش section's source term. Deliberately
+		 * `post_tag`, not `category`: `category` was tried first, but
+		 * `post` had its `category` object-type association deliberately
+		 * removed in an earlier phase
+		 * (remove_core_category_from_post(), below) specifically to
+		 * avoid a redundant "Uncategorized" editor panel — creating a
+		 * `category` term for `post`-type content re-triggers exactly
+		 * that conflict: no admin UI to assign it (both the classic
+		 * metabox and Gutenberg's taxonomy panel stay hidden), and
+		 * WordPress's default term-count updater silently excludes
+		 * `post` from `category` counts, so the term's count would
+		 * permanently read 0 even with real posts assigned. `post_tag`
+		 * has none of these problems — still fully registered for
+		 * `post` (confirmed via is_object_in_taxonomy(), and already
+		 * actively used/rendered as visible tag chips on single.php) —
+		 * so this is deliberately not `topic` either: same reasoning
+		 * as `science-and-art` almost shipping without a DB term
+		 * (Phase C finding) — confirmed this exists and works, not
+		 * assumed.
+		 */
+		self::maybe_insert_term( 'گزارش', 'post_tag', 'reports' );
 	}
 
 	/**
