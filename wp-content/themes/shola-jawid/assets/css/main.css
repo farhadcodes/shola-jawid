@@ -478,11 +478,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .menu-topic {
   font-family: var(--font-display);
   font-weight: 700;
-  /* Reduced ~30% (2026-08-08, Farhad) from clamp(2.4rem, 6vw, 3.5rem) —
-     the popup Topics list is no longer a fixed 6 items now that it's a
-     real editable menu, so the labels needed headroom to not look
-     oversized/unbalanced as the content team adds more. */
-  font-size: clamp(1.7rem, 4.2vw, 2.45rem);
+  /* Reduced a further ~40% (2026-08-27, Farhad) from
+     clamp(1.7rem, 4.2vw, 2.45rem) — that first reduction (2026-08-08,
+     see below) anticipated growth past a fixed 6 items, but the Phase C
+     topic migration (2026-08-24) grew the list to 9, and at that count
+     the labels were still oversized/hard to scan (client screenshot,
+     live site). Sized with headroom for the list to keep growing
+     further without another pass being needed.
+     Original reduction, ~30% (2026-08-08, Farhad), from
+     clamp(2.4rem, 6vw, 3.5rem) — the popup Topics list was no longer a
+     fixed 6 items now that it's a real editable menu, so the labels
+     needed headroom to not look oversized/unbalanced as the content
+     team adds more. */
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
   line-height: 1.15;
   text-decoration: underline;
   text-decoration-color: transparent;

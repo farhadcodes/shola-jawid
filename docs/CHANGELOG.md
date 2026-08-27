@@ -4233,3 +4233,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `og:description` fallback on the front page, search results, and
   404 — desktop and mobile, both old-name-free, zero console errors.
   Approved by: Farhad, in this session (2026-08-26).
+
+## 2026-08-27 — Popup-menu topic label size fix; version bump
+- **Changed:** `.menu-topic` font-size reduced a further ~40%
+  (`clamp(1.7rem, 4.2vw, 2.45rem)` → `clamp(1rem, 2.5vw, 1.45rem)`),
+  same rule, `assets/css/main.css`. The 2026-08-08 reduction had
+  anticipated the popup Topics list growing past a fixed 6 items, but
+  by 9 items (post-Phase-C) the labels were still oversized and hard
+  to scan on the live site — confirmed from Farhad's own screenshot.
+  Live-verified both breakpoints: 23.2px desktop (was 39.2px, ~41%
+  reduction — within the requested 30-50% range), 16px mobile (375px).
+  Approved by: Farhad, in this session (2026-08-27).
+
+- **Changed:** Theme (`style.css`) and plugin (`shola-core.php`,
+  `SHCORE_VERSION`) version bumped 1.0.0 → 1.0.1 — both had sat at
+  1.0.0 (the git v1.0.0 tag's version) through all of Phases A-D
+  despite real CSS/JS changes shipping in each. `wp_enqueue_style()`/
+  `wp_enqueue_script()` use this version as the asset URL's cache-
+  busting query string (`main.css?ver=1.0.0`); with it never changing,
+  browsers and the production host's server-side cache had no signal
+  to fetch a fresh copy after deploy — confirmed as the cause of a
+  live-site report ("colors not updating") that was resolved by
+  manually purging Hostinger's cache. Bumping the version fixes this
+  going forward without requiring a manual cache purge on every
+  future deploy.
+  Approved by: Farhad, in this session (2026-08-27).
