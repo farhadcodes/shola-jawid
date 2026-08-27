@@ -4362,3 +4362,51 @@ trail of *why* the build deviated from — or newly applied — a rule in
   link, section headings, and the grid wrapper class all render
   correctly from real saved entries.
   Approved by: Farhad, in this session (2026-08-27).
+
+## 2026-08-28 — Bookmarkable /video-guide front-end route
+- **Added:** `/video-guide` — a front-end URL for the same thumbnail
+  grid as Settings → راهنمای ویدیویی, so Farhad can bookmark/share a
+  direct link instead of navigating through wp-admin every time.
+  Registered as a custom rewrite rule + query var + `template_redirect`
+  gate (`Video_Guide::register_rewrite()`/`register_query_var()`/
+  `maybe_render_front_end_page()`), not a real WP Page/post — combining
+  two mechanisms that already existed independently elsewhere in this
+  plugin rather than introducing a new pattern:
+  `add_rewrite_rule()` (the same mechanism
+  `Taxonomies::register_topic_rewrite()` already uses for
+  `/topics/{topic}/{slug}`) and the `template_redirect` +
+  `query_vars`-filter combination `View_Counter` already uses for its
+  own front-end interception. `shcore_activate()` (`shola-core.php`)
+  now also calls `Video_Guide::register_rewrite()` before its existing
+  `flush_rewrite_rules()` call, so the route survives a fresh
+  deploy/reactivation rather than depending on a one-time manual flush
+  — this local site's already-active install still needed one manual
+  `wp rewrite flush` to pick up the new rule immediately (same
+  situation Phase C hit creating new taxonomy terms), which is
+  expected and doesn't affect a fresh production activation.
+  Refactored the thumbnail-grid markup out of `render_settings_page()`
+  into a new shared `render_grid( $entries )` method, called by both
+  the wp-admin screen and the new front-end route, so a future
+  styling/parsing change only has to happen once.
+  **Real capability check, not an unguessable-URL approach** — every
+  request checks `is_user_logged_in() && current_user_can('manage_options')`;
+  anyone else gets `wp_safe_redirect( wp_login_url( $current_url ) )`
+  and an immediate `exit`, with zero page content rendered first.
+  Live-verified via raw HTTP requests (not assumed from reading the
+  code): a logged-out request to `/video-guide/` returns a 302 to
+  `/wp-login.php?redirect_to=...%2Fvideo-guide%2F` with a **0-byte**
+  response body; a temporary Editor-role test account (created and
+  deleted for this check) gets the identical 302/0-byte result; the
+  real Administrator account gets a 200 with the correct standalone
+  page — confirmed `dir="rtl"`/`lang="fa-IR"` (from `language_attributes()`),
+  the `noindex, nofollow` meta tag, correctly cache-busted CSS/JS
+  asset URLs, and — with a real entry temporarily saved and removed
+  afterward — the exact same thumbnail/`data-video-id` markup the
+  admin-page grid produces, confirming the shared `render_grid()`
+  method is genuinely shared, not diverged copies.
+  Deliberately does not call `get_header()`/`get_footer()` or
+  otherwise route through the public theme — a minimal standalone
+  HTML shell reusing the existing admin CSS/JS as-is (plain CSS,
+  dependency-free vanilla JS, nothing wp-admin-specific in either).
+  Not linked from any menu, sitemap, or public navigation.
+  Approved by: Farhad, in this session (2026-08-28).

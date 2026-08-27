@@ -60,10 +60,14 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Security::init();
 
 /**
- * On activation: register post types and taxonomies, seed the fixed term
- * vocabularies (idempotent — safe on repeat activation), then flush
- * rewrite rules once so the new permalink structures take effect
- * immediately without a manual visit to Settings → Permalinks.
+ * On activation: register post types, taxonomies, and the
+ * /video-guide front-end route, seed the fixed term vocabularies
+ * (idempotent — safe on repeat activation), then flush rewrite rules
+ * once so the new permalink structures take effect immediately
+ * without a manual visit to Settings → Permalinks (and without
+ * flushing on every page load, which WordPress core itself warns
+ * against — it's an expensive operation, not something to run
+ * unconditionally).
  *
  * @return void
  */
@@ -73,6 +77,7 @@ function shcore_activate() {
 	\SholaCore\Taxonomies::register_taxonomies();
 	\SholaCore\Taxonomies::register_topic_rewrite();
 	\SholaCore\Taxonomies::create_default_terms();
+	\SholaCore\Video_Guide::register_rewrite();
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'shcore_activate' );
