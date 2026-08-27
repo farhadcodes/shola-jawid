@@ -4258,3 +4258,61 @@ trail of *why* the build deviated from — or newly applied — a rule in
   going forward without requiring a manual cache purge on every
   future deploy.
   Approved by: Farhad, in this session (2026-08-27).
+
+## 2026-08-27 — Video-guide internal admin tool
+- **Added:** `SholaCore\Video_Guide` (`includes/class-video-guide.php`)
+  — a private, admin-only list of Farhad's unlisted YouTube tutorial
+  videos for the client (dashboard walkthrough, publishing, etc.),
+  registered under Settings → راهنمای ویدیویی. wp-admin only: no
+  shortcode, no front-end template, no public menu/sitemap/search
+  exposure of any kind.
+  Same shape as `Label_Settings`/`Social_Links_Settings`/
+  `Contact_Settings` — one option (`shcore_video_guide_entries`,
+  native PHP array, not the JSON string originally suggested — kept
+  consistent with how every other option in this plugin is stored),
+  one settings page, one `sanitize_callback`, registered via the
+  Settings API (`register_setting()`/`settings_fields()`), which
+  already supplies the nonce + capability + sanitize hygiene a
+  hand-rolled POST handler would have had to reimplement — chosen
+  over the hand-rolled form the initial brief described, per its own
+  "match existing project conventions" instruction.
+  `manage_options` capability throughout (page registration and the
+  render-time `current_user_can()` guard) — confirmed live via
+  `wp eval` that Editor and Author both lack this capability while
+  Administrator has it, not assumed from memory.
+  Bulk-edited as plain text, one entry per line
+  (`عنوان ویدیو | آدرس یوتیوب`), with an optional `## بخش` line to
+  start a labeled section for everything after it until the next
+  `##` or end of text — unlabeled entries (the expected starting
+  state, zero entries today) render as a flat list. Malformed lines
+  (no `|` separator, or an empty title/URL after sanitizing) are
+  silently dropped rather than stored broken. Verified end-to-end via
+  `wp eval` against the real `sanitize_entries()`/`get_entries()`
+  methods (not just read from code): valid multi-section input parsed
+  and grouped correctly, two deliberately-malformed lines correctly
+  dropped, saved option read back correctly, and the bulk-edit
+  textarea's reverse formatting (`entries_to_text()`) reconstructed
+  the original input correctly — a real save/reload round-trip, not
+  assumed.
+  **Menu placement flagged, not assumed final:** every existing
+  shola-core settings screen uses `add_options_page()` (Settings
+  submenu) — matched that here for consistency, per the task's own
+  "your call" discretion. This directly conflicts with the same
+  task's separate ask for a dashicon (`dashicons-video-alt3`):
+  Settings-submenu items cannot show an icon in wp-admin at all, only
+  top-level `add_menu_page()` entries can. No icon was added. Farhad
+  to confirm this placement is fine, or that a top-level menu (with
+  icon) is worth breaking from the plugin's otherwise-uniform
+  Settings-submenu pattern for.
+  **Not verified via direct wp-admin click-through** — `add_options_page()`
+  doesn't register correctly when simulated through `wp eval`/CLI
+  context (confirmed this is a WP-CLI limitation, not a bug in this
+  class specifically, by running the identical test against the
+  already-live `Label_Settings::add_settings_page()` and getting the
+  same non-registration result) — and, per the precedent set earlier
+  this session (Phase B's گزارش tag verification), a browser-based
+  wp-admin auth-cookie injection is blocked by this environment's own
+  permission guardrails on credential/session actions. The underlying
+  save/render logic was independently verified instead (above); the
+  actual wp-admin page render/click-through is Farhad's to confirm.
+  Approved by: Farhad, in this session (2026-08-27).

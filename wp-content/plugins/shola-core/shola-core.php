@@ -53,6 +53,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Contact_Settings::init();
 \SholaCore\Social_Links_Settings::init();
 \SholaCore\Label_Settings::init();
+\SholaCore\Video_Guide::init();
 \SholaCore\View_Counter::init();
 \SholaCore\Roles::init();
 \SholaCore\SEO::init();
