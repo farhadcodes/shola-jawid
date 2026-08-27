@@ -4410,3 +4410,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   dependency-free vanilla JS, nothing wp-admin-specific in either).
   Not linked from any menu, sitemap, or public navigation.
   Approved by: Farhad, in this session (2026-08-28).
+
+## 2026-08-28 — Video-guide feature: manual verification complete, ready to deploy
+- **Confirmed:** Farhad manually verified the full video-guide feature
+  end-to-end through an actual browser session — the wp-admin
+  thumbnail grid, the `/video-guide` front-end route, and the full
+  login/redirect flow — closing the one open gap noted in the
+  2026-08-27 "Video-guide internal admin tool" entry above (this
+  session's own tooling couldn't drive a real wp-admin click-through;
+  Farhad's manual pass covers exactly that). The Settings-submenu
+  placement question raised in that same entry (vs. a top-level menu
+  with a dashicon) is resolved as-is — no change requested.
+  Approved by: Farhad, in this session (2026-08-28).
