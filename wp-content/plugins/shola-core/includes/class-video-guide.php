@@ -11,6 +11,16 @@
  * Bulk-edited as plain text (one entry per line, "عنوان | آدرس یوتیوب"),
  * not a repeatable-field UI — this is an internal tool Farhad edits
  * himself a few lines at a time, not client-facing content authoring.
+ * Rendered as a click-to-play thumbnail grid (2026-08-27,
+ * docs/CHANGELOG.md), not a plain link list — thumbnails come from
+ * YouTube's own static-image CDN (no stored thumbnail field, no API
+ * key) and clicking one swaps it in place for a live iframe embed
+ * (video-guide.js), rather than navigating to youtube.com. Requires
+ * the videos to be YouTube-"Unlisted," not "Private": a Private
+ * video's thumbnail/embed only work for Google accounts individually
+ * authorized on that exact video, which has nothing to do with this
+ * site's own login — confirmed with Farhad before building this,
+ * see docs/CHANGELOG.md.
  *
  * Menu placement deliberately matches every other shola-core settings
  * screen: add_options_page() under Settings, not a top-level
@@ -52,6 +62,77 @@ class Video_Guide {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
+	}
+
+	/**
+	 * Extracts an 11-character YouTube video ID from any of the common
+	 * URL shapes (watch?v=, youtu.be/, /embed/, /shorts/, /live/) —
+	 * whatever domain/subdomain/scheme, and regardless of extra query
+	 * params before or after. Not exhaustive: playlist-only URLs, or a
+	 * URL where the ID has been mistyped to something other than 11
+	 * characters, won't match. Returns '' rather than guessing when it
+	 * can't find one — callers render a "no preview" fallback instead
+	 * of a broken thumbnail/embed.
+	 *
+	 * @param string $url Stored video URL (already esc_url_raw()'d at save time).
+	 * @return string 11-character video ID, or '' if not recognized.
+	 */
+	public static function get_video_id( $url ) {
+		if ( preg_match( '/[?&]v=([A-Za-z0-9_-]{11})/', $url, $matches ) ) {
+			return $matches[1];
+		}
+
+		if ( preg_match( '#(?:youtu\.be/|/(?:embed|shorts|live)/)([A-Za-z0-9_-]{11})#', $url, $matches ) ) {
+			return $matches[1];
+		}
+
+		return '';
+	}
+
+	/**
+	 * YouTube's standard static-thumbnail CDN URL — no API key, no
+	 * stored thumbnail field to keep in sync with the URL. hqdefault
+	 * (480×360) rather than maxresdefault: the latter doesn't exist for
+	 * every video (older/lower-resolution uploads), and a missing
+	 * maxresdefault serves YouTube's generic broken-image icon instead
+	 * of falling back — hqdefault is generated for effectively every
+	 * video, unlisted included.
+	 *
+	 * @param string $video_id 11-character YouTube video ID.
+	 * @return string
+	 */
+	public static function get_thumbnail_url( $video_id ) {
+		return 'https://img.youtube.com/vi/' . rawurlencode( $video_id ) . '/hqdefault.jpg';
+	}
+
+	/**
+	 * Enqueue the thumbnail-grid click-to-play script/style, only on
+	 * this settings screen — $hook is the exact suffix add_settings_page()
+	 * returns and registers, same gating pattern as
+	 * Meta_Fields::enqueue_admin_assets().
+	 *
+	 * @param string $hook Current admin page hook.
+	 * @return void
+	 */
+	public static function enqueue_admin_assets( $hook ) {
+		if ( 'settings_page_shcore-video-guide' !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'shcore-video-guide',
+			SHCORE_URL . 'admin/js/video-guide.js',
+			array(),
+			SHCORE_VERSION,
+			true
+		);
+		wp_enqueue_style(
+			'shcore-video-guide',
+			SHCORE_URL . 'admin/css/video-guide.css',
+			array(),
+			SHCORE_VERSION
+		);
 	}
 
 	/**
@@ -194,9 +275,11 @@ class Video_Guide {
 	}
 
 	/**
-	 * Renders the list of video links (grouped under their section
-	 * heading where one is set, otherwise flat), then the bulk-edit
-	 * textarea below it, pre-filled with the current list.
+	 * Renders the thumbnail grid (grouped under their section heading
+	 * where one is set, otherwise flat), then the bulk-edit textarea
+	 * below it, pre-filled with the current list. An entry whose URL
+	 * doesn't yield a recognized video ID (get_video_id()) falls back
+	 * to a plain "open in YouTube" link instead of a broken thumbnail.
 	 *
 	 * @return void
 	 */
@@ -220,15 +303,32 @@ class Video_Guide {
 				?>
 				<?php foreach ( $grouped as $section => $section_entries ) : ?>
 					<?php if ( '' !== $section ) : ?>
-						<h2><?php echo esc_html( $section ); ?></h2>
+						<h2 class="shcore-video-section-heading"><?php echo esc_html( $section ); ?></h2>
 					<?php endif; ?>
-					<ul>
+					<div class="shcore-video-grid">
 						<?php foreach ( $section_entries as $entry ) : ?>
-							<li>
-								<a href="<?php echo esc_url( $entry['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $entry['title'] ); ?></a>
-							</li>
+							<?php $video_id = self::get_video_id( $entry['url'] ); ?>
+							<div class="shcore-video-card">
+								<?php if ( $video_id ) : ?>
+									<button
+										type="button"
+										class="shcore-video-thumb"
+										data-video-id="<?php echo esc_attr( $video_id ); ?>"
+										data-video-title="<?php echo esc_attr( $entry['title'] ); ?>"
+										aria-label="<?php echo esc_attr( $entry['title'] ); ?>"
+									>
+										<img src="<?php echo esc_url( self::get_thumbnail_url( $video_id ) ); ?>" alt="" loading="lazy" />
+									</button>
+								<?php else : ?>
+									<p class="shcore-video-noid">
+										<?php esc_html_e( 'شناسهٔ ویدیو از این آدرس قابل تشخیص نیست.', 'shola-core' ); ?>
+										<a href="<?php echo esc_url( $entry['url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'باز کردن در یوتیوب', 'shola-core' ); ?></a>
+									</p>
+								<?php endif; ?>
+								<span class="shcore-video-title"><?php echo esc_html( $entry['title'] ); ?></span>
+							</div>
 						<?php endforeach; ?>
-					</ul>
+					</div>
 				<?php endforeach; ?>
 			<?php else : ?>
 				<p><em><?php esc_html_e( 'هنوز ویدیویی افزوده نشده است.', 'shola-core' ); ?></em></p>

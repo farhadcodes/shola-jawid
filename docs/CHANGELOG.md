@@ -4316,3 +4316,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   save/render logic was independently verified instead (above); the
   actual wp-admin page render/click-through is Farhad's to confirm.
   Approved by: Farhad, in this session (2026-08-27).
+
+## 2026-08-27 — Video-guide thumbnail grid + inline player
+- **Changed:** The راهنمای ویدیویی settings page's plain link list
+  replaced with a click-to-play thumbnail grid. Data entry unchanged —
+  still the same `عنوان ویدیو | آدرس` bulk-edit textarea from the
+  initial rollout; only the rendering changed.
+  New `Video_Guide::get_video_id()` extracts the 11-character YouTube
+  ID from a stored URL (watch?v=, youtu.be/, /embed/, /shorts/,
+  /live/, any domain/scheme, extra query params before or after) —
+  live-tested via `wp eval` against 14 cases including malformed/
+  non-YouTube/playlist-only URLs, all passing, before relying on it
+  for rendering. Not exhaustive by design: a URL `get_video_id()`
+  can't parse falls back to a plain "باز کردن در یوتیوب" link instead
+  of a broken thumbnail — flagged in the docblock rather than trying
+  to silently handle every conceivable URL shape.
+  Thumbnails come from YouTube's own static-image CDN
+  (`img.youtube.com/vi/{id}/hqdefault.jpg`) derived from the ID at
+  render time — no stored thumbnail field, nothing to fall out of
+  sync with the URL, no API key.
+  Clicking a thumbnail (`admin/js/video-guide.js`, vanilla JS, no
+  jQuery dependency — a single delegated click handler didn't
+  warrant one) swaps it in place for a `youtube-nocookie.com` iframe
+  embed (privacy-enhanced mode — no tracking cookies set until the
+  viewer actually presses play), autoplaying on the same user
+  gesture that triggered the swap. New admin-only assets
+  (`admin/css/video-guide.css`, `admin/js/video-guide.js`), enqueued
+  only on this settings screen (`admin_enqueue_scripts`, gated on the
+  exact hook suffix `settings_page_shcore-video-guide` — same gating
+  pattern `Meta_Fields::enqueue_admin_assets()` already uses for its
+  own screen, though this exact hook-suffix value is standard
+  WordPress behavior for `add_options_page()`, not independently
+  runtime-verified this session — flagged, not assumed silently).
+  **Requires the videos to be YouTube-"Unlisted," not "Private"** —
+  confirmed with Farhad before building: YouTube's thumbnail CDN and
+  embed player only work for a Private video for the specific Google
+  accounts individually authorized on that exact video, which has no
+  relationship to this site's own login system. Farhad to switch
+  existing videos' visibility in YouTube Studio before this goes
+  live; nothing on the WordPress side can substitute for that.
+  Full render output verified end-to-end via `wp eval`
+  (`wp_set_current_user()` + direct `render_settings_page()` call,
+  output-buffered and checked) — not just read from code — confirming
+  the thumbnail `<img>`/`data-video-id` markup, the no-ID fallback
+  link, section headings, and the grid wrapper class all render
+  correctly from real saved entries.
+  Approved by: Farhad, in this session (2026-08-27).
