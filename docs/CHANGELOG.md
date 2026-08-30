@@ -4422,3 +4422,128 @@ trail of *why* the build deviated from — or newly applied — a rule in
   placement question raised in that same entry (vs. a top-level menu
   with a dashicon) is resolved as-is — no change requested.
   Approved by: Farhad, in this session (2026-08-28).
+
+## 2026-08-30 — Video-guide restyle: brand colors, RTL, YouTube-style cards
+- **Changed:** Full visual restyle of both video-guide surfaces
+  (wp-admin Settings → راهنمای ویدیویی and the /video-guide front-end
+  route — both call the same render_grid() and now load the same
+  video-guide.css, so they are styled identically by construction, not
+  by copy-pasting the same values twice). Markup/CSS only — none of
+  sanitize_entries(), get_video_id(), get_thumbnail_url(), or
+  entries_to_text() were touched.
+
+  Crimson value confirmed from source, not assumed: grepped main.css's
+  :root block directly. --crimson is #8E1B1B, --crimson-deep #6B1414,
+  --crimson-tint #F5DCDC — all three match the documented brand guide
+  (docs/IA-reference/04_Shola_Jawid_Brand_Guidelines_v1.0.html)
+  exactly, zero drift. The #CC0000 Farhad reported seeing is a real,
+  different, deliberately separate token (--winston-red, Phase A,
+  scoped only to the masthead background) — not a drifted --crimson.
+  Used the confirmed real --crimson (#8E1B1B) throughout this restyle,
+  not #CC0000. --maroon (#4A0E0E) doesn't appear in either brand-guide
+  document at all — not "drifted" (there's no documented value to
+  drift from), just an implementation-only token from the original
+  theme build, flagged separately as instructed rather than silently
+  treated as an error.
+
+  Typeface substitution, flagged rather than silently made: the brief
+  specified "Vazirmatn," which doesn't exist anywhere in this project
+  — no font files, no @font-face, zero references anywhere in the
+  codebase (confirmed by grep, not assumed) — almost certainly a
+  holdover from CLAUDE.md's original, superseded font plan (the theme
+  shipped on Farhang2/ModamPro instead, per an existing in-code
+  comment and an earlier "correct font list in v1.0.0 release notes"
+  fix). Used the theme's real self-hosted Persian typeface, Farhang2,
+  which already has every weight the spec calls for (800 ExtraBold,
+  600 DemiBold i.e. semibold, 400 Regular) — same font files main.css
+  already loads for the public theme, referenced via
+  Video_Guide::get_font_face_css() rather than duplicated. That method
+  builds the @font-face rules with get_theme_file_uri() absolute URLs
+  rather than a hand-written relative path in the static CSS file — a
+  relative url() from wp-content/plugins/shola-core/admin/css/ across
+  into wp-content/themes/shola-jawid/assets/fonts/ is exactly the kind
+  of thing that's easy to get subtly wrong (an early draft of this had
+  precisely that off-by-one-directory-level bug, caught before it
+  shipped) and hard to verify without live-loading the page. Injected
+  as inline CSS: wp_add_inline_style() on the admin screen, a <style>
+  tag on the front-end route.
+
+  Header bar applied to the front-end route only, not the wp-admin
+  screen — a deliberate scope decision, not an oversight: the new
+  crimson header bar with the maroon 2px accent line (the same pattern
+  .masthead's own border-bottom: 2px solid var(--maroon) in main.css
+  uses) replaces the plain intro on /video-guide, which has no other
+  page chrome at all. The wp-admin settings screen keeps WordPress's
+  own native h1/intro styling, matching every other shola-core
+  settings screen's convention of fitting into wp-admin's UI rather
+  than fighting it with custom-colored chrome — this is scoped to the
+  header/chrome only; the grid/card styling below it is 100% identical
+  on both surfaces via the shared CSS file, confirmed no extra effort
+  was needed to keep those in sync.
+
+  RTL verified empirically, not just via the dir attribute: html
+  dir="rtl" lang="fa-IR" (from language_attributes()) is at the real
+  document root on the front-end route — confirmed via a real HTTP
+  request. Card grid uses no direction/order override, relying on CSS
+  Grid's own RTL-aware auto-placement; verified in a live browser test
+  (a self-contained local copy of the real CSS, built to sidestep both
+  this environment's blocked live-session auth and a
+  file://-to-http:// cross-origin limitation hit along the way) that
+  the first card in DOM order is genuinely the rightmost card on
+  screen at desktop width (four cards' x-positions strictly
+  decreasing left-to-right: 947 -> 653 -> 359 -> 159px), and that real
+  Tab-key keyboard navigation visits elements in that same
+  right-to-left order — not assumed from the presence of dir="rtl"
+  alone. The play-button triangle icon is mirrored to point start-ward
+  (left under RTL) rather than reused unmirrored from an LTR set.
+
+  Card structure: 16:9 thumbnail (padding-block-start: 56.25%,
+  object-fit: cover), crimson-tinted play-button overlay (not
+  YouTube's default red) visible by default under
+  (hover: none), (pointer: coarse) and fading in on :hover/
+  :focus-visible otherwise — confirmed both states live, including
+  that touch-emulation correctly triggers always-visible mode. Title
+  is a 2-line -webkit-line-clamp with a fixed min-height so a long
+  title (tested with a genuinely long one) doesn't change card
+  height. A .shcore-video-meta slot exists in the markup for a future
+  duration/date line — deliberately empty
+  (:empty { display: none; }), no placeholder text, per instruction.
+
+  Grid/responsive: repeat(auto-fill, minmax(240px, 1fr)), not a fixed
+  column count, per the brief's explicit ask (main.css's own
+  .issue-grid/.grid-cards elsewhere on the site use fixed breakpoint
+  column counts instead — a deliberate difference here, not an
+  inconsistency). Live-tested, real browser, not just read from the
+  CSS: 1280px -> 4 columns, 768px (tablet) -> 2 columns, 480px and
+  below (both 375px and 390px tested) -> forced single column via a
+  max-width media query, full card width, zero horizontal overflow at
+  any width tested. Inline-player click tested at 375px: the
+  thumbnail's aspect-ratio box reserves identical space whether it
+  holds the <img> or the swapped-in <iframe> — confirmed before/after
+  heights byte-identical (175.15px) and page scroll height unchanged
+  (1299px), zero layout jump.
+
+  Focus/hover, one gap flagged rather than overclaimed: the
+  element-level :focus-visible effect (2px crimson outline) is
+  confirmed working via a real Tab keypress in a live browser — the
+  outline color read back as rgb(142, 27, 27) after tabbing, and
+  :focus-visible matching was independently confirmed via both
+  .matches() and a live querySelector against the actual stylesheet
+  rule. The play-button-appears-on-focus half of the same interaction
+  (.shcore-video-thumb:focus-visible::after) is present as a standard,
+  correctly-specified CSS rule (verified in the live CSSOM, correct
+  selector and specificity, identical technique to the
+  already-confirmed :hover::after variant) but this automation
+  environment's getComputedStyle() did not reflect the opacity change
+  on the ::after pseudo-element specifically when queried under
+  simulated keyboard focus — flagged as an unresolved verification gap
+  in this environment rather than either claimed as fully confirmed or
+  hidden. Worth Farhad's own quick real-browser check (Tab to a
+  thumbnail, confirm the play button appears) before treating this one
+  specific interaction as done.
+
+  Empty state: already existed from earlier work ("هنوز ویدیویی
+  افزوده نشده است.") — checked before assuming it needed adding, per
+  instruction; only its CSS class changed (.shcore-vg-empty), the
+  Persian copy itself is unchanged.
+  Approved by: Farhad, in this session (2026-08-30).

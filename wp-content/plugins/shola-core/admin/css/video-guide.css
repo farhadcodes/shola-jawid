@@ -1,38 +1,139 @@
-/* Shola Core — video-guide thumbnail grid (Settings → راهنمای ویدیویی).
+/* Shola Core — video-guide styling (Settings → راهنمای ویدیویی and the
+   /video-guide front-end route; both call Video_Guide::render_grid(),
+   so this one file styles both surfaces identically).
 
-   Grid of 16:9 thumbnail cards; clicking one swaps its <img> for a
-   YouTube iframe embed in place (see video-guide.js) rather than
-   navigating away — the padding-top: 56.25% trick on .shcore-video-thumb
-   is what keeps that swap from causing a layout jump, since both the
-   <img> and the <iframe> that replaces it are absolutely positioned to
-   fill the same reserved box. */
+   Colors are the theme's real, confirmed :root tokens from
+   assets/css/main.css (--crimson #8E1B1B, --crimson-deep #6B1414,
+   --maroon #4A0E0E, --ink #0F0F0F, --paper #FFFFFF, --stone #6E6E6A,
+   --line #E6E5E1) — checked against the codebase and the documented
+   brand guide before writing this, not assumed. #CC0000 ("Winston
+   Red") is a different, deliberately separate token scoped only to
+   the masthead background (Phase A) — not used here. This file
+   doesn't have access to main.css's `var(--x)` custom properties (the
+   video-guide pages don't load main.css at all, by design — see the
+   class docblock on why they don't inherit the public theme), so the
+   real hex values are hardcoded here directly instead, with a comment
+   on each recording which token it's standing in for.
 
+   Typeface: the brief asked for "Vazirmatn," which doesn't exist
+   anywhere in this project (no font files, no @font-face, zero
+   references) — likely a holdover from CLAUDE.md's original,
+   superseded font plan. The theme's actual self-hosted Persian
+   typeface is Farhang2 (--font-fa in main.css), which already has
+   every weight this spec calls for (800 ExtraBold, 600 DemiBold i.e.
+   semibold, 400 Regular) — flagged in docs/CHANGELOG.md rather than
+   silently substituted.
+
+   The @font-face rules themselves are NOT in this static file — a
+   relative url() path from here (wp-content/plugins/shola-core/
+   admin/css/) across into the theme's font folder
+   (wp-content/themes/shola-jawid/assets/fonts/) is exactly the kind
+   of thing that's easy to get subtly wrong and hard to verify without
+   live-loading the page (a first attempt at this had exactly that
+   off-by-one directory-depth bug). Injected instead as inline CSS
+   from PHP via get_theme_file_uri(), which computes the correct
+   absolute URL regardless of relative depth — see
+   Video_Guide::get_font_face_css(). */
+
+.shcore-vg * {
+	box-sizing: border-box;
+}
+
+.shcore-vg {
+	font-family: "Farhang2", "Tahoma", sans-serif;
+	color: #0f0f0f; /* --ink */
+}
+
+/* ---- Header bar (front-end page only — see the class docblock in
+   class-video-guide.php for why the wp-admin settings screen keeps
+   its native WordPress heading instead of this custom bar). Crimson
+   fill, maroon 2px accent line at the bottom edge — the same "لنگر
+   مارون" (maroon-anchor) pattern the masthead itself uses
+   (border-bottom: 2px solid var(--maroon) in main.css). ---- */
+.shcore-vg-header {
+	background: #8e1b1b; /* --crimson */
+	border-bottom: 2px solid #4a0e0e; /* --maroon */
+	padding: 2.5rem 1.5rem;
+	margin-block-end: 2.5rem;
+}
+.shcore-vg-header-inner {
+	max-width: 1200px;
+	margin-inline: auto;
+}
+.shcore-vg-title {
+	color: #fff;
+	font-family: "Farhang2", "Tahoma", sans-serif;
+	font-weight: 800;
+	font-size: clamp(1.5rem, 3vw, 2rem);
+	margin: 0;
+}
+.shcore-vg-subtitle {
+	color: rgba(255, 255, 255, 0.85);
+	font-weight: 400;
+	font-size: 0.95rem;
+	margin-block-start: 0.5rem;
+}
+
+.shcore-vg-body {
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-inline: 1.5rem;
+	padding-block-end: 4rem;
+}
+
+.shcore-video-section-heading {
+	font-family: "Farhang2", "Tahoma", sans-serif;
+	font-weight: 800;
+	font-size: 1.25rem;
+	margin-block: 2rem 1rem;
+	color: #0f0f0f; /* --ink */
+}
+
+/* ---- Grid — auto-fill/minmax per spec (rather than main.css's own
+   fixed-breakpoint .issue-grid/.grid-cards pattern elsewhere on the
+   site, a deliberate difference the brief asked for explicitly).
+   No direction/writing-mode override here: the page's own
+   dir="rtl" (set at the real <html> root, not a wrapper div) is what
+   makes grid auto-placement flow right-to-left — the first card lands
+   at the inline-start edge, which is the right edge under RTL,
+   automatically, at every breakpoint tested (≥1000px: naturally lands
+   3–4 columns depending on width since minmax(240px,1fr) divides the
+   1200px max-width that way; 480–1000px: 2; ≤480px: 1, forced by the
+   media query below since a 240px minimum wouldn't otherwise collapse
+   to one column until much narrower). ---- */
 .shcore-video-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 1.25rem;
-	margin: 1.5rem 0;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 1.5rem;
+	margin-block: 1.5rem;
+}
+@media (max-width: 480px) {
+	.shcore-video-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 .shcore-video-card {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
+	background: #fff; /* --paper */
+	border: 1px solid #e6e5e1; /* --line */
+	border-radius: 6px;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 .shcore-video-thumb {
 	position: relative;
 	display: block;
 	width: 100%;
-	padding-top: 56.25%; /* 16:9 */
+	padding-block-start: 56.25%; /* 16:9 */
 	background: #1e1e1e;
 	cursor: pointer;
 	border: 0;
 	padding-inline: 0;
 	margin: 0;
+	font: inherit;
 }
-
 .shcore-video-thumb img,
 .shcore-video-thumb iframe {
 	position: absolute;
@@ -43,9 +144,14 @@
 	object-fit: cover;
 }
 
-/* Play-button overlay, hidden once the thumbnail is swapped for the
-   live iframe (video-guide.js removes .is-playing's sibling <img>
-   entirely, so this simply has nothing left to sit on top of then). */
+/* Play-button overlay — crimson-tinted circle (brand color, not
+   YouTube's default red), the triangle mirrored to point start-ward
+   (left under RTL) rather than reused unmirrored from an LTR icon
+   set. Visible by default on touch/coarse-pointer devices (no
+   hover-only affordance where there's no hover); fades in on
+   hover/focus for mouse/keyboard. Removed entirely once .is-playing
+   is added (video-guide.js), since nothing sits under it once the
+   thumbnail <img> itself has been swapped out. */
 .shcore-video-thumb::after {
 	content: "";
 	position: absolute;
@@ -53,33 +159,76 @@
 	margin: auto;
 	width: 56px;
 	height: 56px;
-	background-color: rgba(0, 0, 0, 0.6);
 	border-radius: 50%;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+	background-color: rgba(142, 27, 27, 0.85); /* --crimson */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M16 5v14L5 12z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: 24px;
+	background-size: 22px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
 	pointer-events: none;
 }
-
+@media (hover: none), (pointer: coarse) {
+	.shcore-video-thumb::after {
+		opacity: 1;
+	}
+}
+.shcore-video-thumb:hover::after,
+.shcore-video-thumb:focus-visible::after {
+	opacity: 1;
+}
+.shcore-video-thumb:focus-visible {
+	outline: 2px solid #8e1b1b; /* --crimson */
+	outline-offset: 2px;
+}
 .shcore-video-thumb.is-playing::after {
 	display: none;
 }
 
 .shcore-video-title {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	font-weight: 600; /* DemiBold, i.e. semibold */
+	font-size: 0.95rem;
+	line-height: 1.5;
+	color: #0f0f0f; /* --ink */
+	padding: 0.75rem 0.9rem 0.4rem;
+	min-height: calc(0.95rem * 1.5 * 2 + 0.75rem + 0.4rem);
+}
+
+/* Reserved for a future duration/date line — intentionally empty
+   markup only (no placeholder text), see class-video-guide.php. */
+.shcore-video-meta {
 	display: block;
-	padding: 0.6rem 0.8rem;
-	font-size: 13px;
-	font-weight: 600;
-	line-height: 1.4;
+	padding-inline: 0.9rem;
+	padding-block-end: 0.75rem;
+	font-family: "JetBrains Mono", ui-monospace, monospace;
+	font-size: 0.75rem;
+	color: #6e6e6a; /* --stone */
+}
+.shcore-video-meta:empty {
+	display: none;
 }
 
 .shcore-video-noid {
-	padding: 1rem;
-	font-size: 13px;
-	color: #b32d2e;
+	padding: 1rem 0.9rem;
+	font-size: 0.85rem;
+	color: #8e1b1b; /* --crimson, for the warning text itself */
+}
+.shcore-video-noid a {
+	color: #8e1b1b; /* --crimson */
+	font-weight: 600;
+}
+.shcore-video-noid a:focus-visible {
+	outline: 2px solid #8e1b1b;
+	outline-offset: 2px;
 }
 
-.shcore-video-section-heading {
-	margin-top: 2rem;
+.shcore-vg-empty {
+	font-size: 0.95rem;
+	color: #6e6e6a; /* --stone */
+	padding-block: 2rem;
 }

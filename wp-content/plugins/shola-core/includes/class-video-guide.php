@@ -167,19 +167,61 @@ class Video_Guide {
 			<meta name="robots" content="noindex, nofollow">
 			<title><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></title>
 			<link rel="stylesheet" href="<?php echo esc_url( $css_url ); ?>">
-			<style>
-				body { font-family: -apple-system, "Segoe UI", Tahoma, sans-serif; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; color: #1d2327; }
-				h1 { margin-bottom: 0.25rem; }
-			</style>
+			<style><?php echo self::get_font_face_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static string built entirely from get_theme_file_uri()/esc_url(), no user input. ?></style>
 		</head>
 		<body>
-			<h1><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></h1>
-			<p><?php esc_html_e( 'فهرست ویدیوهای آموزشی داخلی — فقط برای مدیران سایت.', 'shola-core' ); ?></p>
-			<?php self::render_grid( self::get_entries() ); ?>
+			<div class="shcore-vg">
+				<header class="shcore-vg-header">
+					<div class="shcore-vg-header-inner">
+						<h1 class="shcore-vg-title"><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></h1>
+						<p class="shcore-vg-subtitle"><?php esc_html_e( 'فهرست ویدیوهای آموزشی داخلی — فقط برای مدیران سایت.', 'shola-core' ); ?></p>
+					</div>
+				</header>
+				<div class="shcore-vg-body">
+					<?php self::render_grid( self::get_entries() ); ?>
+				</div>
+			</div>
 			<script src="<?php echo esc_url( $js_url ); ?>"></script>
 		</body>
 		</html>
 		<?php
+	}
+
+	/**
+	 * The Farhang2 @font-face rules this page needs (400/600/800 —
+	 * exactly the weights the restyle spec calls for), built with real
+	 * absolute URLs via get_theme_file_uri() rather than a hand-written
+	 * relative path in the static CSS file — a relative url() from
+	 * wp-content/plugins/shola-core/admin/css/ across into
+	 * wp-content/themes/shola-jawid/assets/fonts/ is exactly the kind
+	 * of thing that's easy to get subtly wrong (an earlier draft of
+	 * this file did, by one directory level) and hard to verify without
+	 * live-loading the page. Same font files main.css already loads for
+	 * the public theme — not duplicated assets, just referenced from
+	 * a second place. Injected as inline CSS (wp_add_inline_style() for
+	 * the admin screen, a <style> tag for the front-end route) rather
+	 * than shipped in video-guide.css itself.
+	 *
+	 * @return string
+	 */
+	public static function get_font_face_css() {
+		$weights = array(
+			400 => 'Farhang2-Regular',
+			600 => 'Farhang2-DemiBold',
+			800 => 'Farhang2-ExtraBold',
+		);
+
+		$css = '';
+		foreach ( $weights as $weight => $file ) {
+			$url  = esc_url( get_theme_file_uri( 'assets/fonts/farhang2/woff2/' . $file . '.woff2' ) );
+			$css .= sprintf(
+				'@font-face{font-family:"Farhang2";font-style:normal;font-weight:%1$d;font-display:swap;src:url("%2$s") format("woff2");}',
+				(int) $weight,
+				$url
+			);
+		}
+
+		return $css;
 	}
 
 	/**
@@ -250,6 +292,7 @@ class Video_Guide {
 			array(),
 			SHCORE_VERSION
 		);
+		wp_add_inline_style( 'shcore-video-guide', self::get_font_face_css() );
 	}
 
 	/**
@@ -407,7 +450,7 @@ class Video_Guide {
 	public static function render_grid( $entries ) {
 		if ( ! $entries ) {
 			?>
-			<p><em><?php esc_html_e( 'هنوز ویدیویی افزوده نشده است.', 'shola-core' ); ?></em></p>
+			<p class="shcore-vg-empty"><?php esc_html_e( 'هنوز ویدیویی افزوده نشده است.', 'shola-core' ); ?></p>
 			<?php
 			return;
 		}
@@ -442,6 +485,8 @@ class Video_Guide {
 							</p>
 						<?php endif; ?>
 						<span class="shcore-video-title"><?php echo esc_html( $entry['title'] ); ?></span>
+						<?php /* Reserved for a future duration/date line — deliberately empty, no placeholder text (:empty { display: none; } in video-guide.css hides it until real data exists). */ ?>
+						<span class="shcore-video-meta"></span>
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -467,7 +512,10 @@ class Video_Guide {
 			<h1><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></h1>
 			<p><?php esc_html_e( 'فهرست ویدیوهای آموزشی داخلی (یوتیوب، خصوصی/فهرست‌نشده) — فقط برای مدیران سایت، در هیچ‌کجای سایت عمومی نمایش داده نمی‌شود.', 'shola-core' ); ?></p>
 
-			<?php self::render_grid( $entries ); ?>
+			<?php /* .shcore-vg scopes the card/grid CSS only — the wp-admin <h1>/<p> above stay native WordPress styling, not the front-end route's custom crimson header bar; see the class docblock. */ ?>
+			<div class="shcore-vg">
+				<?php self::render_grid( $entries ); ?>
+			</div>
 
 			<hr />
 
