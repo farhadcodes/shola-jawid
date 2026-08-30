@@ -516,7 +516,13 @@ class Video_Guide {
 	}
 
 	/**
-	 * Register the option and its sanitize callback.
+	 * Register the entries option and the shared front-end password —
+	 * both in the same settings group so one form/submit saves both
+	 * (see render_settings_page()). The password field is what lets
+	 * Farhad change/set it himself from wp-admin without needing
+	 * WP-CLI/SSH access to production — added 2026-08-30 after
+	 * discovering the option had no way to be set on a site he can't
+	 * shell into (see docs/CHANGELOG.md for the full story).
 	 *
 	 * @return void
 	 */
@@ -530,6 +536,27 @@ class Video_Guide {
 				'default'           => array(),
 			)
 		);
+		register_setting(
+			'shcore_video_guide_settings',
+			self::PASSWORD_OPTION_NAME,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_password' ),
+				'default'           => '',
+			)
+		);
+	}
+
+	/**
+	 * Plain sanitize_text_field() + trim() — this is a shared secret
+	 * for casual sharing (see PASSWORD_OPTION_NAME's docblock), not a
+	 * real user-account password needing hashing on this end.
+	 *
+	 * @param mixed $raw Raw submitted value.
+	 * @return string
+	 */
+	public static function sanitize_password( $raw ) {
+		return sanitize_text_field( trim( (string) $raw ) );
 	}
 
 	/**
@@ -732,7 +759,31 @@ class Video_Guide {
 				<p>
 					<button type="button" id="shcore-vg-add-row" class="button"><?php esc_html_e( 'افزودن ویدیوی دیگر', 'shola-core' ); ?></button>
 				</p>
-				<?php submit_button( __( 'ذخیره فهرست', 'shola-core' ) ); ?>
+
+				<hr />
+
+				<h2><?php esc_html_e( 'رمز عبور صفحهٔ عمومی', 'shola-core' ); ?></h2>
+				<p><?php esc_html_e( 'برای دسترسی به /video-guide بدون ورود به مدیریت سایت، بازدیدکننده باید این رمز عبور را وارد کند. هر زمان که این رمز را تغییر دهید و ذخیره کنید، دسترسی‌های قبلی باطل شده و افراد باید رمز جدید را وارد کنند.', 'shola-core' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row">
+							<label for="shcore-vg-password"><?php esc_html_e( 'رمز عبور', 'shola-core' ); ?></label>
+						</th>
+						<td>
+							<input
+								type="text"
+								id="shcore-vg-password"
+								name="<?php echo esc_attr( self::PASSWORD_OPTION_NAME ); ?>"
+								value="<?php echo esc_attr( self::get_password() ); ?>"
+								class="regular-text"
+								dir="ltr"
+								autocomplete="off"
+							/>
+						</td>
+					</tr>
+				</table>
+
+				<?php submit_button( __( 'ذخیره', 'shola-core' ) ); ?>
 			</form>
 
 			<?php

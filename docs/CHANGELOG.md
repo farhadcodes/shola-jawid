@@ -4661,4 +4661,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   grid, no edit form) — this button is the one-click bridge between
   them, rather than building a second, redundant watching page when
   /video-guide already served exactly that purpose.
+
+## 2026-08-30 (later same day)
+- **Fixed / Added:** The `/video-guide` password Farhad set locally
+  (`guide@2026`, via `wp option update`) never took effect on
+  production because deploying the plugin zip only copies code
+  files — it never touches production's database, so the
+  `shcore_video_guide_password` option simply didn't exist there.
+  Farhad has no WP-CLI/SSH access to production to set it directly.
+  Fixed by adding a plain, visible (not masked) text field — "رمز
+  عبور صفحهٔ عمومی" — to the bottom of the same Settings →
+  راهنمای ویدیویی screen, wired to the same `shcore_video_guide_settings`
+  option group and saved through the same `options.php` form/nonce
+  the video repeater already uses, so it needed no separate form,
+  handler, or capability check. Deliberately `type="text"`, not
+  `type="password"`: per Farhad's stated reason ("difficult to
+  remember"), the whole point is that he can see and copy the
+  current value, not have it hidden from himself. `sanitize_password()`
+  (added to `register_setting()`) is `sanitize_text_field( trim(...) )`
+  — same treatment every other plain settings field in this plugin
+  gets. Saving a new password here immediately invalidates every
+  previously-issued unlock cookie (per the existing HMAC-of-password
+  design, unchanged) — expected and desirable.
+  **Action required on Farhad's side after this deploys:** the
+  production database still doesn't have this option set to
+  anything — deploying the new field only adds the *ability* to set
+  it from wp-admin. He must open Settings → راهنمای ویدیویی on the
+  live site once, type the password into the new field, and click
+  ذخیره — only then does /video-guide's password gate start working
+  on production. The local LocalWP site's `guide@2026` value (set
+  via WP-CLI, for local testing only) is a separate database and is
+  not carried over by this or any future code deploy.
+  Approved by: Farhad, in this session (2026-08-30) — explicit
+  request: "make it an option in the video guide tab ... so that I
+  can change the password of this specific page from there."
   Approved by: Farhad, in this session (2026-08-30).
