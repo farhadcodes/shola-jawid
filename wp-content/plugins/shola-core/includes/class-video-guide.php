@@ -1,9 +1,8 @@
 <?php
 /**
- * Private, admin-only list of Farhad's unlisted YouTube tutorial videos
- * for Farhad (how to use the dashboard, publish content, etc.). Two
- * entry points, same underlying data and rendering, both gated to
- * manage_options only:
+ * Admin-managed list of Farhad's unlisted YouTube tutorial videos
+ * (how to use the dashboard, publish content, etc.). Two entry points,
+ * same underlying data and rendering, different access rules:
  *   - wp-admin: Settings → راهنمای ویدیویی (add_options_page(), same
  *     shape as Label_Settings/Social_Links_Settings/Contact_Settings —
  *     one option, one settings page, one sanitize callback, Settings
@@ -11,26 +10,34 @@
  *     editing" area: a paired title/URL repeater form
  *     (video-guide-admin.js), not a thumbnail preview (see
  *     render_settings_page()'s docblock for why that preview was
- *     removed, 2026-08-30).
+ *     removed, 2026-08-30). Still strictly manage_options-only,
+ *     unaffected by the front-end change below.
  *   - Front end: /video-guide (2026-08-28, docs/CHANGELOG.md) — the
  *     "watching" area: a bookmarkable URL for the click-to-play
  *     thumbnail grid, registered as a custom rewrite rule + query var
  *     + template_redirect gate (see register_rewrite()/
  *     maybe_render_front_end_page() below), not a real WP Page/post.
- *     Real capability check on every request (is_user_logged_in() &&
- *     current_user_can('manage_options')), not an unguessable-URL
- *     approach — anyone else is redirected to wp-login.php with
- *     redirect_to pointing back at this URL, no page content rendered
- *     first. Deliberately does not inherit the public theme (no
+ *     A logged-in Administrator always gets straight through. Anyone
+ *     else sees a password form (2026-08-30, Farhad's explicit
+ *     request, docs/CHANGELOG.md) rather than being redirected to
+ *     wp-login.php — a deliberate, documented reversal of this
+ *     route's original "real capability check, not an
+ *     unguessable-URL approach" design, specifically so the page can
+ *     be shared with people who don't have a WordPress account here.
+ *     See maybe_render_front_end_page()'s docblock for the full
+ *     mechanics (shared password option, HMAC-signed unlock cookie).
+ *     Deliberately does not inherit the public theme (no
  *     get_header()/get_footer()) — a minimal standalone shell reusing
  *     the same admin CSS/JS, plus noindex/nofollow as defense in
- *     depth. Not linked from any menu, sitemap, or public navigation
- *     anywhere. A "مشاهدهٔ ویدیوها" button on the wp-admin screen
- *     (render_settings_page()) is the one-click bridge between the
- *     two areas.
- * Neither entry point is public-facing beyond that one deliberate
- * front-end URL — no shortcode, no theme template, no sitemap/search-
- * index exposure otherwise.
+ *     depth (still meaningful even with the password gate — the page
+ *     still isn't discoverable by search/browsing). Not linked from
+ *     any menu, sitemap, or public navigation anywhere. A "مشاهدهٔ
+ *     ویدیوها" button on the wp-admin screen (render_settings_page())
+ *     is the one-click bridge between the two areas.
+ * The wp-admin screen is not public-facing at all; the front-end route
+ * is reachable by anyone with both the URL and the current password —
+ * no shortcode, no theme template, no sitemap/search-index exposure
+ * either way.
  *
  * Entries are added/edited as paired title+URL fields (a real
  * repeater — "افزودن ویدیوی دیگر" clones a row, "حذف" removes one),
@@ -126,13 +133,39 @@ class Video_Guide {
 	}
 
 	/**
-	 * Gate for the /video-guide front-end route. Anything other than a
-	 * logged-in Administrator (manage_options) is redirected to the
-	 * login screen with redirect_to pointing back at this exact URL —
-	 * no page content, no "access denied" message, nothing rendered
-	 * before the redirect for a non-admin. A real capability check,
-	 * not an unguessable-URL/security-through-obscurity approach — the
-	 * URL itself is expected to be bookmarked/shared in chat.
+	 * Option name storing the shared password for non-admin access to
+	 * /video-guide (see class docblock's 2026-08-30 "public sharing"
+	 * note). Plain text, same convention WP core itself uses for
+	 * `post_password` on password-protected posts/pages — this is a
+	 * shared secret for casual sharing, not a real user account, so
+	 * that's an appropriate (not a weakened) standard to hold it to.
+	 *
+	 * @var string
+	 */
+	const PASSWORD_OPTION_NAME = 'shcore_video_guide_password';
+
+	/**
+	 * Gate for the /video-guide front-end route. A logged-in
+	 * Administrator (manage_options) always gets straight through, as
+	 * before. Anyone else — logged out, or logged in without that
+	 * capability — sees a small password form instead of being
+	 * redirected to wp-login.php; a correct password sets a signed
+	 * unlock cookie (has_valid_unlock_cookie()/set_unlock_cookie()) so
+	 * they don't have to re-enter it on every visit. No password
+	 * configured (get_password() returns '') means nobody gets in
+	 * this way — only admins, same as before this feature existed.
+	 *
+	 * Deliberate, explicit policy change from this page's original
+	 * "real capability check, not an unguessable-URL approach" design
+	 * — added 2026-08-30 at Farhad's explicit request, specifically so
+	 * this can be shared with people who don't have a WordPress
+	 * account on this site. See docs/CHANGELOG.md for the full
+	 * decision record, including the accepted limitation that failed-
+	 * password attempts on this route aren't separately rate-limited
+	 * (Wordfence's brute-force protection is scoped to wp-login.php,
+	 * not custom routes like this one) — acceptable for a shared
+	 * secret meant for short-term casual sharing, not a real account
+	 * credential.
 	 *
 	 * @return void
 	 */
@@ -141,14 +174,170 @@ class Video_Guide {
 			return;
 		}
 
-		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-			$current_url = home_url( add_query_arg( array(), $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL reconstruction, passed only to wp_login_url()/wp_safe_redirect(), which handle escaping internally; never echoed directly.
-			wp_safe_redirect( wp_login_url( $current_url ) );
+		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+			self::render_front_end_page();
 			exit;
 		}
 
-		self::render_front_end_page();
+		if ( isset( $_POST['shcore_vg_password'] ) ) {
+			$submitted = sanitize_text_field( wp_unslash( $_POST['shcore_vg_password'] ) );
+			if ( self::password_matches( $submitted ) ) {
+				self::set_unlock_cookie();
+				self::render_front_end_page();
+				exit;
+			}
+			self::render_password_gate( true );
+			exit;
+		}
+
+		if ( self::has_valid_unlock_cookie() ) {
+			self::render_front_end_page();
+			exit;
+		}
+
+		self::render_password_gate( false );
 		exit;
+	}
+
+	/**
+	 * Reads the configured shared password. Empty string (the default
+	 * — no password ever set) means the password gate always fails,
+	 * so a fresh install stays admin-only exactly as before this
+	 * feature was added; nobody accidentally ships with an open door.
+	 *
+	 * @return string
+	 */
+	public static function get_password() {
+		return (string) get_option( self::PASSWORD_OPTION_NAME, '' );
+	}
+
+	/**
+	 * Timing-safe comparison (hash_equals(), not ===) against the
+	 * configured password. Empty stored password always fails, even
+	 * against an empty submission — an unset password must never be
+	 * satisfiable by submitting nothing.
+	 *
+	 * @param string $submitted Raw submitted password, already sanitize_text_field()'d.
+	 * @return bool
+	 */
+	private static function password_matches( $submitted ) {
+		$stored = self::get_password();
+		if ( '' === $stored ) {
+			return false;
+		}
+		return hash_equals( $stored, $submitted );
+	}
+
+	/**
+	 * The unlock cookie's name, namespaced with WordPress's own
+	 * COOKIEHASH (derived from the site URL) — same convention core
+	 * uses for its own auth cookies, avoids collisions if this site
+	 * ever shares a cookie domain with another WP install.
+	 *
+	 * @return string
+	 */
+	private static function unlock_cookie_name() {
+		return 'shcore_vg_unlock_' . COOKIEHASH;
+	}
+
+	/**
+	 * The unlock cookie's expected value: an HMAC of the current
+	 * password, keyed with one of WordPress's own secret salts —
+	 * deliberately not the password itself, so the cookie value never
+	 * discloses the password even if intercepted. A useful side
+	 * effect of deriving it from the password rather than storing a
+	 * separate token: changing the password immediately invalidates
+	 * every previously-issued cookie (the HMAC no longer matches),
+	 * with no separate revocation list to maintain.
+	 *
+	 * @return string
+	 */
+	private static function expected_unlock_token() {
+		return hash_hmac( 'sha256', self::get_password(), wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Whether the current request's cookie proves a correct password
+	 * was submitted previously (for the *current* password — see
+	 * expected_unlock_token()'s docblock on why a password change
+	 * invalidates old cookies automatically).
+	 *
+	 * @return bool
+	 */
+	private static function has_valid_unlock_cookie() {
+		if ( '' === self::get_password() ) {
+			return false;
+		}
+		if ( empty( $_COOKIE[ self::unlock_cookie_name() ] ) ) {
+			return false;
+		}
+		return hash_equals( self::expected_unlock_token(), sanitize_text_field( wp_unslash( $_COOKIE[ self::unlock_cookie_name() ] ) ) );
+	}
+
+	/**
+	 * Sets the unlock cookie after a correct password submission — 30
+	 * days, httponly (never needed from JS), matching the scheme
+	 * (`is_ssl()`) and path/domain conventions WordPress's own auth
+	 * cookies use. Must run before any output — called from
+	 * maybe_render_front_end_page() before render_front_end_page()
+	 * echoes anything, same header-timing constraint the earlier
+	 * wp_safe_redirect() call already had to respect.
+	 *
+	 * @return void
+	 */
+	private static function set_unlock_cookie() {
+		setcookie(
+			self::unlock_cookie_name(),
+			self::expected_unlock_token(),
+			time() + 30 * DAY_IN_SECONDS,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
+		);
+	}
+
+	/**
+	 * The password-entry page shown to anyone who isn't an already-
+	 * logged-in Administrator and doesn't have a valid unlock cookie
+	 * yet. Same noindex/nofollow + standalone-shell treatment as
+	 * render_front_end_page() — still never linked from anywhere
+	 * crawlable, the password is defense in depth on top of that, not
+	 * a replacement for it.
+	 *
+	 * @param bool $show_error Whether the previous submission was wrong.
+	 * @return void
+	 */
+	private static function render_password_gate( $show_error ) {
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta name="robots" content="noindex, nofollow">
+			<title><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></title>
+			<style>
+				body { font-family: "Tahoma", sans-serif; background: #FAF8F3; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+				.shcore-vg-gate { background: #fff; border: 1px solid #E6E5E1; border-radius: 6px; padding: 2rem; max-width: 320px; width: 90%; text-align: center; }
+				.shcore-vg-gate h1 { font-size: 1.15rem; margin: 0 0 1rem; color: #0F0F0F; }
+				.shcore-vg-gate input[type="password"] { width: 100%; padding: 0.6rem; margin-block-end: 1rem; border: 1px solid #E6E5E1; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
+				.shcore-vg-gate button { width: 100%; padding: 0.6rem; background: #8E1B1B; color: #fff; border: 0; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+				.shcore-vg-gate .error { color: #8E1B1B; font-size: 0.85rem; margin-block-end: 1rem; }
+			</style>
+		</head>
+		<body>
+			<form class="shcore-vg-gate" method="post">
+				<h1><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></h1>
+				<?php if ( $show_error ) : ?>
+					<p class="error"><?php esc_html_e( 'رمز عبور نادرست است.', 'shola-core' ); ?></p>
+				<?php endif; ?>
+				<input type="password" name="shcore_vg_password" placeholder="<?php esc_attr_e( 'رمز عبور', 'shola-core' ); ?>" autofocus />
+				<button type="submit"><?php esc_html_e( 'ورود', 'shola-core' ); ?></button>
+			</form>
+		</body>
+		</html>
+		<?php
 	}
 
 	/**

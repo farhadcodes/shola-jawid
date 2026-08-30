@@ -4609,6 +4609,51 @@ trail of *why* the build deviated from — or newly applied — a rule in
   cached right now.
   Approved by: Farhad, in this session (2026-08-30).
 
+- **Changed:** `/video-guide` — a deliberate, explicit reversal of
+  this route's original access-control design, per Farhad's direct
+  request so he can share the page with people who don't have a
+  WordPress account on this site. Previously: any non-Administrator
+  (logged out or not) was redirected to `wp-login.php`, no exceptions
+  — "a real capability check, not an unguessable-URL approach." Now:
+  a logged-in Administrator still gets straight through unchanged;
+  anyone else sees a small password form instead of a redirect.
+  Mechanism: shared password stored in a new option
+  (`shcore_video_guide_password`, plain text — same convention
+  WordPress core itself uses for password-protected posts'
+  `post_password` column, an appropriate standard for a casual shared
+  secret, not a real user account). A correct submission sets an
+  unlock cookie whose value is an HMAC of the *current* password
+  keyed with one of WordPress's own secret salts
+  (`wp_salt('auth')`) — deliberately not the password itself, so the
+  cookie never discloses it even if intercepted, and changing the
+  password automatically invalidates every previously-issued cookie
+  with no separate revocation list needed. `hash_equals()` used for
+  both the password check and the cookie check (timing-safe
+  comparison, not `===`). No password configured
+  (`get_password()` returns `''`) means the gate always fails — a
+  fresh install/state stays admin-only exactly as this route
+  originally shipped, nobody accidentally ships with an open door.
+  **Accepted limitation, not overlooked:** failed password attempts
+  on this route aren't separately rate-limited — Wordfence's
+  brute-force protection (per CLAUDE.md §3/§6) is scoped to
+  `wp-login.php`, not custom routes like this one. Acceptable for a
+  shared secret meant for short-term casual sharing, not a real
+  account credential; worth reconsidering if this access model is
+  ever made permanent rather than the temporary arrangement it's
+  intended as today.
+  Verified end-to-end via real HTTP requests with a cookie jar (not
+  assumed from reading the code): a logged-out visitor with no
+  cookie sees the password form (`200`, not a redirect); a wrong
+  password re-shows the form with an error and sets no cookie; a
+  correct password shows the real content and sets the unlock
+  cookie; a subsequent visit with that cookie shows content directly
+  with no form; changing the stored password correctly invalidates
+  the old cookie (form reappears); and a logged-in Administrator
+  still bypasses all of this exactly as before, with no password
+  cookie at all. wp-admin's Settings → راهنمای ویدیویی screen is
+  completely unaffected — still strictly `manage_options`, unchanged.
+  Approved by: Farhad, in this session (2026-08-30).
+
 - **Added:** "مشاهدهٔ ویدیوها" button on the wp-admin settings screen,
   linking to /video-guide (target="_blank"). Per Farhad's request:
   the Settings screen is the "adding/editing" area (grid preview +
