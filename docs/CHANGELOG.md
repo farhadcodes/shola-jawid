@@ -4590,6 +4590,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   UI level while still sharing the same underlying option/entries.
   Approved by: Farhad, in this session (2026-08-30).
 
+- **Changed:** Plugin version bumped 1.0.1 → 1.0.2 (`shola-core.php`,
+  `SHCORE_VERSION`). Same root cause as the earlier theme/plugin
+  1.0.0 → 1.0.1 bump (2026-08-27): `SHCORE_VERSION` is the cache-
+  busting query string on `video-guide.css`/`video-guide.js`/
+  `video-guide-admin.js`, and it stayed at 1.0.1 through this entire
+  session's restyle and repeater-UI work — so after deploying to
+  production, Hostinger's server-side cache kept serving the *old,
+  unstyled* `video-guide.css` from before any of today's changes
+  (`?ver=1.0.1` never changed, so nothing signaled a re-fetch), even
+  though the new file was genuinely present on the server. Farhad
+  confirmed exactly this symptom live: styling worked on local but
+  "the whole style of the page" was missing after deploying the same
+  files to production. This bump — and remembering to do it on every
+  deploy that touches CSS/JS going forward — is the actual fix; a
+  manual Hostinger cache purge (as done for the earlier occurrence)
+  is the one-time unblock for whichever version is already stuck
+  cached right now.
+  Approved by: Farhad, in this session (2026-08-30).
+
 - **Added:** "مشاهدهٔ ویدیوها" button on the wp-admin settings screen,
   linking to /video-guide (target="_blank"). Per Farhad's request:
   the Settings screen is the "adding/editing" area (grid preview +
