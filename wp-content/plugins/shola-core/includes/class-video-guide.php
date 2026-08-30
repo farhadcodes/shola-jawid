@@ -7,27 +7,37 @@
  *   - wp-admin: Settings → راهنمای ویدیویی (add_options_page(), same
  *     shape as Label_Settings/Social_Links_Settings/Contact_Settings —
  *     one option, one settings page, one sanitize callback, Settings
- *     API for the nonce/capability/save plumbing).
- *   - Front end: /video-guide (2026-08-28, docs/CHANGELOG.md) — a
- *     bookmarkable URL for the same thumbnail grid, registered as a
- *     custom rewrite rule + query var + template_redirect gate (see
- *     register_rewrite()/maybe_render_front_end_page() below), not a
- *     real WP Page/post. Real capability check on every request
- *     (is_user_logged_in() && current_user_can('manage_options')),
- *     not an unguessable-URL approach — anyone else is redirected to
- *     wp-login.php with redirect_to pointing back at this URL, no page
- *     content rendered first. Deliberately does not inherit the
- *     public theme (no get_header()/get_footer()) — a minimal
- *     standalone shell reusing the same admin CSS/JS, plus
- *     noindex/nofollow as defense in depth. Not linked from any menu,
- *     sitemap, or public navigation anywhere.
+ *     API for the nonce/capability/save plumbing) — the "adding/
+ *     editing" area: a paired title/URL repeater form
+ *     (video-guide-admin.js), not a thumbnail preview (see
+ *     render_settings_page()'s docblock for why that preview was
+ *     removed, 2026-08-30).
+ *   - Front end: /video-guide (2026-08-28, docs/CHANGELOG.md) — the
+ *     "watching" area: a bookmarkable URL for the click-to-play
+ *     thumbnail grid, registered as a custom rewrite rule + query var
+ *     + template_redirect gate (see register_rewrite()/
+ *     maybe_render_front_end_page() below), not a real WP Page/post.
+ *     Real capability check on every request (is_user_logged_in() &&
+ *     current_user_can('manage_options')), not an unguessable-URL
+ *     approach — anyone else is redirected to wp-login.php with
+ *     redirect_to pointing back at this URL, no page content rendered
+ *     first. Deliberately does not inherit the public theme (no
+ *     get_header()/get_footer()) — a minimal standalone shell reusing
+ *     the same admin CSS/JS, plus noindex/nofollow as defense in
+ *     depth. Not linked from any menu, sitemap, or public navigation
+ *     anywhere. A "مشاهدهٔ ویدیوها" button on the wp-admin screen
+ *     (render_settings_page()) is the one-click bridge between the
+ *     two areas.
  * Neither entry point is public-facing beyond that one deliberate
  * front-end URL — no shortcode, no theme template, no sitemap/search-
  * index exposure otherwise.
  *
- * Bulk-edited as plain text (one entry per line, "عنوان | آدرس یوتیوب"),
- * not a repeatable-field UI — this is an internal tool Farhad edits
- * himself a few lines at a time, not client-facing content authoring.
+ * Entries are added/edited as paired title+URL fields (a real
+ * repeater — "افزودن ویدیوی دیگر" clones a row, "حذف" removes one),
+ * not the free-text "عنوان | آدرس یوتیوب" bulk-edit textarea this
+ * screen originally shipped with (2026-08-27) — replaced 2026-08-30
+ * per Farhad's explicit report that the line-based text format was
+ * hard to hand-edit correctly (see sanitize_entries()'s docblock).
  * Rendered as a click-to-play thumbnail grid (2026-08-27,
  * docs/CHANGELOG.md), not a plain link list — thumbnails come from
  * YouTube's own static-image CDN (no stored thumbnail field, no API
@@ -286,6 +296,13 @@ class Video_Guide {
 			SHCORE_VERSION,
 			true
 		);
+		wp_enqueue_script(
+			'shcore-video-guide-admin',
+			SHCORE_URL . 'admin/js/video-guide-admin.js',
+			array(),
+			SHCORE_VERSION,
+			true
+		);
 		wp_enqueue_style(
 			'shcore-video-guide',
 			SHCORE_URL . 'admin/css/video-guide.css',
@@ -327,96 +344,56 @@ class Video_Guide {
 	}
 
 	/**
-	 * Parses the submitted bulk-edit textarea into the stored entry list.
-	 * Line format:
-	 *   - "## بخش" — starts a new section; every entry line after it is
-	 *     grouped under that label until the next "##" line (or end of
-	 *     text). No "##" line yet seen means section '' (flat list —
-	 *     the expected starting state per the initial rollout).
-	 *   - "عنوان | آدرس" — one entry: title (sanitize_text_field) and
-	 *     URL (esc_url_raw). Lines missing the "|" separator, or with an
-	 *     empty title/URL after sanitizing, are silently dropped rather
-	 *     than stored malformed — this is a bulk text field, not a
-	 *     validated multi-field form, so a typo should not fatal or
-	 *     leave a broken row, just be omitted (Farhad can re-add it).
-	 *   - Blank lines are ignored.
+	 * Parses the submitted repeater rows into the stored entry list.
+	 * Expects $raw as an indexed array of {title, url} sub-arrays — the
+	 * shape the Settings API hands this callback from
+	 * shcore_video_guide_entries[N][title]/[url] fields (see
+	 * render_settings_page()/video-guide-admin.js). Each row's title
+	 * (sanitize_text_field) and URL (esc_url_raw) are sanitized
+	 * independently; a row missing either after sanitizing (e.g. an
+	 * empty row left over from clicking "افزودن ویدیوی دیگر" without
+	 * filling it in) is silently dropped rather than stored broken —
+	 * Farhad can just re-add it, this isn't a validated form that needs
+	 * to error.
 	 *
-	 * @param mixed $raw Raw submitted value — the textarea's string
-	 *                    content (Settings API passes the POSTed field
-	 *                    value as-is, not pre-split into lines).
+	 * Replaced the original line-based "عنوان | آدرس" bulk-textarea
+	 * format (2026-08-27) with this paired-field repeater UI
+	 * (2026-08-30, docs/CHANGELOG.md) per Farhad's explicit request —
+	 * the free-text format was hard to hand-edit correctly. The
+	 * `##`-prefixed section-header line that format supported has no
+	 * equivalent in this UI; every entry saved through it gets
+	 * `section => ''` (flat list). render_grid() still groups by
+	 * `section` when the value is non-empty, so a `section` set some
+	 * other way (e.g. directly in the database) still displays
+	 * correctly — this UI just doesn't offer a way to set one anymore.
+	 *
+	 * @param mixed $raw Raw submitted value.
 	 * @return array<int, array{section: string, title: string, url: string}>
 	 */
 	public static function sanitize_entries( $raw ) {
-		$text = is_string( $raw ) ? $raw : self::entries_to_text( is_array( $raw ) ? $raw : array() );
+		$raw = is_array( $raw ) ? $raw : array();
 
-		$result  = array();
-		$section = '';
-
-		foreach ( preg_split( '/\r\n|\r|\n/', $text ) as $line ) {
-			$line = trim( $line );
-
-			if ( '' === $line ) {
+		$result = array();
+		foreach ( $raw as $row ) {
+			if ( ! is_array( $row ) ) {
 				continue;
 			}
 
-			if ( 0 === strpos( $line, '##' ) ) {
-				$section = sanitize_text_field( trim( substr( $line, 2 ) ) );
-				continue;
-			}
-
-			$parts = explode( '|', $line, 2 );
-			if ( count( $parts ) < 2 ) {
-				continue;
-			}
-
-			$title = sanitize_text_field( trim( $parts[0] ) );
-			$url   = esc_url_raw( trim( $parts[1] ) );
+			$title = isset( $row['title'] ) ? sanitize_text_field( trim( $row['title'] ) ) : '';
+			$url   = isset( $row['url'] ) ? esc_url_raw( trim( $row['url'] ) ) : '';
 
 			if ( '' === $title || '' === $url ) {
 				continue;
 			}
 
 			$result[] = array(
-				'section' => $section,
+				'section' => '',
 				'title'   => $title,
 				'url'     => $url,
 			);
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Inverse of sanitize_entries() — renders the stored list back into
-	 * the same line-based text format, so the bulk-edit textarea shows
-	 * the current entries pre-filled (to append to) rather than a blank
-	 * box Farhad would have to retype from scratch every time.
-	 *
-	 * @param array<int, array{section?: string, title?: string, url?: string}> $entries Stored entries.
-	 * @return string
-	 */
-	private static function entries_to_text( $entries ) {
-		$lines           = array();
-		$current_section = null;
-
-		foreach ( $entries as $entry ) {
-			$section = isset( $entry['section'] ) ? $entry['section'] : '';
-			$title   = isset( $entry['title'] ) ? $entry['title'] : '';
-			$url     = isset( $entry['url'] ) ? $entry['url'] : '';
-
-			if ( '' === $title || '' === $url ) {
-				continue;
-			}
-
-			if ( $section !== $current_section && '' !== $section ) {
-				$lines[]         = '## ' . $section;
-				$current_section = $section;
-			}
-
-			$lines[] = $title . ' | ' . $url;
-		}
-
-		return implode( "\n", $lines );
 	}
 
 	/**
@@ -495,9 +472,16 @@ class Video_Guide {
 	}
 
 	/**
-	 * Renders the wp-admin settings screen: intro text, the shared
-	 * thumbnail grid (render_grid()), then the bulk-edit textarea,
-	 * pre-filled with the current list.
+	 * Renders the wp-admin settings screen: intro text, the "مشاهدهٔ
+	 * ویدیوها" link out to /video-guide (the actual watching
+	 * experience — this screen no longer also renders the thumbnail
+	 * grid itself; Farhad found duplicating it here, alongside broken/
+	 * mismatched thumbnail previews in some browser states, more
+	 * confusing than useful, 2026-08-30, docs/CHANGELOG.md), then the
+	 * paired title/URL repeater form (also 2026-08-30 — replaced the
+	 * original bulk-edit textarea, per Farhad's explicit request that
+	 * the free-text "عنوان | آدرس" line format was hard to hand-edit
+	 * correctly).
 	 *
 	 * @return void
 	 */
@@ -530,33 +514,62 @@ class Video_Guide {
 				</a>
 			</p>
 
-			<?php /* .shcore-vg scopes the card/grid CSS only — the wp-admin <h1>/<p> above stay native WordPress styling, not the front-end route's custom crimson header bar; see the class docblock. */ ?>
-			<div class="shcore-vg">
-				<?php self::render_grid( $entries ); ?>
-			</div>
-
 			<hr />
 
-			<h2><?php esc_html_e( 'افزودن/ویرایش گروهی', 'shola-core' ); ?></h2>
-			<p>
-				<?php
-				echo wp_kses(
-					__( 'هر سطر یک ویدیو: <code>عنوان ویدیو | آدرس یوتیوب</code>. برای شروع یک بخش جدید، سطری با <code>## نام بخش</code> بنویسید — همهٔ ویدیوهای بعد از آن تا بخش بعدی زیر همان عنوان نمایش داده می‌شوند.', 'shola-core' ),
-					array( 'code' => array() )
-				);
-				?>
-			</p>
+			<h2><?php esc_html_e( 'افزودن/ویرایش ویدیوها', 'shola-core' ); ?></h2>
+			<p><?php esc_html_e( 'برای هر ویدیو، عنوان و آدرس یوتیوب آن را وارد کنید.', 'shola-core' ); ?></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'shcore_video_guide_settings' ); ?>
-				<textarea
-					name="<?php echo esc_attr( self::OPTION_NAME ); ?>"
-					rows="12"
-					class="large-text code"
-					dir="ltr"
-					placeholder="## پنل مدیریت&#10;آشنایی با داشبورد | https://youtube.com/..."
-				><?php echo esc_textarea( self::entries_to_text( $entries ) ); ?></textarea>
+				<div id="shcore-vg-repeater">
+					<?php foreach ( array_values( $entries ) as $index => $entry ) : ?>
+						<div class="shcore-vg-row" data-index="<?php echo esc_attr( $index ); ?>">
+							<input
+								type="text"
+								name="<?php echo esc_attr( self::OPTION_NAME ); ?>[<?php echo esc_attr( $index ); ?>][title]"
+								value="<?php echo esc_attr( $entry['title'] ); ?>"
+								placeholder="<?php esc_attr_e( 'عنوان ویدیو', 'shola-core' ); ?>"
+							/>
+							<input
+								type="url"
+								name="<?php echo esc_attr( self::OPTION_NAME ); ?>[<?php echo esc_attr( $index ); ?>][url]"
+								value="<?php echo esc_attr( $entry['url'] ); ?>"
+								placeholder="https://youtu.be/..."
+								dir="ltr"
+							/>
+							<button type="button" class="button shcore-vg-remove-row"><?php esc_html_e( 'حذف', 'shola-core' ); ?></button>
+						</div>
+					<?php endforeach; ?>
+				</div>
+				<p>
+					<button type="button" id="shcore-vg-add-row" class="button"><?php esc_html_e( 'افزودن ویدیوی دیگر', 'shola-core' ); ?></button>
+				</p>
 				<?php submit_button( __( 'ذخیره فهرست', 'shola-core' ) ); ?>
 			</form>
+
+			<?php
+			/*
+			 * Row template video-guide-admin.js clones on "افزودن
+			 * ویدیوی دیگر" — a real <template> element, never rendered
+			 * or submitted itself, just a source of markup to clone.
+			 * __INDEX__ is replaced with a running counter in JS.
+			 */
+			?>
+			<template id="shcore-vg-row-template">
+				<div class="shcore-vg-row" data-index="__INDEX__">
+					<input
+						type="text"
+						name="<?php echo esc_attr( self::OPTION_NAME ); ?>[__INDEX__][title]"
+						placeholder="<?php esc_attr_e( 'عنوان ویدیو', 'shola-core' ); ?>"
+					/>
+					<input
+						type="url"
+						name="<?php echo esc_attr( self::OPTION_NAME ); ?>[__INDEX__][url]"
+						placeholder="https://youtu.be/..."
+						dir="ltr"
+					/>
+					<button type="button" class="button shcore-vg-remove-row"><?php esc_html_e( 'حذف', 'shola-core' ); ?></button>
+				</div>
+			</template>
 		</div>
 		<?php
 	}

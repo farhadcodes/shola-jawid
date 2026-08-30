@@ -232,3 +232,21 @@
 	color: #6e6e6a; /* --stone */
 	padding-block: 2rem;
 }
+
+/* ---- Admin-only repeater rows (Settings screen's add/edit form —
+   the front-end /video-guide route has no form, doesn't use these
+   classes at all, they just cost nothing extra to ship in the same
+   shared file). Title first (right-hand side under RTL, since it's
+   first in DOM order), then URL, then a remove button. ---- */
+.shcore-vg-row {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	margin-block-end: 0.75rem;
+}
+.shcore-vg-row input[type="text"] {
+	flex: 1 1 40%;
+}
+.shcore-vg-row input[type="url"] {
+	flex: 1 1 60%;
+}

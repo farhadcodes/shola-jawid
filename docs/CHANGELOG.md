@@ -4548,6 +4548,48 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Persian copy itself is unchanged.
   Approved by: Farhad, in this session (2026-08-30).
 
+- **Changed:** Replaced the wp-admin settings screen's data-entry
+  mechanism entirely, per Farhad's direct feedback after trying the
+  restyled page live: the free-text bulk-edit textarea
+  ("عنوان ویدیو | آدرس یوتیوب" per line) was hard to hand-edit
+  correctly, and the thumbnail-grid preview duplicated on this screen
+  (on top of the dedicated /video-guide watching page) was showing
+  mismatched/broken-looking thumbnails in some browser states and
+  added confusion rather than value.
+  Removed the render_grid() preview from render_settings_page()
+  entirely — this screen is now purely the "adding/editing" area
+  (paired fields + the "مشاهدهٔ ویدیوها" link out to /video-guide, the
+  "watching" area); render_grid() itself is untouched and still used
+  by /video-guide.
+  Replaced the textarea with a real repeater: one row per video, a
+  plain-text "عنوان ویدیو" field and a `url`-type field side by side,
+  a "حذف" button per row, and an "افزودن ویدیوی دیگر" button
+  (video-guide-admin.js, admin-only — the front-end route has no form
+  so it doesn't enqueue this file) that clones a `<template>` row with
+  a fresh numeric index. Rows don't need to stay contiguous after a
+  removal; sanitize_entries() (rewritten to accept the array-of-pairs
+  shape the Settings API now hands it, instead of parsing a textarea
+  string) iterates whatever indices are present. The old format's
+  `##`-prefixed section-header line has no equivalent in this UI —
+  every entry saved through it now gets `section => ''`
+  (render_grid() still groups by `section` when non-empty, so a
+  section set some other way, e.g. directly in the database, would
+  still display correctly; there's just no UI to set one through
+  anymore). entries_to_text() (the old textarea pre-fill helper) was
+  removed as dead code rather than left orphaned.
+  Verified via `wp eval` against the real methods, not just read from
+  code: sanitize_entries() correctly parses a realistic submission
+  (two valid rows plus one deliberately empty row from clicking "Add"
+  without filling it in, whitespace included) — the empty row is
+  dropped, the two valid ones saved and trimmed correctly;
+  render_settings_page()'s output confirmed to contain zero grid/
+  thumbnail markup and correctly pre-fill both saved rows' fields;
+  render_grid() on /video-guide (a real HTTP request, not eval)
+  confirmed still renders both entries with correct thumbnails,
+  proving the two screens' data flow is genuinely decoupled at the
+  UI level while still sharing the same underlying option/entries.
+  Approved by: Farhad, in this session (2026-08-30).
+
 - **Added:** "مشاهدهٔ ویدیوها" button on the wp-admin settings screen,
   linking to /video-guide (target="_blank"). Per Farhad's request:
   the Settings screen is the "adding/editing" area (grid preview +
