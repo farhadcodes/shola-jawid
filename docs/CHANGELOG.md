@@ -4547,3 +4547,12 @@ trail of *why* the build deviated from — or newly applied — a rule in
   instruction; only its CSS class changed (.shcore-vg-empty), the
   Persian copy itself is unchanged.
   Approved by: Farhad, in this session (2026-08-30).
+
+- **Added:** "مشاهدهٔ ویدیوها" button on the wp-admin settings screen,
+  linking to /video-guide (target="_blank"). Per Farhad's request:
+  the Settings screen is the "adding/editing" area (grid preview +
+  bulk-edit textarea), /video-guide is the "watching" area (clean
+  grid, no edit form) — this button is the one-click bridge between
+  them, rather than building a second, redundant watching page when
+  /video-guide already served exactly that purpose.
+  Approved by: Farhad, in this session (2026-08-30).

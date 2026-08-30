@@ -512,6 +512,24 @@ class Video_Guide {
 			<h1><?php esc_html_e( 'راهنمای ویدیویی', 'shola-core' ); ?></h1>
 			<p><?php esc_html_e( 'فهرست ویدیوهای آموزشی داخلی (یوتیوب، خصوصی/فهرست‌نشده) — فقط برای مدیران سایت، در هیچ‌کجای سایت عمومی نمایش داده نمی‌شود.', 'shola-core' ); ?></p>
 
+			<?php
+			/*
+			 * "مشاهدهٔ ویدیوها" button — a one-click way to reach the
+			 * dedicated /video-guide watching page (the front-end route,
+			 * clean grid only, no edit form) from here, per Farhad's
+			 * 2026-08-30 request: this Settings screen is the "adding/
+			 * editing" area, /video-guide is the "watching" area, and
+			 * this button is the bridge between them. target="_blank" —
+			 * deliberately opens in a new tab so the editor keeps this
+			 * screen open too.
+			 */
+			?>
+			<p>
+				<a href="<?php echo esc_url( home_url( '/video-guide/' ) ); ?>" target="_blank" rel="noopener" class="button button-primary">
+					<?php esc_html_e( 'مشاهدهٔ ویدیوها', 'shola-core' ); ?> ↗
+				</a>
+			</p>
+
 			<?php /* .shcore-vg scopes the card/grid CSS only — the wp-admin <h1>/<p> above stay native WordPress styling, not the front-end route's custom crimson header bar; see the class docblock. */ ?>
 			<div class="shcore-vg">
 				<?php self::render_grid( $entries ); ?>
