@@ -4696,3 +4696,63 @@ trail of *why* the build deviated from — or newly applied — a rule in
   request: "make it an option in the video guide tab ... so that I
   can change the password of this specific page from there."
   Approved by: Farhad, in this session (2026-08-30).
+
+## 2026-08-31
+- **Fixed:** wp-admin's date pickers (classic-editor "انتشار" metabox
+  and the block editor's schedule panel/sidebar) were showing Iranian
+  Jalali month names (شهریور, فروردین, ...) while the public front-end
+  already showed the correct Afghan Dari names (سنبله, حمل, ...) —
+  Farhad flagged the mismatch directly (screenshots of both surfaces
+  showing different month names for the same date). Root cause: the
+  front-end fix, shola_convert_jalali_months_to_dari()
+  (inc/template-tags.php, added 2026-08-08), is a PHP output filter on
+  date_i18n()/wp_date()/etc.; wp-admin's date pickers are Persian
+  Calendar's own client-rendered JavaScript widgets
+  (assets/js/persian-calendar.js's PersianCalendar class, plus
+  assets/js/gutenberg.js for the block editor), which never call those
+  PHP functions, so the existing filter couldn't reach them.
+  Investigated Persian Calendar's JS source directly (same "read the
+  actual plugin, don't guess" approach already used for the PHP fix):
+  found its 12 month-name strings live in one array, exposed globally
+  as `window.PersianDateConverter.PERSIAN_MONTHS` — and confirmed
+  every read site (the date-picker widget's own `<option>`/`<span>`
+  rendering, gutenberg.js's schedule-button and inline-hint text)
+  reads that exact array *by reference*, at the moment it renders, not
+  a cached copy taken at load time.
+  Added inc/admin-jalali-months.php + assets/js/admin-jalali-months.js
+  (theme, alongside the existing front-end fix, for the same reason
+  that one lives in the theme rather than shola-core — CLAUDE.md §2
+  reserves shola-core for the content model, not
+  presentation/integration glue): a small script, enqueued as an
+  explicit dependency of Persian Calendar's own 'persian-calendar-main'
+  handle (on both `admin_enqueue_scripts` and
+  `enqueue_block_editor_assets`, since Persian Calendar itself splits
+  classic-editor vs. block-editor loading across those two hooks, each
+  guarded by `wp_script_is( 'persian-calendar-main', 'enqueued' )` so
+  it only ever loads on a screen where Persian Calendar's own script
+  already loads), that `splice()`s the Dari month names into that same
+  array object in place. Because it mutates Persian Calendar's own
+  array rather than reading page text or touching a plugin file, this
+  is not a DOM-scraping/MutationObserver hack and — per Farhad's
+  explicit requirement — **survives a Persian Calendar plugin update**:
+  it depends only on the plugin's existing, functionally-required
+  `window.PersianDateConverter.PERSIAN_MONTHS` global (gutenberg.js
+  itself already depends on that same global for its own rendering, so
+  an update can't drop it without breaking the plugin's own Gutenberg
+  integration first) and never inspects or assumes anything about the
+  Iranian strings themselves — no plugin file was edited.
+  Verified two ways: (1) real request — fetched a logged-in wp-admin
+  block-editor screen via curl with WP-CLI-generated auth cookies and
+  confirmed `shola-admin-jalali-months-js` is correctly enqueued
+  immediately after `persian-calendar-main-js` (and after
+  `persian-calendar-gutenberg-js`) in the actual page's script list;
+  (2) logic — ran the real, unmodified persian-calendar.js followed by
+  the new override script under Node, confirmed
+  `window.PersianDateConverter.PERSIAN_MONTHS` changes from the
+  Iranian to the Dari list, and confirmed a `PERSIAN_MONTHS[jm - 1]`
+  read (gutenberg.js's own access pattern) returns the Dari name
+  afterward.
+  Theme version bumped 1.0.1 → 1.0.2 (style.css) for cache-busting on
+  the next deploy, per the "bump version on every deploy touching
+  CSS/JS" lesson from the video-guide restyle work.
+  Approved by: Farhad, in this session (2026-08-31).
