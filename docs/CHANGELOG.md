@@ -4756,3 +4756,61 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the next deploy, per the "bump version on every deploy touching
   CSS/JS" lesson from the video-guide restyle work.
   Approved by: Farhad, in this session (2026-08-31).
+
+- **Fixed:** after confirming the above fix worked, Farhad found a
+  second, unrelated issue on the posts list's "ویرایش سریع" (Quick
+  Edit) date field: it wasn't showing the wrong month-name variant, it
+  wasn't showing Jalali at all — WordPress core's native Gregorian
+  date fields were untouched (with Persian-language Gregorian month
+  names, e.g. "آگوست" for August; confirmed with a screenshot).
+  Investigated live (not guessed): Persian Calendar's admin-timewrap.js
+  binds a `.editinline` click handler that does
+  `jQuery(this).closest('td')` to find the clicked row's stored date
+  (year/month/day/hour/minute, read from the row's hidden
+  `#inline_<id>` div), then builds the Jalali replacement fields from
+  that. Read the actual rendered DOM of a real Quick Edit row and found
+  the posts list's title column is a `<th scope="row">` in this
+  WordPress version, not a `<td>` — so `.closest('td')` always resolves
+  to an empty jQuery set, `year > 1700` silently evaluates false against
+  the resulting `''`, and the whole Jalali-fields step no-ops with no
+  console error, leaving WordPress core's native fields showing as-is.
+  A plugin bug, not a WordPress-version-specific outcome the plugin
+  ever handled — and, per Farhad's requirement, not something to patch
+  inside the plugin file itself (would revert on the plugin's next
+  update).
+  Added assets/js/admin-quickedit-jalali.js (enqueued from the same
+  inc/admin-jalali-months.php, gated on
+  `wp_script_is( 'persian-calendar-admin-timewrap', 'enqueued' )` so it
+  only ever runs where Persian Calendar's own Quick Edit script already
+  runs): a fully independent `.editinline` click handler using
+  `.closest('tr')` instead of the plugin's `.closest('td')`, reading the
+  same hidden per-row date data WordPress core itself always renders
+  (not a Persian Calendar implementation detail, so this doesn't depend
+  on anything WordPress-core-version-specific either) and
+  `window.PersianDateConverter` (the same already-Dari-patched global
+  from the month-names fix above) to build the Jalali fields. The
+  injected fields deliberately reuse Persian Calendar's own field ids
+  (`jja`/`mma`/`aaa`/`hha`/`mna`) and `.jalali` class, in the same
+  `.inline-edit-date legend` position — so admin-timewrap.js's *other*
+  handlers (the ones that convert an edited Jalali date back to
+  Gregorian and write it into WordPress core's real `name="mm"/"jj"/
+  "aa"` fields before Save/Update) keep working unmodified, since those
+  are bound generically to `#timestampdiv,.inline-edit-date` rather
+  than to the broken `.editinline` handler and were never actually
+  broken. This means the fix only reimplements the *broken* half of
+  Quick Edit's Jalali support, not the whole feature — and if Persian
+  Calendar ever fixes its own `closest('td')` bug, this script simply
+  becomes redundant (both would render identical correct fields, not
+  conflict).
+  Verified live end-to-end via a real logged-in browser session
+  (WP-CLI-generated auth cookies delivered through a temporary local
+  redirect script, removed again immediately after): opened Quick Edit
+  on a post published 1405/05/15 and confirmed the injected fields read
+  day 15, month اسد (5, Dari — not مرداد), year 1405 (Jalali, not
+  2026) — then, to confirm the write-back path specifically, changed
+  the Jalali day field from 15 to 16 and confirmed WordPress core's
+  native Gregorian `jj` field updated from 06 to 07 accordingly (with
+  `mm`/`aa` unchanged, as expected for a same-month day change) — all
+  without ever clicking Update, so no test data was saved.
+  Theme version bumped 1.0.2 → 1.0.3 (style.css) for cache-busting.
+  Approved by: Farhad, in this session (2026-08-31).

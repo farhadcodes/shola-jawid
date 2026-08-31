@@ -3,7 +3,10 @@
 // shola_convert_jalali_months_to_dari() (inc/template-tags.php): rewrites
 // the Persian Calendar plugin's Iranian Jalali month names to the Afghan
 // Dari variant this site needs, but inside wp-admin's own client-rendered
-// date pickers, which that PHP filter can't reach.
+// date pickers, which that PHP filter can't reach. Also fixes Persian
+// Calendar's Quick Edit date field, which — independent of the month-name
+// issue — never switches to Jalali at all on this WordPress version (see
+// assets/js/admin-quickedit-jalali.js for why).
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,8 +41,47 @@ function shola_admin_enqueue_jalali_months_classic() {
 		wp_get_theme()->get( 'Version' ),
 		true
 	);
+
+	shola_admin_enqueue_quickedit_jalali();
 }
 add_action( 'admin_enqueue_scripts', 'shola_admin_enqueue_jalali_months_classic', 20 );
+
+/**
+ * Enqueues assets/js/admin-quickedit-jalali.js, which fixes the posts/
+ * pages/CPT list-table Quick Edit date field: Persian Calendar's own
+ * `.editinline` click handler (admin-timewrap.js) never renders the
+ * Jalali fields at all here, because it looks for the row's date data
+ * inside `.closest('td')`, and the title column in this WordPress
+ * version is a `<th>`, not a `<td>` — confirmed live (2026-08-31) by
+ * opening Quick Edit and finding WordPress core's native Gregorian date
+ * fields untouched (with Persian-language Gregorian month names, e.g.
+ * "آگوست" for August — the wrong calendar entirely, not just the wrong
+ * month-name variant).
+ *
+ * Only enqueued when Persian Calendar's own admin-timewrap script is
+ * present on this screen ('persian-calendar-admin-timewrap', enqueued
+ * by its enqueue_admin_timewrap_assets() on post/edit/comment screens)
+ * — same reasoning as shola_admin_enqueue_jalali_months_classic(): never
+ * pulls in functionality this screen wouldn't otherwise have, and
+ * guarantees window.PersianDateConverter and admin-timewrap.js's own
+ * (still-working) Jalali→Gregorian write-back handlers are already
+ * loaded before this script runs.
+ *
+ * @return void
+ */
+function shola_admin_enqueue_quickedit_jalali() {
+	if ( ! wp_script_is( 'persian-calendar-admin-timewrap', 'enqueued' ) ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'shola-admin-quickedit-jalali',
+		get_theme_file_uri( 'assets/js/admin-quickedit-jalali.js' ),
+		array( 'jquery', 'persian-calendar-main', 'persian-calendar-admin-timewrap' ),
+		wp_get_theme()->get( 'Version' ),
+		true
+	);
+}
 
 /**
  * Same fix as shola_admin_enqueue_jalali_months_classic(), for the block
