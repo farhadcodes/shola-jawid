@@ -292,6 +292,29 @@ $publication_terms = get_terms(
 );
 $publication_terms = ( $publication_terms && ! is_wp_error( $publication_terms ) ) ? $publication_terms : array();
 
+/*
+ * get_terms() defaults to alphabetical order, which happens to sort
+ * "جهان برای فتح" ahead of "شعله جاوید" (ج before ش) — Farhad flagged
+ * this as backwards, 2026-09-02: شعله جاوید is this organization's
+ * main/flagship publication and needs to lead. Stable-sorts
+ * 'shola-jawid' to the front rather than hardcoding a fixed two-item
+ * order, so a future third publication term still appears (just after
+ * these two, in whatever order get_terms() already gave it) instead of
+ * silently disappearing from this section.
+ */
+usort(
+	$publication_terms,
+	function ( $a, $b ) {
+		if ( 'shola-jawid' === $a->slug ) {
+			return -1;
+		}
+		if ( 'shola-jawid' === $b->slug ) {
+			return 1;
+		}
+		return 0;
+	}
+);
+
 $current_issues = array();
 foreach ( $publication_terms as $pub_term ) {
 	$pub_issue_query = new WP_Query(

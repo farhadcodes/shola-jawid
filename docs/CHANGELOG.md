@@ -5114,3 +5114,19 @@ trail of *why* the build deviated from — or newly applied — a rule in
   untouched; the row's own conditional display (`if ( $volume )`,
   `front-page.php`) is unchanged from the previous entry.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Fixed:** «شمارهٔ جاری»'s two columns rendered جهان برای فتح before
+  شعله جاوید — `get_terms()`'s default alphabetical order happens to
+  sort ج ("جهان...") ahead of ش ("شعله...") — which Farhad flagged as
+  backwards: شعله جاوید is this organization's flagship publication and
+  needs to lead. `front-page.php` now stable-sorts the `shola-jawid`
+  term to the front after fetching (`usort`, PHP's sort has been stable
+  since 8.0 — this project already requires PHP 8.1 per `CLAUDE.md` §0,
+  so no polyfill needed) rather than hardcoding a fixed two-item slug
+  list, so a future third publication term still appears (after these
+  two, in whatever order `get_terms()` gave it) instead of silently
+  disappearing from this section. Verified live: DOM order (and so,
+  under this site's `dir="rtl"`, visual right-to-left reading order) is
+  now شعله جاوید, جهان برای فتح.
+  Approved by: Farhad, in this session (2026-09-02).
