@@ -45,6 +45,33 @@ $period_terms = get_terms(
 );
 $period_terms = ( $period_terms && ! is_wp_error( $period_terms ) ) ? $period_terms : array();
 
+/*
+ * Sorted by the ترتیب term meta Farhad can set per دوره (wp-admin →
+ * نشریات — SholaCore\Taxonomies::render_publication_order_*_field()),
+ * 2026-09-02: WordPress's default term order for a custom taxonomy
+ * isn't guaranteed to be اول/دوم/سوم/چهارم order. Sorted here in PHP
+ * with usort() rather than via get_terms()'s own
+ * orderby => meta_value_num — that option performs an inner join
+ * against term meta and silently *drops* any term that has no
+ * `shcore_term_order` value set at all, which would make a new دوره
+ * Farhad adds (before he's set a ترتیب for it) vanish from this page
+ * instead of just sorting last. A term with no value set sorts after
+ * every term that has one, matching the field's own "خالی یعنی آخر
+ * فهرست" description; identically-ordered/unordered terms keep their
+ * relative get_terms() order (PHP's usort() has been a stable sort
+ * since PHP 8.0 — this project already requires PHP 8.1, CLAUDE.md §0).
+ */
+usort(
+	$period_terms,
+	function ( $a, $b ) {
+		$order_a = get_term_meta( $a->term_id, 'shcore_term_order', true );
+		$order_b = get_term_meta( $b->term_id, 'shcore_term_order', true );
+		$order_a = ( '' === $order_a ) ? PHP_INT_MAX : (int) $order_a;
+		$order_b = ( '' === $order_b ) ? PHP_INT_MAX : (int) $order_b;
+		return $order_a <=> $order_b;
+	}
+);
+
 if ( $period_terms ) {
 	?>
 	<section class="wrap section-top">

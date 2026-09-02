@@ -5282,3 +5282,54 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `%publication%` rewrite tag already resolves whatever slug ends up on
   the issue's `publication` term, دوره or not).
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-03
+- **Added:** a «ترتیب» (manual sort order) field for `publication` terms.
+  Farhad reported the new دوره tiles (previous entry) weren't rendering
+  in اول/دوم/سوم/چهارم order — WordPress's default term order for a
+  custom taxonomy isn't creation order or name order in any guaranteed
+  way — and asked for a CMS field to control it himself, for these and
+  any دوره he adds later.
+  - `shcore_term_order` registered as term meta on `publication`
+    (`SholaCore\Taxonomies::register_publication_order_meta()`), with a
+    plain number `<input>` added to both the "Add New Term" panel and
+    the "Edit Term" screen (WP core's own `form-field`
+    div/tr markup conventions, not a custom UI), saved via
+    `created_publication`/`edited_publication`, and shown as a read-only
+    column on the term list table so current values are visible at a
+    glance. Not made click-to-sort in the admin table — that needs
+    additional `terms_clauses` filtering that wasn't asked for; the
+    front-end sort is what actually matters here.
+  - The 4 دوره terms `seed_publication_periods()` creates now also get
+    `shcore_term_order` set to 1–4 at creation time (only if unset, so
+    it never overwrites a value Farhad has since changed) — so اول
+    through چهارم are correctly ordered by default without him having to
+    set anything, and only terms he adds by hand (or the already-
+    existing «دوره پنجم» found while testing, unset) need it filled in.
+  - `taxonomy-publication.php`'s دوره-tile query sorts the results in
+    PHP with `usort()` rather than via `get_terms()`'s own
+    `orderby => meta_value_num` — that option performs an inner join
+    against term meta and would silently *drop* any term with no
+    `shcore_term_order` value at all (i.e. every دوره Farhad adds before
+    he's set an order for it) instead of just sorting it last. A term
+    with no value set sorts after every term that has one, matching the
+    field's own "خالی یعنی آخر فهرست" description.
+  Verified live: confirmed the field renders (with the correct existing
+  value) on a real Edit Term screen; confirmed via `wp term meta get`
+  that seeding correctly backfilled 1–4 on the 8 existing دوره terms
+  without touching any value already set; submitted a real form POST
+  (replicating an actual "به‌روزرسانی" click, cookies from a real
+  logged-in session) to set an order on the previously-unordered «دوره
+  پنجم» term and confirmed via `wp term meta get` that it actually
+  persisted through that real save path, not just a direct DB write;
+  confirmed the front-end tile order changed to match afterward
+  (اول, دوم, سوم, چهارم, پنجم).
+  **Incident during this verification, self-caused and self-fixed, not
+  left for Farhad to find:** the curl command used to replicate that
+  form POST passed «دوره پنجم» through bash's own shell/UTF-8 handling,
+  which corrupted the term's stored *name* (not the order field being
+  tested) into literal `????`. Caught immediately by re-reading the term
+  back, fixed with a direct `wp_update_term()` call restoring the exact
+  original name (bypassing the same shell encoding path this time), and
+  reconfirmed correct. No other term's data was touched by this.
+  Approved by: Farhad, in this session (2026-09-03).
