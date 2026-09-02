@@ -274,17 +274,50 @@ $documents_query = new WP_Query(
 <?php endif; ?>
 
 <?php
-$current_issue_query = new WP_Query(
+/*
+ * شمارهٔ جاری — one card per publication (شعله جاوید, جهان برای فتح),
+ * each showing that publication's own latest issue, side by side.
+ * Previously a single card for the single latest issue across both
+ * publications combined (whichever one happened to publish more
+ * recently) — Farhad relayed the client's correction, 2026-09-02: these
+ * are two distinct, both-still-publishing publications from the same
+ * organization, and readers need to see both, not just whichever one
+ * happened to be newest.
+ */
+$publication_terms = get_terms(
 	array(
-		'post_type'      => 'issue',
-		'posts_per_page' => 1,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
+		'taxonomy'   => 'publication',
+		'hide_empty' => false,
 	)
 );
-$current_issue       = $current_issue_query->have_posts() ? $current_issue_query->posts[0] : null;
+$publication_terms = ( $publication_terms && ! is_wp_error( $publication_terms ) ) ? $publication_terms : array();
+
+$current_issues = array();
+foreach ( $publication_terms as $pub_term ) {
+	$pub_issue_query = new WP_Query(
+		array(
+			'post_type'      => 'issue',
+			'posts_per_page' => 1,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'publication',
+					'field'    => 'term_id',
+					'terms'    => $pub_term->term_id,
+				),
+			),
+		)
+	);
+	if ( $pub_issue_query->have_posts() ) {
+		$current_issues[] = array(
+			'term'  => $pub_term,
+			'issue' => $pub_issue_query->posts[0],
+		);
+	}
+}
 ?>
-<?php if ( $current_issue ) : ?>
+<?php if ( $current_issues ) : ?>
 	<?php
 	/*
 	 * شمارهٔ جاری reordered ahead of انتشارات حزب, 2026-08-24 (Phase A,
@@ -305,68 +338,60 @@ $current_issue       = $current_issue_query->have_posts() ? $current_issue_query
 	?>
 	<section class="sect" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
 		<div class="wrap">
-			<div class="section-head row-between">
+			<div class="section-head">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></h2>
 				</div>
-				<?php
-				$issue_pub_terms = get_the_terms( $current_issue, 'publication' );
-				$issue_pub_term  = ( $issue_pub_terms && ! is_wp_error( $issue_pub_terms ) ) ? array_shift( $issue_pub_terms ) : false;
-				?>
-				<?php if ( $issue_pub_term ) : ?>
-					<a class="link-more" href="<?php echo esc_url( get_term_link( $issue_pub_term ) ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-				<?php endif; ?>
 			</div>
 
-			<div class="issue-lead">
-				<div class="issue-hero issue-hero--embedded">
+			<div class="current-issues">
+				<?php
+				foreach ( $current_issues as $current_issue_entry ) :
+					$pub_term     = $current_issue_entry['term'];
+					$issue        = $current_issue_entry['issue'];
+					$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+					$volume       = get_post_meta( $issue->ID, 'shcore_volume', true );
+					$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
+					$pdf_size     = '';
+					if ( $pdf_id ) {
+						$pdf_file = get_attached_file( $pdf_id );
+						$pdf_size = $pdf_file && file_exists( $pdf_file ) ? size_format( filesize( $pdf_file ) ) : '';
+					}
+					?>
+					<div class="issue-hero issue-hero--embedded">
 
-					<a href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>" class="issue-cover reveal">
-						<?php echo shola_get_featured_image( $current_issue, 'shola_issue_cover', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
-					</a>
+						<a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="issue-cover reveal">
+							<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+						</a>
 
-					<div class="reveal">
-						<?php $issue_number = get_post_meta( $current_issue->ID, 'shcore_issue_number', true ); ?>
-						<p class="badge-current">
-							<?php
-							if ( $issue_number ) {
-								/* translators: %s: issue number. */
-								printf( esc_html__( 'شمارهٔ %s · جاری', 'shola-jawid' ), esc_html( $issue_number ) );
-							} else {
-								esc_html_e( 'جاری', 'shola-jawid' );
-							}
-							?>
-						</p>
-						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>" class="link-quiet"><?php echo esc_html( ( $issue_pub_term ? $issue_pub_term->name . ' · ' : '' ) . ( $issue_number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), $issue_number ) : get_the_title( $current_issue ) ) ); ?></a></h3>
-						<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $current_issue ), 30 ) ); ?></p>
-						<dl class="issue-meta">
-							<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
-							<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $current_issue ) ); ?>"><?php echo esc_html( get_the_date( '', $current_issue ) ); ?></time></dd>
-							<?php $volume = get_post_meta( $current_issue->ID, 'shcore_volume', true ); ?>
-							<?php if ( $volume ) : ?>
-								<dt><?php esc_html_e( 'دوره / جلد', 'shola-jawid' ); ?></dt>
-								<dd><?php echo esc_html( $volume ); ?></dd>
-							<?php endif; ?>
-							<?php
-							$pdf_id = (int) get_post_meta( $current_issue->ID, 'shcore_pdf_id', true );
-							if ( $pdf_id ) :
-								$pdf_file = get_attached_file( $pdf_id );
-								$pdf_size = $pdf_file && file_exists( $pdf_file ) ? size_format( filesize( $pdf_file ) ) : '';
-								?>
-								<dt><?php esc_html_e( 'فایل PDF', 'shola-jawid' ); ?></dt>
-								<dd lang="en"><?php echo esc_html( $pdf_size ? $pdf_size : 'PDF' ); ?></dd>
-							<?php endif; ?>
-						</dl>
-						<div class="row mt-sm">
-							<a class="btn btn-primary" href="<?php echo esc_url( get_permalink( $current_issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
-							<?php if ( $issue_pub_term ) : ?>
-								<a class="btn btn-ghost" href="<?php echo esc_url( get_term_link( $issue_pub_term ) ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?></a>
-							<?php endif; ?>
+						<div class="reveal">
+							<h3 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?></a></h3>
+							<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 30 ) ); ?></p>
+							<dl class="issue-meta">
+								<?php if ( $issue_number ) : ?>
+									<dt><?php esc_html_e( 'شماره', 'shola-jawid' ); ?></dt>
+									<dd><?php echo esc_html( $issue_number ); ?></dd>
+								<?php endif; ?>
+								<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
+								<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $issue ) ); ?>"><?php echo esc_html( get_the_date( '', $issue ) ); ?></time></dd>
+								<?php if ( $volume ) : ?>
+									<dt><?php esc_html_e( 'دوره', 'shola-jawid' ); ?></dt>
+									<dd><?php echo esc_html( $volume ); ?></dd>
+								<?php endif; ?>
+								<?php if ( $pdf_id ) : ?>
+									<dt><?php esc_html_e( 'فایل PDF', 'shola-jawid' ); ?></dt>
+									<dd lang="en"><?php echo esc_html( $pdf_size ? $pdf_size : 'PDF' ); ?></dd>
+								<?php endif; ?>
+							</dl>
+							<div class="row mt-sm">
+								<a class="btn btn-primary" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+								<a class="btn btn-ghost" href="<?php echo esc_url( get_term_link( $pub_term ) ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?></a>
+							</div>
 						</div>
-					</div>
 
-				</div>
+					</div>
+				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>

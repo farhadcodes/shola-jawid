@@ -1244,8 +1244,34 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
    so it needs its own wrapper grid without the standalone page's
    padding-block. Replaces two inline style="" attributes from
    body-index.html. */
-.issue-lead { display: grid; gap: 3rem; grid-template-columns: 1fr; }
 .issue-hero--embedded { padding-block: 0; }
+
+/* 2026-09-02: شمارهٔ جاری now shows one card per publication
+   (شعله جاوید, جهان برای فتح) side by side instead of a single card for
+   whichever publication's issue happened to be newest — replaces the
+   old single-card .issue-lead wrapper. Stacked (1 column) below 700px;
+   two side-by-side columns at 700px+.
+
+   Each column keeps using .issue-hero for its cover+details, but
+   deliberately does NOT switch to .issue-hero's own cover-beside-text
+   layout at 800px+ (the rule below, more specific via the two chained
+   classes, wins over that regardless of media-query order) — at half
+   the .wrap width, a 380px fixed-width cover would leave too little
+   room for the text next to it. Cover-on-top, details-below reads
+   cleanly at any width instead. */
+.current-issues { display: grid; gap: 3rem; grid-template-columns: 1fr; }
+@media (min-width: 700px) {
+  .current-issues { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+.current-issues .issue-hero--embedded {
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+/* Un-stretched cover: at full column width (~500-570px on a typical
+   desktop), a full-bleed 3:4 cover would render ~700px tall — a poster,
+   not a small "current issue" thumbnail like the rest of this design
+   system uses. Capped and start-aligned instead. */
+.current-issues .issue-cover { max-width: 200px; justify-self: start; }
 
 .issue-cover {
   aspect-ratio: 3 / 4;

@@ -4981,3 +4981,53 @@ trail of *why* the build deviated from — or newly applied — a rule in
   on the public site. Reversible without any data loss if this is ever
   revisited.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Changed:** Homepage «شمارهٔ جاری» now shows one card per publication
+  (شعله جاوید, جهان برای فتح), side by side, instead of a single card for
+  whichever publication happened to publish most recently. Client
+  clarification relayed by Farhad: these are two distinct, both-still-
+  active publications from the same organization, and the homepage needs
+  to represent both, not just the newest one.
+  - `front-page.php`: replaced the single `$current_issue_query` (no
+    publication filter) with a loop over every `publication` term,
+    querying each one's own latest `issue` (`tax_query` scoped to that
+    term). A publication with no issues yet is simply skipped, not shown
+    as an empty/broken card — the whole «شمارهٔ جاری» section only
+    renders if at least one publication has a current issue.
+  - Per Farhad's explicit layout spec: each card's title is now just the
+    publication name (شعله جاوید / جهان برای فتح) — previously "{pub
+    name} · شمارهٔ {number}" — with the issue number relocated from a
+    `.badge-current` pill above the title into the `.issue-meta` list as
+    its own «شماره» row, now the *first* row (above تاریخ نشر). «دوره /
+    جلد» renamed to «دوره» (the "/ جلد" was redundant per Farhad — دوره
+    already means volume here). The description (excerpt) is unchanged.
+    «آرشیو شماره‌ها» — previously a single link in the section header,
+    pointing at only one publication's archive — is now a button in
+    *each* card instead, pointing at that card's own publication archive;
+    the now-redundant single header link was removed.
+  - `assets/css/main.css`: added `.current-issues` (1 column below
+    700px, 2 columns at 700px+ — matches `.wrap`'s 1200px max-width
+    leaving ~570px per column comfortably) and overrode
+    `.issue-hero--embedded`'s cover-beside-text layout (inherited from
+    the single-card `.issue-hero`, meant for a full 1200px-wide card) to
+    stay stacked (cover on top, details below) at every width once
+    nested in `.current-issues` — a fixed 380px cover no longer fits
+    next to text in a ~570px-wide column. Capped `.issue-cover`'s width
+    to 200px in this context too (a full-column-width 3:4 cover would
+    render ~700px tall, more poster than thumbnail). Removed the now-
+    fully-unused `.issue-lead` rule (was only ever used by the single-
+    card version this replaces).
+  Verified via direct DOM inspection (not a visual screenshot — this
+  particular page hit an unrelated screenshot-capture-tool glitch on
+  scroll in this session, confirmed unrelated to this change since it
+  reproduced identically scrolling to *any* section on the page, forced-
+  visible `.reveal` elements included): confirmed live at desktop width,
+  two 548px-wide columns, correct publication name in each title, «شماره»
+  present as the first `.issue-meta` row (value matches each
+  publication's real current issue number), «دوره» (not «دوره / جلد»)
+  where a volume is set, each card's «آرشیو شماره‌ها» and issue-title
+  links pointing at that card's own publication (`/publications/shola-
+  jawid/` vs. `/publications/a-world-to-win/` respectively, not both at
+  the same one) — and at mobile width (375px), a single stacked column.
+  Approved by: Farhad, in this session (2026-09-02).
