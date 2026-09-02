@@ -20,9 +20,6 @@ while ( have_posts() ) :
 	$terms       = get_the_terms( get_the_ID(), 'topic' );
 	$terms       = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
 	$topic       = shola_get_primary_topic( get_the_ID() );
-	$byline_meta = get_post_meta( get_the_ID(), 'shcore_byline', true );
-	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name' );
-	$author_note = get_post_meta( get_the_ID(), 'shcore_author_note', true );
 	$stats       = shola_get_reading_stats();
 	$post_tags   = get_the_tags();
 	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
@@ -66,21 +63,19 @@ while ( have_posts() ) :
 		<div class="wrap article-body">
 
 			<aside class="article-sidebar" aria-label="<?php esc_attr_e( 'اطلاعات مقاله', 'shola-jawid' ); ?>">
-				<p class="author">
-					<?php esc_html_e( 'نویسنده:', 'shola-jawid' ); ?> <strong><a href="#"><?php echo esc_html( $byline ); ?></a></strong>
-					<?php if ( $author_note ) : ?>
-						<?php echo esc_html( $author_note ); ?>
-					<?php endif; ?>
-				</p>
-				<p class="editor">
-					<?php
-					printf(
-						/* translators: %s: managing editor link. */
-						esc_html__( 'سردبیر مسئول: %s', 'shola-jawid' ),
-						'<a href="#">' . esc_html( shola_get_managing_editor() ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline above.
-					);
-					?>
-				</p>
+				<?php
+				/*
+				 * نویسنده (byline) and سردبیر مسئول (managing editor)
+				 * removed site-wide, 2026-09-02, per the client's explicit
+				 * instruction (relayed by Farhad): no author/username of
+				 * any kind should be publicly displayed. Dates and every
+				 * other label stay. shcore_byline/shcore_author_note post
+				 * meta and shola_get_managing_editor() (inc/template-
+				 * tags.php) are unused here now but deliberately left
+				 * in place — not a data-model change, just no longer
+				 * rendered, in case this is ever reversed.
+				 */
+				?>
 				<p class="word-count">
 					<?php
 					printf(

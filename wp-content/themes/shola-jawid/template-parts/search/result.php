@@ -62,9 +62,6 @@ if ( 'issue' === $post_type ) {
 	$type_label = has_post_format( 'aside', $result ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
 	$terms      = get_the_terms( $result, 'topic' );
 	$term       = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
-
-	$byline_meta = get_post_meta( $result->ID, 'shcore_byline', true );
-	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name', $result->post_author );
 }
 
 $term_name = $term ? $term->name : '';
@@ -93,7 +90,16 @@ $dek       = shola_highlight_search_term( esc_html( wp_trim_words( get_the_excer
 		<?php elseif ( 'issue' === $post_type ) : ?>
 			<span lang="en"><?php echo esc_html( $byline ); ?></span>
 		<?php else : ?>
-			<?php echo esc_html( $byline ); ?> · <time datetime="<?php echo esc_attr( shola_get_iso_datetime( $result ) ); ?>"><?php echo esc_html( get_the_date( '', $result ) ); ?></time>
+			<?php
+			/*
+			 * Byline (author/username) removed site-wide, 2026-09-02, per
+			 * the client's explicit instruction (relayed by Farhad) — the
+			 * date stays. The document/issue branches above are
+			 * untouched: their "$byline" is source-document citation text
+			 * and a month/year respectively, never a CMS username.
+			 */
+			?>
+			<time datetime="<?php echo esc_attr( shola_get_iso_datetime( $result ) ); ?>"><?php echo esc_html( get_the_date( '', $result ) ); ?></time>
 		<?php endif; ?>
 	</p>
 </li>

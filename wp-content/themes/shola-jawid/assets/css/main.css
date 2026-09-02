@@ -1061,12 +1061,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 @media (min-width: 940px) {
   .article-sidebar { position: sticky; top: 2rem; align-self: start; }
 }
-.article-sidebar .author { color: var(--stone); }
-.article-sidebar .author strong { color: var(--ink); font-weight: 700; }
-.article-sidebar .author a { color: var(--ink); border-bottom: 1px solid var(--line); }
-.article-sidebar .author a:hover { border-color: var(--crimson); color: var(--crimson); }
-.article-sidebar .editor { margin-top: 1rem; color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; }
-.article-sidebar .word-count { margin-top: 1rem; color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .06em; }
+/* .author/.editor rules removed 2026-09-02 — the byline and managing-
+   editor lines they styled were removed from single.php's markup
+   site-wide (docs/CHANGELOG.md), per the client's explicit instruction
+   that no author/username be publicly displayed. .word-count is now
+   .article-sidebar's first child, so its margin-top (which used to
+   create space below .editor) is dropped rather than left as a stray
+   gap at the top of the sidebar. */
+.article-sidebar .word-count { color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .06em; }
 .article-sidebar .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
 
 /* Long-form prose */

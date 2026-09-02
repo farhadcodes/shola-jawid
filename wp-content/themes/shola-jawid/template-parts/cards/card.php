@@ -39,7 +39,6 @@ if ( 'document' === $card_type ) {
 	$term                = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
 	$term_link           = $term ? get_term_link( $term ) : '';
 	$term_name           = $term ? $term->name : '';
-	$byline              = __( 'کتابخانه', 'shola-jawid' );
 	$type_icon           = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1"/></svg>';
 	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
 } else {
@@ -48,8 +47,6 @@ if ( 'document' === $card_type ) {
 	$term        = shola_get_primary_topic( $card_post );
 	$term_link   = $term ? get_term_link( $term ) : '';
 	$term_name   = $term ? $term->name : '';
-	$byline_meta = get_post_meta( $card_post->ID, 'shcore_byline', true );
-	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name', $card_post->post_author );
 
 	/*
 	 * v6 uses two different glyph SVGs for article-type cards, and it's a
@@ -102,6 +99,13 @@ if ( 'document' === $card_type ) {
 		</p>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $card_post ) ); ?></a></h3>
 		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 24 ) ); ?></p>
-		<p class="card-byline"><?php echo esc_html( $byline ); ?> · <time datetime="<?php echo esc_attr( shola_get_iso_datetime( $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time></p>
+		<?php
+		/*
+		 * Byline (author/username) removed site-wide, 2026-09-02, per the
+		 * client's explicit instruction (relayed by Farhad) — the date
+		 * stays, .card-byline just no longer prefixes it with a name.
+		 */
+		?>
+		<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time></p>
 	</div>
 </article>

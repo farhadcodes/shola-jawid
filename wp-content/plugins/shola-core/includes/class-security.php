@@ -21,6 +21,15 @@
  *   needed, WordPress core already restricts this without
  *   authentication. Recorded here so it's clear this was verified, not
  *   overlooked.
+ * - Author name in RSS/Atom feeds (2026-09-02): every theme template
+ *   that displayed a byline/author was edited directly (see
+ *   docs/CHANGELOG.md), but WordPress core's own default feed templates
+ *   (`wp-includes/feed-rss2.php`/`feed-atom.php`) independently call
+ *   `the_author()` for `<dc:creator>`/`<author><name>` — a separate
+ *   code path those template edits can't reach. Blanked here instead,
+ *   scoped to `! is_admin()` so wp-admin's own author column/dropdowns
+ *   (a legitimate internal CMS-management view, not public-facing) are
+ *   unaffected.
  *
  * @package SholaCore
  */
@@ -47,6 +56,7 @@ class Security {
 
 		remove_action( 'wp_head', 'wp_generator' );
 		add_filter( 'the_generator', '__return_empty_string' );
+		add_filter( 'the_author', array( __CLASS__, 'remove_public_author_name' ), 20 );
 		add_filter( 'style_loader_src', array( __CLASS__, 'remove_version_query_arg' ), 9999 );
 		add_filter( 'script_loader_src', array( __CLASS__, 'remove_version_query_arg' ), 9999 );
 	}
@@ -64,6 +74,22 @@ class Security {
 	public static function remove_xmlrpc_header( $headers ) {
 		unset( $headers['X-Pingback'] );
 		return $headers;
+	}
+
+	/**
+	 * Blanks `the_author()`/`get_the_author()` everywhere on the public
+	 * site (RSS/Atom feeds' `<dc:creator>`/`<author><name>` being the one
+	 * remaining case not already handled by direct template edits — see
+	 * the class docblock). `! is_admin()` — not `is_feed()` — deliberately,
+	 * so this also catches any other front-end call to this same core
+	 * template tag, present or future, not just the currently-known feed
+	 * templates.
+	 *
+	 * @param string $name Author display name.
+	 * @return string
+	 */
+	public static function remove_public_author_name( $name ) {
+		return is_admin() ? $name : '';
 	}
 
 	/**

@@ -4932,3 +4932,52 @@ trail of *why* the build deviated from — or newly applied — a rule in
   (which re-renders «موضوع اصلی»'s content) without reverting or flickering
   back to the old order.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Changed:** Removed the author/username (byline) from every public-
+  facing surface, per an explicit client instruction relayed by Farhad —
+  dates and every other label stay, only the person's name/username goes.
+  Went through the theme file-by-file (not a blanket search-and-hope) and
+  removed:
+  - `single.php`: the whole «نویسنده:» (byline + optional author-note) and
+    «سردبیر مسئول:» (managing editor) lines from the article sidebar —
+    Farhad confirmed both should go, not just the byline.
+  - `card.php` (the shared card partial), `front-page.php`'s hero, and
+    `template-parts/search/result.php`'s article/note branch: each had a
+    single `.card-byline` line combining the byline with the publish
+    date (`{byline} · {date}`) — the byline half and its `·` separator
+    were removed, the `<time>` element and its formatting are untouched.
+  - Dropped the now-dead `$byline`/`$byline_meta` variable computation
+    (`get_the_author_meta( 'display_name', ... )` calls) alongside each
+    removed line, rather than leaving unused assignments behind.
+  - `assets/css/main.css`: removed the now-unused `.article-sidebar
+    .author`/`.editor` rules; `.word-count` (now the sidebar's first
+    child) had its `margin-top` dropped so removing the lines above it
+    doesn't leave a stray gap.
+  - `class-security.php` (new): WordPress core's own default RSS/Atom
+    feed templates independently call `the_author()` for
+    `<dc:creator>`/`<author><name>` — a code path none of the template
+    edits above could reach. Added a `the_author` filter, scoped to
+    `! is_admin()`, blanking it there while leaving wp-admin's own author
+    column/dropdowns (an internal CMS-management view, not public-facing)
+    untouched. Verified live: `/feed/` now renders `<dc:creator><![CDATA[]]></dc:creator>`.
+  **Deliberately left alone**, after confirming with Farhad each is a
+  different kind of "author" than a CMS username:
+  - `shcore_author_source` (`single-document.php`'s «نویسنده» field,
+    and the same meta in `template-parts/search/result.php`'s document
+    branch): who originally wrote the archived historical text (e.g.
+    Lenin, Mao) — bibliographic/citation info about the document itself,
+    not a WordPress user. Confirmed live: search results for "دولت و
+    انقلاب" still show "لنین" correctly.
+  - `single-issue.php`'s per-row table-of-contents «byline» (admin-typed
+    free text crediting a piece inside a printed issue) — same reasoning,
+    never tied to a WordPress account.
+  - wp-admin's own "نویسنده" column (Posts list) and any other CMS-
+    internal author display — this is a public-front-end-only change,
+    not a data-model or admin-UX change; verified live, untouched.
+  No CMS data was deleted — `shcore_byline`/`shcore_author_note` post
+  meta, `shola_get_managing_editor()`, and the `post_author` field itself
+  are all unchanged and still stored; they're simply no longer rendered
+  on the public site. Reversible without any data loss if this is ever
+  revisited.
+  Approved by: Farhad, in this session (2026-09-02).

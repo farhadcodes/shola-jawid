@@ -69,10 +69,13 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 				</h1>
 				<p class="dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero ), 34 ) ); ?></p>
 				<?php
-				$hero_byline_meta = get_post_meta( $hero->ID, 'shcore_byline', true );
-				$hero_byline      = $hero_byline_meta ? $hero_byline_meta : get_the_author_meta( 'display_name', $hero->post_author );
+				/*
+				 * Byline (author/username) removed site-wide, 2026-09-02,
+				 * per the client's explicit instruction (relayed by
+				 * Farhad) — the date stays.
+				 */
 				?>
-				<p class="card-byline"><?php echo esc_html( $hero_byline ); ?> · <time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
+				<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
 			</div>
 		</div>
 	</section>
