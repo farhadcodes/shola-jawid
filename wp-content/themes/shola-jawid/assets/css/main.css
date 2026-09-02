@@ -1252,26 +1252,38 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
    old single-card .issue-lead wrapper. Stacked (1 column) below 700px;
    two side-by-side columns at 700px+.
 
-   Each column keeps using .issue-hero for its cover+details, but
-   deliberately does NOT switch to .issue-hero's own cover-beside-text
-   layout at 800px+ (the rule below, more specific via the two chained
-   classes, wins over that regardless of media-query order) — at half
-   the .wrap width, a 380px fixed-width cover would leave too little
-   room for the text next to it. Cover-on-top, details-below reads
-   cleanly at any width instead. */
-.current-issues { display: grid; gap: 3rem; grid-template-columns: 1fr; }
+   First pass here (cover-on-top, details-below per card) read too tall
+   — Farhad wanted the original .issue-hero anatomy (cover beside text,
+   same side it was on before) kept in each column, just scaled down to
+   fit a half-width column instead of restructured. This is that: a
+   smaller fixed cover column (140px vs. the standalone .issue-hero's
+   380px) and every internal spacing value (gaps, .issue-meta's padding/
+   margin, heading/dek font sizes) reduced to match — not just the
+   cover — so two of these fit on screen together the way one used to. */
+.current-issues { display: grid; gap: 2rem; grid-template-columns: 1fr; }
 @media (min-width: 700px) {
-  .current-issues { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+  .current-issues { grid-template-columns: 1fr 1fr; gap: 2rem; }
 }
 .current-issues .issue-hero--embedded {
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 140px 1fr;
+  gap: 1.25rem;
+  align-items: start;
 }
-/* Un-stretched cover: at full column width (~500-570px on a typical
-   desktop), a full-bleed 3:4 cover would render ~700px tall — a poster,
-   not a small "current issue" thumbnail like the rest of this design
-   system uses. Capped and start-aligned instead. */
-.current-issues .issue-cover { max-width: 200px; justify-self: start; }
+.current-issues .issue-cover { max-width: 140px; }
+.current-issues .h-page { font-size: 1.375rem; line-height: 1.3; }
+.current-issues .dek {
+  font-size: .9375rem;
+  line-height: 1.55;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+.current-issues .issue-meta {
+  gap: .35rem 1rem;
+  padding-block: .75rem;
+  margin-block: .75rem;
+  font-size: .8125rem;
+}
+.current-issues .row.mt-sm { margin-top: .75rem; }
 
 .issue-cover {
   aspect-ratio: 3 / 4;

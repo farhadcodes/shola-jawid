@@ -5031,3 +5031,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   jawid/` vs. `/publications/a-world-to-win/` respectively, not both at
   the same one) — and at mobile width (375px), a single stacked column.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Fixed:** Farhad reviewed the two-column «شمارهٔ جاری» above and sent
+  back two corrections, applied together in `assets/css/main.css` and
+  `front-page.php`: (1) it read too tall/spaced-out for two columns to
+  fit comfortably on screen; (2) each card had been restructured to
+  stack the cover above the details — Farhad wanted the *original*
+  `.issue-hero` anatomy kept (cover beside the details, same side as
+  before, i.e. right-hand column under this site's RTL), just scaled
+  down to fit a half-width column, not redesigned into a different
+  layout.
+  - `.current-issues .issue-hero--embedded` now uses
+    `grid-template-columns: 140px 1fr` (was `1fr`, i.e. stacked) —
+    restores the side-by-side anatomy at roughly a third of the
+    standalone `.issue-hero`'s 380px cover width.
+  - Every internal spacing/type value scaled down to match, not just the
+    cover: `.h-page` here 1.375rem (was the shared class's
+    `clamp(2rem, 4vw, …)`), `.dek` here 0.9375rem/3-line-clamp (was
+    `clamp(1.125rem, …, 1.3125rem)`/4-line-clamp), `.issue-meta`'s
+    padding-block/margin-block cut from 1.5rem/2rem to 0.75rem/0.75rem,
+    and both buttons switched to the existing `.btn-sm` modifier
+    (already used elsewhere in this design system for exactly this —
+    no new button-size CSS invented). `.current-issues`'s own
+    column gap trimmed 2.5rem → 2rem.
+  Net effect, confirmed live via DOM measurement: each card's height
+  dropped from 724px to 272px (desktop, real current data) — matching
+  the original single, non-split card's general proportions rather than
+  reading like a stretched-out redesign.
+  Approved by: Farhad, in this session (2026-09-02).
