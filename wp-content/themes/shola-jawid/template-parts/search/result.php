@@ -12,8 +12,9 @@
  * found that's not accurate: no `class="card"` appears anywhere in that
  * file. Corrected in docs/CHANGELOG.md 2026-08-06.
  *
- * Covers all 4 result types v6 shows mixed together: article, note
- * (یادداشت — the aside post format), issue, document.
+ * Covers all 5 result types shown mixed together: article, note
+ * (یادداشت — the aside post format), issue, document, and (added
+ * 2026-09-02) party_publication.
  *
  * @param array $args {
  *     @type WP_Post $post  Result post object. Defaults to the global $post.
@@ -58,6 +59,16 @@ if ( 'issue' === $post_type ) {
 
 	$byline_parts = array_filter( array( $doc_author ) );
 	$byline       = implode( ' · ', $byline_parts );
+} elseif ( 'party_publication' === $post_type ) {
+	$type_label = __( 'انتشارات حزب', 'shola-jawid' );
+	$term       = false; // No taxonomy for this type — see class-post-types.php.
+
+	$pub_pdf_id = (int) get_post_meta( $result->ID, 'shcore_pdf_id', true );
+	$pub_pdf_sz = '';
+	if ( $pub_pdf_id ) {
+		$pub_pdf_file = get_attached_file( $pub_pdf_id );
+		$pub_pdf_sz   = $pub_pdf_file && file_exists( $pub_pdf_file ) ? size_format( filesize( $pub_pdf_file ) ) : '';
+	}
 } else {
 	$type_label = has_post_format( 'aside', $result ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
 	$terms      = get_the_terms( $result, 'topic' );
@@ -89,6 +100,10 @@ $dek       = shola_highlight_search_term( esc_html( wp_trim_words( get_the_excer
 			<?php endif; ?>
 		<?php elseif ( 'issue' === $post_type ) : ?>
 			<span lang="en"><?php echo esc_html( $byline ); ?></span>
+		<?php elseif ( 'party_publication' === $post_type ) : ?>
+			<?php if ( $pub_pdf_sz ) : ?>
+				<span class="meta-mono" lang="en">PDF · <?php echo esc_html( $pub_pdf_sz ); ?></span>
+			<?php endif; ?>
 		<?php else : ?>
 			<?php
 			/*

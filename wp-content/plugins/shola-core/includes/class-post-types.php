@@ -1,6 +1,7 @@
 <?php
 /**
- * Registers the issue, document, and announcement custom post types.
+ * Registers the issue, document, party_publication, and announcement
+ * custom post types.
  *
  * Regular articles/notes (مقاله/یادداشت) use WP's native `post` type per
  * the IA doc's content model — no CPT needed there, only the `topic`
@@ -16,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Post type registration for issue, document, and announcement.
+ * Post type registration for issue, document, party_publication, and
+ * announcement.
  */
 class Post_Types {
 
@@ -48,14 +50,16 @@ class Post_Types {
 
 	/**
 	 * Native front-end search (`search.php`) must return articles/notes
-	 * (`post`), issues, and documents together by default, per IA doc SRCH
-	 * row and `body-search.html`'s mixed result list — `announcement` is
-	 * deliberately excluded, it never appears in v6's search results or
-	 * its filter-tab list. Also backs search.php's filter tabs via the
-	 * `result_type` query var: مقاله (article, excludes the aside post
-	 * format), یادداشت (note, the aside post format), شمارهٔ نشریه
-	 * (issue), سند کتابخانه (document). Only touches the main front-end
-	 * search query, never wp-admin or any other query on the site.
+	 * (`post`), issues, documents, and party publications together by
+	 * default, per IA doc SRCH row and `body-search.html`'s mixed result
+	 * list (`party_publication` added 2026-09-02, alongside its own CPT —
+	 * `announcement` is deliberately excluded, it never appears in v6's
+	 * search results or its filter-tab list. Also backs search.php's
+	 * filter tabs via the `result_type` query var: مقاله (article,
+	 * excludes the aside post format), یادداشت (note, the aside post
+	 * format), شمارهٔ نشریه (issue), سند کتابخانه (document), انتشارات
+	 * حزب (party_publication). Only touches the main front-end search
+	 * query, never wp-admin or any other query on the site.
 	 *
 	 * @param WP_Query $query The query being modified.
 	 * @return void
@@ -96,27 +100,39 @@ class Post_Types {
 				$query->set( 'post_type', 'document' );
 				break;
 
+			case 'party_publication':
+				$query->set( 'post_type', 'party_publication' );
+				break;
+
 			default:
 				$post_type = $query->get( 'post_type' );
 				if ( empty( $post_type ) || 'any' === $post_type ) {
-					$query->set( 'post_type', array( 'post', 'issue', 'document' ) );
+					$query->set( 'post_type', array( 'post', 'issue', 'document', 'party_publication' ) );
 				}
 				break;
 		}
 	}
 
 	/**
-	 * Register the `issue`, `document`, and `announcement` post types.
+	 * Register the `issue`, `document`, `party_publication`, and
+	 * `announcement` post types.
 	 *
-	 * `issue` and `document` use has_archive => false: /publications and
-	 * /library are static Pages (page-publications.php/page-library.php),
-	 * so a CPT archive at either slug would collide with the Page's own
-	 * rewrite rule. Their single-item permalinks nest under their parent
+	 * `issue`, `document`, and `party_publication` all use
+	 * has_archive => false: /publications, /library, and
+	 * /party-publications are static Pages (page-publications.php/
+	 * page-library.php/page-party-publications.php), so a CPT archive at
+	 * any of those slugs would collide with the Page's own rewrite rule.
+	 * `issue`/`document` single-item permalinks nest under their parent
 	 * taxonomy term via a custom rewrite tag instead (see
 	 * register_rewrite_tags()/filter_*_permalink()), and per-term listings
-	 * come from the taxonomy archive templates (Phase 3.2). `announcement`
-	 * is registered with a real archive since /announcements is itself a
-	 * listing template (archive-announcement.php), not a static Page.
+	 * come from the taxonomy archive templates (Phase 3.2);
+	 * `party_publication` has no taxonomy (client didn't ask for sub-
+	 * categorization here), so its permalinks use the plain
+	 * `party-publications/%postname%/` default a `rewrite.slug` alone
+	 * already produces — no custom tag/filter needed for it.
+	 * `announcement` is registered with a real archive since
+	 * /announcements is itself a listing template
+	 * (archive-announcement.php), not a static Page.
 	 *
 	 * No `/fa/` locale prefix — see docs/CHANGELOG.md 2026-08-05.
 	 *
@@ -187,6 +203,54 @@ class Post_Types {
 				'taxonomies'   => array( 'collection' ),
 				'rewrite'      => array(
 					'slug'       => 'library/%collection%',
+					'with_front' => false,
+				),
+			)
+		);
+
+		/*
+		 * انتشارات حزب (party_publication) — the party's own books and
+		 * booklets, added 2026-09-02 per Farhad relaying a client
+		 * correction: this is a third, genuinely distinct content model
+		 * from both `issue` (نشریه — periodical شعله جاوید/جهان برای فتح
+		 * numbers, `publication` taxonomy) and `document` (کتابخانه — the
+		 * general library of *other* theorists'/authors' works, `collection`
+		 * taxonomy, `shcore_author_source` citing who wrote each one). A
+		 * homepage section already existed under this exact Persian name
+		 * (front-page.php, added 2026-08-12) but was actually built on
+		 * `issue` data — confirmed by grepping the whole repo (including
+		 * docs/IA-reference/, EXECUTION_PLAN.md) before building this: no
+		 * prior IA doc or open-decision note ever described this as its own
+		 * content type, so this is new, not a fix to something previously
+		 * specified — see docs/CHANGELOG.md for the full record. No
+		 * taxonomy for v1 (client didn't ask for sub-categorization here);
+		 * add one later if that changes rather than guessing at categories
+		 * now.
+		 */
+		register_post_type(
+			'party_publication',
+			array(
+				'labels'       => array(
+					'name'               => __( 'انتشارات حزب', 'shola-core' ),
+					'singular_name'      => __( 'اثر حزبی', 'shola-core' ),
+					'add_new'            => __( 'افزودن اثر', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن اثر جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش اثر', 'shola-core' ),
+					'new_item'           => __( 'اثر جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ اثر', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی آثار', 'shola-core' ),
+					'not_found'          => __( 'اثری یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'اثری در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ آثار', 'shola-core' ),
+					'menu_name'          => __( 'انتشارات حزب', 'shola-core' ),
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'has_archive'  => false,
+				'menu_icon'    => 'dashicons-book-alt',
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
+				'rewrite'      => array(
+					'slug'       => 'party-publications',
 					'with_front' => false,
 				),
 			)

@@ -4,9 +4,11 @@
  * Converted from 03_UI_Design/shola-jawid-ui/pages/body-search.html
  * (Phase 4.2). Native WP search (`s=`), extended by
  * shola-core\Post_Types::include_cpts_in_search() to include articles,
- * notes, issues, and documents together — see that method's docblock
- * for the exact rules, including the `result_type` query var behind
- * the filter tabs below. `announcement` is deliberately excluded.
+ * notes, issues, documents, and party publications together (the last
+ * added 2026-09-02, alongside the `party_publication` CPT) — see that
+ * method's docblock for the exact rules, including the `result_type`
+ * query var behind the filter tabs below. `announcement` is
+ * deliberately excluded.
  *
  * @package shola-jawid
  */
@@ -22,11 +24,12 @@ $paged        = max( 1, get_query_var( 'paged' ) );
 $result_type  = sanitize_key( get_query_var( 'result_type' ) );
 
 $filters = array(
-	''         => __( 'همه', 'shola-jawid' ),
-	'article'  => __( 'مقاله', 'shola-jawid' ),
-	'note'     => __( 'یادداشت', 'shola-jawid' ),
-	'issue'    => __( 'شمارهٔ نشریه', 'shola-jawid' ),
-	'document' => __( 'سند کتابخانه', 'shola-jawid' ),
+	''                  => __( 'همه', 'shola-jawid' ),
+	'article'           => __( 'مقاله', 'shola-jawid' ),
+	'note'              => __( 'یادداشت', 'shola-jawid' ),
+	'issue'             => __( 'شمارهٔ نشریه', 'shola-jawid' ),
+	'document'          => __( 'سند کتابخانه', 'shola-jawid' ),
+	'party_publication' => __( 'انتشارات حزب', 'shola-jawid' ),
 );
 ?>
 	<section class="wrap section-top">
@@ -36,7 +39,7 @@ $filters = array(
 				<p class="section-marker"></p>
 				<h1 class="h-page"><?php esc_html_e( 'جست‌وجو', 'shola-jawid' ); ?></h1>
 			</div>
-			<p class="dek"><?php esc_html_e( 'در مقالات، شماره‌ها و اسناد کتابخانه — به فارسی یا انگلیسی.', 'shola-jawid' ); ?></p>
+			<p class="dek"><?php esc_html_e( 'در مقالات، شماره‌ها، اسناد کتابخانه و انتشارات حزب — به فارسی یا انگلیسی.', 'shola-jawid' ); ?></p>
 		</header>
 
 		<form class="search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" role="search">

@@ -421,29 +421,37 @@ foreach ( $publication_terms as $pub_term ) {
 <?php endif; ?>
 
 <?php
-// انتشارات حزب (Party Publications) — recent issues across both
-// publications, no publication-term restriction. issue-card.php, not
-// card.php: structurally distinct anatomy (portrait cover, box-shadow,
-// no dek/byline) confirmed in docs/CHANGELOG.md Phase 1.2 — not a
-// variant of the article card. .issue-grid, the same shelf-density
-// wrapper class taxonomy-publication.php already uses (1 col mobile ->
-// 3 -> 4 -> 5 col desktop), not .grid-cards.
-//
-// Reordered to appear after شمارهٔ جاری (was before it), 2026-08-24
-// (Phase A, client-approved) — see docs/CHANGELOG.md. .sect-tint
-// unchanged; still distinct from شمارهٔ جاری's cream band directly
-// above and موضوعات's paper band directly below, so background-band
-// alternation still holds with no adjacent repeats.
-$party_issues_query = new WP_Query(
+/*
+ * انتشارات حزب (Party Publications) — the party's own books/booklets.
+ * Corrected 2026-09-02 (Farhad relaying a client correction): this
+ * section carried the right Persian heading from the start, but was
+ * actually querying `issue` (نشریه — periodical شعله جاوید/جهان برای
+ * فتح numbers), which the client identified as a distinct, wrongly-
+ * merged content type — see shola-core\Post_Types' docblock on the new
+ * `party_publication` CPT this now queries instead. issue-card.php, not
+ * card.php: structurally distinct anatomy (portrait cover, box-shadow,
+ * no dek/byline) confirmed in docs/CHANGELOG.md Phase 1.2 — not a
+ * variant of the article card, and already post-type-agnostic so it
+ * needed no changes to work here. .issue-grid, the same shelf-density
+ * wrapper class taxonomy-publication.php already uses (1 col mobile ->
+ * 3 -> 4 -> 5 col desktop), not .grid-cards.
+ *
+ * Reordered to appear after شمارهٔ جاری (was before it), 2026-08-24
+ * (Phase A, client-approved) — see docs/CHANGELOG.md. .sect-tint
+ * unchanged; still distinct from شمارهٔ جاری's cream band directly
+ * above and موضوعات's paper band directly below, so background-band
+ * alternation still holds with no adjacent repeats.
+ */
+$party_publications_query = new WP_Query(
 	array(
-		'post_type'      => 'issue',
+		'post_type'      => 'party_publication',
 		'posts_per_page' => 10,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
 );
 ?>
-<?php if ( $party_issues_query->have_posts() ) : ?>
+<?php if ( $party_publications_query->have_posts() ) : ?>
 	<section class="sect-tint sect" aria-label="<?php esc_attr_e( 'انتشارات حزب', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
@@ -451,12 +459,12 @@ $party_issues_query = new WP_Query(
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'همهٔ نشرات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/party-publications/' ) ); ?>"><?php esc_html_e( 'همهٔ آثار', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
 			<div class="issue-grid">
 				<?php
-				while ( $party_issues_query->have_posts() ) :
-					$party_issues_query->the_post();
+				while ( $party_publications_query->have_posts() ) :
+					$party_publications_query->the_post();
 					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
 				endwhile;
 				wp_reset_postdata();

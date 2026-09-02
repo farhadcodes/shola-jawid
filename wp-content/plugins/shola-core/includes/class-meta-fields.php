@@ -1,8 +1,10 @@
 <?php
 /**
- * Registers post meta for issue, document, and article/post, per the IA
- * doc §5 content-model table, plus the metabox UI editors use to fill
- * them in from wp-admin without touching code.
+ * Registers post meta for issue, document, party_publication, and
+ * article/post, per the IA doc §5 content-model table (party_publication
+ * added 2026-09-02, outside that original table — see
+ * class-post-types.php's docblock on it), plus the metabox UI editors use
+ * to fill them in from wp-admin without touching code.
  *
  * @package SholaCore
  */
@@ -116,6 +118,34 @@ class Meta_Fields {
 		);
 		register_post_meta(
 			'document',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
+		// party_publication (2026-09-02) — deliberately no author-source
+		// field like `document` has: these are the party's own
+		// books/booklets, not works being cited from an external
+		// theorist/author, so there's no one to attribute per-item.
+		register_post_meta(
+			'party_publication',
+			'shcore_pdf_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_pdf_id' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_publication',
 			'shcore_language',
 			array(
 				'type'              => 'string',
@@ -265,6 +295,7 @@ class Meta_Fields {
 	public static function add_meta_boxes() {
 		add_meta_box( 'shcore_issue_fields', __( 'اطلاعات شماره', 'shola-core' ), array( __CLASS__, 'render_issue_metabox' ), 'issue', 'normal', 'high' );
 		add_meta_box( 'shcore_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_document_metabox' ), 'document', 'normal', 'high' );
+		add_meta_box( 'shcore_party_publication_fields', __( 'اطلاعات اثر', 'shola-core' ), array( __CLASS__, 'render_party_publication_metabox' ), 'party_publication', 'normal', 'high' );
 		add_meta_box( 'shcore_article_fields', __( 'اطلاعات مقاله', 'shola-core' ), array( __CLASS__, 'render_article_metabox' ), 'post', 'normal', 'high' );
 	}
 
@@ -385,6 +416,24 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the party_publication metabox fields — a PDF and a language
+	 * picker only, no author/source field (see register_meta()'s comment
+	 * on why: these are the party's own works, not attributed to an
+	 * external theorist per item like `document` is).
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_party_publication_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$language = get_post_meta( $post->ID, 'shcore_language', true );
+		?>
+		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
+		<?php self::render_language_field( $language ); ?>
+		<?php
+	}
+
+	/**
 	 * Render the article/post metabox fields.
 	 *
 	 * @param \WP_Post $post Post object.
@@ -482,9 +531,10 @@ class Meta_Fields {
 		}
 
 		$fields_by_type = array(
-			'issue'    => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
-			'document' => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
-			'post'     => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
+			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
+			'document'          => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
+			'party_publication' => array( 'shcore_pdf_id', 'shcore_language' ),
+			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {
@@ -623,7 +673,7 @@ class Meta_Fields {
 			return;
 		}
 		$screen = get_current_screen();
-		if ( ! $screen || ! in_array( $screen->post_type, array( 'issue', 'document' ), true ) ) {
+		if ( ! $screen || ! in_array( $screen->post_type, array( 'issue', 'document', 'party_publication' ), true ) ) {
 			return;
 		}
 

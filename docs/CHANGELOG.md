@@ -5130,3 +5130,76 @@ trail of *why* the build deviated from — or newly applied — a rule in
   under this site's `dir="rtl"`, visual right-to-left reading order) is
   now شعله جاوید, جهان برای فتح.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Added:** a genuine third content type, `party_publication`
+  (انتشارات حزب — the party's own books/booklets), fully independent
+  from both `issue` (نشریه — periodical شعله جاوید/جهان برای فتح
+  numbers) and `document` (کتابخانه — the general library of *other*
+  theorists'/authors' works). Farhad relayed a client correction: a
+  homepage section already existed under this exact Persian heading
+  (added 2026-08-12), but it was actually querying `issue` — the client
+  identified all three (نشریه, کتابخانه, انتشارات حزب) as needing to be
+  completely independent, each with its own wp-admin tab, own front-end
+  URL, and own archive page. Before building anything, grepped the whole
+  repo — `docs/IA-reference/`, `EXECUTION_PLAN.md`, `CLAUDE.md`'s §9 open-
+  decision list — for any prior mention of this split: none exists, this
+  is a new content type, not a fix to something previously specified.
+  - `shola-core\Post_Types`: registered `party_publication`
+    (`has_archive => false`, matching `issue`/`document`'s "static Page
+    instead of a CPT archive" pattern; `rewrite.slug =>
+    'party-publications'`; no taxonomy — client didn't ask for sub-
+    categorization here, easy to add later if that changes rather than
+    guessing at categories now). Added to
+    `include_cpts_in_search()`'s default post-type list and its
+    `result_type` switch.
+  - `shola-core\Meta_Fields`: `shcore_pdf_id` (reusing the same meta key
+    `issue`/`document` already use — `register_post_meta()` scopes by
+    post type/object-subtype, so this is the established pattern, not a
+    collision) and `shcore_language`, plus a metabox
+    (`render_party_publication_metabox()`) with just those two fields —
+    deliberately no author-source field like `document` has: these are
+    the party's own works, nothing to attribute per item to an external
+    writer.
+  - Theme: new `single-party_publication.php` (modeled on
+    single-document.php's PDF-preview-with-cover anatomy, minus the
+    نویسنده/مجموعه/ویراستار rows that don't apply — the last also
+    per the site-wide no-public-author-display policy from earlier
+    today) and new `page-party-publications.php` (the Page-slug-matched
+    archive template, paginated `WP_Query` since — unlike
+    page-library.php's fixed "latest 5" — a real archive shouldn't have
+    an arbitrary cutoff; issue-card.php reused as-is for the grid, since
+    it was already post-type-agnostic).
+  - `front-page.php`'s «انتشارات حزب» section: swapped its query from
+    `post_type => 'issue'` to `post_type => 'party_publication'` (the
+    actual bug this whole change fixes) and its "همهٔ نشرات" link from
+    `/publications/` to `/party-publications/`.
+  - `search.php` + `template-parts/search/result.php`: added the fourth
+    filter tab and result-rendering branch (PDF size shown, no
+    author/term line, matching the new type's actual field shape).
+  Verified live end-to-end (not just individually): flushed rewrite
+  rules, created a real test Page at slug `party-publications` and a
+  real test post, confirmed (1) its permalink correctly uses
+  `/party-publications/...`, not `/publications/...` or `/library/...`;
+  (2) the single-item template renders with no نویسنده/ویراستار line;
+  (3) the archive page lists it; (4) the homepage's «انتشارات حزب»
+  section now shows it instead of the old (wrong) issue data; (5) it's
+  findable via site search with the correct filter-tab label; (6) the
+  نشریه section (`/publications/`) and its homepage «شمارهٔ جاری» cards
+  are completely unaffected — still real `issue` data, confirming the
+  fix didn't regress the type it was wrongly borrowing from; (7)
+  wp-admin's sidebar now shows all three — «شماره‌های نشریه», «کتابخانه»,
+  «انتشارات حزب» — as fully separate top-level tabs.
+  **Deployment note, not yet done as of this entry:** a live/production
+  deploy of this change needs (a) a rewrite-rules flush (visit Settings
+  → Permalinks and click Save, or deactivate/reactivate the shola-core
+  plugin) before `/party-publications/...` URLs resolve, and (b) an
+  actual WordPress Page created with slug `party-publications` for the
+  archive template to attach to — the same manual step already required
+  for `/library/` and `/publications/` when those were first built.
+  Also found, but out of scope for this entry and deliberately not
+  touched here: single-document.php's «ویراستار» row still calls
+  `shola_get_managing_editor()`, missed by the earlier "remove public
+  author/username" pass above since it wasn't matched by that pass's
+  byline/author search terms — flagged as a separate follow-up task.
+  Approved by: Farhad, in this session (2026-09-02).
