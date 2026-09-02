@@ -5099,3 +5099,18 @@ trail of *why* the build deviated from — or newly applied — a rule in
   collapse to the single stacked column (full-width 335×447 cover, 3:4
   aspect ratio restored since the 700px+ override no longer applies).
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Changed:** third round on the same «شمارهٔ جاری» cards — Farhad found
+  the 170px cover still too narrow at desktop width. Widened to 230px
+  (`.current-issues .issue-hero--embedded`'s fixed grid column, and
+  `.issue-cover`'s matching `max-width`, both in `assets/css/main.css`);
+  `align-items: stretch` already in place from the previous round keeps
+  it exactly height-matched to the details column beside it regardless
+  of the width change (confirmed live: 230×336px cover, details column
+  also 336px tall, at 1280px viewport width). Farhad also flagged «جهان
+  برای فتح»'s current issue not showing a «دوره» row, then withdrew that
+  before any change was made ("the information is there") — so left
+  untouched; the row's own conditional display (`if ( $volume )`,
+  `front-page.php`) is unchanged from the previous entry.
+  Approved by: Farhad, in this session (2026-09-02).

@@ -1282,7 +1282,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 }
 @media (min-width: 700px) {
   .current-issues .issue-hero--embedded {
-    grid-template-columns: 170px 1fr;
+    grid-template-columns: 230px 1fr;
     gap: 1.75rem;
     align-items: stretch;
   }
@@ -1291,8 +1291,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
      genuinely top- and bottom-aligned with the details beside it, not
      just top-aligned with a gap underneath — .issue-cover img already
      has object-fit:cover, so it crops cleanly to whatever height this
-     produces. */
-  .current-issues .issue-cover { max-width: 170px; aspect-ratio: auto; }
+     produces. Width bumped 170px → 230px, 2026-09-02 (second round):
+     Farhad found it too narrow. */
+  .current-issues .issue-cover { max-width: 230px; aspect-ratio: auto; }
 }
 
 .current-issues .h-page { font-size: 1.5rem; line-height: 1.3; }
