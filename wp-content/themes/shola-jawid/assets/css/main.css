@@ -1249,41 +1249,66 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 /* 2026-09-02: شمارهٔ جاری now shows one card per publication
    (شعله جاوید, جهان برای فتح) side by side instead of a single card for
    whichever publication's issue happened to be newest — replaces the
-   old single-card .issue-lead wrapper. Stacked (1 column) below 700px;
-   two side-by-side columns at 700px+.
+   old single-card .issue-lead wrapper. Two rounds of Farhad feedback on
+   this same module, both folded in here rather than left as separate
+   patches:
+   (1) first pass stacked cover-above-details per card, which read too
+       tall for two columns — corrected to keep the original .issue-hero
+       anatomy (cover beside the details, same side as before) at a
+       smaller scale;
+   (2) that correction then read visually off: the cover was a fixed
+       small size floating near the top, not matching the taller details
+       column's height, and the type/spacing scale felt cramped rather
+       than deliberately compact. Fixed below — cover now stretches to
+       match the full height of the details beside it (top- and bottom-
+       aligned, per Farhad), sized up slightly, with the type scale and
+       .issue-meta spacing eased back open a bit.
 
-   First pass here (cover-on-top, details-below per card) read too tall
-   — Farhad wanted the original .issue-hero anatomy (cover beside text,
-   same side it was on before) kept in each column, just scaled down to
-   fit a half-width column instead of restructured. This is that: a
-   smaller fixed cover column (140px vs. the standalone .issue-hero's
-   380px) and every internal spacing value (gaps, .issue-meta's padding/
-   margin, heading/dek font sizes) reduced to match — not just the
-   cover — so two of these fit on screen together the way one used to. */
-.current-issues { display: grid; gap: 2rem; grid-template-columns: 1fr; }
+   Mobile (below 700px, both the outer two-column split AND each card's
+   internal cover/details pair): both collapse to a single stacked
+   column — full-width cover on top, details below — matching this
+   site's own existing convention for this same card type (the
+   standalone .issue-hero page also stacks below 800px, its own analogous
+   breakpoint) rather than forcing the side-by-side anatomy into a width
+   too narrow for it to read well. */
+.current-issues { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
 @media (min-width: 700px) {
-  .current-issues { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .current-issues { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
 }
+
 .current-issues .issue-hero--embedded {
-  grid-template-columns: 140px 1fr;
-  gap: 1.25rem;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
-.current-issues .issue-cover { max-width: 140px; }
-.current-issues .h-page { font-size: 1.375rem; line-height: 1.3; }
+@media (min-width: 700px) {
+  .current-issues .issue-hero--embedded {
+    grid-template-columns: 170px 1fr;
+    gap: 1.75rem;
+    align-items: stretch;
+  }
+  /* Fills the row's full height (matching whatever the details column's
+     content needs) instead of a fixed aspect-ratio, so the cover is
+     genuinely top- and bottom-aligned with the details beside it, not
+     just top-aligned with a gap underneath — .issue-cover img already
+     has object-fit:cover, so it crops cleanly to whatever height this
+     produces. */
+  .current-issues .issue-cover { max-width: 170px; aspect-ratio: auto; }
+}
+
+.current-issues .h-page { font-size: 1.5rem; line-height: 1.3; }
 .current-issues .dek {
-  font-size: .9375rem;
-  line-height: 1.55;
+  font-size: 1rem;
+  line-height: 1.6;
   -webkit-line-clamp: 3;
   line-clamp: 3;
 }
 .current-issues .issue-meta {
-  gap: .35rem 1rem;
-  padding-block: .75rem;
-  margin-block: .75rem;
+  gap: .5rem 1.25rem;
+  padding-block: 1rem;
+  margin-block: 1rem;
   font-size: .8125rem;
 }
-.current-issues .row.mt-sm { margin-top: .75rem; }
+.current-issues .row.mt-sm { margin-top: 1rem; }
 
 .issue-cover {
   aspect-ratio: 3 / 4;

@@ -5060,3 +5060,42 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the original single, non-split card's general proportions rather than
   reading like a stretched-out redesign.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Fixed:** a second round of feedback on the same «شمارهٔ جاری» cards
+  (annotated screenshot, both columns marked): the fixed-size cover
+  (140px, `align-items: start`) only ever aligned with the *top* of the
+  taller details column beside it, leaving a visible gap underneath —
+  not the "top and bottom aligned" look Farhad asked for — and the
+  overall scale/spacing read as cramped rather than deliberately
+  compact. Also asked explicitly for the mobile version to be covered.
+  - `.current-issues .issue-hero--embedded` now only switches to the
+    side-by-side (cover-beside-details) anatomy at 700px+; below that it
+    stacks (cover on top, full width, details below) — matching this
+    same site's own established convention for this card type (the
+    standalone `.issue-hero` page also stacks below its own 800px
+    breakpoint), rather than forcing two narrow side-by-side halves onto
+    a phone screen.
+  - At 700px+: cover width upped 140px → 170px ("a little bigger," per
+    Farhad), and — the actual alignment fix — `align-items: stretch` on
+    the grid plus `aspect-ratio: auto` on `.issue-cover` (was a fixed
+    3:4) so the cover's height now matches whatever height the details
+    column actually needs, edge to edge, instead of a fixed height
+    computed from a fixed aspect ratio. `.issue-cover img`'s existing
+    `object-fit: cover` crops cleanly to that dynamic height — no new
+    image-handling code needed.
+  - Eased the previous pass's type/spacing scale back open slightly:
+    `.h-page` 1.375rem → 1.5rem, `.dek` .9375rem → 1rem, `.issue-meta`'s
+    padding-block/margin-block .75rem → 1rem, its row gap .35rem →
+    .5rem, the column gap between the two cards 2rem → 2.5rem — still
+    well short of the original single-card scale that read too tall two
+    rounds ago, but no longer reading as squeezed.
+  Verified via DOM measurement (this page's screenshot capture in this
+  environment stayed unreliable on scroll — a tool-side issue confirmed
+  unrelated to this change, see the previous entry): at 1280px, cover
+  height for both cards now exactly equals the details column's height
+  (300.25px both, top/bottom offsets identical) — genuinely edge-aligned,
+  not just visually close. At 375px (mobile), confirmed both cards
+  collapse to the single stacked column (full-width 335×447 cover, 3:4
+  aspect ratio restored since the 700px+ override no longer applies).
+  Approved by: Farhad, in this session (2026-09-02).
