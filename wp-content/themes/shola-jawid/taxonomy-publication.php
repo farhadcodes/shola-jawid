@@ -1,10 +1,29 @@
 <?php
 /**
- * Template: taxonomy-publication.php — issue archive for the
- * `publication` taxonomy (both شعله جاوید and جهان برای فتح use this one
- * template). Converted from
- * 03_UI_Design/shola-jawid-ui/pages/body-publication-shola-jawid.html
- * and body-publication-a-world-to-win.html (Phase 4.2).
+ * Template: taxonomy-publication.php — the `publication` taxonomy's
+ * archive. Two distinct views share this one file, branching on whether
+ * the term being viewed has children:
+ *
+ * - A top-level term (شعله جاوید / جهان برای فتح itself) — no issue list
+ *   here anymore; renders the .topic-list grid of its 4 دوره (period)
+ *   sub-terms instead, added 2026-09-02 (client request, relayed by
+ *   Farhad: هر نشریه به ۴ دوره تقسیم می‌شود, each browsable separately).
+ *   The child terms themselves are seeded by
+ *   SholaCore\Taxonomies::seed_publication_periods() — see that method's
+ *   docblock for the migration story (existing issues bucketed into
+ *   «دورهٔ اول» since there's no way to infer which دوره they actually
+ *   belong to; Farhad redistributes from wp-admin).
+ * - A دوره term (a leaf — no children of its own) — this is everything
+ *   the *whole* template used to do before 2026-09-02: the "current
+ *   issue" hero + paginated issue grid, converted from
+ *   03_UI_Design/shola-jawid-ui/pages/body-publication-shola-jawid.html
+ *   and body-publication-a-world-to-win.html (Phase 4.2). Unchanged
+ *   except $is_current now resolves from the term's *parent* slug
+ *   (شعله جاوید vs. جهان برای فتح), since a دوره term's own slug is
+ *   publication-agnostic (`shola-jawid-dowre-1`,
+ *   `a-world-to-win-dowre-1`, ...) — the "is this the actively-
+ *   publishing publication" question was never really about the دوره
+ *   itself.
  *
  * @package shola-jawid
  */
@@ -15,9 +34,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$term       = get_queried_object();
-$is_current = 'shola-jawid' === $term->slug;
-$meta_line  = shola_get_publication_meta_line( $term );
+$term = get_queried_object();
+
+$period_terms = get_terms(
+	array(
+		'taxonomy'   => 'publication',
+		'parent'     => $term->term_id,
+		'hide_empty' => false,
+	)
+);
+$period_terms = ( $period_terms && ! is_wp_error( $period_terms ) ) ? $period_terms : array();
+
+if ( $period_terms ) {
+	?>
+	<section class="wrap section-top">
+
+		<header class="page-header">
+			<div class="kicker-row">
+				<p class="section-marker"></p>
+				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+			</div>
+			<?php if ( $term->description ) : ?>
+				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
+			<?php endif; ?>
+		</header>
+
+		<ul class="topic-list">
+			<?php foreach ( $period_terms as $period_term ) : ?>
+				<li><a href="<?php echo esc_url( get_term_link( $period_term ) ); ?>">
+					<span class="name"><?php echo esc_html( $period_term->name ); ?></span>
+					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: issue count. */ _n( '%s شماره', '%s شماره', $period_term->count, 'shola-jawid' ), shola_to_persian_digits( $period_term->count ) ) ); ?></span></a></li>
+			<?php endforeach; ?>
+		</ul>
+
+	</section>
+	<?php
+	get_footer();
+	return;
+}
+
+$parent_term = $term->parent ? get_term( $term->parent, 'publication' ) : false;
+$root_slug   = ( $parent_term && ! is_wp_error( $parent_term ) ) ? $parent_term->slug : $term->slug;
+$is_current  = 'shola-jawid' === $root_slug;
+$meta_line   = shola_get_publication_meta_line( $term );
 
 $latest_issue = null;
 $exclude_ids  = array();
@@ -74,7 +133,7 @@ $archive_query = new WP_Query(
 			<?php endif; ?>
 			<?php if ( $meta_line ) : ?>
 				<div class="row row-tight center mt-md">
-					<span class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>"><?php echo esc_html( shola_publication_status_label( $term->slug ) ); ?></span>
+					<span class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>"><?php echo esc_html( shola_publication_status_label( $root_slug ) ); ?></span>
 					<span class="meta-mono" lang="en"><?php echo esc_html( $meta_line ); ?></span>
 				</div>
 			<?php endif; ?>
@@ -100,7 +159,7 @@ $archive_query = new WP_Query(
 						<p class="meta-mono" lang="en">
 							<?php
 							echo esc_html(
-								( $number ? strtoupper( $term->slug ) . '-' . shola_to_persian_digits( $number ) : get_the_title( $latest_issue ) )
+								( $number ? strtoupper( $root_slug ) . '-' . shola_to_persian_digits( $number ) : get_the_title( $latest_issue ) )
 								. ' · ' . shola_get_english_month_abbr( $latest_issue ) . ' ' . shola_to_persian_digits( shola_get_gregorian_year( $latest_issue ) )
 							);
 							?>

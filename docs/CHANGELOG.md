@@ -5203,3 +5203,82 @@ trail of *why* the build deviated from — or newly applied — a rule in
   author/username" pass above since it wasn't matched by that pass's
   byline/author search terms — flagged as a separate follow-up task.
   Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Added:** each `publication` term (شعله جاوید, جهان برای فتح) is now
+  split into 4 دوره (period) sub-terms — «دورهٔ اول» through «دورهٔ
+  چهارم» — client request relayed by Farhad. Presented pseudocode for
+  the whole change first and got explicit approval, including two
+  specific decisions: existing issues (all tagged only with the parent
+  term until now) get bucketed into «دورهٔ اول» as a starting point
+  rather than left unbrowsable, and issue URLs stay flat
+  (`/publications/shola-jawid-dowre-1/{issue}/`) rather than building
+  new nested-rewrite code for a "prettier" URL — both per Farhad's
+  explicit choice.
+  - `publication` was already registered `hierarchical => true` (an
+    existing, unused capability — confirmed by reading the registration
+    before assuming anything needed to change there), so no taxonomy-
+    registration change was needed; only term seeding and template
+    logic.
+  - `SholaCore\Taxonomies::maybe_insert_term()` gained an optional
+    `$parent` param (default 0, so every existing call site is
+    unaffected) and now returns the term ID instead of void.
+  - New `SholaCore\Taxonomies::seed_publication_periods()`: creates the
+    8 دوره terms (slugs `{pub-slug}-dowre-{1-4}`, distinct per
+    publication rather than reused, avoiding any slug-uniqueness
+    ambiguity) and migrates any issue still tagged with only a parent
+    publication term into that publication's «دورهٔ اول». Hooked on
+    `admin_init`, not plugin activation — activation hooks don't re-fire
+    on a code-only zip re-upload to an already-active plugin, so this
+    follows the same self-healing `admin_init`-idempotent pattern
+    already established by `Roles::maybe_grant_editor_menu_access()`.
+    Both halves are naturally idempotent by construction (no separate
+    "done" flag needed) — see the method's own docblock for exactly why,
+    including why this also self-heals a *future* issue that
+    accidentally ends up tagged with only a parent term.
+  - `taxonomy-publication.php` now branches on whether the term being
+    viewed has children: a top-level term renders a `.topic-list` grid
+    of its 4 دوره tiles (name + issue count) — the same component
+    page-topics.php and page-library.php's collection list already use,
+    not a new one — instead of the flat issue list it used to show
+    directly; a دوره (leaf) term renders that same flat-issue-list-plus-
+    current-issue-hero behavior, unchanged except `$is_current` now
+    resolves from the term's *parent* slug (شعله جاوید vs. جهان برای
+    فتح), since a دوره term's own slug is publication-agnostic.
+  - `page-publications.php`'s «آرشیو شماره‌ها»/«آرشیو کامل» buttons
+    needed no change — they already link to the parent term's own
+    archive, which is exactly where the new tile grid now lives.
+  - `shola_get_publication_meta_line()` (inc/template-tags.php) needed
+    no change either — already purely `term_id`-based, so it correctly
+    computes a دوره-scoped issue count/year-range when called with a
+    دوره term instead of a top-level one; only its docblock was updated
+    to say so explicitly.
+  Found and fixed a data-hygiene issue while testing, not part of the
+  planned change: two terms already existed under شعله جاوید — «دوره
+  یک»/«دوره دو» (slugs `period-one`/`period-two`), differently named
+  and slugged than the 4 seeded here, both empty (0 issues) — evidently
+  created exploring the taxonomy screen before this feature existed.
+  Confirmed with Farhad and deleted from the local database; if the
+  same two terms exist on production, Farhad will remove them there too
+  (I have no direct production DB access).
+  Verified live end-to-end: ran the migration function directly
+  (`wp eval`) and confirmed via `wp term list` that all 8 existing
+  شعله جاوید issues and the 1 existing جهان برای فتح issue moved onto
+  their publication's «دورهٔ اول» with the correct counts; loaded both
+  publications' top-level archive and confirmed each shows exactly its
+  4 دوره tiles with correct per-دوره issue counts; loaded «دورهٔ
+  اول» for both publications and confirmed the existing hero/grid
+  behavior renders correctly, with «جاری»/«شماره‌های پیشین» wording
+  showing only for شعله جاوید's and «آرشیوی»/«همهٔ شماره‌ها» only for
+  جهان برای فتح's, confirming the parent-slug-based `$is_current` fix
+  actually works, not just compiles; confirmed page-publications.php's
+  three buttons (آرشیو شماره‌ها، آرشیو کامل، شمارهٔ جاری) all still
+  resolve to the correct URLs.
+  **Deployment note:** on an already-active production site, this
+  migration needs one wp-admin page load after the plugin update is
+  live (any admin screen — `admin_init` fires on all of them) before
+  the دوره terms/migration take effect; no Settings → Permalinks flush
+  needed this time, since no new rewrite rule was added (the existing
+  `%publication%` rewrite tag already resolves whatever slug ends up on
+  the issue's `publication` term, دوره or not).
+  Approved by: Farhad, in this session (2026-09-02).

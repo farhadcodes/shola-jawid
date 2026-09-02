@@ -594,11 +594,14 @@ function shola_get_label( $key ) {
 
 /**
  * "۳۲ ISSUES · ۲۰۱۸–۲۰۲۶" style meta line for a publication term
- * (page-publications.php) — computed from real published `issue` posts
- * tagged with that term, not fabricated. Returns an empty string if the
- * term has no issues yet (nothing to show, not "0 issues").
+ * (page-publications.php, and taxonomy-publication.php's دوره/period leaf
+ * view since 2026-09-02) — computed from real published `issue` posts
+ * tagged with that term, not fabricated. Purely term_id-based, so it
+ * works the same whether `$term` is a top-level publication or one of
+ * its دوره children. Returns an empty string if the term has no issues
+ * yet (nothing to show, not "0 issues").
  *
- * @param WP_Term $term Publication term.
+ * @param WP_Term $term Publication term (top-level or a دوره child).
  * @return string
  */
 function shola_get_publication_meta_line( $term ) {

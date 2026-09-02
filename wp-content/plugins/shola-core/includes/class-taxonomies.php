@@ -28,6 +28,7 @@ class Taxonomies {
 		add_action( 'init', array( __CLASS__, 'remove_core_category_from_post' ), 20 );
 		add_filter( 'post_link', array( __CLASS__, 'filter_post_permalink' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_primary_topic_assets' ) );
+		add_action( 'admin_init', array( __CLASS__, 'seed_publication_periods' ) );
 	}
 
 	/**
@@ -367,17 +368,103 @@ class Taxonomies {
 
 	/**
 	 * Insert a term with an explicit slug if it doesn't already exist in
-	 * that taxonomy.
+	 * that taxonomy. `$parent` added 2026-09-02 for the دوره (publication
+	 * period) sub-terms below — optional and defaults to 0 (top-level),
+	 * so every existing call site is unaffected. Returns the term's ID
+	 * (existing or newly created) rather than void, since the دوره
+	 * seeding needs it to migrate issues onto the right term.
 	 *
 	 * @param string $name     Term display name (Persian).
 	 * @param string $taxonomy Taxonomy slug.
 	 * @param string $slug     Explicit ASCII slug.
+	 * @param int    $parent   Parent term ID, or 0 for a top-level term.
+	 * @return int Term ID, or 0 if insertion failed.
+	 */
+	private static function maybe_insert_term( $name, $taxonomy, $slug, $parent = 0 ) {
+		$existing = term_exists( $slug, $taxonomy );
+		if ( $existing ) {
+			return is_array( $existing ) ? (int) $existing['term_id'] : (int) $existing;
+		}
+
+		$result = wp_insert_term( $name, $taxonomy, array( 'slug' => $slug, 'parent' => $parent ) ); // phpcs:ignore WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+		return is_wp_error( $result ) ? 0 : (int) $result['term_id'];
+	}
+
+	/**
+	 * Seeds 4 دوره (period) child terms under each of the two `publication`
+	 * top-level terms — «دورهٔ اول» through «دورهٔ چهارم» — then migrates
+	 * any `issue` still tagged with only the parent publication term (i.e.
+	 * every issue that existed before this feature, since the دوره concept
+	 * didn't exist yet) into that publication's «دورهٔ اول», so nothing
+	 * that used to be browsable from /publications/... silently disappears
+	 * once taxonomy-publication.php starts showing دوره tiles instead of a
+	 * flat issue list for a top-level term. Farhad redistributes them into
+	 * the correct دوره from wp-admin afterwards — this is a starting
+	 * bucket, not a real classification, since there's no way to infer
+	 * which دوره existing content actually belongs to.
+	 *
+	 * Hooked on `admin_init` rather than plugin activation (the more usual
+	 * place for one-time seeding) because activation hooks don't re-fire
+	 * on a code-only deploy (zip re-upload) to an already-active plugin —
+	 * same reasoning, and the same self-healing/idempotent-by-construction
+	 * pattern, as Roles::maybe_grant_editor_menu_access(). Both halves are
+	 * naturally idempotent without a separate "done" flag:
+	 * maybe_insert_term() already no-ops on an existing slug, and the
+	 * migration query only ever matches issues tagged with the *parent*
+	 * term specifically (include_children => false) — once an issue is
+	 * moved onto a دوره child term, it no longer matches that query, so a
+	 * second run finds nothing left to do. This also means a future issue
+	 * that somehow ends up tagged with only the parent term (never a
+	 * دوره) will self-heal into «دورهٔ اول» on the next admin page load —
+	 * intentional, not a bug: every issue should end up under some دوره.
+	 *
 	 * @return void
 	 */
-	private static function maybe_insert_term( $name, $taxonomy, $slug ) {
-		if ( term_exists( $slug, $taxonomy ) ) {
-			return;
+	public static function seed_publication_periods() {
+		$periods = array(
+			1 => __( 'دورهٔ اول', 'shola-core' ),
+			2 => __( 'دورهٔ دوم', 'shola-core' ),
+			3 => __( 'دورهٔ سوم', 'shola-core' ),
+			4 => __( 'دورهٔ چهارم', 'shola-core' ),
+		);
+
+		foreach ( array( 'shola-jawid', 'a-world-to-win' ) as $pub_slug ) {
+			$parent_term = get_term_by( 'slug', $pub_slug, 'publication' );
+			if ( ! $parent_term || is_wp_error( $parent_term ) ) {
+				continue;
+			}
+
+			$first_period_id = 0;
+			foreach ( $periods as $n => $period_name ) {
+				$period_id = self::maybe_insert_term( $period_name, 'publication', $pub_slug . '-dowre-' . $n, $parent_term->term_id );
+				if ( 1 === $n ) {
+					$first_period_id = $period_id;
+				}
+			}
+
+			if ( ! $first_period_id ) {
+				continue;
+			}
+
+			$unmigrated_issue_ids = get_posts(
+				array(
+					'post_type'      => 'issue',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, one-time migration, not a recurring query.
+						array(
+							'taxonomy'         => 'publication',
+							'field'            => 'term_id',
+							'terms'            => $parent_term->term_id,
+							'include_children' => false,
+						),
+					),
+				)
+			);
+
+			foreach ( $unmigrated_issue_ids as $issue_id ) {
+				wp_set_object_terms( $issue_id, array( $first_period_id ), 'publication', false );
+			}
 		}
-		wp_insert_term( $name, $taxonomy, array( 'slug' => $slug ) );
 	}
 }
