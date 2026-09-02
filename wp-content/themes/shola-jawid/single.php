@@ -19,7 +19,7 @@ while ( have_posts() ) :
 
 	$terms       = get_the_terms( get_the_ID(), 'topic' );
 	$terms       = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
-	$topic       = $terms ? reset( $terms ) : false;
+	$topic       = shola_get_primary_topic( get_the_ID() );
 	$byline_meta = get_post_meta( get_the_ID(), 'shcore_byline', true );
 	$byline      = $byline_meta ? $byline_meta : get_the_author_meta( 'display_name' );
 	$author_note = get_post_meta( get_the_ID(), 'shcore_author_note', true );

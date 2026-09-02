@@ -698,3 +698,27 @@ function shola_highlight_search_term( $escaped_text, $query ) {
 
 	return null === $highlighted ? $escaped_text : $highlighted;
 }
+
+/**
+ * Which of a post's (possibly several) `topic` terms to show as *the*
+ * topic — breadcrumb, card type-label term, hero term. `topic` supports
+ * multiple selections per article (standard, per Farhad 2026-09-02); this
+ * resolves that down to one for display. Delegates to
+ * SholaCore\Taxonomies::get_primary_topic() (editor-chosen primary, with
+ * a same-as-before array_shift() fallback) when the plugin is active, per
+ * CLAUDE.md §2 — the theme must not fatal-error if shola-core is inactive,
+ * so it carries its own inline copy of that same fallback logic instead of
+ * depending on the plugin class existing (same pattern as
+ * shola_get_label()/shola_get_social_links() above).
+ *
+ * @param int|WP_Post $post Post ID or object.
+ * @return WP_Term|false
+ */
+function shola_get_primary_topic( $post ) {
+	if ( class_exists( '\SholaCore\Taxonomies' ) ) {
+		return \SholaCore\Taxonomies::get_primary_topic( $post );
+	}
+
+	$terms = get_the_terms( $post, 'topic' );
+	return ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
+}

@@ -42,7 +42,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span><?php esc_html_e( 'منو', 'shola-jawid' ); ?></span>
 			</button>
 			<span aria-hidden="true" class="mast-slash">/</span>
-			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
+			<?php
+			/*
+			 * 2026-09-02: this search icon is now mobile-only (`hide-desktop`) —
+			 * on desktop it's replaced by the larger one at the far end of
+			 * .masthead-right (see below), per Farhad: easier to find/read.
+			 * Two markup instances, CSS-toggled by breakpoint, matches the
+			 * existing hide-mobile/hide-desktop pattern already used for the
+			 * desktop-only nav row — no JS move across the two grid cells.
+			 */
+			?>
+			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link hide-desktop" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 				<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
 
@@ -61,9 +71,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</a>
 
 		<div class="masthead-right">
+			<a href="<?php echo esc_url( home_url( '/about/' ) ); ?>" class="mast-btn hide-mobile"><?php esc_html_e( 'دربارهٔ ما', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
 			<a href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>" class="mast-btn hide-mobile"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
 			<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="mast-btn hide-mobile"><?php esc_html_e( 'تماس', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
+			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link mast-icon-link--lg hide-mobile" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
+				<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+			</a>
 		</div>
 
 	</div>

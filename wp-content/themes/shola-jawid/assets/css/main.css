@@ -357,7 +357,10 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--paper);
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  /* 2026-09-02: reduced ~20% from the original clamp(1.8rem, 4vw, 2.4rem)
+     per Farhad — title read too large against the new masthead nav items.
+     Approved by Farhad in session on 2026-09-02. */
+  font-size: clamp(1.44rem, 3.2vw, 1.92rem);
   line-height: 1;
   letter-spacing: -.005em;
   text-align: center;
@@ -415,6 +418,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .mast-icon-link { display: inline-flex; }
 .mast-brand { text-align: center; }
 
+/* 2026-09-02: دربارهٔ ما / اطلاعیه‌ها / تماس (utility row, .masthead-right)
+   sized down ~15% from the standard .mast-btn 1rem, at Farhad's request —
+   de-emphasizes this row against نشریات/موضوعات/کتابخانه (.mast-pub-nav)
+   now that the enlarged search icon sits right next to it. Scoped by
+   container, not a new class, so .mast-btn's shared styling/hover stays
+   untouched everywhere else it's used. */
+.masthead-right .mast-btn { font-size: .85rem; }
+
 /*
  * Fix (2026-08-08): the search icon is an <a class="link-quiet
  * mast-icon-link"> — `a { color: inherit }` (§01) means it fell through to
@@ -431,6 +442,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
  */
 .masthead .mast-icon-link { color: color-mix(in oklab, var(--paper) 85%, transparent); }
 .masthead .mast-icon-link:hover { color: var(--paper); }
+
+/* 2026-09-02: larger, desktop-only search icon at the far end of
+   .masthead-right (per Farhad: the original 19px icon in .masthead-left
+   was too small/hard to find). Bigger tap target via padding, not just a
+   bigger svg, so the hover/focus area grows with it. */
+.mast-icon-link--lg { padding: .25rem; margin-inline-start: -.25rem; }
 
 /* -------------------------------------------------------------------------
    ۰۶ · Popup menu — the signature move

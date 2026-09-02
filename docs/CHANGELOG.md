@@ -4814,3 +4814,121 @@ trail of *why* the build deviated from — or newly applied — a rule in
   without ever clicking Update, so no test data was saved.
   Theme version bumped 1.0.2 → 1.0.3 (style.css) for cache-busting.
   Approved by: Farhad, in this session (2026-08-31).
+
+## 2026-09-02
+- **Changed:** Homepage مقالات section (`front-page.php`) no longer excludes
+  posts already shown in تازه‌ها. Previously it used `post__not_in` against
+  `$latest_query`'s post IDs so the same article never appeared twice on the
+  homepage (documented 2026-08-25 as a deliberate "next tier down, no
+  duplicates" design). Farhad reported a newly published article only showed
+  in تازه‌ها (as the hero) and not in مقالات, and relayed the client's actual
+  requirement: تازه‌ها is the "everything new" feed (articles, reports,
+  documents, issues combined), مقالات is the "articles only" feed — the two
+  are independent, and it's fine/expected for the same article to appear in
+  both at once. `$articles_query` is now simply "latest 6 posts of type
+  `post`, any topic," with no cross-exclusion.
+  Reason: reverses the 2026-08-25 anti-duplication design per explicit
+  client instruction relayed by Farhad — duplication across these two
+  specific sections is intentional, not a bug.
+  Approved by: Farhad, in this session (2026-09-02), citing direct client
+  instruction.
+
+## 2026-09-02 (later same day)
+- **Added, then corrected same session:** the breadcrumb/card term shown on
+  the front end (`array_shift( get_the_terms( ... ) )` in `card.php`,
+  `single.php`, and `Taxonomies::filter_post_permalink()`) picked whichever
+  selected `topic` term WordPress's default term ordering (alphabetical by
+  name) happened to sort first — not necessarily the one the editor meant
+  as primary. Farhad flagged this as unprofessional after seeing a post
+  with two topics checked show the "wrong" one in its breadcrumb.
+  First attempt restricted `post` to exactly one `topic` term outright
+  (single-select radio panel replacing the checkbox tree, plus a
+  server-side `set_object_terms` backstop). Farhad corrected this
+  immediately: multi-select `topic` assignment is the standard/wanted
+  behavior — only the *display* pick needed fixing, not the assignment
+  model. Reverted the single-select restriction; `topic` is back to its
+  original Categories-style multi-select panel, untouched.
+  Shipped instead: a **primary topic** concept, additive to `topic`
+  rather than replacing it —
+  - `shcore_primary_topic` (new post meta, `class-meta-fields.php`) stores
+    which of a post's assigned `topic` terms is primary.
+  - `SholaCore\Taxonomies::get_primary_topic()` resolves it: the stored
+    primary if it's still one of the post's actual terms, else the same
+    array_shift() fallback as before (never "no topic shown" just because
+    nothing was explicitly picked).
+  - `admin/js/primary-topic.js` + `Taxonomies::enqueue_primary_topic_assets()`
+    add a **second**, separate block-editor panel — «موضوع اصلی» — a radio
+    list built only from the topics currently checked in the (unmodified)
+    default panel, writing to `shcore_primary_topic`.
+  - `shola_get_primary_topic()` (new theme wrapper, `template-tags.php`,
+    same plugin-inactive-degrades-gracefully pattern as
+    `shola_get_label()`) is the one call site every breadcrumb/card/hero
+    term now goes through — `card.php`, `single.php` (breadcrumb + related-
+    posts query only; the full multi-topic tag list on that page is
+    untouched, still all of `$terms`), `front-page.php`'s hero.
+  Known gap, unchanged from the first attempt: Quick Edit's taxonomy
+  checklist on the Posts list screen isn't touched by either panel — not a
+  correctness issue now that multi-select is allowed again, just means
+  Quick Edit has no primary-topic control of its own.
+  Plugin version bumped 1.0.2 → 1.0.3 (shola-core.php) for the new
+  enqueued script.
+  Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Changed:** Masthead (`header.php`, `assets/css/main.css`), per Farhad's
+  direct feedback on the live site: the hero/site-title text read too large
+  against the nav row (`font-size` reduced ~20%, `.masthead .mast-brand`);
+  the utility row (اطلاعیه‌ها / تماس) was competing visually with the
+  publication nav row (نشریات / موضوعات / کتابخانه), fixed by sizing it
+  down ~15% (`.masthead-right .mast-btn`, scoped to that container only,
+  not a change to `.mast-btn` itself); a new "دربارهٔ ما" link was added to
+  that same utility row (`/about/`, existing page, no new template); and
+  the search icon — previously a single small (19px) icon in the left
+  cluster, which Farhad found hard to notice — is now mobile-only there,
+  with a larger (26px), easier-to-hit desktop-only version added to the far
+  end of the utility row instead (two markup instances, CSS `hide-mobile`/
+  `hide-desktop`-toggled by breakpoint, matching the existing pattern
+  already used for the desktop-only nav row — no JS required to move it
+  between grid cells at different widths).
+  Reason: all four are direct visual/UX corrections from Farhad reviewing
+  the live masthead, not new design decisions — §9's "faithful port, not a
+  redesign" rule allows exactly this (deviation from the v6 screenshots
+  only when Farhad explicitly asks).
+  Approved by: Farhad, in this session (2026-09-02).
+
+## 2026-09-02 (later same day)
+- **Fixed:** the block-editor sidebar's panel order on the `post` screen —
+  Farhad wanted موضوعات (topic, built-in taxonomy panel), موضوع اصلی
+  (primary topic, the new custom `PluginDocumentSettingPanel` from the
+  entry above), برچسب‌ها (post_tag, built-in), in exactly that order; it was
+  rendering as موضوع اصلی, برچسب‌ها, موضوعات. Inspected the actual live DOM
+  (not assumed) and found there's no supported ordering API for this:
+  built-in taxonomy panels and custom `PluginDocumentSettingPanel`s render
+  as plain sibling `.components-panel__body` elements, in whatever order
+  the editor's internal panel registry produced, with neither mechanism
+  exposing a `position`/`order` prop.
+  Added `admin/js/panel-order.js` (enqueued from
+  `Taxonomies::enqueue_primary_topic_assets()`, same screen/conditions as
+  `primary-topic.js`): reorders those three sibling nodes in place by
+  matching each panel's visible title text against the wanted order.
+  Deliberately conservative — it only acts when *every* panel currently in
+  that sibling group matches a name in its known list, so if a currently-
+  unused core panel (Featured image, Excerpt, Discussion) is ever enabled,
+  or another custom panel is added later, this leaves the whole group
+  alone rather than guessing where the newcomer belongs, instead of
+  silently mis-ordering it.
+  A `MutationObserver` (not a one-time reorder at load) is required
+  because the editor re-renders this sibling group on state changes (e.g.
+  checking a topic checkbox re-renders «موضوع اصلی»'s content, which
+  re-renders its siblings too) — scoped to the sidebar panel container
+  itself once it first appears, specifically so it never reacts to
+  unrelated DOM churn elsewhere on the screen (the post content area
+  updates on every keystroke; observing document-wide would run this
+  reorder check on every keystroke too).
+  Verified live via a real logged-in editor session (WP-CLI-generated auth
+  cookies through a temporary local redirect script, removed immediately
+  after): confirmed the corrected order renders on load, survives
+  expanding/collapsing a panel, and survives toggling a topic checkbox
+  (which re-renders «موضوع اصلی»'s content) without reverting or flickering
+  back to the old order.
+  Approved by: Farhad, in this session (2026-09-02).

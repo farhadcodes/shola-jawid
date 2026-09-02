@@ -27,6 +27,7 @@ class Taxonomies {
 		add_action( 'init', array( __CLASS__, 'register_topic_rewrite' ) );
 		add_action( 'init', array( __CLASS__, 'remove_core_category_from_post' ), 20 );
 		add_filter( 'post_link', array( __CLASS__, 'filter_post_permalink' ), 10, 2 );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_primary_topic_assets' ) );
 	}
 
 	/**
@@ -49,6 +50,95 @@ class Taxonomies {
 	public static function remove_core_category_from_post() {
 		remove_post_type_support( 'post', 'category' );
 		unregister_taxonomy_for_object_type( 'category', 'post' );
+	}
+
+	/**
+	 * Enqueue the block-editor script for the «موضوع اصلی» (primary topic)
+	 * panel (Farhad, 2026-09-02, second pass — a first pass this same
+	 * session made `topic` single-select outright, which Farhad then
+	 * corrected: multi-select is the standard/wanted behavior, only the
+	 * breadcrumb pick needed fixing). `topic`'s own checkbox panel is left
+	 * completely alone here; this only adds a second panel that lets the
+	 * editor name one of the checked topics as primary. `post` only —
+	 * `topic` isn't attached to any other post type.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_primary_topic_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen || 'post' !== $screen->post_type ) {
+			return;
+		}
+
+		$terms   = get_terms(
+			array(
+				'taxonomy'   => 'topic',
+				'hide_empty' => false,
+			)
+		);
+		$options = array();
+		foreach ( $terms as $term ) {
+			$options[] = array(
+				'id'   => $term->term_id,
+				'name' => $term->name,
+			);
+		}
+
+		wp_enqueue_script(
+			'shcore-primary-topic',
+			SHCORE_URL . 'admin/js/primary-topic.js',
+			array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n' ),
+			SHCORE_VERSION,
+			true
+		);
+		wp_localize_script( 'shcore-primary-topic', 'shcoreTopics', array( 'terms' => $options ) );
+
+		// Sidebar panel order (Farhad, 2026-09-02): موضوعات, موضوع اصلی,
+		// برچسب‌ها. Depends on 'shcore-primary-topic' only so its panel
+		// exists in the DOM before this looks for it; see
+		// admin/js/panel-order.js for why this can't be a simple render-
+		// order/enqueue-order fix.
+		wp_enqueue_script(
+			'shcore-panel-order',
+			SHCORE_URL . 'admin/js/panel-order.js',
+			array( 'wp-dom-ready', 'shcore-primary-topic' ),
+			SHCORE_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Resolve which of a post's `topic` terms should be shown as *the*
+	 * topic — the breadcrumb, the card's type-label term, and the
+	 * /topics/{slug}/ permalink (filter_post_permalink() below) all need
+	 * exactly one, even though a post can carry several.
+	 *
+	 * Prefers `shcore_primary_topic` (post meta, set via the «موضوع اصلی»
+	 * block-editor panel — admin/js/primary-topic.js) if it's actually one
+	 * of the post's current terms; a stored primary that's since been
+	 * unchecked, or never set at all, falls back to the pre-2026-09-02
+	 * behavior (array_shift() of get_the_terms(), i.e. WordPress's default
+	 * term ordering — alphabetical by name) rather than showing nothing.
+	 *
+	 * @param int|\WP_Post $post Post ID or object.
+	 * @return \WP_Term|false
+	 */
+	public static function get_primary_topic( $post ) {
+		$terms = get_the_terms( $post, 'topic' );
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return false;
+		}
+
+		$primary_id = (int) get_post_meta( is_object( $post ) ? $post->ID : $post, 'shcore_primary_topic', true );
+		if ( $primary_id ) {
+			foreach ( $terms as $term ) {
+				if ( $term->term_id === $primary_id ) {
+					return $term;
+				}
+			}
+		}
+
+		return array_shift( $terms );
 	}
 
 	/**
@@ -187,9 +277,8 @@ class Taxonomies {
 			return $link;
 		}
 
-		$terms = get_the_terms( $post, 'topic' );
-		$term  = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
-		$slug  = $term ? $term->slug : 'بدون-موضوع';
+		$term = self::get_primary_topic( $post );
+		$slug = $term ? $term->slug : 'بدون-موضوع';
 
 		return home_url( '/topics/' . $slug . '/' . $post->post_name . '/' );
 	}
@@ -219,15 +308,15 @@ class Taxonomies {
 	 */
 	public static function create_default_terms() {
 		$topics = array(
-			'world'                             => 'جهان',
-			'afghanistan'                       => 'افغانستان',
-			'labor'                             => 'کارگری',
-			'women'                             => 'زنان',
-			'politics'                          => 'سیاست',
-			'economy'                           => 'اقتصاد',
-			'science-and-art'                   => 'علم و هنر',
-			'international-communist-movement'  => 'جنبش کمونیستی بین‌المللی',
-			'afghanistan-left-movement'         => 'جنبش چپ افغانستان',
+			'world'                            => 'جهان',
+			'afghanistan'                      => 'افغانستان',
+			'labor'                            => 'کارگری',
+			'women'                            => 'زنان',
+			'politics'                         => 'سیاست',
+			'economy'                          => 'اقتصاد',
+			'science-and-art'                  => 'علم و هنر',
+			'international-communist-movement' => 'جنبش کمونیستی بین‌المللی',
+			'afghanistan-left-movement'        => 'جنبش چپ افغانستان',
 		);
 		foreach ( $topics as $slug => $name ) {
 			self::maybe_insert_term( $name, 'topic', $slug );

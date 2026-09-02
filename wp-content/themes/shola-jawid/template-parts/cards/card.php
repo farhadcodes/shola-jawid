@@ -45,8 +45,7 @@ if ( 'document' === $card_type ) {
 } else {
 	$permalink   = get_permalink( $card_post );
 	$type_label  = has_post_format( 'aside', $card_post ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
-	$terms       = get_the_terms( $card_post, 'topic' );
-	$term        = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
+	$term        = shola_get_primary_topic( $card_post );
 	$term_link   = $term ? get_term_link( $term ) : '';
 	$term_name   = $term ? $term->name : '';
 	$byline_meta = get_post_meta( $card_post->ID, 'shcore_byline', true );

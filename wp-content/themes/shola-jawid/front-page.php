@@ -54,8 +54,7 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 		<div class="wrap">
 			<div class="hero-body">
 				<?php
-				$hero_terms = get_the_terms( $hero, 'topic' );
-				$hero_term  = ( $hero_terms && ! is_wp_error( $hero_terms ) ) ? array_shift( $hero_terms ) : false;
+				$hero_term = shola_get_primary_topic( $hero );
 				?>
 				<p class="type-label">
 					<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>
@@ -109,31 +108,21 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 
 <?php
 /*
- * مقالات (Articles) — every topic combined, explicitly excluding
- * anything already shown in تازه‌ها above (same query args as
- * $latest_query, including the post that became the hero — it was
- * fetched by that exact query before the hero-extraction logic ran,
- * so it counts as "shown" too). post__not_in, not an offset/date
- * cutoff, per the explicit requirement: no drift if $latest_query's
- * args ever change independently. This makes مقالات a self-refreshing
- * "next tier down" — as newer posts rotate into تازه‌ها, whatever ages
- * out starts appearing here automatically, no manual curation.
- *
- * Previously also excluded a گزارشات section's posts (Phase B); that
- * section pulled from a placeholder topic term that was never part of
- * the client's real taxonomy and has since been deleted (Phase C topic
- * migration, 2026-08-24, docs/CHANGELOG.md) — the section itself
- * (and its exclusion contribution here) was removed in the same
- * migration, not left as dead code.
+ * مقالات (Articles) — latest 6 posts of type `post`, every topic
+ * combined, no exclusion against تازه‌ها above. Client-confirmed
+ * 2026-09-02 (see docs/CHANGELOG.md): تازه‌ها is the "everything new"
+ * feed (articles + reports + documents + issues), مقالات is the
+ * "articles only" feed — duplication between the two is expected and
+ * fine, so the newest article always shows in both. Previously this
+ * excluded anything already in $latest_query (post__not_in) to avoid
+ * duplicates; removed per that confirmation.
  */
-$articles_excluded_ids = wp_list_pluck( $latest_query->posts, 'ID' );
-$articles_query        = new WP_Query(
+$articles_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
 		'posts_per_page' => 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-		'post__not_in'   => $articles_excluded_ids,
 	)
 );
 ?>

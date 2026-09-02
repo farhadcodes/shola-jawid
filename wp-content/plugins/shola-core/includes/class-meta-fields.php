@@ -173,6 +173,28 @@ class Meta_Fields {
 				'auth_callback'     => $auth_callback,
 			)
 		);
+		/*
+		 * Primary topic (2026-09-02): a post can carry several `topic`
+		 * terms, but the breadcrumb/card display needs exactly one. This
+		 * stores which of the assigned terms the editor picked as primary
+		 * — see SholaCore\Taxonomies::get_primary_topic() for the
+		 * resolution logic (falls back to the old array_shift() pick if
+		 * this is unset or no longer one of the post's actual terms) and
+		 * admin/js/primary-topic.js for the picker UI. Sanitized
+		 * with absint like shcore_translation_id above; a term_id of 0
+		 * (nothing picked) is a valid "no primary set" state, not an error.
+		 */
+		register_post_meta(
+			'post',
+			'shcore_primary_topic',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 	}
 
 	/**
