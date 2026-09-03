@@ -25,6 +25,16 @@
  *   publishing publication" question was never really about the دوره
  *   itself.
  *
+ * Both branches also got a `.article-crumb` breadcrumb, 2026-09-03 —
+ * this template never had one before (unlike every single-*.php view),
+ * and once دوره tiles introduced a second click just to reach an issue
+ * list, Farhad found there was no way back up without the browser's own
+ * back button. Same "صفحهٔ اصلی / نشرات / ..." pattern already used by
+ * single-issue.php/single-document.php, extended one level for the leaf
+ * view (Home / نشرات / {parent publication} / {دوره}) so the parent
+ * publication's own tile-grid page — the "back" step in this new two-
+ * step browse path — is a real link, not just a suggestion.
+ *
  * @package shola-jawid
  */
 
@@ -75,6 +85,14 @@ usort(
 if ( $period_terms ) {
 	?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+		</nav>
 
 		<header class="page-header">
 			<div class="kicker-row">
@@ -149,6 +167,18 @@ $archive_query = new WP_Query(
 );
 ?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<?php if ( $parent_term ) : ?>
+				<span aria-hidden="true"> / </span>
+				<a href="<?php echo esc_url( get_term_link( $parent_term ) ); ?>"><?php echo esc_html( $parent_term->name ); ?></a>
+			<?php endif; ?>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+		</nav>
 
 		<header class="page-header<?php echo $is_current ? '' : ' page-header--muted'; ?>">
 			<div class="kicker-row">

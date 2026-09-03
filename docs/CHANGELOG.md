@@ -5333,3 +5333,23 @@ trail of *why* the build deviated from — or newly applied — a rule in
   original name (bypassing the same shell encoding path this time), and
   reconfirmed correct. No other term's data was touched by this.
   Approved by: Farhad, in this session (2026-09-03).
+
+## 2026-09-03 (later same day)
+- **Added:** a `.article-crumb` breadcrumb to `taxonomy-publication.php`,
+  both branches (the top-level tile-grid view and the دوره leaf view).
+  Farhad reported that once browsing a publication meant a دوره tile
+  click first, there was no way back up from either page besides the
+  browser's own back button — this template had never had a breadcrumb
+  at all, unlike every single-*.php view.
+  Same "صفحهٔ اصلی / نشرات / ..." pattern already used by
+  single-issue.php/single-document.php (not a new component), extended
+  one level for the leaf view specifically so the parent publication's
+  own tile-grid page is a real link, not just implied:
+  - Tile-grid view: «صفحهٔ اصلی / نشرات / {publication}»
+  - دوره view: «صفحهٔ اصلی / نشرات / {publication} / {دوره}»
+  Verified live: both pages render the correct trail, and confirmed via
+  the actual rendered `<a>` hrefs (not just the visible text) that every
+  link resolves correctly — critically, that شعله جاوید's crumb on the
+  دوره page really does link back to `/publications/shola-jawid/` (the
+  tile grid), the specific "no way back" gap Farhad reported.
+  Approved by: Farhad, in this session (2026-09-03).
