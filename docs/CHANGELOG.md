@@ -5390,3 +5390,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   fixed here, to keep this entry scoped to the breadcrumb bug Farhad
   was actively waiting on.
   Approved by: Farhad, in this session (2026-09-03).
+
+## 2026-09-03 (later same day)
+- **Fixed:** the homepage's «شمارهٔ جاری» section was showing 4-5 cards
+  instead of 2 — one card per publication *and* one per دوره that had
+  an issue. Root cause: `front-page.php`'s `get_terms()` call for that
+  section (added 2026-09-02, before the دوره sub-terms existed) fetched
+  every `publication` term with no `parent` filter — harmless while the
+  taxonomy only had its 2 top-level terms, but once
+  `seed_publication_periods()` added the 8 دوره children the next day,
+  it silently started looping over those too. Added `'parent' => 0`
+  so it only ever fetches the top-level publications, same as the
+  section always intended.
+  Checked every other `get_terms()`/`tax_query` call against
+  `publication` in the theme for the same unscoped-since-دوره-existed
+  bug rather than assuming this was the only one: `page-publications.php`
+  and `shola_get_publication_meta_line()` (inc/template-tags.php) both
+  already scope by a specific known `$term`/slug, and `inc/setup.php`'s
+  nav-menu registration uses a hardcoded two-slug list — none of those
+  had the same problem.
+  Verified live: homepage now shows exactly 2 cards (شعله جاوید, جهان
+  برای فتح), each still correctly showing that publication's own
+  overall latest issue across all its دوره (unaffected — the per-card
+  issue lookup itself was never scoped to a single دوره, only the list
+  of *cards to render* was over-broad).
+  Approved by: Farhad, in this session (2026-09-03).

@@ -284,9 +284,19 @@ $documents_query = new WP_Query(
  * organization, and readers need to see both, not just whichever one
  * happened to be newest.
  */
+/*
+ * `parent => 0` added 2026-09-03: this ran unscoped from 2026-08-31
+ * until the دوره (period) sub-terms existed (2026-09-02) with no
+ * visible bug, since `publication` only had 2 (top-level) terms then —
+ * once seed_publication_periods() added the 8 دوره child terms, this
+ * silently started looping over *those* too, showing a card for every
+ * دوره that had at least one issue instead of one card per publication.
+ * Farhad caught it live: 4-5 cards instead of 2.
+ */
 $publication_terms = get_terms(
 	array(
 		'taxonomy'   => 'publication',
+		'parent'     => 0,
 		'hide_empty' => false,
 	)
 );
