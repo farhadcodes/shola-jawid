@@ -5415,3 +5415,30 @@ trail of *why* the build deviated from — or newly applied — a rule in
   issue lookup itself was never scoped to a single دوره, only the list
   of *cards to render* was over-broad).
   Approved by: Farhad, in this session (2026-09-03).
+
+## 2026-09-03 (later same day)
+- **Changed:** the masthead date (`shola_get_masthead_runner()`,
+  `inc/template-tags.php`) now shows today's real date via `wp_date()`,
+  unconditionally. Farhad reported it looked "stuck" on production and
+  asked why before anything was changed — investigated and explained
+  first, not assumed to be a bug: this text has never been a live
+  clock. Since 2026-08-12 it deliberately showed the *latest published
+  issue's* date (a print-newspaper "edition date" convention,
+  client-approved at the time), which only ever advances when a new
+  شماره is published. On local it looked live purely by coincidence —
+  test issues kept getting created with today's date during this
+  session's own work — while on production, where the last real issue
+  predated today by several days, it correctly stayed frozen at that
+  real publish date. Once this was explained, Farhad chose to change
+  the behavior going forward rather than keep the original design.
+  No longer queries `issue` posts at all — `wp_date( 'l j F Y' )`
+  (today, site timezone) unconditionally, so it also no longer needs
+  the old "empty string when no issue exists yet" fallback. Confirmed
+  `wp_date`/`get_the_date` are both already covered by the existing
+  `shola_convert_jalali_months_to_dari()` filter list (re-checked
+  before relying on it, not assumed) — no change needed there.
+  Verified live: `wp eval`'s `current_time('mysql')` read
+  `2026-09-03 10:45:57`; the masthead correctly showed «پنجشنبه ۱۲
+  سنبله ۱۴۰۵» (the Jalali/Dari equivalent) immediately, with no
+  dependency on any issue's publish date.
+  Approved by: Farhad, in this session (2026-09-03).

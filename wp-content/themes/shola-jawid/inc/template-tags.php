@@ -359,44 +359,37 @@ function shola_get_masthead_code() {
 }
 
 /**
- * Masthead runner text — weekday + date, per Farhad's 2026-08-12 review
- * of the live site (previously "SHOLA JAWID · شماره ۳۲ · ۱۵ اسد ۱۴۰۵";
- * see docs/CHANGELOG.md) and the client-approved weekday addition
- * logged there. Uses the latest published issue's date so the masthead
- * never shows stale placeholder data once real content exists; empty
- * when no issue is published yet (nothing to date it by), rather than
- * falling back to a brand-code string that no longer has a place in
- * this design.
+ * Masthead runner text — weekday + today's real date. Changed
+ * 2026-09-03 (Farhad's explicit choice, offered after he reported the
+ * masthead date looking "stuck" on production): previously this showed
+ * the *latest published issue's* date (a print-newspaper "edition date"
+ * convention, added 2026-08-12/2026-08-24 per that era's own client
+ * review — see docs/CHANGELOG.md), which only ever advanced when a new
+ * شماره was published, not daily. On local it looked like a live clock
+ * purely by coincidence (test issues kept getting created with today's
+ * date); on production, where the last real issue was published days
+ * earlier, it correctly stayed frozen at that date — not a bug, just
+ * not the behavior Farhad decided he wants going forward. Now uses
+ * wp_date() (today, in the site's configured timezone) unconditionally
+ * — no longer tied to `issue` content at all, so it always has
+ * something to show, unlike the old "empty when no issue exists yet"
+ * fallback.
  *
- * get_the_date() here is what actually renders the Jalali date via the
+ * wp_date() here is what actually renders the Jalali date via the
  * Persian Calendar plugin + shola_convert_jalali_months_to_dari() —
- * untouched by this change. The explicit 'l j F Y' format (rather than
- * the empty string / site date_format option used elsewhere) is
- * deliberately scoped to only this one call site: Persian Calendar's
- * own 'l' output is already correct Dari (weekday names, unlike month
- * names, don't diverge between fa_IR and fa_AF, so no sibling filter is
- * needed alongside shola_convert_jalali_months_to_dari()) — confirmed
- * live via `wp eval`. Changing the site-wide date_format option instead
- * would have added the weekday to every date on the site, not just the
- * masthead.
+ * both hook `wp_date` already (inc/template-tags.php, confirmed by
+ * reading that filter list before changing this, not assumed still
+ * covered after switching away from get_the_date()). The explicit
+ * 'l j F Y' format (rather than the site's date_format option used
+ * elsewhere) is unchanged from before and still deliberately scoped to
+ * only this one call site — see the prior version of this docblock
+ * (git history) for why the weekday needed a dedicated format string
+ * here instead of a site-wide date_format change.
  *
  * @return string
  */
 function shola_get_masthead_runner() {
-	$latest = get_posts(
-		array(
-			'post_type'      => 'issue',
-			'posts_per_page' => 1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-		)
-	);
-
-	if ( ! $latest ) {
-		return '';
-	}
-
-	return get_the_date( 'l j F Y', $latest[0] );
+	return wp_date( 'l j F Y' );
 }
 
 /**
