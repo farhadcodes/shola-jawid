@@ -5353,3 +5353,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   دوره page really does link back to `/publications/shola-jawid/` (the
   tile grid), the specific "no way back" gap Farhad reported.
   Approved by: Farhad, in this session (2026-09-03).
+
+## 2026-09-03 (later same day)
+- **Fixed:** `single-issue.php`'s breadcrumb was still missing the
+  publication level — «صفحهٔ اصلی / نشرات / دورهٔ اول» instead of
+  «.../ شعله جاوید / دورهٔ اول» — the same grandparent-level gap already
+  fixed on `taxonomy-publication.php`'s two archive views, but on the
+  single-issue page itself. Root cause: since the دوره migration,
+  `get_the_terms($post, 'publication')` on an issue now returns the
+  دوره (child) term, not the top-level publication — `$pub` was never
+  updated to also resolve `$pub->parent` for the grandparent crumb.
+  Walks up to `$pub->parent` the same way `taxonomy-publication.php`'s
+  leaf view already does, and — checking rather than assuming this was
+  the *only* place `$pub` meant "دوره, not publication" — found and
+  fixed two more bugs from the exact same root cause on this same page,
+  neither of which Farhad had reported yet: `shola_publication_status_label()`
+  was being passed the دوره's own slug (e.g. `shola-jawid-dowre-1`,
+  which never equals `'shola-jawid'`), so every شعله جاوید issue's page
+  showed «آرشیوی» (archived) instead of «جاری» (current), regardless of
+  which publication; and the `<h1>` showed "دورهٔ اول · شمارهٔ ۳۲" instead
+  of "شعله جاوید · شمارهٔ ۳۲". Both switched to the resolved
+  publication-level slug/term (`$root_slug`/`$pub_display`).
+  Verified live at the exact URL Farhad reported
+  (`/publications/a-world-to-win-dowre-1/جهان-برای-فتح-·-شمارهٔ-۲۱/`):
+  breadcrumb now reads «صفحهٔ اصلی / نشرات / جهان برای فتح / دورهٔ اول»,
+  status correctly reads «آرشیوی» (this one genuinely is archived —
+  جهان برای فتح), and the H1 correctly reads «جهان برای فتح · شمارهٔ ۲۱».
+  Also spot-checked a شعله جاوید issue to confirm its status now
+  correctly flips to «جاری».
+  Found while re-verifying, out of scope for this entry and left
+  untouched: this same page still shows «سردبیر مسئول» (managing
+  editor) — the same public-author-display category already removed
+  from single.php, card.php, front-page.php, and search results
+  (2026-09-02), and already flagged once before as missed on
+  single-document.php. Flagged again as a follow-up task rather than
+  fixed here, to keep this entry scoped to the breadcrumb bug Farhad
+  was actively waiting on.
+  Approved by: Farhad, in this session (2026-09-03).

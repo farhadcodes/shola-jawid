@@ -18,10 +18,21 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$pub_terms  = get_the_terms( get_the_ID(), 'publication' );
-	$pub        = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
-	$is_current = $pub && 'shola-jawid' === $pub->slug;
-	$number     = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
+	$pub_terms   = get_the_terms( get_the_ID(), 'publication' );
+	$pub         = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
+	// 2026-09-03: since the دوره migration, $pub is a دوره (period) child
+	// term, not the top-level publication — Farhad flagged the breadcrumb
+	// was missing that grandparent level (صفحهٔ اصلی / نشرات / دورهٔ اول
+	// instead of .../ شعله جاوید / دورهٔ اول). Resolved the same way
+	// taxonomy-publication.php's leaf view already does: walk up to
+	// $pub->parent for the grandparent crumb, and use *that* term's slug
+	// (not $pub's own — a دوره slug like `shola-jawid-dowre-1` was never
+	// what "is this the actively-publishing publication" was actually
+	// asking about) for $is_current.
+	$pub_parent  = ( $pub && $pub->parent ) ? get_term( $pub->parent, 'publication' ) : false;
+	$root_slug   = ( $pub_parent && ! is_wp_error( $pub_parent ) ) ? $pub_parent->slug : ( $pub ? $pub->slug : '' );
+	$is_current  = 'shola-jawid' === $root_slug;
+	$number      = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
@@ -71,6 +82,10 @@ while ( have_posts() ) :
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
 			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<?php if ( $pub_parent ) : ?>
+				<span aria-hidden="true"> / </span>
+				<a href="<?php echo esc_url( get_term_link( $pub_parent ) ); ?>"><?php echo esc_html( $pub_parent->name ); ?></a>
+			<?php endif; ?>
 			<?php if ( $pub ) : ?>
 				<span aria-hidden="true"> / </span>
 				<a class="active" href="<?php echo esc_url( get_term_link( $pub ) ); ?>"><?php echo esc_html( $pub->name ); ?></a>
@@ -87,21 +102,37 @@ while ( have_posts() ) :
 				<?php echo shola_get_featured_image( get_post(), 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 			</a>
 
+			<?php
+			/*
+			 * 2026-09-03: both of these used $pub (a دوره/period child
+			 * term since the migration, e.g. `shola-jawid-dowre-1`) where
+			 * they actually mean the top-level publication (شعله جاوید/
+			 * جهان برای فتح) — shola_publication_status_label() always
+			 * returned «آرشیوی» here regardless of which publication,
+			 * since a دوره slug never equals 'shola-jawid', and the H1
+			 * showed the دوره's own name ("دورهٔ اول · شمارهٔ ۳۲") instead
+			 * of the publication's ("شعله جاوید · شمارهٔ ۳۲"). Both now use
+			 * $root_slug / $pub_parent (the resolved grandparent,
+			 * falling back to $pub itself if there's somehow no parent —
+			 * see where those are computed above).
+			 */
+			$pub_display = $pub_parent ? $pub_parent : $pub;
+			?>
 			<div>
 				<p class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>">
 					<?php
 					echo esc_html(
 						$number
-							? sprintf( /* translators: 1: issue number, 2: current/archived status label. */ __( 'شمارهٔ %1$s · %2$s', 'shola-jawid' ), shola_to_persian_digits( $number ), shola_publication_status_label( $pub ? $pub->slug : '' ) )
-							: shola_publication_status_label( $pub ? $pub->slug : '' )
+							? sprintf( /* translators: 1: issue number, 2: current/archived status label. */ __( 'شمارهٔ %1$s · %2$s', 'shola-jawid' ), shola_to_persian_digits( $number ), shola_publication_status_label( $root_slug ) )
+							: shola_publication_status_label( $root_slug )
 					);
 					?>
 				</p>
 				<h1 class="article-title mt-sm">
 					<?php
 					echo esc_html(
-						$number && $pub
-							? sprintf( '%1$s · %2$s', $pub->name, sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) )
+						$number && $pub_display
+							? sprintf( '%1$s · %2$s', $pub_display->name, sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) )
 							: get_the_title()
 					);
 					?>
