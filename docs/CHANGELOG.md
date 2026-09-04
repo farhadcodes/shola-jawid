@@ -5442,3 +5442,36 @@ trail of *why* the build deviated from — or newly applied — a rule in
   سنبله ۱۴۰۵» (the Jalali/Dari equivalent) immediately, with no
   dependency on any issue's publish date.
   Approved by: Farhad, in this session (2026-09-03).
+
+## 2026-09-04
+- **Fixed:** `SholaCore\Taxonomies::seed_publication_periods()` was
+  recreating any manually deleted دوره term on the very next wp-admin
+  page load. Farhad reported that after the client confirmed جهان
+  برای فتح only ever had one real دوره, he tried deleting دورهٔ
+  دوم/سوم/چهارم from wp-admin — the delete action said it succeeded,
+  but the terms reappeared on refresh, both in the admin list and back
+  on the front-end tile grid. Root cause: the function ran
+  unconditionally on every `admin_init` (needed originally because
+  activation hooks don't re-fire on a code-only zip re-upload — see
+  the 2026-09-02 entry) and used `maybe_insert_term()`'s
+  `term_exists()` check to decide whether to (re)create each دوره —
+  which can't distinguish "never created yet" from "created, then
+  deliberately deleted." Fixed by recording, per publication, that
+  seeding has run at all (`shcore_periods_seeded` option, persisted in
+  the database so it still survives a plugin-zip redeploy) — once a
+  publication is marked seeded, `seed_publication_periods()` never
+  touches it again, so any دوره term Farhad deletes afterward now
+  stays deleted, including on the front end.
+  Also removed `period-five` (a leftover test term this session
+  accidentally left behind while diagnosing the ترتیب save path via a
+  raw curl POST, per the 2026-09-02 entry's UTF-8 corruption incident —
+  the corrupted name was fixed there, but the test term itself was
+  never cleaned up).
+  Verified locally: ran the fixed function once (sets the seeded flag
+  for both publications with no changes, since all terms already
+  existed), deleted a-world-to-win's دورهٔ دوم/سوم/چهارم via `wp term
+  delete`, ran the function again to simulate the next admin page
+  load, and confirmed via `wp term list` and the live front-end
+  (`/publications/a-world-to-win/`) that only دورهٔ اول remains.
+  Plugin version bumped 1.0.7 → 1.0.8 (`shola-core.php`).
+  Approved by: Farhad, in this session (2026-09-04).

@@ -442,6 +442,23 @@ class Taxonomies {
 	 * دوره) will self-heal into «دورهٔ اول» on the next admin page load —
 	 * intentional, not a bug: every issue should end up under some دوره.
 	 *
+	 * 2026-09-04 fix (Farhad report): the above was true for the *migration*
+	 * half, but the *creation* half over-reached — running unconditionally
+	 * on every admin_init meant that if Farhad deleted a دوره term he didn't
+	 * want (e.g. جهان برای فتح turned out to only ever have had one real
+	 * دوره, per the client), the very next wp-admin page load recreated it
+	 * from scratch, both in the term list and back on the front end. A term
+	 * that no longer exists and one that was never created look identical to
+	 * maybe_insert_term()'s term_exists() check, so there was no way to tell
+	 * "not seeded yet" from "seeded, then deliberately removed." Fixed by
+	 * recording, per publication, that seeding has run at all (the
+	 * `shcore_periods_seeded` option) — once set, that publication is never
+	 * touched again, so any term Farhad deletes afterward stays deleted.
+	 * This still covers the original code-only-redeploy case (the option
+	 * lives in the database, not the plugin files, so it survives a zip
+	 * re-upload) while finally respecting manual curation after that first
+	 * run.
+	 *
 	 * @return void
 	 */
 	public static function seed_publication_periods() {
@@ -452,7 +469,13 @@ class Taxonomies {
 			4 => __( 'دورهٔ چهارم', 'shola-core' ),
 		);
 
+		$seeded = get_option( 'shcore_periods_seeded', array() );
+
 		foreach ( array( 'shola-jawid', 'a-world-to-win' ) as $pub_slug ) {
+			if ( ! empty( $seeded[ $pub_slug ] ) ) {
+				continue;
+			}
+
 			$parent_term = get_term_by( 'slug', $pub_slug, 'publication' );
 			if ( ! $parent_term || is_wp_error( $parent_term ) ) {
 				continue;
@@ -475,6 +498,9 @@ class Taxonomies {
 			if ( ! $first_period_id ) {
 				continue;
 			}
+
+			$seeded[ $pub_slug ] = true;
+			update_option( 'shcore_periods_seeded', $seeded );
 
 			$unmigrated_issue_ids = get_posts(
 				array(
