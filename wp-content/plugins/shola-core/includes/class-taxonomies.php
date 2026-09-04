@@ -53,6 +53,21 @@ class Taxonomies {
 		add_action( 'edited_publication', array( __CLASS__, 'save_publication_order' ) );
 		add_filter( 'manage_edit-publication_columns', array( __CLASS__, 'add_publication_order_column' ) );
 		add_filter( 'manage_publication_custom_column', array( __CLASS__, 'render_publication_order_column' ), 10, 3 );
+
+		/*
+		 * Single-select `publication` term picker on the `issue` edit
+		 * screen — added 2026-09-04, Farhad reported (screenshot) that the
+		 * default checkbox tree let an editor tick both a top-level نشریه
+		 * and one of its دوره children, or several دوره at once, when an
+		 * issue must always belong to exactly one. WordPress has no
+		 * built-in single-select mode for a hierarchical taxonomy's admin
+		 * checklist, so this swaps in a radio-button walker (see
+		 * class-term-radio-walker.php) for `issue` specifically —
+		 * `topic`/`post` and `collection`/`document` are unaffected and
+		 * keep their normal multi-select checkbox trees.
+		 */
+		add_action( 'add_meta_boxes', array( __CLASS__, 'use_single_select_publication_metabox' ) );
+		add_action( 'set_object_terms', array( __CLASS__, 'enforce_single_publication_term' ), 10, 6 );
 	}
 
 	/**
@@ -651,5 +666,111 @@ class Taxonomies {
 		}
 		$order = get_term_meta( $term_id, 'shcore_term_order', true );
 		return '' === $order ? '—' : esc_html( $order );
+	}
+
+	/**
+	 * Re-entrancy guard for enforce_single_publication_term() — that
+	 * method calls wp_set_object_terms() itself when it needs to trim a
+	 * post down to one `publication` term, which would otherwise re-fire
+	 * the `set_object_terms` action it's hooked to and loop forever.
+	 *
+	 * @var bool
+	 */
+	private static $enforcing_single_publication = false;
+
+	/**
+	 * Swaps WordPress core's default checkbox tree for the `publication`
+	 * taxonomy on `issue` posts for a radio-button version (see
+	 * class-term-radio-walker.php's Term_Radio_Walker) — an issue must
+	 * always belong to exactly one نشریه/دوره, never several, per
+	 * Farhad's report (screenshot, 2026-09-04) that the default checklist
+	 * let more than one be ticked at once.
+	 *
+	 * @return void
+	 */
+	public static function use_single_select_publication_metabox() {
+		remove_meta_box( 'publicationdiv', 'issue', 'side' );
+		add_meta_box(
+			'shcore-publication-radio',
+			__( 'نشریات', 'shola-core' ),
+			array( __CLASS__, 'render_publication_radio_metabox' ),
+			'issue',
+			'side',
+			'core'
+		);
+	}
+
+	/**
+	 * Renders the radio-button `publication` picker. Mirrors WP core's own
+	 * markup for the default checkbox meta box (post_categories_meta_box(),
+	 * wp-admin/includes/meta-boxes.php) closely enough to inherit its
+	 * existing admin CSS (indentation, spacing, scroll box), minus the
+	 * "add new term" inline form — editors always pick from the fixed
+	 * دوره vocabulary managed on Nشریات → wp-admin, never invent one here.
+	 * No custom nonce needed: the field name (`tax_input[publication][]`)
+	 * is exactly what WordPress's own post-save handler
+	 * (wp-admin/includes/post.php's edit_post()) already expects and
+	 * saves under the main post-edit nonce.
+	 *
+	 * @param \WP_Post $post Post being edited.
+	 * @return void
+	 */
+	public static function render_publication_radio_metabox( $post ) {
+		?>
+		<div id="taxonomy-publication" class="categorydiv">
+			<div id="publication-all" class="tabs-panel">
+				<ul id="publicationchecklist" class="categorychecklist form-no-clear">
+					<?php
+					wp_terms_checklist(
+						$post->ID,
+						array(
+							'taxonomy' => 'publication',
+							'walker'   => new Term_Radio_Walker(),
+						)
+					);
+					?>
+				</ul>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Safety net that keeps an `issue` down to exactly one `publication`
+	 * term regardless of how its terms were set — Quick Edit, the REST
+	 * API, or an import all use their own code paths that don't go
+	 * through render_publication_radio_metabox() above and so aren't
+	 * limited to one choice by the radio markup alone. Hooked on
+	 * `set_object_terms` (fires after WordPress has already written the
+	 * relationship rows for any taxonomy), so this only has to look at
+	 * whether more than one ended up assigned, not try to intercept the
+	 * write itself. Keeps whichever term was part of the call that just
+	 * ran (the newest choice), falling back to the post's first existing
+	 * term if that call didn't add anything new to choose from.
+	 *
+	 * @param int    $object_id  Post ID.
+	 * @param array  $terms      Terms passed to the wp_set_object_terms() call that fired this.
+	 * @param int[]  $tt_ids     Term taxonomy IDs for $terms (unused).
+	 * @param string $taxonomy   Taxonomy of the call that fired this.
+	 * @param bool   $append     Whether that call appended or replaced (unused).
+	 * @param int[]  $old_tt_ids Term taxonomy IDs the object had before this call (unused).
+	 * @return void
+	 */
+	public static function enforce_single_publication_term( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+		if ( 'publication' !== $taxonomy || self::$enforcing_single_publication ) {
+			return;
+		}
+
+		$current = wp_get_object_terms( $object_id, 'publication', array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $current ) || count( $current ) < 2 ) {
+			return;
+		}
+
+		$new_ids = array_map( 'intval', (array) $terms );
+		$keep    = $new_ids ? end( $new_ids ) : (int) $current[0];
+
+		self::$enforcing_single_publication = true;
+		wp_set_object_terms( $object_id, array( $keep ), 'publication', false );
+		self::$enforcing_single_publication = false;
 	}
 }

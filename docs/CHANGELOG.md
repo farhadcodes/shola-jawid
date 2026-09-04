@@ -5530,3 +5530,44 @@ trail of *why* the build deviated from — or newly applied — a rule in
   automatically rehomed onto دورهٔ اول rather than left orphaned.
   Plugin version bumped 1.0.8 → 1.0.9 (`shola-core.php`).
   Approved by: Farhad, in this session (2026-09-04).
+
+## 2026-09-04 (later still)
+- **Fixed:** the `publication` metabox on the `issue` edit screen let an
+  editor tick more than one نشریه/دوره at once — Farhad reported
+  (screenshot) checking, e.g., both جهان برای فتح and one of شعله
+  جاوید's دوره simultaneously, when an issue must always belong to
+  exactly one. WordPress core has no built-in single-select mode for a
+  hierarchical taxonomy's admin checklist (`post_categories_meta_box()`
+  always renders checkboxes), so this swaps in a new
+  `SholaCore\Term_Radio_Walker` (`includes/class-term-radio-walker.php`)
+  — a `Walker_Category_Checklist` subclass whose only change is
+  rendering `type="radio"` instead of `type="checkbox"` — for the
+  `publication` taxonomy on `issue` posts specifically
+  (`Taxonomies::use_single_select_publication_metabox()`, hooked on
+  `add_meta_boxes`). `topic`/`post` and `collection`/`document` are
+  untouched and keep their normal multi-select checkbox trees; only
+  `issue` ↔ `publication` needed this.
+  The field name is left exactly as core's own
+  `tax_input[publication][]` — a radio *group* sharing one `name` only
+  ever submits the single checked value even with the trailing `[]`, so
+  WordPress's existing tax_input-saving code
+  (wp-admin/includes/post.php's `edit_post()`) needed no changes and no
+  extra nonce: it already expects (and gets) a plain array of term IDs,
+  now always exactly one element.
+  Also added a `set_object_terms` safety net
+  (`Taxonomies::enforce_single_publication_term()`) that trims an issue
+  back down to one `publication` term if anything else — Quick Edit,
+  the REST API, an import — ever assigns more than one, since none of
+  those paths render through the radio metabox above and so aren't
+  limited to one choice by the markup alone; keeps whichever term was
+  part of the write that just happened, guarded against re-entrancy
+  since it calls `wp_set_object_terms()` itself.
+  Verified locally: confirmed via the browser's DOM that all terms
+  across both نشریه trees share one native radio group (checking
+  جهان برای فتح correctly unchecked a previously-checked شعله جاوید
+  دوره), saved a test issue and confirmed via `wp post term list` it
+  kept exactly one term, then called `wp_set_object_terms()` directly
+  with two term IDs to simulate a non-UI write and confirmed the
+  safety net collapsed it back to one automatically.
+  Plugin version bumped 1.0.9 → 1.0.10 (`shola-core.php`).
+  Approved by: Farhad, in this session (2026-09-04).
