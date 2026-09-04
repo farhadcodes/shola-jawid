@@ -68,6 +68,16 @@ class Taxonomies {
 		 */
 		add_action( 'add_meta_boxes', array( __CLASS__, 'use_single_select_publication_metabox' ) );
 		add_action( 'set_object_terms', array( __CLASS__, 'enforce_single_publication_term' ), 10, 6 );
+
+		/*
+		 * One-time migration: move any `document` posts filed under the
+		 * old "اسناد حزب" Library shelf onto the new, independent
+		 * party_document post type — added 2026-09-04 alongside that CPT.
+		 * Same admin_init + options-flag pattern as
+		 * seed_publication_periods() above, for the same reason (a
+		 * code-only plugin re-upload doesn't re-fire activation hooks).
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'migrate_legacy_party_documents' ) );
 	}
 
 	/**
@@ -270,6 +280,41 @@ class Taxonomies {
 				'show_admin_column' => true,
 				'rewrite'           => array(
 					'slug'       => 'library',
+					'with_front' => false,
+				),
+			)
+		);
+
+		/*
+		 * party_document_category — added 2026-09-04 alongside the
+		 * party_document CPT. Deliberately not seeded with any terms in
+		 * create_default_terms() below, unlike topic/publication/collection's
+		 * fixed vocabularies: the client asked specifically for a
+		 * self-managed grouping staff can grow themselves as اسناد حزب
+		 * accumulates, not a fixed IA-doc-specified list. hierarchical =>
+		 * true for the same reason as the other three (Categories-style
+		 * admin UI, matches how Farhad already manages Library shelves and
+		 * دوره periods) — not because any sub-nesting is expected.
+		 */
+		register_taxonomy(
+			'party_document_category',
+			'party_document',
+			array(
+				'labels'            => array(
+					'name'          => __( 'دسته‌های اسناد حزب', 'shola-core' ),
+					'singular_name' => __( 'دستهٔ سند', 'shola-core' ),
+					'search_items'  => __( 'جست‌وجوی دسته‌ها', 'shola-core' ),
+					'all_items'     => __( 'همهٔ دسته‌ها', 'shola-core' ),
+					'edit_item'     => __( 'ویرایش دسته', 'shola-core' ),
+					'view_item'     => __( 'مشاهدهٔ دسته', 'shola-core' ),
+					'menu_name'     => __( 'دسته‌ها', 'shola-core' ),
+				),
+				'public'            => true,
+				'show_in_rest'      => true,
+				'hierarchical'      => true,
+				'show_admin_column' => true,
+				'rewrite'           => array(
+					'slug'       => 'party-documents-category',
 					'with_front' => false,
 				),
 			)
@@ -537,6 +582,73 @@ class Taxonomies {
 				wp_set_object_terms( $issue_id, array( $first_period_id ), 'publication', false );
 			}
 		}
+	}
+
+	/**
+	 * One-time move of any `document` posts filed under the old "اسناد
+	 * حزب" Library shelf onto the new, independent `party_document` post
+	 * type — see init()'s comment for why this exists and why it's
+	 * hooked on `admin_init` with an options flag rather than an
+	 * activation hook.
+	 *
+	 * A straight `post_type` change (rather than creating a new post and
+	 * deleting the old one) is deliberate: title, excerpt, editor content,
+	 * featured image, and the `shcore_pdf_id`/`shcore_language` meta all
+	 * mean the same thing on both post types, so changing just the type
+	 * carries every field across untouched, including the post's ID (so
+	 * any existing link to it, e.g. from a menu, keeps working — though
+	 * its /library/... permalink does change to /party-documents/... as a
+	 * result, since it's no longer a `document`).
+	 *
+	 * The `collection` term relationship is explicitly cleared first,
+	 * rather than left for the post-type change to sort out — WordPress
+	 * has no built-in cleanup for a taxonomy no longer valid for a post's
+	 * (new) type, so an untouched relationship row would just sit there
+	 * unreachable through any admin UI. The now-empty "اسناد حزب"
+	 * `collection` term is then deleted outright: Library's shelf count
+	 * dropping from 4 to 3 is the explicit point of this migration, not
+	 * an accidental side effect.
+	 *
+	 * @return void
+	 */
+	public static function migrate_legacy_party_documents() {
+		if ( get_option( 'shcore_party_documents_migrated' ) ) {
+			return;
+		}
+
+		$term = get_term_by( 'slug', 'party-documents', 'collection' );
+
+		if ( $term && ! is_wp_error( $term ) ) {
+			$legacy_ids = get_posts(
+				array(
+					'post_type'      => 'document',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small taxonomy, one-time migration, not a recurring query.
+						array(
+							'taxonomy' => 'collection',
+							'field'    => 'term_id',
+							'terms'    => $term->term_id,
+						),
+					),
+				)
+			);
+
+			foreach ( $legacy_ids as $post_id ) {
+				wp_set_object_terms( $post_id, array(), 'collection' );
+				wp_update_post(
+					array(
+						'ID'        => $post_id,
+						'post_type' => 'party_document',
+					)
+				);
+			}
+
+			wp_delete_term( $term->term_id, 'collection' );
+		}
+
+		update_option( 'shcore_party_documents_migrated', 1 );
 	}
 
 	/**

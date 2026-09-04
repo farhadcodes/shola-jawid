@@ -155,6 +155,11 @@ function shola_maybe_seed_nav_menus() {
 				),
 				array(
 					'type'  => 'custom',
+					'url'   => home_url( '/party-documents/' ),
+					'title' => __( 'اسناد حزب', 'shola-jawid' ),
+				),
+				array(
+					'type'  => 'custom',
 					'url'   => home_url( '/topics/' ),
 					'title' => __( 'همهٔ موضوعات', 'shola-jawid' ),
 				),
@@ -237,6 +242,62 @@ function shola_maybe_seed_nav_menus() {
 	}
 }
 add_action( 'admin_init', 'shola_maybe_seed_nav_menus' );
+
+/**
+ * Adds an اسناد حزب item to the already-seeded «بخش‌ها» (menu_sections)
+ * popup-menu location — added 2026-09-04 alongside the new
+ * `party_document` CPT. shola_maybe_seed_nav_menus() above only ever
+ * seeds a location once (by design, so it never fights an editor's own
+ * later edits), so it can't retroactively add this to a menu that
+ * already exists on every site that was live before this change. This is
+ * a separate, narrower self-healing check: look for an item pointing at
+ * /party-documents/ in whatever menu is currently assigned to
+ * menu_sections, and add one if it's missing — safe to run on every
+ * admin_init since it no-ops the moment the item exists, including after
+ * an editor removes it on purpose (mirrors the "don't fight deliberate
+ * removal" reasoning already established for seed_publication_periods()
+ * in shola-core, just applied to a menu item instead of a term) — so
+ * this only ever adds the item once, not forever.
+ *
+ * @return void
+ */
+function shola_maybe_add_party_documents_menu_item() {
+	if ( get_option( 'shola_added_party_documents_menu_item' ) ) {
+		return;
+	}
+
+	$locations = get_theme_mod( 'nav_menu_locations', array() );
+	$menu_id   = isset( $locations['menu_sections'] ) ? (int) $locations['menu_sections'] : 0;
+
+	if ( ! $menu_id || ! wp_get_nav_menu_object( $menu_id ) ) {
+		return;
+	}
+
+	$target_url = home_url( '/party-documents/' );
+	$has_item   = false;
+	foreach ( (array) wp_get_nav_menu_items( $menu_id ) as $item ) {
+		if ( untrailingslashit( $item->url ) === untrailingslashit( $target_url ) ) {
+			$has_item = true;
+			break;
+		}
+	}
+
+	if ( ! $has_item ) {
+		wp_update_nav_menu_item(
+			$menu_id,
+			0,
+			array(
+				'menu-item-status' => 'publish',
+				'menu-item-type'   => 'custom',
+				'menu-item-title'  => __( 'اسناد حزب', 'shola-jawid' ),
+				'menu-item-url'    => $target_url,
+			)
+		);
+	}
+
+	update_option( 'shola_added_party_documents_menu_item', 1 );
+}
+add_action( 'admin_init', 'shola_maybe_add_party_documents_menu_item' );
 
 /**
  * Keeps the Topics/Publications/Collections taxonomy panels always

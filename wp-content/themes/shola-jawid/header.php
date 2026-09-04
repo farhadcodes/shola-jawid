@@ -62,6 +62,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true" class="mast-slash-light">/</span>
 				<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+				<span aria-hidden="true" class="mast-slash-light">/</span>
+				<a href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
 			</nav>
 		</div>
 

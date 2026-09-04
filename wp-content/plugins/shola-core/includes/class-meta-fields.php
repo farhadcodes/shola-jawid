@@ -1,10 +1,11 @@
 <?php
 /**
- * Registers post meta for issue, document, party_publication, and
- * article/post, per the IA doc §5 content-model table (party_publication
- * added 2026-09-02, outside that original table — see
- * class-post-types.php's docblock on it), plus the metabox UI editors use
- * to fill them in from wp-admin without touching code.
+ * Registers post meta for issue, document, party_publication,
+ * party_document, and article/post, per the IA doc §5 content-model table
+ * (party_publication added 2026-09-02, party_document added 2026-09-04,
+ * both outside that original table — see class-post-types.php's docblock
+ * on each), plus the metabox UI editors use to fill them in from
+ * wp-admin without touching code.
  *
  * @package SholaCore
  */
@@ -157,6 +158,50 @@ class Meta_Fields {
 			)
 		);
 
+		// party_document (2026-09-04) — the party's own archive of
+		// internal documents (اسناد حزب), distinct from `document`
+		// (کتابخانه, other authors' works) and `party_publication`
+		// (انتشارات حزب, the party's finished books/booklets). Detail/
+		// description uses native `editor` support (post_content), same
+		// as `document`'s "about this text" — no separate meta needed for
+		// that field. Date and title are likewise native (post_date,
+		// post_title). Only what has no native equivalent gets a meta key
+		// here: the serial number.
+		register_post_meta(
+			'party_document',
+			'shcore_serial_number',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_document',
+			'shcore_pdf_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_pdf_id' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_document',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
 		// post (article/note).
 		register_post_meta(
 			'post',
@@ -296,6 +341,7 @@ class Meta_Fields {
 		add_meta_box( 'shcore_issue_fields', __( 'اطلاعات شماره', 'shola-core' ), array( __CLASS__, 'render_issue_metabox' ), 'issue', 'normal', 'high' );
 		add_meta_box( 'shcore_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_document_metabox' ), 'document', 'normal', 'high' );
 		add_meta_box( 'shcore_party_publication_fields', __( 'اطلاعات اثر', 'shola-core' ), array( __CLASS__, 'render_party_publication_metabox' ), 'party_publication', 'normal', 'high' );
+		add_meta_box( 'shcore_party_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_party_document_metabox' ), 'party_document', 'normal', 'high' );
 		add_meta_box( 'shcore_article_fields', __( 'اطلاعات مقاله', 'shola-core' ), array( __CLASS__, 'render_article_metabox' ), 'post', 'normal', 'high' );
 	}
 
@@ -434,6 +480,30 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the party_document metabox fields — a serial number, a PDF,
+	 * and a language picker. Name/title is the native post title, detail/
+	 * description is the native block-editor content area (same pattern
+	 * as `document`'s "about this text"), and date is the native
+	 * publish/modified date — none of those need a field here.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_party_document_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$serial_number = get_post_meta( $post->ID, 'shcore_serial_number', true );
+		$language      = get_post_meta( $post->ID, 'shcore_language', true );
+		?>
+		<p>
+			<label for="shcore_serial_number"><strong><?php esc_html_e( 'شمارهٔ سریال', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_serial_number" name="shcore_serial_number" class="regular-text" value="<?php echo esc_attr( $serial_number ); ?>">
+		</p>
+		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
+		<?php self::render_language_field( $language ); ?>
+		<?php
+	}
+
+	/**
 	 * Render the article/post metabox fields.
 	 *
 	 * @param \WP_Post $post Post object.
@@ -534,6 +604,7 @@ class Meta_Fields {
 			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
 			'document'          => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_pdf_id', 'shcore_language' ),
+			'party_document'    => array( 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
 			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
 		);
 
@@ -673,7 +744,7 @@ class Meta_Fields {
 			return;
 		}
 		$screen = get_current_screen();
-		if ( ! $screen || ! in_array( $screen->post_type, array( 'issue', 'document', 'party_publication' ), true ) ) {
+		if ( ! $screen || ! in_array( $screen->post_type, array( 'issue', 'document', 'party_publication', 'party_document' ), true ) ) {
 			return;
 		}
 

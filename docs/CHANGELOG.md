@@ -5571,3 +5571,67 @@ trail of *why* the build deviated from — or newly applied — a rule in
   safety net collapsed it back to one automatically.
   Plugin version bumped 1.0.9 → 1.0.10 (`shola-core.php`).
   Approved by: Farhad, in this session (2026-09-04).
+
+## 2026-09-04 (Phase 1 of the Build Readiness Plan)
+- **Added:** اسناد حزب (Party Documents) as a fully independent content
+  type, per the client's explicit correction (relayed by Farhad) that it
+  is not a کتابخانه/Library shelf — it needs its own admin tab, its own
+  fields, and a self-managed category system, distinct from both
+  `document` (other authors' works) and `party_publication` (the party's
+  finished books).
+  New `party_document` CPT (`class-post-types.php`) — same flat
+  `party-documents/%postname%/` URL shape as `party_publication` (no
+  category in the URL; the client's description of "add categories if
+  they need them" describes an optional admin-side grouping, not a URL
+  taxonomy structure), title/thumbnail/excerpt/editor/custom-fields
+  support, `dashicons-portfolio` icon (distinct from the other three
+  content types' icons).
+  New `party_document_category` taxonomy (`class-taxonomies.php`) —
+  hierarchical (matches the site's existing Categories-style admin UI
+  convention) but deliberately seeded with zero default terms, unlike
+  topic/publication/collection's fixed vocabularies: this one is meant to
+  start empty and grow as staff need it.
+  New fields (`class-meta-fields.php`): شمارهٔ سریال
+  (`shcore_serial_number`, new), فایل PDF (`shcore_pdf_id`, same
+  validated-attachment pattern as every other PDF field on the site —
+  confirmed required by Farhad after being flagged as a possible gap),
+  زبان (`shcore_language`, same fa/en pattern as `document`/
+  `party_publication`). Name/detail/date all reuse native fields (title,
+  block-editor content, publish date) rather than adding redundant meta.
+  New front-end templates: `single-party_document.php` (modeled on
+  `single-party_publication.php`, plus a شمارهٔ سریال row and a دسته row
+  shown only when a category has actually been assigned) and
+  `page-party-documents.php` (a single paginated grid, same shape as
+  `page-party-publications.php` — not split by category up front, since
+  the category list starts empty and may never grow into something
+  worth a dedicated layout).
+  Migration (`Taxonomies::migrate_legacy_party_documents()`, admin_init +
+  options-flag, same self-healing pattern as `seed_publication_periods()`):
+  the 2 real documents previously filed under کتابخانه's "اسناد حزب"
+  shelf are moved onto the new post type by changing their `post_type`
+  directly (title/excerpt/content/featured image/PDF/language all carry
+  over untouched, including the post ID), then that now-empty `collection`
+  term is deleted — Library's shelf count drops from 4 to 3 as a direct,
+  intended result, not a side effect. Verified locally: both documents
+  (`قطعنامهٔ پایانی نشست سراسری`, `اساسنامهٔ حزب`) moved with their PDFs
+  intact, `collection` term list now reads فقط آثار کلاسیک/جنبش
+  بین‌المللی/نقد و پلمیک.
+  Navigation: added to the masthead's top bar (`header.php`) alongside
+  نشریات/موضوعات/کتابخانه, and self-heals an اسناد حزب entry into the
+  already-seeded «بخش‌ها» popup menu (`shola_maybe_add_party_documents_
+  menu_item()`, `inc/setup.php`) — a separate, narrower check from
+  `shola_maybe_seed_nav_menus()`, since that function only ever seeds a
+  menu location once and can't retroactively add an item to a menu that
+  already existed on every site live before this change.
+  Verified locally end-to-end: admin list/add-new/categories screens all
+  render correctly (block editor active, matching `party_publication`'s
+  existing behavior since both share the same `supports` array), the
+  taxonomy screen shows an empty list ready for staff to add their own
+  categories, both migrated documents render correctly on their single
+  pages and the new archive page, and both the top-bar and popup-menu
+  links resolve to the new archive.
+  Plugin version bumped 1.0.10 → 1.1.0, theme version bumped 1.1.6 → 1.2.0
+  (new CPT/taxonomy/templates/nav entries — feature-level bump, not a
+  patch).
+  Approved by: Farhad, in this session (2026-09-04) — Phase 1 of the
+  Technical Scoping Plan.

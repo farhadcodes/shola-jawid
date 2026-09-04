@@ -1,7 +1,7 @@
 <?php
 /**
- * Registers the issue, document, party_publication, and announcement
- * custom post types.
+ * Registers the issue, document, party_publication, party_document, and
+ * announcement custom post types.
  *
  * Regular articles/notes (مقاله/یادداشت) use WP's native `post` type per
  * the IA doc's content model — no CPT needed there, only the `topic`
@@ -50,16 +50,18 @@ class Post_Types {
 
 	/**
 	 * Native front-end search (`search.php`) must return articles/notes
-	 * (`post`), issues, documents, and party publications together by
-	 * default, per IA doc SRCH row and `body-search.html`'s mixed result
-	 * list (`party_publication` added 2026-09-02, alongside its own CPT —
+	 * (`post`), issues, documents, party publications, and party documents
+	 * together by default, per IA doc SRCH row and `body-search.html`'s
+	 * mixed result list (`party_publication` added 2026-09-02,
+	 * `party_document` added 2026-09-04, both alongside their own CPT) —
 	 * `announcement` is deliberately excluded, it never appears in v6's
 	 * search results or its filter-tab list. Also backs search.php's
 	 * filter tabs via the `result_type` query var: مقاله (article,
 	 * excludes the aside post format), یادداشت (note, the aside post
 	 * format), شمارهٔ نشریه (issue), سند کتابخانه (document), انتشارات
-	 * حزب (party_publication). Only touches the main front-end search
-	 * query, never wp-admin or any other query on the site.
+	 * حزب (party_publication), اسناد حزب (party_document). Only touches
+	 * the main front-end search query, never wp-admin or any other query
+	 * on the site.
 	 *
 	 * @param WP_Query $query The query being modified.
 	 * @return void
@@ -104,24 +106,29 @@ class Post_Types {
 				$query->set( 'post_type', 'party_publication' );
 				break;
 
+			case 'party_document':
+				$query->set( 'post_type', 'party_document' );
+				break;
+
 			default:
 				$post_type = $query->get( 'post_type' );
 				if ( empty( $post_type ) || 'any' === $post_type ) {
-					$query->set( 'post_type', array( 'post', 'issue', 'document', 'party_publication' ) );
+					$query->set( 'post_type', array( 'post', 'issue', 'document', 'party_publication', 'party_document' ) );
 				}
 				break;
 		}
 	}
 
 	/**
-	 * Register the `issue`, `document`, `party_publication`, and
-	 * `announcement` post types.
+	 * Register the `issue`, `document`, `party_publication`,
+	 * `party_document`, and `announcement` post types.
 	 *
-	 * `issue`, `document`, and `party_publication` all use
-	 * has_archive => false: /publications, /library, and
-	 * /party-publications are static Pages (page-publications.php/
-	 * page-library.php/page-party-publications.php), so a CPT archive at
-	 * any of those slugs would collide with the Page's own rewrite rule.
+	 * `issue`, `document`, `party_publication`, and `party_document` all
+	 * use has_archive => false: /publications, /library,
+	 * /party-publications, and /party-documents are static Pages
+	 * (page-publications.php/page-library.php/page-party-publications.php/
+	 * page-party-documents.php), so a CPT archive at any of those slugs
+	 * would collide with the Page's own rewrite rule.
 	 * `issue`/`document` single-item permalinks nest under their parent
 	 * taxonomy term via a custom rewrite tag instead (see
 	 * register_rewrite_tags()/filter_*_permalink()), and per-term listings
@@ -130,6 +137,18 @@ class Post_Types {
 	 * categorization here), so its permalinks use the plain
 	 * `party-publications/%postname%/` default a `rewrite.slug` alone
 	 * already produces — no custom tag/filter needed for it.
+	 * `party_document` (added 2026-09-04, Farhad relaying a client
+	 * request for اسناد حزب as its own independent section, distinct from
+	 * both `document`/`library` and `party_publication`) does carry a
+	 * taxonomy (`party_document_category`), but deliberately keeps the
+	 * same plain `party-documents/%postname%/` URL shape as
+	 * `party_publication` rather than nesting under a category term in
+	 * the URL — the client's own description of this feature ("they
+	 * should be able to add categories inside this one if they need")
+	 * describes an optional, self-managed grouping for the admin list,
+	 * not a URL taxonomy structure like `publication`/`collection` have;
+	 * category membership is still fully filterable on the front end
+	 * without it needing to be embedded in the address.
 	 * `announcement` is registered with a real archive since
 	 * /announcements is itself a listing template
 	 * (archive-announcement.php), not a static Page.
@@ -251,6 +270,49 @@ class Post_Types {
 				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
 				'rewrite'      => array(
 					'slug'       => 'party-publications',
+					'with_front' => false,
+				),
+			)
+		);
+
+		/*
+		 * اسناد حزب (party_document) — the party's own archive of internal
+		 * documents, added 2026-09-04 per Farhad relaying a client
+		 * correction: this was previously just one shelf (`اسناد حزب`
+		 * term) inside `document`/کتابخانه, but the client clarified it
+		 * needs to be a fully independent section, not a public-library
+		 * shelf, with its own fields (serial number, language) and a
+		 * self-managed category system staff can grow themselves. Existing
+		 * content filed under the old `document`/`collection` "اسناد حزب"
+		 * shelf is migrated onto this new post type separately (see
+		 * Taxonomies::migrate_legacy_party_documents()) — this
+		 * registration alone does not move anything.
+		 */
+		register_post_type(
+			'party_document',
+			array(
+				'labels'       => array(
+					'name'               => __( 'اسناد حزب', 'shola-core' ),
+					'singular_name'      => __( 'سند حزب', 'shola-core' ),
+					'add_new'            => __( 'افزودن سند', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن سند جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش سند', 'shola-core' ),
+					'new_item'           => __( 'سند جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ سند', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی اسناد حزب', 'shola-core' ),
+					'not_found'          => __( 'سندی یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'سندی در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ اسناد', 'shola-core' ),
+					'menu_name'          => __( 'اسناد حزب', 'shola-core' ),
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'has_archive'  => false,
+				'menu_icon'    => 'dashicons-portfolio',
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
+				'taxonomies'   => array( 'party_document_category' ),
+				'rewrite'      => array(
+					'slug'       => 'party-documents',
 					'with_front' => false,
 				),
 			)
