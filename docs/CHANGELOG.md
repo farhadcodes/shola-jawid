@@ -5660,3 +5660,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.2.0 → 1.2.1 (`style.css`).
   Approved by: Farhad, in this session (2026-09-04) — Phase 2 of the
   Technical Scoping Plan.
+
+## 2026-09-04 (Phase 3 of the Build Readiness Plan)
+- **Added:** a full archive page for گزارش (Reports) —
+  `page-reports.php`, new, applies to a static Page at slug `reports`.
+  گزارش has existed since Phase B (2026-08-25) as a `post_tag` shown on
+  the homepage, but had no page of its own — only ever the newest 6 on
+  the homepage, with no "see all" link because there was nowhere for one
+  to point.
+  Uses a static Page rather than WordPress's native tag-archive URL
+  (`/tag/reports/`), matching نشریات/کتابخانه/انتشارات حزب/اسناد حزب's
+  existing pattern — a clean `/reports/` address consistent with the
+  rest of the site, no rewrite-rule plumbing needed. Same grid/pagination
+  shape as taxonomy-topic.php (Reports are regular `post`-type articles,
+  same card.php partial as every other article listing), minus that
+  template's topic-switcher and most-read sort tab, neither of which
+  apply here.
+  `front-page.php`'s homepage گزارش section gets its «همهٔ گزارش‌ها» link
+  now that `/reports/` exists — the one homepage section that didn't
+  already have a "see all" link, for the same reason it had no archive.
+  No field or data changes at all — گزارش is still just a tag on
+  Articles/Notes.
+  Verified locally: temporarily tagged 2 existing articles as گزارش,
+  confirmed both the new archive page and the homepage's new "see all"
+  link render them correctly, then removed the test tag again
+  (`wp post term remove`) to leave real content exactly as it was.
+  Theme version bumped 1.2.1 → 1.2.2 (`style.css`).
+  Approved by: Farhad, in this session (2026-09-04) — Phase 3 of the
+  Technical Scoping Plan.

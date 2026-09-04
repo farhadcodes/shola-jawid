@@ -177,6 +177,11 @@ $articles_query = new WP_Query(
  * entirely when empty (no heading, no empty grid), same have_posts()
  * guard every other section on this page already uses — not a new
  * empty-state pattern.
+ *
+ * «همهٔ گزارش‌ها» link added 2026-09-04, once page-reports.php gave this
+ * section somewhere to actually point to — every other homepage section
+ * with a "see all" link already had one; this was the one exception,
+ * for the same reason it had no archive at all until now.
  */
 $reports_query = new WP_Query(
 	array(
@@ -195,6 +200,7 @@ $reports_query = new WP_Query(
 				<p class="section-marker"></p>
 				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_reports_heading' ) ); ?></h2>
 			</div>
+			<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 		</div>
 		<div class="grid-cards">
 			<?php
