@@ -2,16 +2,22 @@
 /**
  * Template: archive-announcement.php — اطلاعیه‌ها (Announcements archive).
  * Converted from 03_UI_Design/shola-jawid-ui/pages/body-announcements.html
- * (Phase 4.2). Announcements are list-only by design, permanently — no
- * single-announcement template exists anywhere in the IA doc's
- * page-to-template map (confirmed by re-reading it directly, not
- * assumed), matching v6's own inert href="#" title links. An earlier
- * version of this file linked titles to the real permalink instead,
- * reasoning that a real destination beats a dead link — wrong: it
- * pointed at WP's bare unstyled default template hierarchy, a worse
- * experience than an inert link, since no detail view is actually
- * planned. Reverted per Farhad's confirmation, logged in
- * docs/CHANGELOG.md 2026-08-06.
+ * (Phase 4.2).
+ *
+ * Announcements were list-only by design, permanently, until 2026-09-04:
+ * no single-announcement template existed anywhere in the IA doc's
+ * page-to-template map (confirmed by re-reading it directly at the
+ * time), matching v6's own inert href="#" title links — an earlier
+ * attempt to link titles to the real permalink instead was reverted per
+ * Farhad's confirmation (docs/CHANGELOG.md 2026-08-06) specifically
+ * because no detail view existed yet, so the link pointed at WP's bare
+ * unstyled default template hierarchy, worse than an inert link.
+ *
+ * That's now reversed on explicit client request (relayed by Farhad,
+ * 2026-09-04): single-announcement.php exists, so titles link to it for
+ * real below — this is not a repeat of the earlier mistake, since the
+ * destination this time is an actual designed template, not the bare
+ * fallback that made the original attempt worse than a dead link.
  *
  * @package shola-jawid
  */
@@ -43,7 +49,7 @@ $paged = max( 1, get_query_var( 'paged' ) );
 					<li>
 						<time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 						<div>
-							<a href="#"><?php the_title(); ?></a>
+							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 							<p class="meta mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 30 ) ); ?></p>
 						</div>
 					</li>

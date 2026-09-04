@@ -5635,3 +5635,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   patch).
   Approved by: Farhad, in this session (2026-09-04) — Phase 1 of the
   Technical Scoping Plan.
+
+## 2026-09-04 (Phase 2 of the Build Readiness Plan)
+- **Added:** a single-page view for اطلاعیه‌ها (Announcements) —
+  `single-announcement.php`, new. This deliberately reverses an earlier
+  decision (archive-announcement.php's own docblock, 2026-08-06:
+  "list-only by design, permanently") per an explicit client request
+  relayed by Farhad — clicking an announcement should open its full text
+  on its own page. Worth being clear this isn't a repeat of the 2026-08-06
+  mistake it reverses: that attempt linked titles to WP's bare unstyled
+  default template hierarchy, since no detail template existed yet, which
+  was worse than the inert `href="#"` it replaced; this time the
+  destination is an actual designed template, matching the rest of the
+  site (breadcrumb, title, date, full body text, and a "سایر اطلاعیه‌ها"
+  related list so a reader is never dead-ended).
+  No fields changed — `announcement` still only has title and body text;
+  the only thing that was ever actually missing was the page itself.
+  `archive-announcement.php`'s title links, previously `href="#"`,
+  updated to `the_permalink()` now that there's somewhere real for them
+  to go.
+  Verified locally: opened multiple real announcements end to end,
+  including following the "سایر اطلاعیه‌ها" related links from one
+  announcement into another and back into the archive.
+  Theme version bumped 1.2.0 → 1.2.1 (`style.css`).
+  Approved by: Farhad, in this session (2026-09-04) — Phase 2 of the
+  Technical Scoping Plan.
