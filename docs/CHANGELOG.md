@@ -5733,3 +5733,51 @@ trail of *why* the build deviated from — or newly applied — a rule in
   1.2.3.
   Approved by: Farhad, in this session (2026-09-05) — Phase 3b of the
   Technical Scoping Plan.
+
+## 2026-09-05 (Phase 4 of the Build Readiness Plan — final phase)
+- **Changed:** homepage (`front-page.php`) reordered and reworked to the
+  order locked earlier this session: headline article, تازه‌ها, مقالات,
+  اسناد حزب, گزارش, نشریات (شمارهٔ جاری), انتشارات حزب, کتابخانه,
+  موضوعات. Five changes, all in this one page:
+  1. **مقالات excludes گزارش** — a `tax_query` `NOT IN` against the
+     `report` taxonomy, so a report no longer shows in both places; it
+     now only ever appears in تازه‌ها (still "everything new," unchanged)
+     and its own گزارش section/archive.
+  2. **اسناد حزب's homepage section now genuinely queries
+     `party_document`** — this position previously queried
+     `post_type=document` with no collection filter (a mismatch left
+     over from before اسناد حزب became its own real content type,
+     Phase 1) under the same "اسناد حزب" label; now the query and the
+     label finally agree. Links to `/party-documents/`.
+  3. **شمارهٔ جاری retitled to نشریات** — text only, exactly per
+     Farhad's "همین‌طور که هست باقی بماند" for everything else about
+     this section (query, layout, position relative to انتشارات حزب).
+  4. **New کتابخانه section**, after انتشارات حزب — the homepage had no
+     Library presence at all before this. Reuses the general-library
+     query (`post_type=document`, no collection filter, latest 4) that
+     used to live under the old اسناد حزب position, now correctly
+     labeled and in its own new spot. New `home_library_heading` label
+     key added (`class-label-settings.php`) — `home_latest_documents_
+     heading` stays put, now accurately describing the اسناد حزب
+     section it always shared a homepage with.
+  5. **Dead code removed**: a second, unused `$documents_query` sitting
+     near the bottom of the file (confirmed nothing below it ever
+     rendered from it) — cleaned up while reworking this page's other
+     document queries, not left as leftover clutter.
+  Background bands rechecked for alternation: مقالات (cream) → اسناد
+  حزب (tint, new) → گزارش (plain) → نشریات (plain) → انتشارات حزب
+  (tint) → کتابخانه (cream) → موضوعات (plain) — no two identically-toned
+  bands sit adjacent except the one plain/plain pair (گزارش، نشریات)
+  that's an unavoidable consequence of both being fixed points Farhad
+  asked to leave untouched; a plain-plain repeat is far less visually
+  jarring than two matching colored bands would be.
+  Verified locally end-to-end: full homepage render confirmed all 9
+  sections in the locked order with real content in each; separately
+  tagged a test post as گزارش and confirmed it disappeared from مقالات
+  and appeared correctly in گزارش's own section, then removed the test
+  tag.
+  Plugin version bumped 1.1.1 → 1.1.2, theme version bumped 1.2.3 →
+  1.3.0 (feature-level bump — this closes out the full Technical
+  Scoping Plan, not a small fix).
+  Approved by: Farhad, in this session (2026-09-05) — Phase 4 of the
+  Technical Scoping Plan. All four phases (plus 3b) are now complete.

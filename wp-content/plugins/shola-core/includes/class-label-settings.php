@@ -64,15 +64,21 @@ class Label_Settings {
 	 *
 	 * `latest_documents_heading` (page-library.php's own heading,
 	 * covering the whole library across all collections) and
-	 * `home_latest_documents_heading` (front-page.php's کتابخانه/اسناد
-	 * حزب card section only) were a single shared key until Phase B
-	 * (2026-08-24, docs/CHANGELOG.md), when the homepage instance was
-	 * client-relabeled to "اسناد حزب" specifically — split into two
-	 * keys at that point, same reasoning as breadcrumb_topics_label/
-	 * topics_page_title above: "اسناد حزب" is accurate for the
-	 * homepage's party-documents-only card section, but would be wrong
-	 * on page-library.php, which covers آثار کلاسیک/نقد و پلمیک/جنبش
-	 * بین‌المللی too, not just party documents.
+	 * `home_latest_documents_heading` (front-page.php's card section
+	 * only) were a single shared key until Phase B (2026-08-24,
+	 * docs/CHANGELOG.md), when the homepage instance was client-relabeled
+	 * to "اسناد حزب" specifically — split into two keys at that point,
+	 * same reasoning as breadcrumb_topics_label/topics_page_title above.
+	 * At the time, `home_latest_documents_heading` was still (mistakenly)
+	 * querying the general document library, not اسناد حزب specifically
+	 * — fixed 2026-09-05 (Phase 4) once اسناد حزب became its own real
+	 * post type: `home_latest_documents_heading` now correctly labels a
+	 * section that actually queries it, and the homepage gained a
+	 * genuinely new `home_library_heading` key for its own, separate
+	 * کتابخانه section (general library, all collections, matching
+	 * page-library.php's scope — hence its own key rather than reusing
+	 * `latest_documents_heading`, same "different UI role" reasoning as
+	 * the rest of this comment).
 	 *
 	 * @return array<string, string>
 	 */
@@ -84,6 +90,7 @@ class Label_Settings {
 			'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-core' ),
 			'home_latest_documents_heading' => __( 'اسناد حزب', 'shola-core' ),
+			'home_library_heading'        => __( 'کتابخانه', 'shola-core' ),
 			'home_reports_heading'        => __( 'گزارش', 'shola-core' ),
 			'nav_topics_label'            => __( 'موضوعات', 'shola-core' ),
 			'nav_more_label'              => __( 'بیشتر', 'shola-core' ),
@@ -109,6 +116,7 @@ class Label_Settings {
 			'home_topics_section_heading' => __( 'صفحهٔ اصلی — عنوان بخش موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
 			'home_latest_documents_heading' => __( 'صفحهٔ اصلی — عنوان بخش «اسناد حزب»', 'shola-core' ),
+			'home_library_heading'        => __( 'صفحهٔ اصلی — عنوان بخش «کتابخانه»', 'shola-core' ),
 			'home_reports_heading'        => __( 'صفحهٔ اصلی — عنوان بخش «گزارش»', 'shola-core' ),
 			'nav_topics_label'            => __( 'پاورقی و منوی بازشو — برچسب «موضوعات»', 'shola-core' ),
 			'nav_more_label'              => __( 'منوی بازشو — عنوان بخش «بیشتر»', 'shola-core' ),
