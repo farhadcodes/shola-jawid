@@ -5781,3 +5781,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Scoping Plan, not a small fix).
   Approved by: Farhad, in this session (2026-09-05) — Phase 4 of the
   Technical Scoping Plan. All four phases (plus 3b) are now complete.
+
+## 2026-09-05 (Phase 5 of the Build Readiness Plan)
+- **Changed:** every homepage shelf (`front-page.php`) now has an
+  explicit, deliberate item cap, requested after Phase 4 shipped so the
+  layout can never overflow or look uneven as content grows. Checked
+  every section's actual `posts_per_page` against what was asked rather
+  than assuming:
+  - تازه‌ها (6 shown), مقالات (6), اسناد حزب (4), گزارش (6), نشریات (1
+    per publication) were all already exactly what was requested — no
+    change.
+  - **انتشارات حزب** was `posts_per_page => 10` — genuinely over the
+    requested 5-item limit. Reduced to 5.
+  - **کتابخانه** was `posts_per_page => 4` — already under the requested
+    5-item limit, but raised to exactly 5 rather than left at a number
+    that happened to be under the cap, matching انتشارات حزب's identical
+    shelf treatment right above it.
+  None of this touches the full archives at `/party-publications/` or
+  `/library/` — both still show everything, paginated; only the
+  homepage teasers are capped.
+  Verified locally: confirmed via a direct DOM count that every section
+  renders exactly the expected number of cards, and specifically
+  confirmed کتابخانه — which has 28 real documents available locally —
+  correctly shows only 5, not all of them.
+  Theme version bumped 1.3.0 → 1.3.1.
+  Approved by: Farhad, in this session (2026-09-05) — Phase 5 of the
+  Technical Scoping Plan.

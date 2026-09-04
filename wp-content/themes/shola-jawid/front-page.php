@@ -467,11 +467,18 @@ foreach ( $publication_terms as $pub_term ) {
  * unchanged; still distinct from شمارهٔ جاری's cream band directly
  * above and موضوعات's paper band directly below, so background-band
  * alternation still holds with no adjacent repeats.
+ *
+ * `posts_per_page` capped at 5, 2026-09-05 (Phase 5, Technical Scoping
+ * Plan) — was 10, well past what a homepage shelf like this is meant to
+ * show; Farhad asked for a hard, deliberate limit here (and on every
+ * homepage shelf) instead of one that just happened to be under control
+ * by coincidence. The full archive at /party-publications/ is unaffected
+ * — this only limits the homepage teaser.
  */
 $party_publications_query = new WP_Query(
 	array(
 		'post_type'      => 'party_publication',
-		'posts_per_page' => 10,
+		'posts_per_page' => 5,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
@@ -511,11 +518,16 @@ $party_publications_query = new WP_Query(
  * position. .sect-cream, same class that position's query previously
  * had, keeping background-band alternation intact against انتشارات
  * حزب's .sect-tint above and موضوعات's plain band below.
+ *
+ * `posts_per_page` set to 5, 2026-09-05 (Phase 5, Technical Scoping
+ * Plan) — was 4, already under Farhad's stated 5-item limit for this
+ * shelf, raised to exactly 5 rather than left as a coincidental number
+ * under the cap, matching انتشارات حزب's identical treatment just above.
  */
 $library_documents_query = new WP_Query(
 	array(
 		'post_type'      => 'document',
-		'posts_per_page' => 4,
+		'posts_per_page' => 5,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
