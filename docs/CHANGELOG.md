@@ -5475,3 +5475,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   (`/publications/a-world-to-win/`) that only دورهٔ اول remains.
   Plugin version bumped 1.0.7 → 1.0.8 (`shola-core.php`).
   Approved by: Farhad, in this session (2026-09-04).
+
+## 2026-09-04 (later same day)
+- **Added:** reassign-before-delete guard for `publication` terms with
+  content (`includes/class-term-reassign.php`, new `SholaCore\
+  Term_Reassign` class). Farhad reported the client had already
+  uploaded real PDF issues into some دوره sub-terms, and asked that
+  deleting a دوره first require choosing another دوره to move its
+  content onto — deleting a WordPress term never deletes the underlying
+  issue posts/PDFs, but it does silently remove them from
+  taxonomy-publication.php's دوره tiles, which reads as "the content
+  disappeared" from the client's side.
+  Two parts: (1) the "حذف" row action on Nشریات → edit-tags.php is
+  replaced, only for a `publication` term that still has issues
+  attached, with an "انتقال و حذف…" link to a small hidden admin
+  screen (`admin.php?page=shcore-reassign-term`, registered via
+  `add_submenu_page( null, … )` so it never appears in the sidebar —
+  no prior precedent for a hidden page in this plugin, which otherwise
+  only ever adds visible Settings-API subpages) where a sibling دوره
+  is chosen before the issues are moved (`wp_set_object_terms()` +
+  `wp_remove_object_terms()`) and the original term is deleted.
+  (2) A `delete_term` safety net (`rehome_orphans()`) automatically
+  moves any issues WordPress reports as still related
+  (`$object_ids`, a native `delete_term` action param since WP 4.5)
+  onto the deleted term's best-ordered sibling for any deletion path
+  that doesn't go through that screen — bulk delete, WP-CLI, REST API
+  — none of which this class can cleanly intercept beforehand, since
+  WordPress core has no filter capable of blocking `wp_delete_term()`
+  outright (`pre_delete_term` is an action, fired for informational
+  purposes only, not a short-circuit filter). This is deliberately a
+  silent auto-rehome for that edge case rather than a hard block,
+  since the alternative — returning a `WP_Error` from a would-be
+  blocking filter — is unreliable here anyway: the AJAX single-delete
+  handler (`wp_ajax_delete_tag()`) treats any truthy return, including
+  a `WP_Error` object, as success, which would have reintroduced
+  exactly the "looks deleted, isn't" confusion from the earlier
+  2026-09-04 entry above, just for a different reason.
+  Both paths share one ordering helper (`get_ordered_siblings()`),
+  sorting by the same `shcore_term_order` term meta
+  taxonomy-publication.php already uses for its front-end دوره tiles,
+  so "the sibling a person would expect" is consistent everywhere.
+  Verified locally end-to-end: created a test issue, tagged it onto
+  شعله جاوید's دورهٔ دوم, used the new admin screen to reassign it to
+  دورهٔ سوم and confirm the term deleted cleanly with the issue landing
+  on exactly one دوره (no duplicate assignment — an initial version of
+  this fix used `wp_set_object_terms(..., true)` without also calling
+  `wp_remove_object_terms()` first, which left the old relationship in
+  place long enough for the delete_term safety net to *also* fire and
+  append a second, redundant sibling term; caught by inspecting `wp
+  post term list` after the first test run, fixed before shipping).
+  Separately confirmed the safety net alone: deleted a دوره directly
+  via `wp term delete` (bypassing the admin screen entirely, standing
+  in for a bulk-delete/CLI/REST path) and confirmed the test issue was
+  automatically rehomed onto دورهٔ اول rather than left orphaned.
+  Plugin version bumped 1.0.8 → 1.0.9 (`shola-core.php`).
+  Approved by: Farhad, in this session (2026-09-04).
