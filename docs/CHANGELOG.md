@@ -5807,3 +5807,22 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.3.0 → 1.3.1.
   Approved by: Farhad, in this session (2026-09-05) — Phase 5 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (Phase 7 of the Build Readiness Plan)
+- **Changed:** removed اسناد حزب from the masthead's slim top bar
+  (`header.php`, `.mast-pub-nav`) — added there alongside
+  نشریات/موضوعات/کتابخانه when Phase 1 shipped, removed the next day per
+  Farhad: that row was getting crowded, and اسناد حزب only needs to be
+  one click away via the full popup menu, not present in this
+  always-visible row on every screen size (desktop included — this
+  wasn't a mobile-only ask).
+  No change to reachability: اسناد حزب was already, and remains, in the
+  popup menu's «بخش‌ها» list (`shola_maybe_add_party_documents_menu_item()`,
+  `inc/setup.php`, added the same day as the top-bar entry) — only the
+  top-bar duplicate is gone.
+  Verified locally: confirmed via the browser that only
+  نشریات/موضوعات/کتابخانه remain in the top bar, and that اسناد حزب
+  still resolves correctly from the popup menu.
+  Theme version bumped 1.3.1 → 1.3.2.
+  Approved by: Farhad, in this session (2026-09-05) — Phase 7 of the
+  Technical Scoping Plan.

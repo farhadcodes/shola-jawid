@@ -56,14 +56,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
 
+			<?php
+			/*
+			 * اسناد حزب briefly lived here too (added alongside the
+			 * party_document CPT, 2026-09-04) — removed 2026-09-05 per
+			 * Farhad: this top bar was getting crowded, and اسناد حزب only
+			 * needs to be one click away via the full popup menu's «بخش‌ها»
+			 * list (see shola_maybe_add_party_documents_menu_item(),
+			 * inc/setup.php), not present in this always-visible row on
+			 * every screen size.
+			 */
+			?>
 			<nav class="mast-pub-nav" aria-label="<?php esc_attr_e( 'پیوندهای اصلی', 'shola-jawid' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true" class="mast-slash-light">/</span>
 				<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true" class="mast-slash-light">/</span>
 				<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
-				<span aria-hidden="true" class="mast-slash-light">/</span>
-				<a href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
 			</nav>
 		</div>
 
