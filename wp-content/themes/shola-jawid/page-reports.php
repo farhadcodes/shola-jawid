@@ -2,9 +2,11 @@
 /**
  * Template: page-reports.php — گزارش (Reports) full archive. Applies to
  * the Page with slug `reports`. Added 2026-09-04 — گزارش has existed
- * since Phase B (2026-08-25, docs/CHANGELOG.md) as a `post_tag` term
- * shown on the homepage, but had no page of its own to see the full
- * history, only the newest 6 on the homepage.
+ * since Phase B (2026-08-25, docs/CHANGELOG.md), but had no page of its
+ * own to see the full history, only the newest 6 on the homepage. Its
+ * source moved 2026-09-05 from a `post_tag` to a dedicated `report`
+ * taxonomy (see class-taxonomies.php) — this template's query below was
+ * updated to match, everything else about this page is unchanged.
  *
  * A static Page rather than WordPress's native tag-archive URL
  * (`/tag/reports/`), matching the same pattern already used for
@@ -35,9 +37,15 @@ $reports_query = new WP_Query(
 		'post_type'      => 'post',
 		'posts_per_page' => 6,
 		'paged'          => $paged,
-		'tag'            => 'reports',
 		'orderby'        => 'date',
 		'order'          => 'DESC',
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+			array(
+				'taxonomy' => 'report',
+				'field'    => 'slug',
+				'terms'    => 'reports',
+			),
+		),
 	)
 );
 ?>

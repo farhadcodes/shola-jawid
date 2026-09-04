@@ -5688,3 +5688,48 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.2.1 → 1.2.2 (`style.css`).
   Approved by: Farhad, in this session (2026-09-04) — Phase 3 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (Phase 3b of the Build Readiness Plan)
+- **Changed:** گزارش (Reports) moved from a `post_tag` term to a
+  dedicated `report` taxonomy (`class-taxonomies.php`) — found while
+  testing Phase 3: Farhad relayed that the client couldn't find any way
+  to mark a post as a report at all. Root cause, confirmed by checking
+  the block editor directly rather than assumed: a WordPress "tag" is a
+  type-to-add free-text field with no visible, clickable option, unlike
+  موضوعات's Categories-style checkbox list — the mechanism worked exactly
+  as designed, it just wasn't discoverable for a non-technical editor
+  expecting the same checkbox pattern every other classification on this
+  site uses.
+  `report` is `hierarchical => true` for the same reason
+  topic/publication/collection/party_document_category all are (the
+  Categories-style checkbox UI, not Tags-style free text), registered
+  directly on `post` — confirmed this doesn't hit the same conflict WP's
+  built-in `category` has here (removed from `post` in an earlier phase
+  specifically because it *is* `category`): `topic` has worked as a
+  custom taxonomy on `post` since Phase 3.2 with no such issue.
+  `Taxonomies::migrate_legacy_reports_tag()` (admin_init + options-flag,
+  same self-healing pattern as seed_publication_periods()/
+  migrate_legacy_party_documents()) moves any post already marked under
+  the old `post_tag` term onto the new taxonomy's term and removes the
+  old tag. Also seeds the new "گزارش" term itself directly inside the
+  migration, rather than assuming create_default_terms() already ran —
+  caught this exact gap live during testing: create_default_terms() only
+  fires on plugin activation, which doesn't re-fire on a code-only
+  redeploy, so the very first test run silently found no term to migrate
+  onto and marked itself done anyway. Fixed before shipping.
+  `front-page.php`'s homepage section and `page-reports.php`'s archive
+  both updated from `'tag' => 'reports'` to a `tax_query` against
+  `report` — no visible change, same posts, same layout, same "see all"
+  link, just reading from the new source. Sidebar panel order
+  (`admin/js/panel-order.js`) extended to place گزارش between موضوع اصلی
+  and برچسب‌ها.
+  Verified locally: simulated a pre-existing legacy-tagged post, ran the
+  migration, confirmed the post landed on the new taxonomy with the old
+  tag term deleted, confirmed the new گزارش checkbox renders and behaves
+  identically to موضوعات in the block editor, and confirmed both the
+  homepage section and the `/reports/` archive still show the migrated
+  post correctly. Removed the test tag afterward.
+  Plugin version bumped 1.1.0 → 1.1.1, theme version bumped 1.2.2 →
+  1.2.3.
+  Approved by: Farhad, in this session (2026-09-05) — Phase 3b of the
+  Technical Scoping Plan.

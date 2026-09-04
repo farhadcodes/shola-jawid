@@ -78,6 +78,13 @@ class Taxonomies {
 		 * code-only plugin re-upload doesn't re-fire activation hooks).
 		 */
 		add_action( 'admin_init', array( __CLASS__, 'migrate_legacy_party_documents' ) );
+
+		/*
+		 * Same self-healing migration pattern, for گزارش's move from a
+		 * `post_tag` to the new `report` taxonomy — see
+		 * register_taxonomies()'s comment on `report` for why.
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'migrate_legacy_reports_tag' ) );
 	}
 
 	/**
@@ -319,6 +326,45 @@ class Taxonomies {
 				),
 			)
 		);
+
+		/*
+		 * report — added 2026-09-05, replacing گزارش's original design as a
+		 * plain `post_tag` term (Phase B, 2026-08-25). That worked
+		 * mechanically (homepage shelf, now the /reports/ archive too) but
+		 * turned out not to work for Farhad's client in practice: a
+		 * WordPress "tag" is a type-to-add free-text field, with no
+		 * visible, clickable option the way موضوعات's checkbox list has —
+		 * confirmed the actual problem by checking the block editor's
+		 * sidebar directly, not assumed. hierarchical => true for the same
+		 * reason as topic/publication/collection above: the
+		 * Categories-style checkbox UI, not the Tags-style free-text box —
+		 * even though, like those three, this isn't structurally
+		 * hierarchical (this one only ever has the single "گزارش" term).
+		 * `migrate_legacy_reports_tag()` below moves any posts already
+		 * marked under the old `post_tag` term onto this one and removes
+		 * that now-unused tag.
+		 */
+		register_taxonomy(
+			'report',
+			'post',
+			array(
+				'labels'            => array(
+					'name'          => __( 'گزارش', 'shola-core' ),
+					'singular_name' => __( 'گزارش', 'shola-core' ),
+					'search_items'  => __( 'جست‌وجوی گزارش‌ها', 'shola-core' ),
+					'all_items'     => __( 'همهٔ گزارش‌ها', 'shola-core' ),
+					'edit_item'     => __( 'ویرایش گزارش', 'shola-core' ),
+					'view_item'     => __( 'مشاهدهٔ گزارش', 'shola-core' ),
+					'menu_name'     => __( 'گزارش', 'shola-core' ),
+				),
+				'public'            => false,
+				'show_ui'           => true,
+				'show_in_rest'      => true,
+				'hierarchical'      => true,
+				'show_admin_column' => true,
+				'rewrite'           => false,
+			)
+		);
 	}
 
 	/**
@@ -426,28 +472,19 @@ class Taxonomies {
 		}
 
 		/*
-		 * گزارش, Phase B (2026-08-25, docs/CHANGELOG.md) — the
-		 * homepage's گزارش section's source term. Deliberately
-		 * `post_tag`, not `category`: `category` was tried first, but
-		 * `post` had its `category` object-type association deliberately
-		 * removed in an earlier phase
-		 * (remove_core_category_from_post(), below) specifically to
-		 * avoid a redundant "Uncategorized" editor panel — creating a
-		 * `category` term for `post`-type content re-triggers exactly
-		 * that conflict: no admin UI to assign it (both the classic
-		 * metabox and Gutenberg's taxonomy panel stay hidden), and
-		 * WordPress's default term-count updater silently excludes
-		 * `post` from `category` counts, so the term's count would
-		 * permanently read 0 even with real posts assigned. `post_tag`
-		 * has none of these problems — still fully registered for
-		 * `post` (confirmed via is_object_in_taxonomy(), and already
-		 * actively used/rendered as visible tag chips on single.php) —
-		 * so this is deliberately not `topic` either: same reasoning
-		 * as `science-and-art` almost shipping without a DB term
-		 * (Phase C finding) — confirmed this exists and works, not
-		 * assumed.
+		 * گزارش, Phase B (2026-08-25) originally seeded as a `post_tag`
+		 * term. Replaced 2026-09-05 (see register_taxonomies()'s comment
+		 * on the new `report` taxonomy for why) with this custom taxonomy
+		 * instead — a fresh custom taxonomy attached to `post` doesn't
+		 * carry the same conflict `category` itself has here: the removal
+		 * in remove_core_category_from_post() below targets WP's built-in
+		 * `category` taxonomy specifically, not any taxonomy that happens
+		 * to attach to `post` (`topic` already proves this — it's worked
+		 * on `post` since Phase 3.2 with no such conflict).
+		 * migrate_legacy_reports_tag() moves any posts already marked
+		 * under the old `post_tag` term onto this one.
 		 */
-		self::maybe_insert_term( 'گزارش', 'post_tag', 'reports' );
+		self::maybe_insert_term( 'گزارش', 'report', 'reports' );
 	}
 
 	/**
@@ -649,6 +686,68 @@ class Taxonomies {
 		}
 
 		update_option( 'shcore_party_documents_migrated', 1 );
+	}
+
+	/**
+	 * One-time move of any `post` still marked with the old `post_tag`
+	 * "reports" term onto the new `report` taxonomy's "گزارش" term — see
+	 * register_taxonomies()'s comment on `report` for the full reasoning
+	 * (a WordPress tag's type-to-add field wasn't a discoverable way for
+	 * an editor to mark a post as a report). Same admin_init + options-
+	 * flag pattern as migrate_legacy_party_documents() above.
+	 *
+	 * Adds the new term rather than replacing, then explicitly removes
+	 * the old tag relationship and deletes the now-unused tag term —
+	 * mirrors migrate_legacy_party_documents()'s handling of the old
+	 * `collection` term, for the same reason: a relationship left
+	 * pointing at a taxonomy no longer meaningfully in use for this
+	 * purpose would just sit there with no admin UI surfacing it.
+	 *
+	 * Seeds the "گزارش" term itself here via maybe_insert_term(), rather
+	 * than assuming create_default_terms() already created it — that
+	 * method only runs on plugin activation, which doesn't re-fire on a
+	 * code-only zip redeploy to an already-active plugin (the exact bug
+	 * seed_publication_periods() was fixed for on 2026-09-04). Without
+	 * this, a redeploy where the `report` taxonomy is brand new to the
+	 * site would find no "reports" term under it, silently do nothing,
+	 * and mark itself migrated anyway.
+	 *
+	 * @return void
+	 */
+	public static function migrate_legacy_reports_tag() {
+		if ( get_option( 'shcore_reports_tag_migrated' ) ) {
+			return;
+		}
+
+		$new_term_id = self::maybe_insert_term( 'گزارش', 'report', 'reports' );
+		$old_term    = get_term_by( 'slug', 'reports', 'post_tag' );
+
+		if ( $old_term && ! is_wp_error( $old_term ) && $new_term_id ) {
+			$legacy_ids = get_posts(
+				array(
+					'post_type'      => 'post',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small taxonomy, one-time migration, not a recurring query.
+						array(
+							'taxonomy' => 'post_tag',
+							'field'    => 'term_id',
+							'terms'    => $old_term->term_id,
+						),
+					),
+				)
+			);
+
+			foreach ( $legacy_ids as $post_id ) {
+				wp_set_object_terms( $post_id, array( $new_term_id ), 'report', true );
+				wp_remove_object_terms( $post_id, $old_term->term_id, 'post_tag' );
+			}
+
+			wp_delete_term( $old_term->term_id, 'post_tag' );
+		}
+
+		update_option( 'shcore_reports_tag_migrated', 1 );
 	}
 
 	/**

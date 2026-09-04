@@ -1,6 +1,7 @@
 /* Shola Core — reorders the block-editor's document-settings sidebar
-   panels for the `post` screen to: موضوعات, موضوع اصلی, برچسب‌ها
-   (Farhad, 2026-09-02).
+   panels for the `post` screen to: موضوعات, موضوع اصلی, گزارش, برچسب‌ها
+   (Farhad, 2026-09-02; گزارش added 2026-09-05 when it became a real
+   taxonomy instead of a post_tag — see class-taxonomies.php).
 
    There is no public Gutenberg API to set panel order when mixing
    built-in taxonomy panels (موضوعات/topic, برچسب‌ها/post_tag) with a
@@ -35,7 +36,7 @@
 		return;
 	}
 
-	var DESIRED_ORDER = ["موضوعات", "موضوع اصلی", "برچسب‌ها"];
+	var DESIRED_ORDER = ["موضوعات", "موضوع اصلی", "گزارش", "برچسب‌ها"];
 
 	function getPanelTitle(panelBody) {
 		var btn = panelBody.querySelector(

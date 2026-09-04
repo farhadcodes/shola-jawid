@@ -162,17 +162,11 @@ $articles_query = new WP_Query(
 
 <?php
 /*
- * گزارش (Reports) — a native WP `post_tag` term (not `category`: a
- * `category` term was tried first, but `post` had `category`
- * deliberately disconnected in an earlier phase to avoid a redundant
- * "Uncategorized" editor panel — see
- * SholaCore\Class_Taxonomies::create_default_terms()'s comment for the
- * full finding. `post_tag` has none of that conflict: still fully
- * registered for `post`, normal Add-New-Tag editor UI, correct term
- * counts. Also deliberately not `topic` — confirmed separate from the
- * 9-term topic vocabulary: no موضوعات nav/archive presence, no
- * shola_topic_color_class() entry). Phase B (2026-08-25,
- * docs/CHANGELOG.md). card.php, same anatomy as مقالات (full article
+ * گزارش (Reports) — a dedicated `report` taxonomy (Phase B, 2026-08-25,
+ * originally a `post_tag`; converted 2026-09-05 after Farhad found the
+ * client couldn't discover the free-text tag field as a way to mark a
+ * report — see class-taxonomies.php's `report` registration for the
+ * full reasoning). card.php, same anatomy as مقالات (full article
  * cards, dek/byline) — these are normal posts, not documents. Hidden
  * entirely when empty (no heading, no empty grid), same have_posts()
  * guard every other section on this page already uses — not a new
@@ -189,7 +183,13 @@ $reports_query = new WP_Query(
 		'posts_per_page' => 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-		'tag'            => 'reports',
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+			array(
+				'taxonomy' => 'report',
+				'field'    => 'slug',
+				'terms'    => 'reports',
+			),
+		),
 	)
 );
 ?>
