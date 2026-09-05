@@ -6120,3 +6120,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   a real capability added across every taxonomy, not a fix).
   Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (later still — Phase 8 follow-up: filter the Parent dropdown)
+- **Changed:** the "دستهٔ مادر" (Parent) dropdown on every managed
+  taxonomy's Add/Edit term screens (موضوعات, مجموعه‌ها, دسته‌های اسناد
+  حزب, گزارش, نشریات) no longer lists a category that already has a
+  parent as a choice. Closes a gap Farhad flagged after the previous
+  entry shipped: enforce_depth_cap_on_insert()/enforce_depth_cap_on_update()
+  already stopped an invalid 3rd-level assignment from actually saving,
+  but the dropdown itself still *offered* an already-nested category as
+  a pickable option — an editor could choose it and only discover it
+  was wrong afterward (an error on create, a silent no-op plus a notice
+  on update). Added `filter_parent_dropdown_args()`
+  (`class-category-manager.php`), hooked on WordPress core's own
+  `taxonomy_parent_dropdown_args` filter (fires for the Parent dropdown
+  on both the "Add New Term" and "Edit Term" screens), which excludes
+  every term with a non-zero parent from the dropdown's option list.
+  The two enforcement methods from the previous entry are unchanged and
+  still the actual guarantee — this dropdown filter is a convenience on
+  top of them, not a replacement.
+  Verified locally: created a temporary top-level test category with a
+  child under it and a separate unrelated top-level test category,
+  confirmed via the dropdown's own rendered options that the child was
+  excluded while the unrelated top-level one still appeared — first on
+  دسته‌های اسناد حزب, then separately confirmed on نشریات's real
+  production data (شعله جاوید/جهان برای فتح's real دوره children are
+  all correctly excluded, only the two نشریه themselves and
+  دسته‌بندی‌نشده appear). Noticed partway through that Farhad had
+  already been testing this same feature live on the real site
+  (real اسناد داخلی/صورت‌جلسات/گزارش مالی categories, matching the
+  walkthrough example given in conversation) — left that real content
+  untouched and only cleaned up my own temporary test terms afterward.
+  No console or debug.log errors from any of this.
+  Plugin version bumped 1.2.0 → 1.2.1.
+  Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
+  Technical Scoping Plan.

@@ -81,6 +81,7 @@ class Category_Manager {
 		add_filter( 'pre_insert_term', array( __CLASS__, 'enforce_depth_cap_on_insert' ), 10, 3 );
 		add_filter( 'wp_update_term_parent', array( __CLASS__, 'enforce_depth_cap_on_update' ), 10, 5 );
 		add_filter( 'redirect_term_location', array( __CLASS__, 'append_depth_capped_flag' ), 10, 2 );
+		add_filter( 'taxonomy_parent_dropdown_args', array( __CLASS__, 'filter_parent_dropdown_args' ), 10, 3 );
 
 		foreach ( array_keys( self::MANAGED ) as $taxonomy ) {
 			add_filter( "{$taxonomy}_row_actions", array( __CLASS__, 'filter_row_actions' ), 10, 2 );
@@ -1027,6 +1028,10 @@ class Category_Manager {
 	 * query-string flag to the post-save redirect instead, so
 	 * render_admin_notice() can tell the editor why their change to this
 	 * one field didn't stick, without blocking the rest of the edit.
+	 * filter_parent_dropdown_args() (2026-09-05) keeps an editor from
+	 * ever picking an invalid parent through the dropdown in the first
+	 * place, but this enforcement stays regardless — the dropdown is a
+	 * convenience, not the actual guarantee.
 	 *
 	 * @param int    $parent      Requested parent term ID.
 	 * @param int    $term_id     Term being edited.
@@ -1081,5 +1086,66 @@ class Category_Manager {
 			$location = add_query_arg( 'shcore_depth_capped', 1, $location );
 		}
 		return $location;
+	}
+
+	/**
+	 * Removes any term that already has a parent from the "دستهٔ مادر"
+	 * (Parent) dropdown on every managed taxonomy's Add/Edit term
+	 * screens — added 2026-09-05, after Farhad asked to close the gap
+	 * enforce_depth_cap_on_insert()/enforce_depth_cap_on_update() leave
+	 * open: those two stop an invalid choice from actually being saved,
+	 * but the dropdown itself still *listed* it as pickable, so an
+	 * editor could choose it and only find out it was wrong afterwards
+	 * (an error on create, a silent no-op plus a notice on update).
+	 * Filtering the option list itself means there's nothing invalid to
+	 * pick in the first place — the two enforcement methods above stay
+	 * as they are, as the actual guarantee (this is a dropdown, not a
+	 * lock; nothing stops a request built by hand or a future admin
+	 * screen from still trying to submit an excluded ID).
+	 *
+	 * Hooks `taxonomy_parent_dropdown_args`, which WordPress core fires
+	 * for the Parent dropdown on both the "Add New Term" screen
+	 * (`$context` 'new') and the "Edit Term" screen ('edit') — the same
+	 * exclusion is correct either way, so `$context` doesn't need to be
+	 * inspected. Only touches this plugin's own managed taxonomies;
+	 * WordPress core's `category`/`post_tag` (unused on this site's
+	 * `post` type, but still registered) are left exactly as WordPress
+	 * itself renders them.
+	 *
+	 * @param array  $args     Dropdown args WordPress is about to pass to wp_dropdown_categories().
+	 * @param string $taxonomy Taxonomy slug.
+	 * @param string $context  'new' or 'edit' (unused — same fix either way).
+	 * @return array
+	 */
+	public static function filter_parent_dropdown_args( $args, $taxonomy, $context ) {
+		if ( ! array_key_exists( $taxonomy, self::MANAGED ) ) {
+			return $args;
+		}
+
+		$all_terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+			)
+		);
+		if ( ! $all_terms || is_wp_error( $all_terms ) ) {
+			return $args;
+		}
+
+		$already_nested_ids = array();
+		foreach ( $all_terms as $existing_term ) {
+			if ( (int) $existing_term->parent > 0 ) {
+				$already_nested_ids[] = (int) $existing_term->term_id;
+			}
+		}
+
+		if ( ! $already_nested_ids ) {
+			return $args;
+		}
+
+		$existing_exclude = isset( $args['exclude'] ) ? (array) $args['exclude'] : array();
+		$args['exclude']  = array_unique( array_merge( $existing_exclude, $already_nested_ids ) );
+
+		return $args;
 	}
 }
