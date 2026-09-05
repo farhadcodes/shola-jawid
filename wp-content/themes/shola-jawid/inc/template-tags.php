@@ -40,50 +40,68 @@ function shola_to_persian_digits( $number ) {
 }
 
 /**
- * Locale-independent uppercase English month abbreviation ("MAR", "DEC")
- * for the `.issue-card-date`/`lang="en"` mono contexts v6 uses (e.g.
- * "MAR ۲۰۲۶"). Uses raw PHP `gmdate()` on the post's timestamp rather
- * than any WordPress date-formatting function (`get_the_date()`,
- * `mysql2date()`, `date_i18n()`) — hardened Phase 4.2 (2026-08-06) so it
- * stays immune to the ParsiDate plugin's global Gregorian→Jalali hook,
- * wherever exactly that hook attaches. get_the_date('M') was previously
- * used here and turned out to be locale-aware (translated to Persian
- * month names on this fa_AF site) even before ParsiDate; `mysql2date()`
- * with `$translate = false` fixed that, but wasn't guaranteed immune to a
- * plugin hooking at a lower level than get_the_date() — gmdate() on a raw
- * timestamp is not interceptable by any WordPress-level date filter.
+ * Jalali (Dari) "month year" label for the `.issue-card-date` mono
+ * contexts (issue/document/party-document cards, publication headers,
+ * search results) — e.g. "سرطان ۱۴۰۵". Replaces the earlier
+ * Gregorian-only `shola_get_english_month_abbr()`/`shola_get_gregorian_year()`
+ * pair (v6's literal "MAR ۲۰۲۶" convention), removed 2026-09-05 per
+ * Farhad: he flagged these as the one place on the site still showing
+ * Gregorian dates while every article/announcement date elsewhere is
+ * already Jalali via get_the_date() — an inconsistency, not a deliberate
+ * split, once pointed out. Uses `wp_date()` so it goes through the same
+ * Persian Calendar plugin + shola_convert_jalali_months_to_dari() hooks
+ * as every other Jalali date on the site (confirmed working already via
+ * shola_get_masthead_runner()'s `wp_date( 'l j F Y' )` call above).
  *
  * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
  * @return string
  */
-function shola_get_english_month_abbr( $post = null ) {
+function shola_get_jalali_month_year_label( $post = null ) {
 	$post = get_post( $post );
 	if ( ! $post ) {
 		return '';
 	}
-	return strtoupper( gmdate( 'M', strtotime( $post->post_date ) ) );
+	$datetime = get_post_datetime( $post );
+	if ( ! $datetime ) {
+		return '';
+	}
+	return wp_date( 'F Y', $datetime->getTimestamp() );
 }
 
 /**
- * Locale-independent Gregorian year, for the same mono-label convention
- * as shola_get_english_month_abbr() (issue counts/year-ranges, e.g. "۳۲
- * ISSUES · ۲۰۱۸–۲۰۲۶") — v6's own source uses Gregorian years with
- * Persian digits here, not Jalali years. Added alongside the ParsiDate
- * install (Phase 4.2, 2026-08-06): `get_the_date('Y', ...)` would be
- * silently converted to a Jalali year by ParsiDate's global hook once
- * active, which would both show the wrong year and break the "range
- * matches v6's literal reference" requirement. Pass through
- * shola_to_persian_digits() for display, same as everywhere else.
+ * Jalali year only (int), for the year-range convention in
+ * shola_get_publication_meta_line() (e.g. "۳۲ ISSUES · ۱۳۹۷–۱۴۰۵") —
+ * replaces shola_get_gregorian_year(), same 2026-09-05 consistency fix as
+ * shola_get_jalali_month_year_label() above. Returns an ASCII int (not a
+ * Persian-digit string) so callers can still `sort()` a list of these
+ * before formatting for display, same as the Gregorian version did.
  *
  * @param int|WP_Post|null $post Post ID/object. Defaults to the current post.
  * @return int
  */
-function shola_get_gregorian_year( $post = null ) {
+function shola_get_jalali_year( $post = null ) {
 	$post = get_post( $post );
 	if ( ! $post ) {
 		return 0;
 	}
-	return (int) gmdate( 'Y', strtotime( $post->post_date ) );
+	$datetime = get_post_datetime( $post );
+	if ( ! $datetime ) {
+		return 0;
+	}
+	static $persian_to_ascii_digits = array(
+		'۰' => '0',
+		'۱' => '1',
+		'۲' => '2',
+		'۳' => '3',
+		'۴' => '4',
+		'۵' => '5',
+		'۶' => '6',
+		'۷' => '7',
+		'۸' => '8',
+		'۹' => '9',
+	);
+	$jalali_year = wp_date( 'Y', $datetime->getTimestamp() );
+	return (int) strtr( $jalali_year, $persian_to_ascii_digits );
 }
 
 /**
@@ -619,7 +637,7 @@ function shola_get_publication_meta_line( $term ) {
 
 	$years = array();
 	foreach ( $issues as $issue ) {
-		$years[] = shola_get_gregorian_year( $issue );
+		$years[] = shola_get_jalali_year( $issue );
 	}
 	sort( $years );
 	$year_range = ( end( $years ) === $years[0] )

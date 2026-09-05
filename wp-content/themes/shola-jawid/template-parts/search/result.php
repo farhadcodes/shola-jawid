@@ -42,8 +42,9 @@ if ( 'issue' === $post_type ) {
 
 	// Same deliberate month+year simplification already logged for
 	// issue-card.php, applied consistently here rather than inventing a
-	// third date convention for this one context.
-	$byline = shola_get_english_month_abbr( $result ) . ' ' . shola_to_persian_digits( shola_get_gregorian_year( $result ) );
+	// third date convention for this one context. Rendered in Jalali/Dari
+	// since 2026-09-05 — see shola_get_jalali_month_year_label() docblock.
+	$byline = shola_get_jalali_month_year_label( $result );
 } elseif ( 'document' === $post_type ) {
 	$type_label = __( 'سند', 'shola-jawid' );
 	$terms      = get_the_terms( $result, 'collection' );
@@ -99,7 +100,7 @@ $dek       = shola_highlight_search_term( esc_html( wp_trim_words( get_the_excer
 				<span class="meta-mono" lang="en">PDF · <?php echo esc_html( $doc_pdf_sz ); ?></span>
 			<?php endif; ?>
 		<?php elseif ( 'issue' === $post_type ) : ?>
-			<span lang="en"><?php echo esc_html( $byline ); ?></span>
+			<span><?php echo esc_html( $byline ); ?></span>
 		<?php elseif ( 'party_publication' === $post_type ) : ?>
 			<?php if ( $pub_pdf_sz ) : ?>
 				<span class="meta-mono" lang="en">PDF · <?php echo esc_html( $pub_pdf_sz ); ?></span>

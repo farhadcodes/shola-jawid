@@ -106,7 +106,7 @@ else :
 					<dd><?php echo esc_html( shola_get_managing_editor() ); ?></dd>
 
 					<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
-					<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( shola_get_english_month_abbr() . ' ' . shola_to_persian_digits( shola_get_gregorian_year() ) ); ?></time></dd>
+					<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( shola_get_jalali_month_year_label() ); ?></time></dd>
 				</dl>
 
 				<div class="row mt-sm">

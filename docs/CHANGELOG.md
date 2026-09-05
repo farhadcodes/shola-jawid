@@ -5826,3 +5826,48 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.3.1 → 1.3.2.
   Approved by: Farhad, in this session (2026-09-05) — Phase 7 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (later still — date-calendar consistency fix)
+- **Fixed:** every remaining Gregorian-date display on the site now
+  renders Jalali (Dari), matching the rest of the site's dates. Farhad
+  flagged this with screenshots — اسناد حزب's homepage shelf, its
+  archive and single-document pages, انتشارات حزب's homepage shelf,
+  کتابخانه's homepage shelf and single-document pages, and نشریات's
+  issue-count year range were all still showing "MAR ۲۰۲۶"-style
+  Gregorian dates while every article/announcement date elsewhere on
+  the site was already correctly Jalali.
+  Root cause: this was not a bug in the Persian Calendar plugin
+  integration — it was two deliberate, differing date conventions baked
+  into the v6 static prototype and faithfully ported in Phase 4.2
+  (2026-08-06): article/announcement dates always used `get_the_date()`
+  (filtered to Jalali by Persian Calendar + `shola_convert_jalali_months_to_dari()`),
+  while `issue`/`document`/`party_document`/`party_publication` "card"
+  and "meta" date labels deliberately used `shola_get_english_month_abbr()`
+  + `shola_get_gregorian_year()` — two helpers built specifically to stay
+  *immune* to the Jalali-conversion hooks, because v6's own source used
+  a literal "MAR ۲۰۲۶" Gregorian convention for those labels. That was
+  the correct choice at the time (a faithful port per CLAUDE.md §9), but
+  Farhad has now explicitly asked for full calendar consistency instead,
+  superseding that earlier v6-fidelity decision for this one element.
+  Removed `shola_get_english_month_abbr()`/`shola_get_gregorian_year()`
+  entirely (no remaining callers) and replaced them with
+  `shola_get_jalali_month_year_label()`/`shola_get_jalali_year()`
+  (`inc/template-tags.php`) — both use `wp_date()`, the same call already
+  proven to render correctly (masthead runner date,
+  `shola_get_masthead_runner()`). Updated every call site:
+  `template-parts/cards/issue-card.php` (also dropped the now-incorrect
+  `lang="en"` on `.issue-card-date`, since it's Dari text now, not
+  English), `single-document.php`, `single-issue.php`,
+  `taxonomy-publication.php` (latest-issue meta line),
+  `template-parts/search/result.php` (also dropped `lang="en"` on the
+  issue search-result byline), and the year-range in
+  `shola_get_publication_meta_line()`.
+  Verified locally across every affected page (homepage's اسناد
+  حزب/انتشارات حزب/کتابخانه shelves, `/party-documents/` archive, a
+  single party-document page, a single library-document page, and
+  `/publications/` — both the publication-level year range and a
+  دوره leaf's latest-issue line and past-issue list) — all Gregorian
+  dates are gone, all now show Jalali/Dari (e.g. "اسد ۱۴۰۵",
+  "۱۴۰۳–۱۴۰۵"). No plugin change required.
+  Theme version bumped 1.3.2 → 1.3.3.
+  Approved by: Farhad, in this session (2026-09-05).
