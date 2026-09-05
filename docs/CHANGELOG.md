@@ -6195,3 +6195,35 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Plugin version bumped 1.2.1 → 1.2.2.
   Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (later still — removed the generic Custom Fields panel)
+- **Changed:** removed WordPress core's own generic "زمینه‌های دلخواه"
+  (Custom Fields) meta box from every content type's edit screen —
+  `issue`, `document`, `party_publication`, `party_document`, and
+  `announcement` — by dropping `'custom-fields'` from each one's
+  `supports` array in `register_post_type()`
+  (`class-post-types.php`). Farhad flagged it via screenshot: this
+  panel exposes every `shcore_*` meta field by its raw internal
+  programming name (`shcore_issue_number`, `shcore_pdf_id`, ...) with
+  no label, no validation, and a plain "به‌روزرسانی"/"حذف" — entirely
+  redundant with the proper, labeled fields already on the same screen
+  (شمارهٔ شماره, the PDF picker button, etc.), and a real risk:
+  `shcore_pdf_id` specifically expects a numeric attachment ID, so
+  hand-editing it here could silently break a document's PDF link with
+  no warning.
+  This only removes the UI panel — `'custom-fields'` support has no
+  effect on whether post meta actually saves/reads (that's
+  `update_post_meta()`/`get_post_meta()`, unrelated to this flag) or on
+  REST API exposure (controlled separately by each
+  `register_post_meta()` call's own `show_in_rest`, already set
+  per-field in `class-meta-fields.php`). Confirmed no other code
+  anywhere in the plugin checks `post_type_supports( ..., 'custom-fields' )`
+  before this change.
+  Verified locally: opened an `issue` edit screen and a
+  `party_document` edit screen, confirmed "زمینه‌های دلخواه" no longer
+  appears on either, and confirmed the real, purpose-built meta boxes
+  (اطلاعات شماره's شمارهٔ شماره/دوره/PDF picker, اسناد حزب's شمارهٔ
+  سریال) still render and still show their real, saved values
+  correctly. No console or debug.log errors.
+  Plugin version bumped 1.2.2 → 1.2.3.
+  Approved by: Farhad, in this session (2026-09-05).

@@ -179,7 +179,7 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-media-document',
-				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'custom-fields' ),
+				'supports'     => array( 'title', 'thumbnail', 'excerpt' ),
 				'taxonomies'   => array( 'publication' ),
 				'rewrite'      => array(
 					'slug'       => 'publications/%publication%',
@@ -218,7 +218,7 @@ class Post_Types {
 				// should write via the block editor, not a code change.
 				// Documents seeded before this change simply render that
 				// section as absent until an editor fills it in.
-				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor' ),
 				'taxonomies'   => array( 'collection' ),
 				'rewrite'      => array(
 					'slug'       => 'library/%collection%',
@@ -267,7 +267,7 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-book-alt',
-				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor' ),
 				'rewrite'      => array(
 					'slug'       => 'party-publications',
 					'with_front' => false,
@@ -309,7 +309,7 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-portfolio',
-				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor', 'custom-fields' ),
+				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor' ),
 				'taxonomies'   => array( 'party_document_category' ),
 				'rewrite'      => array(
 					'slug'       => 'party-documents',
@@ -339,7 +339,7 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => 'announcements',
 				'menu_icon'    => 'dashicons-megaphone',
-				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+				'supports'     => array( 'title', 'editor' ),
 				'rewrite'      => array(
 					'slug'       => 'announcements',
 					'with_front' => false,
