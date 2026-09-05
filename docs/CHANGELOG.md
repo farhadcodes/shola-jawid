@@ -5968,3 +5968,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   checked back with about whether similar `wp_terms_checklist()`/
   `checked_ontop` issues exist elsewhere on the site before closing
   this out — see the next entry once that's done.
+
+## 2026-09-05 (later still — checked_ontop audit across every taxonomy)
+- **Changed:** audited every hierarchical taxonomy this plugin registers
+  (`topic`, `collection`, `party_document_category`, `report` — `publication`
+  already fixed in the entry above) for the same "checked term jumps to
+  the top of the list" behavior, per Farhad's follow-up ask. Added
+  `disable_checked_ontop_for_own_taxonomies()` (`class-taxonomies.php`),
+  hooked on the `wp_terms_checklist_args` filter, forcing
+  `checked_ontop => false` for all four — this is the same underlying
+  WordPress mechanism as `publication`'s fix, so it covers every place
+  on the site that still renders one of these taxonomies through WP
+  core's classic checklist markup (confirmed this includes each
+  taxonomy's Quick Edit checkbox tree on its post-list screen, since
+  that's populated from the same `wp_terms_checklist()` output).
+- **Found, not fixed (flagging for a decision):** `post`/`document`/
+  `party_document` are all block-editor (Gutenberg) post types, and
+  their taxonomy panels in the editor sidebar (موضوعات on a post,
+  مجموعه‌ها on a document, دسته‌های اسناد حزب on a party_document) are
+  rendered by WordPress core's own React hierarchical-term-selector
+  component, not by `wp_terms_checklist()` at all — confirmed by
+  testing live (post #175, موضوعات panel: opening it with «اقتصاد» and
+  «جنبش کمونیستی بین‌المللی» both checked shows them bumped above
+  «افغانستان», which is alphabetically first). That reordering is
+  hardcoded into WordPress core's block-editor component itself; no
+  server-side filter can turn it off, unlike the classic-meta-box case
+  `publication` and this entry's fix both cover.
+  Checked via `wp term list` whether this actually creates the
+  parent/child ambiguity Farhad originally reported: it doesn't, today —
+  `topic` (9 terms), `collection` (3 terms), and `report` (1 term) have
+  no parent terms at all (`parent` is `0` for every one), and
+  `party_document_category` currently has zero terms. `publication`
+  (نشریه → دوره) is the only taxonomy on the site with a real two-level
+  structure, and that one is already fixed. Since `party_document_category`
+  is explicitly self-managed by staff (see register_taxonomies()), this
+  is the one place the same ambiguity could appear later if a category
+  is ever given a parent — flagged to Farhad rather than pre-built, since
+  a fix here means writing a custom block-editor sidebar panel (materially
+  more work than either fix above), not a small filter.
+  Plugin version bumped 1.1.3 → 1.1.4.
+  Approved by: Farhad, in this session (2026-09-05).

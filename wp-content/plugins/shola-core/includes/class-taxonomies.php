@@ -85,6 +85,48 @@ class Taxonomies {
 		 * register_taxonomies()'s comment on `report` for why.
 		 */
 		add_action( 'admin_init', array( __CLASS__, 'migrate_legacy_reports_tag' ) );
+
+		/*
+		 * Keep every one of this plugin's taxonomy checklists in their
+		 * fixed registered order in wp-admin — never reordered by what's
+		 * currently checked. Added 2026-09-05: Farhad reported this for
+		 * `publication` specifically (fixed directly at its own
+		 * wp_terms_checklist() call, render_publication_radio_metabox()
+		 * above), then asked for the same check across every other
+		 * hierarchical taxonomy so a non-technical editor never sees a
+		 * term's position shift around and lose its visible place in the
+		 * hierarchy. `topic`/`collection`/`report` render through
+		 * WordPress core's own default checkbox meta box
+		 * (post_categories_meta_box()), which has no argument to opt out
+		 * of this — core always defaults `checked_ontop` to `true` — so
+		 * this filters it centrally instead of writing a custom meta box
+		 * for each one. `party_document_category` included too: seeded
+		 * with zero terms by design (see register_taxonomies()) so it has
+		 * no visible nesting today, but nothing stops an editor from
+		 * giving a term a parent later, so it's covered pre-emptively
+		 * rather than only once someone notices the same confusion there.
+		 */
+		add_filter( 'wp_terms_checklist_args', array( __CLASS__, 'disable_checked_ontop_for_own_taxonomies' ), 10, 2 );
+	}
+
+	/**
+	 * Forces `checked_ontop` off for this plugin's own taxonomies' term
+	 * checklists (see the `init()` comment above this filter is
+	 * registered from for the full reasoning). Leaves any other
+	 * taxonomy's checklist (WordPress core's `category`, or anything a
+	 * future plugin adds) untouched — this only ever narrows behavior for
+	 * taxonomies this plugin itself owns and registers.
+	 *
+	 * @param array $args    Args as passed to wp_terms_checklist().
+	 * @param int   $post_id Post ID (unused — kept for filter signature match).
+	 * @return array
+	 */
+	public static function disable_checked_ontop_for_own_taxonomies( $args, $post_id ) {
+		$fixed_order_taxonomies = array( 'topic', 'collection', 'party_document_category', 'report' );
+		if ( isset( $args['taxonomy'] ) && in_array( $args['taxonomy'], $fixed_order_taxonomies, true ) ) {
+			$args['checked_ontop'] = false;
+		}
+		return $args;
 	}
 
 	/**
