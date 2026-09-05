@@ -6155,3 +6155,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Plugin version bumped 1.2.0 → 1.2.1.
   Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
   Technical Scoping Plan.
+
+## 2026-09-05 (later still — Phase 8 fix: real content undercounted)
+- **Fixed:** the "انتقال و حذف…" safety link was missing from
+  دورهٔ دوم/سوم/چهارم on the live site even though Farhad had real,
+  in-progress content (unpublished issues) sitting in them — reported
+  live via screenshots after uploading v1.2.1. Root cause:
+  `filter_row_actions()` decided whether to show the safety link using
+  `$term->count`, WordPress core's own cached term count — which only
+  reflects **published** posts. Several people actively draft content
+  on this site before it's published, so a term holding only drafts or
+  pending-review posts showed `count` 0 and fell through to the plain,
+  unprotected "حذف" link, exactly as if it were genuinely empty.
+  `get_post_ids_for_term()` (used by both submission handlers to
+  actually move content) had the same gap: `get_posts()`'s own default
+  `post_status` is `publish` only, so even going through the reassign
+  screen would have silently left any draft/pending posts behind,
+  un-moved, when the term was deleted.
+  Added a `REAL_POST_STATUSES` constant (`publish`, `future`, `draft`,
+  `pending`, `private` — every non-trashed status) and a new
+  `has_any_content_for_term()` helper; both `filter_row_actions()`'s
+  decision and `get_post_ids_for_term()`'s actual query now use it
+  instead of `$term->count`. Also fixed the item-count numbers shown on
+  both the leaf-reassign and cascade-confirmation screens themselves
+  (previously `$term->count`/`$child->count`, same undercount) to use a
+  real, all-status count so the number displayed matches what will
+  actually move. `rehome_orphans()` (the bulk-delete/WP-CLI/REST safety
+  net) needed no change — it already reads WordPress's own raw
+  `$object_ids` param off `delete_term`, which was never status-filtered
+  in the first place.
+  Verified locally: created a temporary draft issue under a real,
+  previously-empty دوره (دورهٔ دوم), confirmed the row action correctly
+  switched to "انتقال و حذف…", ran it through to Uncategorized,
+  confirmed the draft (still in draft status, not accidentally
+  published) actually moved. Cleaned up the test post afterward, then
+  restored دورهٔ دوم itself (deleted as part of the same test — a real,
+  meaningful category, not test data) with its original ترتیب value.
+  No console or debug.log errors.
+  Plugin version bumped 1.2.1 → 1.2.2.
+  Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
+  Technical Scoping Plan.

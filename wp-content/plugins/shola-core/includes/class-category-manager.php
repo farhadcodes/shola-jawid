@@ -55,6 +55,22 @@ class Category_Manager {
 	);
 
 	/**
+	 * Every real, non-trashed post status this plugin's reassign/delete
+	 * flows must protect — not just `publish`. Several people actively
+	 * draft content on this site before anything goes live, so a term
+	 * holding only drafts or pending-review posts still holds real work
+	 * that must not be silently orphaned. `get_posts()`'s own default
+	 * (`post_status` => `publish` only) would miss exactly that content —
+	 * this is the fix for the gap Farhad found 2026-09-05 (a دوره with
+	 * real unpublished issues in it still showed the plain, unprotected
+	 * "حذف" link, because that decision was based on `$term->count`,
+	 * WordPress's own published-only cached count).
+	 *
+	 * @var string[]
+	 */
+	const REAL_POST_STATUSES = array( 'publish', 'future', 'draft', 'pending', 'private' );
+
+	/**
 	 * Set by enforce_depth_cap_on_update() when it silently keeps a
 	 * term's existing parent instead of applying a requested change that
 	 * would exceed the two-level cap — read by append_depth_capped_flag()
@@ -402,6 +418,17 @@ class Category_Manager {
 	 * keeps the normal delete link untouched. The Uncategorized term
 	 * itself never gets a delete link at all.
 	 *
+	 * Deliberately does NOT use `$term->count` for this decision —
+	 * WordPress's own cached term count only reflects *published*
+	 * posts, so a term holding only drafts or pending-review content
+	 * (real, in-progress editorial work — several people actively write
+	 * on this site before anything is published) would show `count`
+	 * zero and get the plain, unprotected delete link even though real
+	 * content sits there. Farhad hit exactly this, 2026-09-05: دورهٔ
+	 * دوم/سوم/چهارم had unpublished issues in them but still only showed
+	 * plain "حذف". Uses has_any_content_for_term() below instead, which
+	 * queries every real post status, not just published.
+	 *
 	 * @param string[] $actions Existing row action links, keyed by action id.
 	 * @param \WP_Term $term    Term for this row.
 	 * @return string[]
@@ -417,7 +444,10 @@ class Category_Manager {
 		}
 
 		$has_children = self::term_has_children( $term->taxonomy, $term->term_id );
-		if ( ! $has_children && $term->count < 1 ) {
+		$post_type    = isset( self::MANAGED[ $term->taxonomy ] ) ? self::MANAGED[ $term->taxonomy ] : '';
+		$has_content  = $post_type && self::has_any_content_for_term( $post_type, $term->taxonomy, $term->term_id );
+
+		if ( ! $has_children && ! $has_content ) {
 			return $actions;
 		}
 
@@ -677,6 +707,10 @@ class Category_Manager {
 		$siblings         = self::get_ordered_siblings( $taxonomy, (int) $term->parent, $term->term_id, $uncategorized_id );
 		$parent           = $term->parent ? get_term( $term->parent, $taxonomy ) : false;
 		$parent           = ( $parent && ! is_wp_error( $parent ) ) ? $parent : false;
+		// Real count, every status — not $term->count (WP core's own
+		// cached count is publish-only; see has_any_content_for_term()'s
+		// docblock for why that undercounts real, in-progress content).
+		$item_count = count( self::get_post_ids_for_term( self::MANAGED[ $taxonomy ], $taxonomy, $term->term_id ) );
 
 		$has_any_target = $siblings || $parent || ( $uncategorized_id && $uncategorized_id !== (int) $term->term_id );
 		?>
@@ -695,10 +729,10 @@ class Category_Manager {
 							_n(
 								'%1$d مورد در «%2$s» وجود دارد. پیش از حذف این دسته، مشخص کنید همهٔ آن‌ها به کدام دسته منتقل شوند.',
 								'%1$d مورد در «%2$s» وجود دارد. پیش از حذف این دسته، مشخص کنید همهٔ آن‌ها به کدام دسته منتقل شوند.',
-								$term->count,
+								$item_count,
 								'shola-core'
 							),
-							$term->count,
+							$item_count,
 							$term->name
 						)
 					);
@@ -759,9 +793,13 @@ class Category_Manager {
 			admin_url( 'edit-tags.php' )
 		);
 
-		$total = (int) $term->count;
+		// Real count, every status — see get_post_ids_for_term()'s docblock
+		// for why $term->count/$child->count (WP core's published-only
+		// cached counts) would undercount real, in-progress content here.
+		$post_type = self::MANAGED[ $taxonomy ];
+		$total     = count( self::get_post_ids_for_term( $post_type, $taxonomy, $term->term_id ) );
 		foreach ( $children as $child ) {
-			$total += (int) $child->count;
+			$total += count( self::get_post_ids_for_term( $post_type, $taxonomy, $child->term_id ) );
 		}
 		?>
 		<div class="wrap">
@@ -947,11 +985,10 @@ class Category_Manager {
 	}
 
 	/**
-	 * Post IDs of one post type currently related to one term, not
-	 * counting descendants — used identically by both submission
-	 * handlers and by rehome_orphans() would use if it queried directly
-	 * (it uses WordPress's own `$object_ids` param instead, since that's
-	 * already exactly this same information for the term being deleted).
+	 * Post IDs of one post type currently related to one term, in any
+	 * real (non-trashed) status, not counting descendants — used
+	 * identically by both submission handlers and by
+	 * has_any_content_for_term() below.
 	 *
 	 * @param string $post_type Post type to query.
 	 * @param string $taxonomy  Taxonomy slug.
@@ -962,6 +999,7 @@ class Category_Manager {
 		return get_posts(
 			array(
 				'post_type'      => $post_type,
+				'post_status'    => self::REAL_POST_STATUSES,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- admin-triggered one-off action, not a recurring front-end query.
@@ -974,6 +1012,37 @@ class Category_Manager {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Whether a term has any real content at all (any status —
+	 * published, draft, pending, scheduled, private), not counting
+	 * descendants. Cheaper than get_post_ids_for_term() for a yes/no
+	 * check: caps the query at one result instead of fetching everything.
+	 *
+	 * @param string $post_type Post type to query.
+	 * @param string $taxonomy  Taxonomy slug.
+	 * @param int    $term_id   Term ID.
+	 * @return bool
+	 */
+	private static function has_any_content_for_term( $post_type, $taxonomy, $term_id ) {
+		$found = get_posts(
+			array(
+				'post_type'      => $post_type,
+				'post_status'    => self::REAL_POST_STATUSES,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- admin-triggered one-off action, not a recurring front-end query.
+					array(
+						'taxonomy'         => $taxonomy,
+						'field'            => 'term_id',
+						'terms'            => $term_id,
+						'include_children' => false,
+					),
+				),
+			)
+		);
+		return ! empty( $found );
 	}
 
 	/* ------------------------------------------------------------------ */
