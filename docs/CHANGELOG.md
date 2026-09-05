@@ -5941,3 +5941,30 @@ trail of *why* the build deviated from — or newly applied — a rule in
   "۵۰۹" — no remaining Latin "509" anywhere it was checked.
   Theme version bumped 1.3.5 → 1.3.6.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — publication picker checked_ontop bug)
+- **Fixed:** `render_publication_radio_metabox()`'s `wp_terms_checklist()`
+  call (`class-taxonomies.php`) didn't pass `checked_ontop`, so it used
+  WP core's own default of `true` — this bubbles a checked term (and a
+  duplicate of its ancestor branch) to the top of the list, separated
+  from its real parent in the tree below. Farhad reported (screenshot,
+  2026-09-05) that reopening an issue for edit showed its دوره sitting
+  alone at the very top of the نشریات picker with no visible link to
+  which نشریه it belonged to — exactly this behavior, and a real
+  ambiguity problem for a taxonomy whose entire point is a fixed
+  نشریه → دوره hierarchy (added specifically so this couldn't be
+  mistaken, Phase 3-era work — see earlier entries). Set
+  `'checked_ontop' => false` so the picker always renders in the
+  taxonomy's real registered hierarchy, regardless of which دوره is
+  currently selected.
+  Verified locally: logged in via a temporary auth-cookie script (per
+  the established LocalWP testing pattern, deleted after use), opened
+  the same issue post from Farhad's screenshot, and confirmed via the
+  DOM that the checked دورهٔ اول term now renders correctly nested
+  inside its real parent's `<ul class="children">` — no more duplicate,
+  floating instance above the list.
+  Plugin version bumped 1.1.2 → 1.1.3.
+  Approved by: Farhad, in this session (2026-09-05). Farhad asked to be
+  checked back with about whether similar `wp_terms_checklist()`/
+  `checked_ontop` issues exist elsewhere on the site before closing
+  this out — see the next entry once that's done.

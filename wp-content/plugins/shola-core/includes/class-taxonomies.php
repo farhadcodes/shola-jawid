@@ -935,8 +935,23 @@ class Taxonomies {
 					wp_terms_checklist(
 						$post->ID,
 						array(
-							'taxonomy' => 'publication',
-							'walker'   => new Term_Radio_Walker(),
+							'taxonomy'      => 'publication',
+							'walker'        => new Term_Radio_Walker(),
+							/*
+							 * WP core's own default here is true, which
+							 * bubbles the checked term (and its parent) to
+							 * the top of the list, out of hierarchical
+							 * order — Farhad reported (screenshot,
+							 * 2026-09-05) that reopening an issue for edit
+							 * then shows its دوره sitting above its actual
+							 * نشریه parent, with no visual link between
+							 * them, making it impossible to tell which
+							 * نشریه a shuffled-to-top دوره belongs to. This
+							 * taxonomy's whole point is the fixed
+							 * نشریه → دوره hierarchy, so it must never
+							 * reorder regardless of what's selected.
+							 */
+							'checked_ontop' => false,
 						)
 					);
 					?>
