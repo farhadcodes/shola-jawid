@@ -94,7 +94,19 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 				<p class="section-marker"></p>
 				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_heading' ) ); ?></h2>
 			</div>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'home_topics_link_more' ) ); ?> <span class="arr">←</span></a>
+			<?php
+			/*
+			 * "همهٔ موضوعات ←" (link to /topics/) removed here 2026-09-05
+			 * per Farhad: it mislabeled this section (تازه‌ها is the
+			 * mixed "everything new" feed, not topic-scoped) and duplicated
+			 * the موضوعات section further down this same page, which
+			 * already lists every topic directly — no "view all" needed
+			 * for a link that just repeats content already on the page.
+			 * The home_topics_link_more label (inc/template-tags.php)
+			 * is now unused here but left defined in case a real "view
+			 * all" destination is added for this section later.
+			 */
+			?>
 		</div>
 		<div class="grid-cards">
 			<?php

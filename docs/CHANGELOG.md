@@ -5871,3 +5871,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   "۱۴۰۳–۱۴۰۵"). No plugin change required.
   Theme version bumped 1.3.2 → 1.3.3.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — تازه‌ها's redundant "view all" link)
+- **Changed:** removed the "همهٔ موضوعات ←" (link to `/topics/`) button
+  from تازه‌ها's homepage section header (`front-page.php`). Farhad
+  flagged it via screenshot: تازه‌ها is the mixed "everything new" feed
+  (articles + reports + documents + issues), not topic-scoped content,
+  so a link labeled "all topics" there was a mismatch; it also just
+  duplicated the موضوعات section further down the same homepage, which
+  already lists every topic directly with no "view all" of its own
+  needed. Removed rather than repointed, since تازه‌ها has no single
+  dedicated archive of its own to link to (it spans multiple post
+  types/CPTs) — every other homepage section's "view all" link points to
+  that section's real archive page; تازه‌ها is the one exception with no
+  such page, so no link is the correct fix here, not a placeholder one.
+  The `home_topics_link_more` label (`inc/template-tags.php`) is left
+  defined, now unused, in case a real destination is added later.
+  Verified locally: confirmed via the browser that تازه‌ها's header now
+  shows only the heading, with no stray link, and no console/debug.log
+  errors.
+  Theme version bumped 1.3.3 → 1.3.4.
+  Approved by: Farhad, in this session (2026-09-05).
