@@ -6008,3 +6008,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   more work than either fix above), not a small filter.
   Plugin version bumped 1.1.3 → 1.1.4.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — party_document_category fixed-order panel)
+- **Changed:** Farhad asked for the pre-emptive fix flagged in the entry
+  above rather than waiting. Added `use_fixed_order_party_document_category_metabox()`
+  (`class-taxonomies.php`, hooked on `add_meta_boxes`), which removes
+  `party_document_category`'s default block-editor box
+  (`party_document_categorydiv` — the ID WordPress's own block-editor
+  screen auto-removes in favor of its React panel for any REST-enabled
+  taxonomy) and re-adds it under a fresh ID
+  (`shcore-party-document-category-fixed-order`) using WordPress core's
+  own `post_categories_meta_box()` function directly — not a
+  reimplementation, so the "+ افزودن دسته" quick-add form, its nonce,
+  and its AJAX handling all keep working exactly as WordPress itself
+  built them. Since `post_categories_meta_box()` calls
+  `wp_terms_checklist()` internally, it already inherits
+  `checked_ontop => false` from the filter added in the previous entry —
+  no further change needed there. Same technique already proven for
+  `publication`/`issue` (`use_single_select_publication_metabox()`).
+  Verified locally: seeded two temporary test terms (a parent and a
+  checked child) via a scratch script, confirmed via the DOM that the
+  checklist now renders as a classic box (not the React panel — checked
+  there was exactly one "دسته‌های اسناد حزب" panel on the screen, not a
+  duplicate) with the checked child correctly nested under its parent in
+  `<ul class="children">`, no reordering. Deleted the test terms and
+  scratch scripts afterward, confirmed via `wp term list` that none
+  remain.
+  Plugin version bumped 1.1.4 → 1.1.5.
+  Approved by: Farhad, in this session (2026-09-05).

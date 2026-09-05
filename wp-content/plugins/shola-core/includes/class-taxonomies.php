@@ -107,6 +107,56 @@ class Taxonomies {
 		 * rather than only once someone notices the same confusion there.
 		 */
 		add_filter( 'wp_terms_checklist_args', array( __CLASS__, 'disable_checked_ontop_for_own_taxonomies' ), 10, 2 );
+
+		/*
+		 * `party_document_category`'s panel in the `party_document` block
+		 * editor is normally WordPress's own React hierarchical-term-
+		 * selector (since the taxonomy is show_in_rest => true), which has
+		 * its own "bump checked terms to the top" behavior baked into
+		 * WordPress core — completely separate from, and not reachable by,
+		 * the wp_terms_checklist_args filter above (that only affects the
+		 * classic PHP checklist, which the block editor skips in favor of
+		 * its own JS panel for any REST-enabled taxonomy). Added
+		 * 2026-09-05, Farhad: this is the one taxonomy on the site that's
+		 * self-managed (categories added freely by staff, unlike the fixed
+		 * topic/collection/report vocabularies), so it's the one place a
+		 * real parent/child structure — and the same ambiguity already
+		 * fixed for نشریات — could appear later. Swaps in WP core's own
+		 * `post_categories_meta_box()` (the exact function WordPress itself
+		 * would otherwise use, not a reimplementation) under a fresh meta
+		 * box ID so the block editor's automatic removal of the taxonomy's
+		 * *default* box ID (`party_document_categorydiv`) doesn't also
+		 * remove this one — same technique as
+		 * use_single_select_publication_metabox() above. Since
+		 * post_categories_meta_box() calls wp_terms_checklist() internally,
+		 * it already inherits checked_ontop => false from the filter above
+		 * with no further change needed — this box keeps the full
+		 * "+ افزودن دسته" quick-add form WP core provides (unlike
+		 * publication's radio box, which deliberately drops that form —
+		 * publication is a fixed vocabulary, this one is not).
+		 */
+		add_action( 'add_meta_boxes', array( __CLASS__, 'use_fixed_order_party_document_category_metabox' ) );
+	}
+
+	/**
+	 * Swaps the `party_document_category` taxonomy's default block-editor
+	 * panel (WordPress's own React hierarchical term selector) for a
+	 * classic meta box rendered via `post_categories_meta_box()` — see the
+	 * `init()` comment above this is registered from for why.
+	 *
+	 * @return void
+	 */
+	public static function use_fixed_order_party_document_category_metabox() {
+		remove_meta_box( 'party_document_categorydiv', 'party_document', 'side' );
+		add_meta_box(
+			'shcore-party-document-category-fixed-order',
+			__( 'دسته‌های اسناد حزب', 'shola-core' ),
+			'post_categories_meta_box',
+			'party_document',
+			'side',
+			'core',
+			array( 'taxonomy' => 'party_document_category' )
+		);
 	}
 
 	/**
