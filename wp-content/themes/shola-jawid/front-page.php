@@ -434,12 +434,12 @@ foreach ( $publication_terms as $pub_term ) {
 									<dt><?php esc_html_e( 'شماره', 'shola-jawid' ); ?></dt>
 									<dd><?php echo esc_html( $issue_number ); ?></dd>
 								<?php endif; ?>
-								<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
-								<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $issue ) ); ?>"><?php echo esc_html( get_the_date( '', $issue ) ); ?></time></dd>
 								<?php if ( $volume ) : ?>
 									<dt><?php esc_html_e( 'دوره', 'shola-jawid' ); ?></dt>
 									<dd><?php echo esc_html( $volume ); ?></dd>
 								<?php endif; ?>
+								<dt><?php esc_html_e( 'تاریخ نشر', 'shola-jawid' ); ?></dt>
+								<dd><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $issue ) ); ?>"><?php echo esc_html( get_the_date( '', $issue ) ); ?></time></dd>
 								<?php if ( $pdf_id ) : ?>
 									<dt><?php esc_html_e( 'فایل PDF', 'shola-jawid' ); ?></dt>
 									<dd lang="en"><?php echo esc_html( $pdf_size ? $pdf_size : 'PDF' ); ?></dd>

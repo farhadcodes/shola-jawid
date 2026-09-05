@@ -5892,3 +5892,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   errors.
   Theme version bumped 1.3.3 → 1.3.4.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — نشریات meta order)
+- **Changed:** reordered the homepage نشریات section's issue-meta list
+  (`front-page.php`) — دوره (period) now comes before تاریخ نشر
+  (publish date), matching Farhad's requested sequence: شماره, دوره,
+  تاریخ نشر, فایل PDF. Purely a markup reorder (moved the `$volume`
+  block ahead of the date `<dt>`/`<dd>` pair) — no field added, removed,
+  or restyled.
+  Verified locally via the DOM (`.issue-meta`'s child order) on both
+  publication cards (شعله جاوید, جهان برای فتح) on the homepage.
+  Theme version bumped 1.3.4 → 1.3.5.
+  Approved by: Farhad, in this session (2026-09-05).
