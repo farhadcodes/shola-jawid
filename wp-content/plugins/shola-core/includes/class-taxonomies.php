@@ -31,28 +31,14 @@ class Taxonomies {
 		add_action( 'admin_init', array( __CLASS__, 'seed_publication_periods' ) );
 
 		/*
-		 * ترتیب (manual sort order) for `publication` terms — added
-		 * 2026-09-02, Farhad reported the دوره tiles (see
-		 * seed_publication_periods() above) weren't rendering in
-		 * اول/دوم/سوم/چهارم order (WordPress's default term order for a
-		 * custom taxonomy isn't creation order or name order in any
-		 * guaranteed way) and asked for a CMS field to fix that himself,
-		 * for these and any دوره he adds later. No such field exists on a
-		 * custom taxonomy by default, so this adds one via term meta —
-		 * shown as a plain number field on both the "Add New" and "Edit"
-		 * term screens, plus a read-only column on the term list so the
-		 * current values are visible at a glance (not made click-to-sort,
-		 * to avoid the extra `terms_clauses` filtering that would need —
-		 * not asked for, and the front-end sort, not the admin table, is
-		 * what actually matters here).
+		 * ترتیب (manual sort order) for `publication` terms used to be
+		 * registered here, publication-only — generalized 2026-09-05 to
+		 * every managed taxonomy (topic, collection,
+		 * party_document_category, report, publication) and moved to
+		 * Category_Manager (class-category-manager.php), alongside that
+		 * same generalization's Uncategorized-term/reassign-before-delete
+		 * work. See that file for the full history.
 		 */
-		add_action( 'init', array( __CLASS__, 'register_publication_order_meta' ) );
-		add_action( 'publication_add_form_fields', array( __CLASS__, 'render_publication_order_add_field' ) );
-		add_action( 'publication_edit_form_fields', array( __CLASS__, 'render_publication_order_edit_field' ) );
-		add_action( 'created_publication', array( __CLASS__, 'save_publication_order' ) );
-		add_action( 'edited_publication', array( __CLASS__, 'save_publication_order' ) );
-		add_filter( 'manage_edit-publication_columns', array( __CLASS__, 'add_publication_order_column' ) );
-		add_filter( 'manage_publication_custom_column', array( __CLASS__, 'render_publication_order_column' ), 10, 3 );
 
 		/*
 		 * Single-select `publication` term picker on the `issue` edit
@@ -840,135 +826,6 @@ class Taxonomies {
 		}
 
 		update_option( 'shcore_reports_tag_migrated', 1 );
-	}
-
-	/**
-	 * Registers `shcore_term_order` on the `publication` taxonomy — see
-	 * the init() comment above for why this exists.
-	 *
-	 * @return void
-	 */
-	public static function register_publication_order_meta() {
-		register_term_meta(
-			'publication',
-			'shcore_term_order',
-			array(
-				'type'              => 'integer',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'absint',
-				'auth_callback'     => function () {
-					return current_user_can( 'manage_categories' );
-				},
-			)
-		);
-	}
-
-	/**
-	 * ترتیب field on the "افزودن دستهٔ جدید" (Add New Term) side panel —
-	 * WP core's own `<div class="form-field">` markup convention for that
-	 * screen, matching every core field around it.
-	 *
-	 * @return void
-	 */
-	public static function render_publication_order_add_field() {
-		?>
-		<div class="form-field">
-			<label for="shcore-term-order"><?php esc_html_e( 'ترتیب', 'shola-core' ); ?></label>
-			<input type="number" name="shcore_term_order" id="shcore-term-order" step="1" min="0">
-			<p><?php esc_html_e( 'عددی کوچک‌تر زودتر نمایش داده می‌شود (مثلاً ۱ برای دورهٔ اول). خالی یعنی آخر فهرست.', 'shola-core' ); ?></p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * ترتیب field on the term "ویرایش" (Edit) screen — WP core's own
-	 * `<tr class="form-field">` markup convention for that screen.
-	 *
-	 * @param \WP_Term $term Term being edited.
-	 * @return void
-	 */
-	public static function render_publication_order_edit_field( $term ) {
-		$order = get_term_meta( $term->term_id, 'shcore_term_order', true );
-		?>
-		<tr class="form-field">
-			<th scope="row"><label for="shcore-term-order"><?php esc_html_e( 'ترتیب', 'shola-core' ); ?></label></th>
-			<td>
-				<input type="number" name="shcore_term_order" id="shcore-term-order" step="1" min="0" value="<?php echo esc_attr( $order ); ?>">
-				<p class="description"><?php esc_html_e( 'عددی کوچک‌تر زودتر نمایش داده می‌شود (مثلاً ۱ برای دورهٔ اول). خالی یعنی آخر فهرست.', 'shola-core' ); ?></p>
-			</td>
-		</tr>
-		<?php
-	}
-
-	/**
-	 * Saves ترتیب on both create and edit — `created_publication`/
-	 * `edited_publication` both fire with the term ID as their first
-	 * arg, so one handler covers both hooks. No nonce check here
-	 * deliberately: both hooks only ever fire as a result of
-	 * `wp_insert_term()`/`wp_update_term()` being called from WP core's
-	 * own admin term-management flows (the "Add New Term" AJAX handler,
-	 * the term-edit page's save handler), each of which already verifies
-	 * its own nonce — a different one per flow — before ever reaching
-	 * that call; adding a second, hand-picked nonce check here would
-	 * just be guessing at (and could easily mismatch) core's internal
-	 * nonce action names. The capability check below is what actually
-	 * matters. Empty input clears the value (falls back to "last") rather
-	 * than being coerced to 0, which would instead sort it *first* — `''`
-	 * and `'0'` are meaningfully different here, so this checks for an
-	 * empty string specifically, not falsiness.
-	 *
-	 * @param int $term_id Term ID.
-	 * @return void
-	 */
-	public static function save_publication_order( $term_id ) {
-		if ( ! current_user_can( 'manage_categories' ) || ! isset( $_POST['shcore_term_order'] ) ) {
-			return;
-		}
-
-		$raw = sanitize_text_field( wp_unslash( $_POST['shcore_term_order'] ) );
-		if ( '' === $raw ) {
-			delete_term_meta( $term_id, 'shcore_term_order' );
-			return;
-		}
-
-		update_term_meta( $term_id, 'shcore_term_order', absint( $raw ) );
-	}
-
-	/**
-	 * Adds the ترتیب column to the `publication` term list table, between
-	 * توضیح and شمار (count) — a plain read-only display, not click-to-
-	 * sort (see the init() comment for why).
-	 *
-	 * @param string[] $columns Existing column id => label map.
-	 * @return string[]
-	 */
-	public static function add_publication_order_column( $columns ) {
-		$new_columns = array();
-		foreach ( $columns as $key => $label ) {
-			$new_columns[ $key ] = $label;
-			if ( 'description' === $key ) {
-				$new_columns['shcore_term_order'] = __( 'ترتیب', 'shola-core' );
-			}
-		}
-		return $new_columns;
-	}
-
-	/**
-	 * Renders the ترتیب column's value for one row.
-	 *
-	 * @param string $content     Existing column content (always '' for a
-	 *                            custom column — WP core never fills this in).
-	 * @param string $column_name Column being rendered.
-	 * @param int    $term_id     Term ID for this row.
-	 * @return string
-	 */
-	public static function render_publication_order_column( $content, $column_name, $term_id ) {
-		if ( 'shcore_term_order' !== $column_name ) {
-			return $content;
-		}
-		$order = get_term_meta( $term_id, 'shcore_term_order', true );
-		return '' === $order ? '—' : esc_html( $order );
 	}
 
 	/**

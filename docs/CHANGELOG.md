@@ -6036,3 +6036,87 @@ trail of *why* the build deviated from — or newly applied — a rule in
   remain.
   Plugin version bumped 1.1.4 → 1.1.5.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — Phase 8: category management, generalized)
+- **Added:** generalized category/subcategory management across every
+  hierarchical taxonomy this plugin owns (موضوعات, مجموعه‌ها, دسته‌های
+  اسناد حزب, گزارش, نشریات) — see the Technical Scoping Plan's Phase 8
+  for the full requirements history. Replaced `class-term-reassign.php`
+  (2026-09-04's `publication`-only reassign-before-delete flow) with a
+  new `class-category-manager.php`, generalized to all five taxonomies
+  via one `taxonomy => post_type` map. Four pieces:
+  1. **ترتیب (sort order) field**, previously `publication`-only, now on
+     every managed taxonomy's Add/Edit term screens and term-list
+     column. Method bodies unchanged from the original — only how
+     they're hooked (once per taxonomy, not hardcoded to one) is new.
+  2. **A permanent "دسته‌بندی‌نشده" (Uncategorized) term per taxonomy** —
+     self-healing-seeded (admin_init + options flag, the same pattern
+     used elsewhere in this plugin for a code-only zip redeploy that
+     doesn't re-fire activation hooks), visible and directly selectable
+     by staff (matches WordPress's own native Categories behavior,
+     confirmed with Farhad before building). Its "حذف" row action is
+     removed so it can't be deleted through the normal UI; since
+     WordPress has no filter that can block `wp_delete_term()` outright
+     (`pre_delete_term` is an action, not a short-circuit filter — same
+     limitation the original `publication`-only version's docblock
+     already documented), a `delete_term` safety net immediately
+     re-creates it and moves any content still attached back onto the
+     fresh term if it's ever deleted anyway via bulk-select, WP-CLI, or
+     REST.
+  3. **Reassign-before-delete, generalized**, with two flows depending
+     on what's being deleted:
+     - A **leaf term** (no subcategories) with content: a dropdown of a
+       sibling term, the parent term, or Uncategorized — same as the
+       original `publication`-only flow, minus the "no destination
+       available" dead end it had before (now falls through to
+       Uncategorized instead of blocking).
+     - A **term with subcategories**: a single confirmation moving
+       *everything* under that branch — the term's own content and
+       every subcategory's — to Uncategorized in one step, deleting the
+       subcategories first and the term itself last (new; the original
+       version never had to handle a parent-with-children case).
+     The same bulk-delete/WP-CLI/REST safety net as before (now
+     generalized to all five taxonomies) falls back to Uncategorized
+     instead of doing nothing when there's no sibling.
+  4. **A two-level depth cap** (category → subcategory, never a third
+     level) — new. Creating a term under a parent that already has a
+     parent is rejected outright with a clear error (`pre_insert_term`
+     filter, which can cleanly reject with a message). Re-parenting an
+     *existing* term into that same situation can't be cleanly rejected
+     the same way (`wp_update_term_parent` only filters the parent
+     value, it can't stop the rest of the save) — silently keeps the
+     term's current parent instead, and flags the post-save redirect so
+     an admin notice tells the editor why their change to that one
+     field didn't stick. Known, accepted gap: the Parent dropdown itself
+     isn't pre-filtered to hide invalid choices, so a level-2 term can
+     still be *picked* as a new parent — only rejected/clamped at save
+     time. Left as-is rather than also rebuilding the dropdown, since
+     the save-time enforcement already prevents any actual bad state.
+  Checked, before writing anything, that this couldn't surface
+  Uncategorized (or a newly-added category) as unexpected homepage/hub-
+  page clutter: every one of those pages (front-page.php's موضوعات/
+  نشریات sections, page-library.php's shelf list, page-party-
+  documents.php, page-reports.php) reads from either a nav-menu-driven
+  ordered list or a hardcoded slug array — never a blind "list every
+  term" call — so a new term is invisible on the front end by default,
+  exactly like it already was for موضوعات/کتابخانه before this change.
+  Verified locally end-to-end via the real admin UI (not just
+  WP-CLI): created a temporary parent+child category with a temporary
+  test document, ran both the leaf-reassign flow and the cascade flow
+  through the actual reassignment screen, confirmed the content landed
+  on Uncategorized both times and the terms were gone; separately
+  confirmed the depth cap rejects a 3rd-level `wp term create` with the
+  expected error, and that re-parenting an existing term with children
+  is silently clamped with the expected admin notice. Deleted all test
+  terms/posts/scratch scripts afterward, confirmed via `wp term list`
+  that only real content remains in every taxonomy touched. No console
+  or debug.log errors from any of this — one pre-existing, unrelated
+  PHP 8.1 deprecation notice from WordPress core's own
+  wp-admin/includes/template.php (`strip_tags(): Passing null`) appeared
+  on the hidden reassignment screen, same as it already does elsewhere
+  in wp-admin on this PHP version; not something this change introduced
+  or something in scope to fix here.
+  Plugin version bumped 1.1.5 → 1.2.0 (minor bump, not a patch — this is
+  a real capability added across every taxonomy, not a fix).
+  Approved by: Farhad, in this session (2026-09-05) — Phase 8 of the
+  Technical Scoping Plan.
