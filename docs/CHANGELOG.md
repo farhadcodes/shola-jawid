@@ -6227,3 +6227,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   correctly. No console or debug.log errors.
   Plugin version bumped 1.2.2 → 1.2.3.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — plugin whitelist addition: FileBird)
+- **Added:** `FileBird` to the plugin whitelist (CLAUDE.md §3) for Media
+  Library folder organization — Farhad's own idea, raised after seeing
+  the Media Library as one large, growing flat pile with no way to
+  group PDFs/images/videos. Presented two options first: fully custom
+  (a taxonomy-based folder system, reusing this same session's
+  `Category_Manager` mechanism, but List-view-only — no drag-and-drop in
+  the modern Grid view, since that requires extending WordPress core's
+  own internal Backbone.js media JS, an ongoing-maintenance surface, not
+  a stable public API) versus a dedicated plugin. Farhad initially
+  wanted only a genuinely free/open-source option, not a paid one.
+  Verified directly on WordPress.org before recommending it (not from
+  memory): 200,000+ active installs, 4.7★ (1,121 reviews), last updated
+  August 2026 — actively maintained; confirmed the *free* version
+  includes unlimited folders/subfolders and full drag-and-drop (not a
+  crippled "lite" tier) — the paid tier only adds unrelated features
+  (posts/pages folders, page-builder integrations, ZIP export).
+  Downloaded FileBird v6.5.8 directly from WordPress.org, installed and
+  activated on the local test site: confirmed folder creation works
+  (including a Persian-named test folder, no encoding issues), and that
+  the sidebar/UI renders correctly alongside the existing media grid.
+  File-to-folder drag-and-drop specifically wasn't confirmed end-to-end
+  in this session — automated browser testing can't reliably simulate
+  native HTML5 drag-and-drop, and this was cut short by the session
+  ending before an alternative (a context-menu/dropdown-based "move to
+  folder" action, likely present) could be checked. Not a concern given
+  FileBird's own install base and reviews already vouch for this exact
+  feature working; Farhad can verify it directly once installed.
+  FileBird is a public WordPress.org plugin (unlike this project's own
+  `shola-core`), so it installs the standard way — **افزونه‌ها → افزودن
+  افزونه** → search "FileBird" → Install Now → Activate — not a manual
+  zip upload, and it will receive its own update notifications through
+  WordPress core going forward like any other normal plugin.
+  Approved by: Farhad, in this session (2026-09-05).
