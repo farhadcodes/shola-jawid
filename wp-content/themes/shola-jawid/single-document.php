@@ -23,11 +23,7 @@ while ( have_posts() ) :
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
-	$pdf_size = '';
-	if ( $pdf_id ) {
-		$pdf_file = get_attached_file( $pdf_id );
-		$pdf_size = $pdf_file && file_exists( $pdf_file ) ? size_format( filesize( $pdf_file ) ) : '';
-	}
+	$pdf_size = shola_get_pdf_size( $pdf_id );
 
 	$related_query = false;
 	if ( $collection ) {

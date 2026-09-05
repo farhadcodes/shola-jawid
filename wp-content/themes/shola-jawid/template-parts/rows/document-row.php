@@ -42,11 +42,7 @@ $doc_term   = ( $doc_terms && ! is_wp_error( $doc_terms ) ) ? array_shift( $doc_
 $doc_author = get_post_meta( $doc->ID, 'shcore_author_source', true );
 
 $doc_pdf_id = (int) get_post_meta( $doc->ID, 'shcore_pdf_id', true );
-$doc_pdf_sz = '';
-if ( $doc_pdf_id ) {
-	$doc_pdf_file = get_attached_file( $doc_pdf_id );
-	$doc_pdf_sz   = $doc_pdf_file && file_exists( $doc_pdf_file ) ? size_format( filesize( $doc_pdf_file ) ) : '';
-}
+$doc_pdf_sz = shola_get_pdf_size( $doc_pdf_id );
 
 // "ص" (page count) and "ترجمه ۱۴۰۵" (translation year, seen on some
 // body-library-classics.html rows) both appear in v6's examples but

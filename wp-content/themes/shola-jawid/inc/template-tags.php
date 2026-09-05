@@ -105,6 +105,34 @@ function shola_get_jalali_year( $post = null ) {
 }
 
 /**
+ * Human-readable PDF file size in Persian digits (e.g. "۵۰۹ کیلوبایت")
+ * for a `shcore_pdf_id` attachment. Wraps WordPress's `size_format()` —
+ * which, like `number_format_i18n()` (see `shola_to_persian_digits()`
+ * above), still returns Latin digits on this fa_AF install — through
+ * `shola_to_persian_digits()`, so every PDF-size label site-wide comes
+ * from one place instead of each template repeating the
+ * `get_attached_file()`/`file_exists()`/`size_format()` dance on its
+ * own. Added 2026-09-05 after Farhad flagged single-issue.php's PDF
+ * size still showing Latin digits ("509") while the rest of the site's
+ * numbers are Persian.
+ *
+ * @param int|string $attachment_id A `shcore_pdf_id` post-meta value.
+ * @return string Persian-digit size string (e.g. "۵۰۹ کیلوبایت"), or
+ *                '' if there's no valid attached file.
+ */
+function shola_get_pdf_size( $attachment_id ) {
+	$attachment_id = (int) $attachment_id;
+	if ( ! $attachment_id ) {
+		return '';
+	}
+	$file = get_attached_file( $attachment_id );
+	if ( ! $file || ! file_exists( $file ) ) {
+		return '';
+	}
+	return shola_to_persian_digits( size_format( filesize( $file ) ) );
+}
+
+/**
  * Machine-readable ISO 8601 timestamp for `<time datetime="...">`
  * attributes. Must never be calendar/locale-converted regardless of what
  * human-readable text is shown next to it — HTML datetime attributes are

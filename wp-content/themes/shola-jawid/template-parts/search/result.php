@@ -52,11 +52,7 @@ if ( 'issue' === $post_type ) {
 
 	$doc_author = get_post_meta( $result->ID, 'shcore_author_source', true );
 	$doc_pdf_id = (int) get_post_meta( $result->ID, 'shcore_pdf_id', true );
-	$doc_pdf_sz = '';
-	if ( $doc_pdf_id ) {
-		$doc_pdf_file = get_attached_file( $doc_pdf_id );
-		$doc_pdf_sz   = $doc_pdf_file && file_exists( $doc_pdf_file ) ? size_format( filesize( $doc_pdf_file ) ) : '';
-	}
+	$doc_pdf_sz = shola_get_pdf_size( $doc_pdf_id );
 
 	$byline_parts = array_filter( array( $doc_author ) );
 	$byline       = implode( ' · ', $byline_parts );
@@ -65,11 +61,7 @@ if ( 'issue' === $post_type ) {
 	$term       = false; // No taxonomy for this type — see class-post-types.php.
 
 	$pub_pdf_id = (int) get_post_meta( $result->ID, 'shcore_pdf_id', true );
-	$pub_pdf_sz = '';
-	if ( $pub_pdf_id ) {
-		$pub_pdf_file = get_attached_file( $pub_pdf_id );
-		$pub_pdf_sz   = $pub_pdf_file && file_exists( $pub_pdf_file ) ? size_format( filesize( $pub_pdf_file ) ) : '';
-	}
+	$pub_pdf_sz = shola_get_pdf_size( $pub_pdf_id );
 } else {
 	$type_label = has_post_format( 'aside', $result ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
 	$terms      = get_the_terms( $result, 'topic' );

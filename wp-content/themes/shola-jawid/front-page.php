@@ -414,11 +414,7 @@ foreach ( $publication_terms as $pub_term ) {
 					$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 					$volume       = get_post_meta( $issue->ID, 'shcore_volume', true );
 					$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
-					$pdf_size     = '';
-					if ( $pdf_id ) {
-						$pdf_file = get_attached_file( $pdf_id );
-						$pdf_size = $pdf_file && file_exists( $pdf_file ) ? size_format( filesize( $pdf_file ) ) : '';
-					}
+					$pdf_size     = shola_get_pdf_size( $pdf_id );
 					?>
 					<div class="issue-hero issue-hero--embedded">
 

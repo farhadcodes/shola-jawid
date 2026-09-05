@@ -5904,3 +5904,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   publication cards (شعله جاوید, جهان برای فتح) on the homepage.
   Theme version bumped 1.3.4 → 1.3.5.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-05 (later still — single-issue.php cleanup + site-wide PDF-size digits)
+- **Changed:** three issues on the single-issue.php page (flagged by
+  Farhad via screenshot, "شعله جاوید · شمارهٔ ۲۰۲۶"):
+  1. Dropped the publication name from the H1 — it now shows just
+     "شمارهٔ ۲۰۲۶" instead of "شعله جاوید · شمارهٔ ۲۰۲۶". Reason:
+     redundant — the breadcrumb and the badge pill directly above the
+     H1 already name the publication, and this page is only ever
+     reached via that publication's own archive. The now-unused
+     `$pub_display` variable (and the docblock explaining it) were
+     removed along with it, rather than left as dead code.
+  2. Removed the "سردبیر مسئول" (managing editor) row from this page's
+     `dl.issue-meta` — Farhad: not wanted here. Per his explicit
+     instruction, `shola_get_managing_editor()` and its CMS setting are
+     untouched; only this one template's display row is gone.
+- **Fixed:** PDF file-size labels site-wide (`509 کیلوبایت`) were still
+  in Latin digits — the one remaining inconsistency Farhad hadn't yet
+  flagged elsewhere, caught here on the same page ("حجم فایل"). Root
+  cause: `size_format()` (like `number_format_i18n()`) doesn't localize
+  digits on this fa_AF install, same gap `shola_to_persian_digits()`
+  already exists to cover — but the `get_attached_file()`/
+  `file_exists()`/`size_format()` pattern was copy-pasted across 7 call
+  sites with no digit conversion at any of them. Added
+  `shola_get_pdf_size( $attachment_id )` (`inc/template-tags.php`) — one
+  place that does the file lookup + `size_format()` + digit conversion —
+  and replaced all 7 call sites with it: `single-issue.php`,
+  `single-document.php`, `single-party_document.php`,
+  `single-party_publication.php`, `front-page.php` (نشریات homepage
+  cards), `template-parts/search/result.php` (both its document and
+  party_publication branches), and `template-parts/rows/document-row.php`.
+  Verified locally: single-issue.php's title/سردبیر/PDF-size all
+  confirmed via the rendered HTML (title is now just "شمارهٔ ۲۰۲۶", no
+  سردبیر مسئول row, "۵۰۹ کیلوبایت" in Persian digits), and the homepage
+  نشریات cards (same helper, via front-page.php) also confirmed showing
+  "۵۰۹" — no remaining Latin "509" anywhere it was checked.
+  Theme version bumped 1.3.5 → 1.3.6.
+  Approved by: Farhad, in this session (2026-09-05).

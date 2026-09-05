@@ -36,11 +36,7 @@ while ( have_posts() ) :
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
-	$pdf_size = '';
-	if ( $pdf_id ) {
-		$pdf_file = get_attached_file( $pdf_id );
-		$pdf_size = $pdf_file && file_exists( $pdf_file ) ? size_format( filesize( $pdf_file ) ) : '';
-	}
+	$pdf_size = shola_get_pdf_size( $pdf_id );
 
 	// Guarded per CLAUDE.md §2: the theme must not fatal-error if
 	// shola-core is inactive — degrade to an empty TOC instead.
@@ -104,19 +100,15 @@ while ( have_posts() ) :
 
 			<?php
 			/*
-			 * 2026-09-03: both of these used $pub (a دوره/period child
-			 * term since the migration, e.g. `shola-jawid-dowre-1`) where
-			 * they actually mean the top-level publication (شعله جاوید/
-			 * جهان برای فتح) — shola_publication_status_label() always
-			 * returned «آرشیوی» here regardless of which publication,
-			 * since a دوره slug never equals 'shola-jawid', and the H1
-			 * showed the دوره's own name ("دورهٔ اول · شمارهٔ ۳۲") instead
-			 * of the publication's ("شعله جاوید · شمارهٔ ۳۲"). Both now use
-			 * $root_slug / $pub_parent (the resolved grandparent,
-			 * falling back to $pub itself if there's somehow no parent —
-			 * see where those are computed above).
+			 * 2026-09-03: this used $pub (a دوره/period child term since
+			 * the migration, e.g. `shola-jawid-dowre-1`) where it actually
+			 * means the top-level publication (شعله جاوید/جهان برای فتح) —
+			 * shola_publication_status_label() always returned «آرشیوی»
+			 * here regardless of which publication, since a دوره slug
+			 * never equals 'shola-jawid'. Now uses $root_slug (the
+			 * resolved grandparent's slug, falling back to $pub's own if
+			 * there's somehow no parent — see where it's computed above).
 			 */
-			$pub_display = $pub_parent ? $pub_parent : $pub;
 			?>
 			<div>
 				<p class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>">
@@ -130,9 +122,17 @@ while ( have_posts() ) :
 				</p>
 				<h1 class="article-title mt-sm">
 					<?php
+					/*
+					 * Publication name ("شعله جاوید ·") dropped from the H1,
+					 * 2026-09-05, per Farhad: the breadcrumb and the badge
+					 * pill directly above already say which publication this
+					 * is (and this page only ever renders reached via that
+					 * publication's own archive), so repeating the name here
+					 * was redundant.
+					 */
 					echo esc_html(
-						$number && $pub_display
-							? sprintf( '%1$s · %2$s', $pub_display->name, sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) )
+						$number
+							? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) )
 							: get_the_title()
 					);
 					?>
@@ -155,8 +155,15 @@ while ( have_posts() ) :
 						<dd lang="en"><?php echo esc_html( $pdf_size ); ?> · PDF</dd>
 					<?php endif; ?>
 
-					<dt><?php esc_html_e( 'سردبیر مسئول', 'shola-jawid' ); ?></dt>
-					<dd><?php echo esc_html( shola_get_managing_editor() ); ?></dd>
+					<?php
+					/*
+					 * سردبیر مسئول (managing editor) row removed from this
+					 * page's display, 2026-09-05, per Farhad: not wanted
+					 * here. shola_get_managing_editor() and its CMS/label
+					 * setting are untouched — only this template's dl row
+					 * is gone, not the underlying data or setting.
+					 */
+					?>
 				</dl>
 
 				<div class="row mt-sm">
