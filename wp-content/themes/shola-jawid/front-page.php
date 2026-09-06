@@ -26,12 +26,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-// Latest across articles + documents (the confirmed mixed-stream case),
-// newest first. First result is the hero if it's an article (v6 only
-// ever shows an article in hero position); the rest fill the grid.
+/*
+ * تازه‌ها — articles only, newest first. First result is the hero, the
+ * rest fill the grid.
+ *
+ * Changed 2026-09-06: this used to also include `document` (کتابخانه)
+ * — a deliberate "everything new" mixed feed, client-confirmed
+ * 2026-09-02 (see docs/CHANGELOG.md and مقالات's own comment below,
+ * which still describes that older reasoning). Reversed after the
+ * client saw it live: uploading a library book made it show up here,
+ * on the homepage's "latest" section, which read as wrong in
+ * practice even though it was working exactly as originally
+ * specified — کتابخانه already has its own homepage shelf further
+ * down this page, and content should only ever surface there, not
+ * duplicate into تازه‌ها too. Farhad confirmed with the client this
+ * section should be مقاله only, permanently, not a mixed stream.
+ */
 $latest_query = new WP_Query(
 	array(
-		'post_type'      => array( 'post', 'document' ),
+		'post_type'      => 'post',
 		'posts_per_page' => 7,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
@@ -39,15 +52,8 @@ $latest_query = new WP_Query(
 );
 $latest_posts = $latest_query->posts;
 
-$hero = null;
-foreach ( $latest_posts as $i => $p ) {
-	if ( 'post' === $p->post_type ) {
-		$hero = $p;
-		unset( $latest_posts[ $i ] );
-		break;
-	}
-}
-$latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
+$hero          = $latest_posts ? array_shift( $latest_posts ) : null;
+$latest_posts  = array_slice( $latest_posts, 0, 6 );
 ?>
 
 <?php if ( $hero ) : ?>
@@ -97,8 +103,10 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 			<?php
 			/*
 			 * "همهٔ موضوعات ←" (link to /topics/) removed here 2026-09-05
-			 * per Farhad: it mislabeled this section (تازه‌ها is the
-			 * mixed "everything new" feed, not topic-scoped) and duplicated
+			 * per Farhad: it mislabeled this section (تازه‌ها was, at the
+			 * time, the mixed "everything new" feed — since narrowed to
+			 * مقاله-only on 2026-09-06, see the query comment above — but
+			 * either way this section was never topic-scoped) and duplicated
 			 * the موضوعات section further down this same page, which
 			 * already lists every topic directly — no "view all" needed
 			 * for a link that just repeats content already on the page.
@@ -116,7 +124,7 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 					null,
 					array(
 						'post' => $p,
-						'type' => 'document' === $p->post_type ? 'document' : 'article',
+						'type' => 'article',
 					)
 				);
 			}
@@ -129,12 +137,14 @@ $latest_posts = array_slice( array_values( $latest_posts ), 0, 6 );
 /*
  * مقالات (Articles) — latest 6 posts of type `post`, every topic
  * combined, no exclusion against تازه‌ها above. Client-confirmed
- * 2026-09-02 (see docs/CHANGELOG.md): تازه‌ها is the "everything new"
- * feed (articles + reports + documents + issues), مقالات is the
- * "articles only" feed — duplication between the two is expected and
- * fine, so the newest article always shows in both. Previously this
- * excluded anything already in $latest_query (post__not_in) to avoid
- * duplicates; removed per that confirmation.
+ * 2026-09-02 (see docs/CHANGELOG.md): duplication between the two
+ * sections is expected and fine, so the newest article always shows in
+ * both — this held even back when تازه‌ها was a mixed "everything new"
+ * feed (articles + documents), and still holds now that تازه‌ها is
+ * مقاله-only too (2026-09-06) — the two sections just show almost the
+ * same thing at that point, by design, not by oversight. Previously
+ * this excluded anything already in $latest_query (post__not_in) to
+ * avoid duplicates; removed per that 2026-09-02 confirmation.
  *
  * `report` exclusion added 2026-09-05 (Phase 4, Technical Scoping Plan):
  * unlike its relationship with تازه‌ها above, this section specifically

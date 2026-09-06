@@ -6262,3 +6262,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   zip upload, and it will receive its own update notifications through
   WordPress core going forward like any other normal plugin.
   Approved by: Farhad, in this session (2026-09-05).
+
+## 2026-09-06 (Phase 9 of the Technical Scoping Plan — تازه‌ها narrowed to articles only)
+- **Changed:** `front-page.php`'s تازه‌ها section no longer includes
+  کتابخانه (`document`) — it queries `post_type => 'post'` only now,
+  same as it did before 2026-09-02's decision to widen it into a mixed
+  "everything new" feed (articles + documents). **This reverses that
+  earlier, explicitly-confirmed decision** — flagging it as a reversal,
+  not a bug fix, since the 2026-09-02 choice is still logged further up
+  this file. Reported by the client after testing on the live domain:
+  uploading a library book made it appear in تازه‌ها ("recent"), which
+  read as wrong in practice — کتابخانه already has its own dedicated
+  homepage shelf, and content should only ever surface there.
+  Audited the rest of the homepage first, before changing anything:
+  confirmed شماره‌های نشریه (`issue`), انتشارات حزب
+  (`party_publication`), and اسناد حزب (`party_document`) were never
+  wired into تازه‌ها's query in the first place — only `document` was —
+  so there was nothing to cut for those three.
+  Simplified the hero-selection logic alongside the query change: with
+  only one post type possible now, the "is this one an article"
+  type-check that used to pick the hero out of a mixed list is dead
+  code — replaced with a plain `array_shift()`. Same simplification for
+  the card-type branch in the grid loop (always `'article'` now, not a
+  ternary). Updated three stale comments referencing the old
+  mixed-feed reasoning (the query's own docblock, the now-removed
+  "همهٔ موضوعات" link's removal note, and مقالات's own comment about
+  "duplication with تازه‌ها being expected") so the file doesn't
+  contradict itself for the next person reading it.
+  Verified locally: published a temporary library item dated "right
+  now" and confirmed — by checking which homepage section actually
+  contained it — that it appeared only in کتابخانه's shelf, not in
+  تازه‌ها. Deleted the test item afterward. No console or debug.log
+  errors.
+  Approved by: Farhad, in this session (2026-09-06) — Phase 9 of the
+  Technical Scoping Plan.
