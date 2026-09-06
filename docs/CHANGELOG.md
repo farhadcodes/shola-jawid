@@ -6294,5 +6294,6 @@ trail of *why* the build deviated from — or newly applied — a rule in
   contained it — that it appeared only in کتابخانه's shelf, not in
   تازه‌ها. Deleted the test item afterward. No console or debug.log
   errors.
+  Theme version bumped 1.3.6 → 1.3.7.
   Approved by: Farhad, in this session (2026-09-06) — Phase 9 of the
   Technical Scoping Plan.
