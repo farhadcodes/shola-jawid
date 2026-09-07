@@ -6357,3 +6357,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.3.8 → 1.3.9.
   Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
   Technical Scoping Plan.
+
+- **Changed:** Farhad asked for the gap above to be removed completely,
+  not just shrunk — `.hero-lead`'s bottom margin reduced 2rem → 0.
+  Verified live: `gapHeroToSect` (`getBoundingClientRect()` difference
+  between the hero's bottom edge and تازه‌ترین مقالات's top edge) is now
+  1px — exactly the `<hr class="rule wrap">` divider's own height, i.e.
+  no gap left at all beyond the intentional dividing line. `main.css`
+  reload confirmed serving the new rule (`marginBottom: "0px"` via
+  computed style).
+  Theme version bumped 1.3.9 → 1.3.10.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
+  Technical Scoping Plan.

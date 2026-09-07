@@ -823,12 +823,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 /* -------------------------------------------------------------------------
    ۱۰ · Homepage hero — Aeon-style single dominant story
    ------------------------------------------------------------------------- */
-/* margin-bottom reduced 5rem -> 2rem, 2026-09-07: was tuned for the old
-   تازه‌ها grid (a plain white section, so the gap was invisible); now that
-   تازه‌ترین مقالات sits here with a cream background, the full 5rem read
-   as a dead white gap before the section's own color started. See
-   docs/CHANGELOG.md. */
-.hero-lead { margin-block: 0 2rem; position: relative; }
+/* margin-bottom reduced 5rem -> 2rem -> 0, 2026-09-07: was tuned for the
+   old تازه‌ها grid (a plain white section, so the gap was invisible); now
+   that تازه‌ترین مقالات sits here with a cream background, any positive
+   margin read as a dead white gap before the section's own color
+   started. Farhad asked for zero gap, not just a smaller one — the hr
+   divider and the section's own padding-top are enough separation on
+   their own. See docs/CHANGELOG.md. */
+.hero-lead { margin-block: 0 0; position: relative; }
 .hero-media {
   display: block;
   width: 100%;
