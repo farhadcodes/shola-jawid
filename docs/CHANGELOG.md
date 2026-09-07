@@ -6337,3 +6337,23 @@ trail of *why* the build deviated from — or newly applied — a rule in
   1.2.4 (label-settings description text only).
   Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
   Technical Scoping Plan.
+
+- **Fixed:** Farhad reported (screenshot) a visible blank gap between the
+  hero and تازه‌ترین مقالات on the live-equivalent local build, right
+  after the Phase 10 merge above shipped. Root cause: `.hero-lead`'s
+  `margin-block: 0 5rem` (80px) was tuned back when the section
+  immediately below it was تازه‌ها's own plain-white `.wrap.sect` — the
+  80px gap was there the whole time, just invisible on a white-on-white
+  background. Once مقالات (renamed تازه‌ترین مقالات) took that position
+  with its `.sect-cream` background, the same 80px rendered as an
+  obvious dead white band before the cream started. Not a new bug
+  introduced by the merge — a pre-existing gap the merge made visible.
+  Reduced to `margin-block: 0 2rem` (32px) — confirmed via
+  `getBoundingClientRect()` in a live local session: 81px gap before,
+  33px after; `main.css` reload confirmed picking up the new
+  `ver=1.3.8` query string, not a stale cache. `.hero-lead` is only used
+  on the homepage (grepped the theme first to confirm), so this change
+  has no effect anywhere else.
+  Theme version bumped 1.3.8 → 1.3.9.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
+  Technical Scoping Plan.
