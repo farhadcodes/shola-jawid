@@ -821,16 +821,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
  * for hover states/kickers everywhere else, so an official اطلاعیه
  * reads as its own register, not just "another crimson thing."
  *
+ * Height corrected same day: the first version spanned both grid rows
+ * showing only 1 اطلاعیه, which Farhad flagged from a live screenshot as
+ * leaving the tile mostly empty and making the whole homepage read as
+ * unusually long. Now one grid row tall (same height as a single
+ * article card) showing 3 اطلاعیه‌ها — 1 prominent + 2 compact
+ * (.card-spotlight-more) — so the tile is naturally full, and the
+ * visitor can tell at a glance which is newest.
+ *
  * Mobile (<720px, single column) and tablet (720-999px, two columns):
- * no room for a tall side panel next to a sensible card grid, so the
- * tile spans the full row width instead and sits first — an اطلاعیه
- * still deserves to be seen immediately even where it can't be a tall
- * side panel. Desktop (≥1000px, three columns): explicit placement in
- * the grid's third column (the visually left column under this site's
- * dir="rtl"), spanning both rows — .grid-cards--with-spotlight's
- * `grid-auto-flow: dense` lets the 4 article cards fill the remaining
- * two columns × two rows automatically, in their own DOM/newest-first
- * order, regardless of the spotlight sitting first in markup.
+ * no room for a side-by-side column layout next to a sensible card
+ * grid, so the tile spans the full row width instead and sits first —
+ * an اطلاعیه still deserves to be seen immediately even where the grid
+ * can't fit it beside other cards. Desktop (≥1000px, three columns):
+ * explicit placement in the grid's third column (the visually left
+ * column under this site's dir="rtl") — .grid-cards--with-spotlight's
+ * `grid-auto-flow: dense` lets the 5 article cards fill the remaining
+ * cells automatically, in their own DOM/newest-first order, regardless
+ * of the spotlight sitting first in markup.
  */
 .grid-cards--with-spotlight { grid-auto-flow: dense; }
 
@@ -838,34 +846,62 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.25rem;
   background: var(--maroon);
   color: var(--paper);
-  padding: 2rem;
+  padding: 1.75rem;
 }
-.card-spotlight-body { display: flex; flex-direction: column; gap: .75rem; }
+.card-spotlight-body { display: flex; flex-direction: column; gap: .6rem; }
 .card-spotlight .type-label { color: rgba(255, 255, 255, .78); }
 .card-spotlight .type-label .glyph { color: var(--paper); }
 .card-spotlight .h-card a { color: var(--paper); }
 .card-spotlight a:hover .h-card,
 .card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }
-.card-spotlight .card-dek { color: rgba(255, 255, 255, .82); }
-.card-spotlight .card-byline { color: rgba(255, 255, 255, .62); }
+.card-spotlight .card-dek { color: rgba(255, 255, 255, .82); -webkit-line-clamp: 2; line-clamp: 2; }
+.card-spotlight .card-byline { color: rgba(255, 255, 255, .62); margin-top: 0; }
 .card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: rgba(255, 255, 255, .4); }
 .card-spotlight .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
+/* The 2 smaller, "not the newest" اطلاعیه‌ها — title + date only, thin
+   dividers instead of card-style spacing, so they read as a compact
+   list clearly subordinate to the prominent one above them. */
+.card-spotlight-more {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin-top: .4rem;
+  padding-top: .6rem;
+  border-top: 1px solid rgba(255, 255, 255, .2);
+}
+.card-spotlight-more li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: .55rem;
+}
+.card-spotlight-more li + li { border-top: 1px solid rgba(255, 255, 255, .12); }
+.card-spotlight-more a {
+  color: rgba(255, 255, 255, .92);
+  font-size: var(--t-small);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card-spotlight-more a:hover { color: var(--paper); }
+.card-spotlight-more time {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, .55);
+  font-family: var(--font-nav);
+  font-size: 0.75rem;
+}
+
 @media (min-width: 720px) {
-  .card-spotlight { grid-column: 1 / -1; flex-direction: row; align-items: center; }
-  .card-spotlight-body { flex: 1; }
-  .card-spotlight .link-more { flex-shrink: 0; }
+  .card-spotlight { grid-column: 1 / -1; }
 }
 @media (min-width: 1000px) {
-  .card-spotlight {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .card-spotlight { grid-column: 3; }
 }
 
 .grid-cards-4 {

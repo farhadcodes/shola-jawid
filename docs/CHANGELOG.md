@@ -6420,3 +6420,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   behavior — feature-level bump, not a patch).
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+- **Changed:** Farhad flagged from a live homepage screenshot, right
+  after Phase 11 shipped, that the spotlight tile — spanning both grid
+  rows to show 1 اطلاعیه — left most of its own height empty, and made
+  the whole homepage read as unusually long/thin on content. Reworked
+  same day: tile now spans **1** grid row (half its previous height —
+  confirmed live: 974px → 467px at desktop, matching a single article
+  card exactly, zero content overflow at all 3 breakpoints tested), and
+  shows **3** اطلاعیه‌ها instead of 1 — the newest one prominent (title +
+  excerpt + date, unchanged from before), the other 2 as a compact list
+  below it (`.card-spotlight-more`: title + date only, thin dividers, no
+  excerpt) — so it's still obvious which is newest, but the tile is
+  naturally full rather than empty.
+  `front-page.php`: `$announcement_query` now pulls 3 posts instead of 1
+  (`template-parts/cards/announcement-spotlight.php`'s `$args` changed
+  from a single `post` to a `posts` array accordingly); article count
+  for تازه‌ترین مقالات adjusted 4 → 5 to match the tile now occupying 1 of
+  the grid's 6 cells instead of 2 — confirmed live at desktop: all 6
+  cells filled, no gap, no overlap.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.

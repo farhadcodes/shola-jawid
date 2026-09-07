@@ -111,19 +111,30 @@ $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
  * archive.
  *
  * اطلاعیه spotlight tile added 2026-09-07 (Phase 11, client-requested —
- * see docs/CHANGELOG.md): the latest اطلاعیه now occupies this grid's
- * own visually-leftmost slot (template-parts/cards/announcement-
- * spotlight.php, spanning both rows on desktop via .card-spotlight,
- * assets/css/main.css). Article count drops from 6 to 4 whenever a
- * spotlight actually renders, so the grid stays a clean 2x2 of articles
- * beside it instead of an uneven leftover column — falls back to 6 (the
- * original count) on the rare chance there are zero announcements, so
- * the grid is never short a row for no visible reason.
+ * see docs/CHANGELOG.md): the latest اطلاعیه‌ها occupy this grid's own
+ * visually-leftmost slot (template-parts/cards/announcement-
+ * spotlight.php). Article count drops from 6 to 5 whenever a spotlight
+ * actually renders, so the grid stays a clean, gap-free 3x2 — falls
+ * back to 6 (the original count, no tile) on the rare chance there are
+ * zero announcements, so the grid is never short a row for no visible
+ * reason.
+ *
+ * Tile height corrected same day (still Phase 11): originally spanned
+ * both grid rows showing only the single latest اطلاعیه, which Farhad
+ * flagged from a live screenshot as leaving the tile mostly empty —
+ * far more height than one short announcement's text needs, making the
+ * whole homepage read as unusually long. Changed to a single-row-height
+ * tile (matching one article card, not two) showing the 3 latest
+ * اطلاعیه‌ها instead of 1 — the newest rendered prominently, the other 2
+ * smaller, so the tile is naturally full rather than empty. Article
+ * count adjusted 4 → 5 to match: the tile now occupies 1 of the grid's
+ * 6 cells instead of 2, so 5 articles (not 4) fill the rest with no
+ * gap.
  */
 $announcement_query = new WP_Query(
 	array(
 		'post_type'      => 'announcement',
-		'posts_per_page' => 1,
+		'posts_per_page' => 3,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
@@ -133,7 +144,7 @@ $has_spotlight = $announcement_query->have_posts();
 $articles_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
-		'posts_per_page' => $has_spotlight ? 4 : 6,
+		'posts_per_page' => $has_spotlight ? 5 : 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
@@ -164,7 +175,7 @@ $articles_query = new WP_Query(
 					get_template_part(
 						'template-parts/cards/announcement-spotlight',
 						null,
-						array( 'post' => $announcement_query->posts[0] )
+						array( 'posts' => $announcement_query->posts )
 					);
 				}
 				while ( $articles_query->have_posts() ) :
