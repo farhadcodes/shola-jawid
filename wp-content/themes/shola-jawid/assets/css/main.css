@@ -884,6 +884,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
   background: var(--winston-red);
   color: var(--paper);
   padding: 1.75rem;
+  /*
+   * Mobile-only reorder, 2026-09-07 (still Phase 11): Farhad's real-
+   * device screenshot (iPhone 16 Pro Max width, 440px — still inside
+   * the <720px single-column layout) showed the tile sitting directly
+   * under تازه‌ترین مقالات's own heading, above every article card —
+   * correct on desktop (where it's a deliberate side-by-side column)
+   * but wrong here, since a single stacked column reads top-to-bottom
+   * as "read this first," and an اطلاعیه isn't meant to outrank the
+   * section's own articles at this width. `order: 1` — the tile is
+   * first in DOM (unchanged; screen readers/no-CSS fallback still meet
+   * it first) but visually last in the single-column stack, after all
+   * 5 article cards (which keep their default `order: 0`). Reset back
+   * to `order: 0` at ≥720px in the media query below, so tablet and
+   * desktop — explicitly confirmed untouched with Farhad — keep their
+   * existing tile-first layout exactly as shipped.
+   */
+  order: 1;
 }
 .card-spotlight-body { display: flex; flex-direction: column; gap: .6rem; }
 /*
@@ -1021,7 +1038,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 }
 
 @media (min-width: 720px) {
-  .card-spotlight { grid-column: 1 / -1; }
+  .card-spotlight { grid-column: 1 / -1; order: 0; }
 }
 @media (min-width: 1000px) {
   .card-spotlight { grid-column: 3; }

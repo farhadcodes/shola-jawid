@@ -6610,3 +6610,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   (820px), and mobile (375px, screenshot-confirmed).
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+- **Fixed:** Farhad reported from a real-device screenshot (iPhone 16
+  Pro Max, 440px wide — still inside the <720px single-column layout)
+  that the spotlight tile rendered directly under تازه‌ترین مقالات's own
+  heading, above every article card, at that width. Correct on desktop,
+  where the tile is a deliberate side-by-side column — wrong on a
+  single-column mobile stack, where top-to-bottom position reads as
+  "read this first," and an اطلاعیه isn't meant to outrank the section's
+  own articles there. Explicit instruction: mobile only, articles first,
+  tile after — desktop untouched.
+  Fixed with `order: 1` on `.card-spotlight` (mobile-only, i.e. below
+  the existing 720px breakpoint), reset back to `order: 0` inside the
+  `≥720px` media query that already exists for the tile's tablet/desktop
+  layout — so tablet and desktop pick up zero change. The tile's DOM
+  position is untouched (still first in markup — screen readers and any
+  no-CSS fallback still meet it first, unaffected by a purely visual
+  `order` reorder).
+  Verified live at all 3 breakpoints, not just the one that changed:
+  **375px** (and Farhad's own 440px) — tile now renders last, after all
+  5 article cards, confirmed via each grid item's own `getBoundingClientRect()`
+  top position, not just visually. **820px** (tablet) — tile still first,
+  pixel-identical top position to before this fix. **1440px** (desktop)
+  — tile still spans the grid's third column across both rows,
+  pixel-identical left/top coordinates to before this fix.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.
