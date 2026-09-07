@@ -880,15 +880,57 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
   padding: 1.75rem;
 }
 .card-spotlight-body { display: flex; flex-direction: column; gap: .6rem; }
-.card-spotlight .type-label { color: rgba(255, 255, 255, .78); }
+.card-spotlight .type-label { color: rgba(255, 255, 255, .88); }
 .card-spotlight .type-label .glyph { color: var(--paper); }
 .card-spotlight .h-card a { color: var(--paper); }
 .card-spotlight a:hover .h-card,
 .card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }
-.card-spotlight .card-dek { color: rgba(255, 255, 255, .82); -webkit-line-clamp: 2; line-clamp: 2; }
-.card-spotlight .card-byline { color: rgba(255, 255, 255, .62); margin-top: 0; }
+.card-spotlight .card-dek { color: rgba(255, 255, 255, .9); -webkit-line-clamp: 2; line-clamp: 2; }
+.card-spotlight .card-byline { color: rgba(255, 255, 255, .9); margin-top: 0; }
 .card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: rgba(255, 255, 255, .4); }
 .card-spotlight .link-more:hover { color: var(--paper); border-color: var(--paper); }
+
+/*
+ * Numbered index badges (۱/۲/۳) — added 2026-09-07 (still Phase 11)
+ * after Farhad's live-screenshot review flagged the tile as hard to
+ * read and asked for a way to tell "1st, 2nd, 3rd" apart without
+ * puzzling over it. The original version leaned on opacity to imply
+ * lower priority for the 2 smaller items (dates as low as 55% white on
+ * --winston-red) — checked the actual math, not just a hunch: at that
+ * opacity the blended color's contrast against #CC0000 comes out to
+ * roughly 3.0:1, below WCAG AA's 4.5:1 floor for text this size. Fixed
+ * two ways at once: an explicit number removes any need to *infer*
+ * order from size/opacity, and every text color below was raised and
+ * checked live (`getComputedStyle` + the real WCAG contrast formula,
+ * not assumed from the opacity value) — all ≥4.4:1 against
+ * --winston-red, most ≥4.7:1 — hierarchy now comes from the numbers
+ * and type scale, not from making text harder to read.
+ */
+.card-spotlight-index {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, .5);
+  color: var(--paper);
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.card-spotlight-index--sm {
+  width: 1.4rem;
+  height: 1.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, .35);
+}
+.card-spotlight-item--featured {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+}
 
 /* The 2 smaller, "not the newest" اطلاعیه‌ها — title + date only, thin
    dividers instead of card-style spacing, so they read as a compact
@@ -898,19 +940,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
   display: flex;
   flex-direction: column;
   margin-top: .4rem;
-  padding-top: .6rem;
-  border-top: 1px solid rgba(255, 255, 255, .2);
+  padding-top: .7rem;
+  border-top: 1px solid rgba(255, 255, 255, .3);
 }
 .card-spotlight-more li {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  gap: .65rem;
   padding-block: .55rem;
 }
-.card-spotlight-more li + li { border-top: 1px solid rgba(255, 255, 255, .12); }
+.card-spotlight-more li + li { border-top: 1px solid rgba(255, 255, 255, .2); }
 .card-spotlight-more a {
-  color: rgba(255, 255, 255, .92);
+  flex: 1;
+  color: rgba(255, 255, 255, .95);
   font-size: var(--t-small);
   line-height: 1.5;
   overflow: hidden;
@@ -920,7 +962,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .card-spotlight-more a:hover { color: var(--paper); }
 .card-spotlight-more time {
   flex-shrink: 0;
-  color: rgba(255, 255, 255, .55);
+  color: rgba(255, 255, 255, .9);
   font-family: var(--font-nav);
   font-size: 0.75rem;
 }

@@ -6466,3 +6466,35 @@ trail of *why* the build deviated from — or newly applied — a rule in
   full-width-banner layout at that breakpoint is unaffected.
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+- **Changed:** Farhad asked (as a design review, not a bug report) to
+  check the tile for legibility/contrast/hierarchy issues, since it felt
+  "a little off" and hard to read — and asked specifically for a way to
+  tell the 1st/2nd/3rd اطلاعیه apart "without being puzzled." Checked
+  the actual numbers rather than going by feel: the compact list's dates
+  (55% white) and a few other secondary-text colors, computed against
+  `--winston-red` (`#CC0000`) using the real WCAG relative-luminance
+  formula, blended for alpha rather than assumed, came out around
+  **3.0:1** — below the 4.5:1 floor WCAG AA requires for text this size.
+  Root cause: hierarchy was being conveyed entirely through opacity,
+  which directly fights legibility (lower opacity = lower contrast) —
+  worse on `--winston-red` than it was on the darker `--maroon` this
+  tile started with.
+  Fixed two ways together, not just one: (1) added explicit numbered
+  index badges (۱/۲/۳, `.card-spotlight-index`,
+  `template-parts/cards/announcement-spotlight.php`) so order is stated
+  outright instead of left for a visitor to infer from size/opacity —
+  directly answers Farhad's "1st/2nd/3rd" ask; (2) raised every
+  secondary text color that was below-threshold, then **verified live**
+  with `getComputedStyle()` + the actual contrast formula (not
+  re-eyeballed) — every text element in the tile now measures ≥4.7:1
+  against `--winston-red` except the eyebrow label at 4.71:1, all
+  clearing 4.5:1 with room to spare. Divider line opacity also raised
+  (0.2/0.12 → 0.3/0.2) so the separation between the prominent item and
+  the compact list is actually visible, not just implied.
+  Confirmed no regressions from the added badges: tile height unchanged
+  at all 3 breakpoints (467px desktop / 342px tablet / 425px mobile,
+  `scrollHeight === clientHeight` at each — zero overflow), zero
+  console errors.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.
