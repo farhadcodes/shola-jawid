@@ -15,11 +15,16 @@
  * removed entirely, not just relabeled: the client concluded it and
  * مقالات were duplicating the same content, so the homepage now shows
  * one merged "latest articles" section directly under the hero instead
- * of two (see docs/CHANGELOG.md). اطلاعیه‌ها and a newsletter signup
- * band were both in earlier versions of this page and are deliberately
- * not present — removed 2026-08-24 and 2026-08-08 respectively, per
- * Farhad (see docs/CHANGELOG.md); their own CPT/archive/nav presence
- * elsewhere on the site is untouched.
+ * of two (see docs/CHANGELOG.md). A newsletter signup band was in an
+ * earlier version of this page and is deliberately not present —
+ * removed 2026-08-08, per Farhad (see docs/CHANGELOG.md).
+ *
+ * اطلاعیه‌ها is back on the homepage as of 2026-09-07 (Phase 11) — not as
+ * its own full section like the one removed 2026-08-24, but as a
+ * spotlight tile embedded inside تازه‌ترین مقالات's own grid (see that
+ * section's query comment below and template-parts/cards/announcement-
+ * spotlight.php). The 2026-08-24 removal note above is history, not a
+ * standing rule against اطلاعیه‌ها appearing on the homepage at all.
  *
  * @package shola-jawid
  */
@@ -96,19 +101,39 @@ $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
  * real distinction, so تازه‌ها's grid was removed entirely (2026-09-07)
  * and this section — renamed to make its "recent articles" role
  * explicit — now sits directly under the hero instead, taking over that
- * position. No query change: still 6 posts, still no exclusion against
- * the hero above (same accepted-duplication reasoning as before).
+ * position. No exclusion against the hero above (same
+ * accepted-duplication reasoning as before, 2026-09-02).
  *
  * `report` exclusion added 2026-09-05 (Phase 4, Technical Scoping Plan):
  * this section specifically must NOT show reports — Farhad relayed the
  * client's instruction that موضوعات/مقالات and گزارش are two separate
  * feeds, reports only ever belong in their own homepage section and
  * archive.
+ *
+ * اطلاعیه spotlight tile added 2026-09-07 (Phase 11, client-requested —
+ * see docs/CHANGELOG.md): the latest اطلاعیه now occupies this grid's
+ * own visually-leftmost slot (template-parts/cards/announcement-
+ * spotlight.php, spanning both rows on desktop via .card-spotlight,
+ * assets/css/main.css). Article count drops from 6 to 4 whenever a
+ * spotlight actually renders, so the grid stays a clean 2x2 of articles
+ * beside it instead of an uneven leftover column — falls back to 6 (the
+ * original count) on the rare chance there are zero announcements, so
+ * the grid is never short a row for no visible reason.
  */
+$announcement_query = new WP_Query(
+	array(
+		'post_type'      => 'announcement',
+		'posts_per_page' => 1,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+);
+$has_spotlight = $announcement_query->have_posts();
+
 $articles_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
-		'posts_per_page' => 6,
+		'posts_per_page' => $has_spotlight ? 4 : 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
@@ -133,8 +158,15 @@ $articles_query = new WP_Query(
 				</div>
 				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
-			<div class="grid-cards">
+			<div class="grid-cards<?php echo $has_spotlight ? ' grid-cards--with-spotlight' : ''; ?>">
 				<?php
+				if ( $has_spotlight ) {
+					get_template_part(
+						'template-parts/cards/announcement-spotlight',
+						null,
+						array( 'post' => $announcement_query->posts[0] )
+					);
+				}
 				while ( $articles_query->have_posts() ) :
 					$articles_query->the_post();
 					get_template_part(
@@ -552,10 +584,14 @@ $library_documents_query = new WP_Query(
 
 <?php
 /*
- * اطلاعیه‌ها section removed from the homepage, Phase B (2026-08-24,
- * client-approved, see docs/CHANGELOG.md) — homepage-section removal
- * only. The announcement CPT, its archive.php template, and any nav
- * link to /announcements/ are untouched.
+ * اطلاعیه‌ها had no full section of its own here from Phase B (2026-08-24,
+ * client-approved, see docs/CHANGELOG.md) until Phase 11 (2026-09-07),
+ * when it returned in a different form — a spotlight tile inside تازه‌ترین
+ * مقالات's own grid, not a standalone section — see this file's top
+ * docblock and template-parts/cards/announcement-spotlight.php. Left
+ * this historical note in place rather than deleting it outright, since
+ * it still correctly describes why there's no *dedicated* اطلاعیه‌ها
+ * section at this position in the page.
  *
  * A second, unused `$documents_query` used to sit here too (dead code —
  * nothing below it ever rendered from it, confirmed by reading the rest

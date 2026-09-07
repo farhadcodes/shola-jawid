@@ -6369,3 +6369,54 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.3.9 → 1.3.10.
   Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
   Technical Scoping Plan.
+
+## 2026-09-07 (later same day) — Phase 11 (اطلاعیه spotlight tile)
+- **Added:** the latest اطلاعیه now gets its own accent-colored tile
+  inside تازه‌ترین مقالات's card grid, per Farhad's screenshot marking
+  exactly where — the grid's own visually-leftmost slot, spanning both
+  rows on desktop, replacing the 2 article cards that used to sit there.
+  Evaluated with Farhad before building (per his own request): confirmed
+  as a standard, well-understood editorial-grid pattern (a "spotlight"
+  tile inside a card grid, the same trick used for call-out blocks on
+  other news sites), not a redesign risk, since the hero stays untouched
+  and the change is scoped entirely to one grid's internal layout.
+  New: `template-parts/cards/announcement-spotlight.php` — renders the
+  single latest `announcement` post (title, excerpt, date — `announcement`
+  has no featured image, so no `.card-media` here, unlike card.php) with
+  its own "همهٔ اطلاعیه‌ها" link to the existing `/announcements/` archive.
+  Deliberately does not share تازه‌ترین مقالات's own "همهٔ مقالات" link —
+  two different content types, two different ways out, per Farhad's own
+  instinct that this needed "its own section."
+  `front-page.php`: added a 1-post `announcement` query; when it has a
+  result, the article count for تازه‌ترین مقالات drops 6 → 4 so the grid
+  reads as a clean 2×2 of articles beside the tile instead of an uneven
+  leftover column; falls back to 6 articles (no tile) on the (currently
+  hypothetical — 8 announcements exist live) chance there are none, so
+  the grid is never short a row for no visible reason.
+  `main.css`: new `.card-spotlight` — the first fully-saturated
+  background this design system uses anywhere (every other section is
+  paper/cream/tint). Uses `--maroon`, not `--crimson` — darker/more
+  restrained than the accent crimson used for hover states/kickers
+  elsewhere, so an official اطلاعیه reads as its own register rather than
+  "another crimson thing." No new color token added, per CLAUDE.md §5/§9.
+  Responsive, checked at all three breakpoints (not just assumed from the
+  CSS): **desktop** (≥1000px, 3-col grid) — tile explicitly placed in
+  column 3 (the visually-left column under this site's `dir="rtl"`,
+  confirmed via `getBoundingClientRect()`: tile at grid-relative `left:0`,
+  spanning `top:10` to `984`px, exactly the height of 2 stacked cards +
+  gap), 4 article cards auto-fill the remaining 2×2 via
+  `grid-auto-flow: dense` regardless of DOM order. **Tablet** (720–999px,
+  2-col grid) — no room for a tall side panel next to a sensible 2×2, so
+  the tile spans the full row width instead (`grid-column: 1 / -1`) and
+  switches to a horizontal (`flex-direction: row`) layout, sitting above
+  the article grid — confirmed live at 820px: 741px-wide banner, 210px
+  tall. **Mobile** (<720px, 1-col) — tile stacks like any other card,
+  full width, column layout — confirmed live at 375px: 335px square,
+  first in the stack, zero console errors, zero layout overflow.
+  Verified zero console/PHP errors at every breakpoint tested; confirmed
+  the tile's "همهٔ اطلاعیه‌ها" link resolves to the real, already-existing
+  `/announcements/` archive (not a placeholder).
+  Theme version bumped 1.3.10 → 1.4.0 (new template part + new grid
+  behavior — feature-level bump, not a patch).
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.

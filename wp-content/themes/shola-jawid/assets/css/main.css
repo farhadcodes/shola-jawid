@@ -812,6 +812,62 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 @media (min-width: 720px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1000px) { .grid-cards { grid-template-columns: repeat(3, 1fr); } }
 
+/*
+ * اطلاعیه spotlight tile (Phase 11, 2026-09-07, client-requested — see
+ * docs/CHANGELOG.md) — a solid accent block inside .grid-cards, the
+ * first fully-saturated background this design system uses anywhere
+ * (every other section is paper/cream/tint). --maroon rather than
+ * --crimson: darker and more restrained than the accent crimson used
+ * for hover states/kickers everywhere else, so an official اطلاعیه
+ * reads as its own register, not just "another crimson thing."
+ *
+ * Mobile (<720px, single column) and tablet (720-999px, two columns):
+ * no room for a tall side panel next to a sensible card grid, so the
+ * tile spans the full row width instead and sits first — an اطلاعیه
+ * still deserves to be seen immediately even where it can't be a tall
+ * side panel. Desktop (≥1000px, three columns): explicit placement in
+ * the grid's third column (the visually left column under this site's
+ * dir="rtl"), spanning both rows — .grid-cards--with-spotlight's
+ * `grid-auto-flow: dense` lets the 4 article cards fill the remaining
+ * two columns × two rows automatically, in their own DOM/newest-first
+ * order, regardless of the spotlight sitting first in markup.
+ */
+.grid-cards--with-spotlight { grid-auto-flow: dense; }
+
+.card-spotlight {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  background: var(--maroon);
+  color: var(--paper);
+  padding: 2rem;
+}
+.card-spotlight-body { display: flex; flex-direction: column; gap: .75rem; }
+.card-spotlight .type-label { color: rgba(255, 255, 255, .78); }
+.card-spotlight .type-label .glyph { color: var(--paper); }
+.card-spotlight .h-card a { color: var(--paper); }
+.card-spotlight a:hover .h-card,
+.card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }
+.card-spotlight .card-dek { color: rgba(255, 255, 255, .82); }
+.card-spotlight .card-byline { color: rgba(255, 255, 255, .62); }
+.card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+.card-spotlight .link-more:hover { color: var(--paper); border-color: var(--paper); }
+
+@media (min-width: 720px) {
+  .card-spotlight { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .card-spotlight-body { flex: 1; }
+  .card-spotlight .link-more { flex-shrink: 0; }
+}
+@media (min-width: 1000px) {
+  .card-spotlight {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .grid-cards-4 {
   display: grid;
   gap: 2.5rem 1.75rem;
