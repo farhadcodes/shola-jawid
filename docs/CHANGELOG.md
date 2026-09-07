@@ -6529,3 +6529,61 @@ trail of *why* the build deviated from — or newly applied — a rule in
   site-wide pattern beyond what was asked.
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+## 2026-09-07 (later same day) — Phase 12 (full homepage design review)
+- **Changed:** Farhad asked for a full UX/UI review of the homepage —
+  spacing, sizing, contrast, sharpness — comparing it against
+  international editorial-site standards, describing the overall feel
+  as "shallow" with spacing that read as too wide. Reviewed with a
+  written checklist shared and confirmed with Farhad first (vertical
+  rhythm, sparse/low-item sections, typography scale, contrast
+  site-wide, icon/card treatment, alignment consistency, topics list,
+  footer, mobile/tablet), then went through it methodically rather than
+  restyling by feel — every finding below was measured live, not
+  eyeballed.
+  **1. Vertical rhythm tightened** (site-wide, since these are shared
+  utility classes used well beyond the homepage): `.sect` padding-block
+  4rem → 3rem; `.section-head` margin-bottom 2.5rem → 2rem; `.grid-cards`
+  gap 2.5rem/2rem → 2rem/1.5rem; `.issue-grid` gap 3rem/2rem →
+  2rem/1.5rem. `.section-head--with-spotlight`'s alignment formula
+  (added earlier today, Phase 11) updated to match the new 1.5rem grid
+  gap — re-verified live afterward: still lands exactly at the leftmost
+  article card's edge (387px at desktop), not just assumed to still
+  work after the gap changed.
+  **2. Sparse-grid fix** — اسناد حزب and انتشارات حزب specifically read
+  as empty in Farhad's screenshot: both are `.sect-tint` sections with
+  only 2 seeded items, and `.issue-grid`'s old fixed `repeat(5, 1fr)`
+  desktop layout squeezed those 2 items into 2 of 5 equal columns,
+  leaving ~60% of the row as dead space. Changed to
+  `repeat(auto-fit, minmax(160px, 210px))` with `justify-content: start`
+  (≥640px only — mobile's `repeat(2, 1fr)` already filled correctly with
+  2 items and wasn't part of the complaint): columns now collapse to
+  match actual item count instead of reserving unused width. Deliberately
+  capped at 210px rather than left as `minmax(160px, 1fr)` — uncapped,
+  2 items would each grow to ~550px wide, and at this card's 3:4 aspect
+  ratio that's a ~730px-tall thumbnail, far more dominant than a shelf
+  card should be. Verified live: both sections' cards now render at a
+  clean 210px (desktop) / 210px (tablet) / 156px (mobile), not stretched,
+  not squeezed.
+  **3. Contrast — found via a systematic sweep, not spot-checking**: ran
+  a script over every text node on the live homepage
+  (`getComputedStyle` + the real WCAG contrast formula, effective
+  background resolved per element) rather than checking colors by eye.
+  Found `.issue-card-date` (`--stone`, `#6E6E6A`) on `.sect-tint`'s
+  `--crimson-tint` background at **3.94:1** — below the 4.5:1 AA floor —
+  affecting exactly اسناد حزب and انتشارات حزب, the same two sections
+  flagged as visually "off." Fixed with `.sect-tint .issue-card-date {
+  color: var(--ink-soft); }` — verified live afterward at **11.04:1**.
+  Every other flagged node from the sweep was a false positive from the
+  script not accounting for the hero's background *image* (defaults to
+  assuming white), not a real issue — confirmed by re-checking those
+  against the actual photo+scrim treatment already verified earlier
+  this session.
+  Verified zero console errors and zero layout regressions (including
+  the earlier spotlight tile) at desktop (1440px), tablet (820px), and
+  mobile (375px) — Farhad specifically asked mobile/tablet not be
+  skipped in this review.
+  Theme version bumped 1.4.4 → 1.5.0 (site-wide spacing-scale change
+  across shared utility classes, not a homepage-only patch).
+  Approved by: Farhad, in this session (2026-09-07) — Phase 12 of the
+  Technical Scoping Plan.

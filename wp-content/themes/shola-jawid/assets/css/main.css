@@ -649,7 +649,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
   width: 24px; height: 1px;
   background: var(--crimson);
 }
-.section-head { margin-bottom: 2.5rem; }
+/* margin-bottom reduced 2.5rem -> 2rem, 2026-09-07 full-homepage review
+   (same pass as .sect above — see docs/CHANGELOG.md). */
+.section-head { margin-bottom: 2rem; }
 .section-head .h-section { margin-top: .5rem; }
 
 /*
@@ -803,10 +805,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .card-mini .card-media { aspect-ratio: 16 / 10; }
 .card-mini .h-card { font-size: var(--t-body); font-weight: 700; line-height: 1.5; }
 
-/* Card grid */
+/* Card grid — gap tightened 2.5rem/2rem -> 2rem/1.5rem, 2026-09-07
+   full-homepage review (see docs/CHANGELOG.md). */
 .grid-cards {
   display: grid;
-  gap: 2.5rem 2rem;
+  gap: 2rem 1.5rem;
   grid-template-columns: 1fr;
 }
 @media (min-width: 720px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
@@ -860,7 +863,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
  * a side column, so the plain space-between already lines up correctly.
  */
 @media (min-width: 1000px) {
-  .section-head--with-spotlight { padding-inline-end: calc((100% - 4rem) / 3 + 2rem); }
+  /* Formula tracks .grid-cards's own column gap — updated to 1.5rem
+     2026-09-07 when that gap was tightened (see .grid-cards above); if
+     that gap ever changes again, this must change with it. */
+  .section-head--with-spotlight { padding-inline-end: calc((100% - 3rem) / 3 + 1.5rem); }
 }
 
 .card-spotlight {
@@ -1094,7 +1100,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 /* -------------------------------------------------------------------------
    ۱۱ · Sections & rules
    ------------------------------------------------------------------------- */
-.sect { padding-block: 4rem; }
+/* padding-block reduced 4rem -> 3rem, 2026-09-07: Farhad's full-homepage
+   design review, comparing against international editorial sites,
+   flagged the cumulative vertical rhythm across ~9 stacked sections as
+   too loose/"shallow" — this class is shared by every section site-wide
+   (not homepage-only), so the tightening applies everywhere .sect is
+   used, which is the intended, consistent outcome, not homepage-only
+   scope creep. See docs/CHANGELOG.md for the full review. */
+.sect { padding-block: 3rem; }
 .sect-lg { padding-block: 5.5rem; }
 .sect-tint { background: var(--crimson-tint); }
 .sect-cream { background: var(--cream); }
@@ -1535,14 +1548,42 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .doc-row .doc-body a:hover { color: var(--crimson); }
 .doc-row .doc-meta { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; margin-top: .35rem; }
 
-/* Issue grid — for publication archive */
+/*
+ * Issue grid — for publication archive and homepage shelves (اسناد حزب,
+ * انتشارات حزب, کتابخانه). Gap tightened 3rem/2rem -> 2rem/1.5rem,
+ * 2026-09-07 full-homepage review, same pass as .grid-cards above.
+ *
+ * Column behavior changed the same day, from 3 fixed breakpoints
+ * (repeat(3/4/5, 1fr) — always exactly that many equal-width columns
+ * regardless of item count) to `repeat(auto-fit, minmax(...))`: Farhad's
+ * review flagged اسناد حزب and انتشارات حزب specifically as reading
+ * "shallow"/empty — both currently have only 2 items, which the old
+ * fixed-5-column desktop layout squeezed into 2 of 5 equal columns,
+ * leaving 3 columns' worth (roughly 60% of the row) as dead space next
+ * to them. `auto-fit` collapses columns that have no content instead of
+ * reserving their width, so the same 2 items now use only as many
+ * columns as they need — verified live afterward on both sections.
+ * Capped at minmax(160px, 210px) rather than minmax(160px, 1fr)
+ * deliberately: with only 2 items and no upper cap, `1fr` would let
+ * each card grow to roughly half the container's width (~550px) —
+ * portrait 3:4 cards would balloon to ~730px tall, far more dominant
+ * than a "shelf" thumbnail should ever be. The 210px cap keeps card
+ * size consistent regardless of how many items exist; extra row space
+ * beyond however many capped columns fit just trails as empty margin
+ * (`justify-content: start`), which reads as normal shelf breathing
+ * room, not as a layout that's obviously missing content.
+ * Base (<640px) mobile behavior is untouched — `repeat(2, 1fr)` already
+ * fills the row exactly with 2 items and wasn't part of the complaint;
+ * the fix only replaces the ≥640px breakpoints where the emptiness
+ * actually showed up.
+ */
 .issue-grid {
-  display: grid; gap: 3rem 2rem;
+  display: grid; gap: 2rem 1.5rem;
   grid-template-columns: repeat(2, 1fr);
 }
-@media (min-width: 640px) { .issue-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 900px) { .issue-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (min-width: 1120px){ .issue-grid { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 640px) {
+  .issue-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 210px)); justify-content: start; }
+}
 
 .issue-card { display: flex; flex-direction: column; gap: .75rem; }
 .issue-card-media {
@@ -1557,6 +1598,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .issue-card-title { font-size: var(--t-small); font-weight: 700; color: var(--ink); }
 .issue-card-title a:hover { color: var(--crimson); }
 .issue-card-date { font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .08em; color: var(--stone); text-transform: uppercase; }
+/*
+ * Contrast fix, 2026-09-07 full-homepage review: found via a systematic
+ * contrast sweep of the live homepage (getComputedStyle + the actual
+ * WCAG formula, not spot-checked), not something visually obvious —
+ * --stone (#6E6E6A) on .sect-tint's --crimson-tint (#F5DCDC) background
+ * measures 3.94:1, below the 4.5:1 AA floor for text this size. Affects
+ * اسناد حزب and انتشارات حزب specifically, since both are .sect-tint
+ * sections using .issue-card-date. --ink-soft clears the same
+ * background comfortably (checked live: >10:1) while still reading as
+ * secondary/muted text next to .issue-card-title's darker --ink.
+ */
+.sect-tint .issue-card-date { color: var(--ink-soft); }
 
 /* -------------------------------------------------------------------------
    ۱۵ · Topic index (Aeon-style horizontal list)
