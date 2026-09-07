@@ -6636,3 +6636,69 @@ trail of *why* the build deviated from — or newly applied — a rule in
   pixel-identical left/top coordinates to before this fix.
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+## 2026-09-07 (later same day) — Phase 13 (sticky/shrink masthead)
+- **Added:** sticky, shrinking masthead across the whole site, per
+  Farhad's request for the pattern common on international editorial
+  sites — full-size at page top, then a narrower, compact bar once the
+  page scrolls, on desktop and mobile alike. Farhad's explicit
+  constraints, gathered before building: only the date line under the
+  title (`.mast-runner`) disappears — every other element (title,
+  نشریات/موضوعات/کتابخانه, دربارهٔ ما/اطلاعیه‌ها/تماس, search, the menu
+  button) stays, scaling down together in proportion, with better
+  spacing, and the title must stay easily readable at the smaller size.
+  **Mechanism**: `.masthead` changed from `position: relative` to
+  `position: sticky; top: 0` — plain CSS, so it stays sticky even with
+  JavaScript disabled, per this project's progressive-enhancement rule.
+  Offset below the WP admin toolbar when logged in
+  (`body.admin-bar .masthead`), using WP core's own two admin-bar
+  heights (32px desktop, 46px below its own 782px breakpoint) — not a
+  value invented for this theme.
+  `main.js`: a new `IntersectionObserver` watches `#mast-sentinel`
+  (`header.php` — an invisible 1×1px marker fixed 80px from the top of
+  the page, positioned via `position:absolute` with no positioned
+  ancestor so it holds that document coordinate while the page scrolls
+  under it). Once it scrolls out of view, `.masthead` gets
+  `.is-scrolled`. Same IntersectionObserver technique already used for
+  this theme's scroll-reveal animations — cheaper than a raw
+  scroll-event listener recalculating every frame. Deliberately does
+  NOT also refresh `--masthead-h` (the existing JS-computed variable
+  `.hero-media` sizes itself against) on this toggle — tried that first,
+  reverted after live testing showed it makes `.hero-media` grow taller
+  exactly when the masthead compacts (a smaller `--masthead-h` means
+  `calc(100dvh - masthead-h)` computes larger), shifting page content
+  under the user mid-scroll. `--masthead-h` only ever needs the
+  full-size masthead height for the hero's one-time initial-viewport
+  fit, never the current scroll-time height.
+  **Scaling**: one custom property, `--mast-scale` (1 normally, 0.68
+  once `.is-scrolled`), multiplies every sized value in the masthead —
+  padding, gaps, font-sizes, icon dimensions — via `calc()`, so the bar
+  shrinks as one proportional unit instead of several independently-
+  tuned values that could drift out of ratio with each other. A `max()`
+  floor (0.75rem) was added to `.mast-btn`'s font-size after live
+  testing showed the bare `calc()` alone would land the already-smaller
+  utility row (اطلاعیه‌ها/تماس/دربارهٔ ما, 0.85rem base) at ~9.25px —
+  too small to read comfortably, letterspaced uppercase besides; the
+  floor keeps every nav label at a legible ~12px minimum while padding/
+  gaps/icons above it still shrink fully, honoring Farhad's explicit
+  "readable" requirement rather than shrinking indiscriminately.
+  `.mast-runner` collapses via `max-height`/`opacity`/`margin-top`
+  transitions (not `display: none`, which can't animate), so it fades
+  out smoothly rather than snapping away.
+  All transitions guarded under `prefers-reduced-motion: reduce`
+  (matches this theme's existing `.card-media img` pattern) — compact
+  toggle happens instantly, no animation, for visitors who've opted out
+  of motion.
+  Verified live at both breakpoints (not assumed from the CSS): **desktop
+  (1440px)** — masthead height 113px → 69px, title 30.72px → 20.89px
+  (comfortably readable), نشریات/موضوعات/کتابخانه and
+  دربارهٔ‌ما/اطلاعیه‌ها/تماس both floor at 12px, sticky `top: 32px` under
+  the logged-in admin bar, confirmed via `getComputedStyle` after a real
+  scroll. **Mobile (375px)** — masthead height 115px → 58px (~50%
+  reduction), title 23.04px → 15.67px, sticky `top: 46px` (WP's mobile
+  admin-bar height), date line fully hidden
+  (`opacity:0; max-height:0px`). Confirmed the hamburger menu still opens
+  correctly while the masthead is in its compact state. Zero console
+  errors at either breakpoint.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 13 of the
+  Technical Scoping Plan.

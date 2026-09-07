@@ -27,6 +27,35 @@
     };
     setMastheadHeightVar();
     window.addEventListener("resize", setMastheadHeightVar);
+
+    /* ---------- ناوبار چسبان و کوچک‌شونده (Phase 13, 2026-09-07) ----------
+       Client-requested: full-size masthead at page top, shrinks once the
+       page scrolls past a threshold (.masthead gets `.is-scrolled`; every
+       compact-mode rule lives in main.css §05). Threshold via
+       IntersectionObserver watching #mast-sentinel (header.php — a fixed
+       80px from the top of the page) rather than a raw scroll listener,
+       same technique already used above for scroll-reveal animations —
+       cheaper than recalculating on every scroll frame.
+       Deliberately does NOT re-run setMastheadHeightVar() here: --masthead-h
+       only ever feeds .hero-media's one-time "fill the rest of the first
+       viewport" height calc (main.css §10), which has nothing to do with
+       the masthead's *current* (possibly shrunk) height while scrolling —
+       doing so was tried and reverted after live testing showed it makes
+       .hero-media grow taller exactly when the masthead compacts (a
+       smaller --masthead-h means calc(100dvh - masthead-h) is *larger*),
+       shifting content under the user mid-scroll. Progressive enhancement:
+       .masthead is sticky via plain CSS regardless of JS (main.css);
+       without IntersectionObserver support the masthead simply never
+       shrinks, staying usable at full size. */
+    var mastSentinel = document.getElementById("mast-sentinel");
+    if (mastSentinel && "IntersectionObserver" in window) {
+      var mastIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          masthead.classList.toggle("is-scrolled", !entry.isIntersecting);
+        });
+      });
+      mastIO.observe(mastSentinel);
+    }
   }
 
   /* ---------- منوی بازشو (پاپ‌آپ کل‌صفحه) ---------- */

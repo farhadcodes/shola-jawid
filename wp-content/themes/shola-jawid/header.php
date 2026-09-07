@@ -33,6 +33,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script>document.documentElement.classList.add("js")</script>
 <a class="skip-link" href="#main"><?php esc_html_e( 'پرش به محتوای اصلی', 'shola-jawid' ); ?></a>
 
+<?php
+/*
+ * Sticky-shrink masthead sentinel (Phase 13, 2026-09-07, client-
+ * requested). Positioned at a fixed 80px from the top of the actual
+ * page content (not the viewport — position: absolute with no
+ * positioned ancestor places it relative to the initial containing
+ * block, so it stays put at that document coordinate while the page
+ * scrolls under it). main.js observes it with IntersectionObserver:
+ * once it scrolls out of view — i.e. the user has scrolled past 80px —
+ * .masthead gets `.is-scrolled`, which every compact-mode rule in
+ * main.css §05 keys off. This threshold-via-sentinel technique avoids a
+ * raw scroll-event listener (no per-frame recalculation), same
+ * IntersectionObserver approach already used for this theme's scroll-
+ * reveal animations. Empty and aria-hidden — carries no content, exists
+ * only to be observed.
+ */
+?>
+<span id="mast-sentinel" aria-hidden="true"></span>
+
 <header class="masthead">
 	<div class="wrap masthead-inner">
 

@@ -315,41 +315,99 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 /* -------------------------------------------------------------------------
    ۰۵ · Masthead — crimson field with white nameplate (historical anchor)
    ------------------------------------------------------------------------- */
+/*
+ * #mast-sentinel (header.php) — invisible, 1x1px, pinned 80px from the
+ * top of the page (not the viewport: position:absolute with no
+ * positioned ancestor places it against the initial containing block,
+ * so it holds that document coordinate while the page scrolls under
+ * it). main.js watches it via IntersectionObserver to know when the
+ * user has scrolled past 80px, without a raw scroll-event listener.
+ */
+#mast-sentinel {
+  position: absolute;
+  inset-block-start: 80px;
+  inset-inline-start: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 .masthead {
   border-bottom: 2px solid var(--maroon);
   /* Winston Red (--winston-red), not crimson — approved client deviation,
      scoped to the masthead background only; crimson (--crimson) is
      untouched everywhere else on the site. See docs/CHANGELOG.md. */
   background: var(--winston-red);
-  position: relative;
+  /*
+   * position: sticky (was relative), 2026-09-07, Phase 13 — client-
+   * requested sticky/shrink navbar. Plain CSS, so it stays sticky even
+   * with JavaScript disabled (per this project's progressive-
+   * enhancement rule); the *shrink* itself is the JS-driven enhancement
+   * layered on top (`.is-scrolled`, added by main.js). Offset below the
+   * WP admin toolbar when logged in (body.admin-bar, further down) so
+   * the sticky masthead doesn't tuck under it.
+   */
+  position: sticky;
+  top: 0;
   z-index: 30;
+}
+body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
+@media (max-width: 782px) { /* WP core's own admin-bar breakpoint, not this theme's */
+  body.admin-bar .masthead { top: 46px; }
 }
 /* Focus rings must be visible on crimson */
 .masthead :focus-visible {
   outline-color: var(--paper);
   outline-offset: 3px;
 }
+/*
+ * --mast-scale drives the whole compact-mode shrink from one dial —
+ * every sized property below (padding, font-size, gap, icon size)
+ * multiplies its normal value by this, so the bar shrinks as one
+ * proportional unit instead of several independently-tuned values that
+ * could drift out of ratio with each other. Farhad's explicit request:
+ * shrink everything together, keep every element present (only the
+ * date line goes away), title stays comfortably readable. 0.68 keeps
+ * the title in the ~16-19px range at compact size — verified live,
+ * see docs/CHANGELOG.md.
+ */
+.masthead { --mast-scale: 1; }
+.masthead.is-scrolled { --mast-scale: 0.68; }
+
 .masthead-inner {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1rem;
-  padding-block: 1.5rem;
+  padding-block: calc(1.5rem * var(--mast-scale));
+  transition: padding-block var(--dur) var(--ease);
 }
 .masthead-left, .masthead-right {
-  display: flex; align-items: center; gap: .6rem;
+  display: flex; align-items: center;
+  gap: calc(.6rem * var(--mast-scale));
+  transition: gap var(--dur) var(--ease);
 }
 .masthead-right { justify-content: flex-end; }
 
 .mast-btn {
-  display: inline-flex; align-items: center; gap: .5rem;
+  display: inline-flex; align-items: center;
+  gap: calc(.5rem * var(--mast-scale));
   font-family: var(--font-nav);
-  font-size: 1rem;
+  /* max(), not a bare calc() — 1rem * 0.68 alone would land at ~10.9px,
+     and the .masthead-right override below starts smaller still
+     (0.85rem base) and would hit ~9.25px, checked live: too small to
+     read comfortably, letter-spaced uppercase besides. Farhad's explicit
+     ask was legible, proportionate shrink, not shrink-at-all-costs — a
+     floor keeps text readable while padding/gap/icons above still
+     shrink fully. 0.75rem (~12px) matches this design's existing
+     smallest deliberately-legible UI text size (.t-small is 0.875rem;
+     0.75rem/--t-caption is already used for meta text sitewide). */
+  font-size: max(0.75rem, calc(1rem * var(--mast-scale)));
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--paper);
-  padding: .5rem .25rem;
-  transition: color var(--dur) var(--ease);
+  padding: calc(.5rem * var(--mast-scale)) calc(.25rem * var(--mast-scale));
+  transition: color var(--dur) var(--ease), font-size var(--dur) var(--ease), gap var(--dur) var(--ease), padding var(--dur) var(--ease);
 }
 .mast-btn:hover { color: var(--crimson-tint); }
 
@@ -359,22 +417,39 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   color: var(--paper);
   /* 2026-09-02: reduced ~20% from the original clamp(1.8rem, 4vw, 2.4rem)
      per Farhad — title read too large against the new masthead nav items.
-     Approved by Farhad in session on 2026-09-02. */
-  font-size: clamp(1.44rem, 3.2vw, 1.92rem);
+     Approved by Farhad in session on 2026-09-02.
+     2026-09-07 (Phase 13): * var(--mast-scale) added for the sticky-
+     shrink navbar — at compact size (0.68) this clamp's floor (1.44rem)
+     scales to ~0.98rem (~16px), still comfortably readable; verified
+     live, see docs/CHANGELOG.md. Farhad's explicit ask: the title stays
+     easily readable at compact size, just proportionally smaller. */
+  font-size: calc(clamp(1.44rem, 3.2vw, 1.92rem) * var(--mast-scale));
   line-height: 1;
   letter-spacing: -.005em;
   text-align: center;
   display: inline-block;
+  transition: font-size var(--dur) var(--ease);
 }
+/*
+ * .mast-runner (the date line under the title) is the one element
+ * Farhad explicitly asked to disappear in compact mode, not scale down
+ * — every other masthead element scales together, this one just goes
+ * away. max-height/opacity/margin transition (not `display: none`,
+ * which can't animate) so it collapses smoothly rather than snapping.
+ */
 .mast-runner {
   display: block;
   margin-top: .35rem;
+  max-height: 1.5rem;
+  overflow: hidden;
   font-family: var(--font-nav);
   font-size: 0.8125rem;
   letter-spacing: .1em;
   color: color-mix(in oklab, var(--paper) 72%, transparent);
   text-transform: uppercase;
+  transition: max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
 }
+.masthead.is-scrolled .mast-runner { max-height: 0; opacity: 0; margin-top: 0; }
 
 /* Main nav (desktop-only): نشریات · موضوعات · کتابخانه — replaces the
    old bare publication-switcher (شعله جاوید / جهان برای فتح) that used
@@ -396,10 +471,10 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
    unrelated to the dropdown and still applies to this plain three-
    link row, so the fix stays. The extra element-type selector wins
    regardless of source order. */
-nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
+nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * var(--mast-scale)); transition: gap var(--dur) var(--ease); }
 
 @media (max-width: 720px) {
-  .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: 1rem; }
+  .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: calc(1rem * var(--mast-scale)); }
   /* Explicit override, not the shared .hide-mobile utility: bumping
      nav.mast-pub-nav's specificity above (needed to beat .hide-mobile's
      own unconditional `display: initial` on desktop) also made it beat
@@ -413,7 +488,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
    on _header.html's menu/search separator, search icon link, and
    nameplate-link wrapper — same computed values, moved to classes per
    CLAUDE.md §5. */
-.mast-slash { color: var(--paper); opacity: .5; margin-inline: .35rem; }
+.mast-slash { color: var(--paper); opacity: .5; margin-inline: calc(.35rem * var(--mast-scale)); transition: margin-inline var(--dur) var(--ease); }
 .mast-slash-light { color: var(--paper); opacity: .4; }
 .mast-icon-link { display: inline-flex; }
 .mast-brand { text-align: center; }
@@ -424,7 +499,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
    now that the enlarged search icon sits right next to it. Scoped by
    container, not a new class, so .mast-btn's shared styling/hover stays
    untouched everywhere else it's used. */
-.masthead-right .mast-btn { font-size: .85rem; }
+.masthead-right .mast-btn { font-size: max(0.75rem, calc(.85rem * var(--mast-scale))); }
 
 /*
  * Fix (2026-08-08): the search icon is an <a class="link-quiet
@@ -448,6 +523,44 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
    was too small/hard to find). Bigger tap target via padding, not just a
    bigger svg, so the hover/focus area grows with it. */
 .mast-icon-link--lg { padding: .25rem; margin-inline-start: -.25rem; }
+
+/*
+ * Icon scaling for the sticky-shrink navbar (Phase 13, 2026-09-07) — CSS
+ * width/height wins over an <svg>'s own HTML width/height attributes
+ * (header.php sets those as the icons' natural/full size), so this is
+ * enough to shrink them at compact size without touching the markup.
+ * Every icon in the masthead is covered so nothing is left at full size
+ * once the rest of the bar shrinks around it.
+ */
+#menu-open svg {
+  width: calc(22px * var(--mast-scale));
+  height: calc(14px * var(--mast-scale));
+  transition: width var(--dur) var(--ease), height var(--dur) var(--ease);
+}
+.masthead .mast-icon-link:not(.mast-icon-link--lg) svg {
+  width: calc(19px * var(--mast-scale));
+  height: calc(19px * var(--mast-scale));
+  transition: width var(--dur) var(--ease), height var(--dur) var(--ease);
+}
+.masthead .mast-icon-link--lg svg {
+  width: calc(26px * var(--mast-scale));
+  height: calc(26px * var(--mast-scale));
+  transition: width var(--dur) var(--ease), height var(--dur) var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .masthead-inner,
+  .masthead-left, .masthead-right,
+  .mast-btn,
+  .mast-nameplate,
+  .mast-runner,
+  nav.mast-pub-nav,
+  .mast-slash,
+  #menu-open svg,
+  .masthead .mast-icon-link:not(.mast-icon-link--lg) svg,
+  .masthead .mast-icon-link--lg svg {
+    transition: none;
+  }
+}
 
 /* -------------------------------------------------------------------------
    ۰۶ · Popup menu — the signature move
