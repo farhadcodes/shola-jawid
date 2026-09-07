@@ -6702,3 +6702,41 @@ trail of *why* the build deviated from — or newly applied — a rule in
   errors at either breakpoint.
   Approved by: Farhad, in this session (2026-09-07) — Phase 13 of the
   Technical Scoping Plan.
+
+## 2026-09-07 (later same day) — Phase 14 (metabox field descriptions)
+- **Added:** a short (10-15 word) Persian description under every custom
+  metabox field across the site, per Farhad's request to help whoever
+  does data entry know exactly what belongs in each field. Covers all 5
+  metaboxes registered in `class-meta-fields.php` — اطلاعات شماره
+  (`issue`: شمارهٔ شماره, دوره/جلد), اطلاعات سند (`document`: نویسنده/
+  منبع), اطلاعات اثر (`party_publication`), اطلاعات سند
+  (`party_document`: شمارهٔ سریال), and اطلاعات مقاله (`post`: نام
+  مستعار نویسنده, توضیح همکاری, شناسهٔ نوشتهٔ ترجمه) — plus the shared
+  فایل PDF and زبان fields reused across several of those metaboxes.
+  Also cleaned up the article metabox's 3 fields that previously crammed
+  their explanation into the field label itself as a long parenthetical
+  (e.g. "نام مستعار نویسنده (اختیاری — در صورت خالی بودن، نام کاربر
+  وردپرس نمایش داده می‌شود)") — split back into a short label plus a
+  proper description underneath, matching every other field on the site
+  and WP admin's own convention.
+  `shcore_term_order`'s ترتیب field (`class-category-manager.php`,
+  the term add/edit screens) already had a description from earlier
+  work this project — confirmed live, left untouched, not duplicated.
+  Fixed an HTML-validity issue caught while writing this: nesting
+  `<p class="description">` directly inside the `<p>` that already wraps
+  each field's `<label>`/`<input>` is invalid (a `<p>` cannot contain
+  another block-level `<p>`) — every description was placed as its own
+  sibling `<p>` immediately after the field's own `<p>` closes instead,
+  matching the pattern the term-order field (`<td><input><p
+  class="description">`) already used correctly.
+  Verified live in wp-admin, not just read from the code: opened the
+  "add new" screen for all 5 post types (شماره, سند [کتابخانه], اثر,
+  سند [حزب], نوشته) while logged in as a real admin user (temporary
+  `shola-test-login.php`, per the usual local-testing procedure —
+  deleted immediately after), confirmed every field shows its label
+  followed directly by its new description, `php -l` clean.
+  Plugin version bumped 1.2.4 → 1.3.0 (admin-UI-only, no data-model or
+  behavior change — a feature-level bump for the amount of surface
+  covered, not a patch).
+  Approved by: Farhad, in this session (2026-09-07) — Phase 14 of the
+  Technical Scoping Plan.
