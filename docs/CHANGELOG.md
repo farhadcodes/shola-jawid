@@ -6740,3 +6740,67 @@ trail of *why* the build deviated from — or newly applied — a rule in
   covered, not a patch).
   Approved by: Farhad, in this session (2026-09-07) — Phase 14 of the
   Technical Scoping Plan.
+
+## 2026-09-08 — Phase 15 (live-only bugs surfaced by real content)
+- **Fixed:** Farhad reported two live-only bugs after uploading v1.6.0 to
+  sholajawid.com with real content — neither reproduced with this
+  session's local test data, so both were diagnosed directly against
+  the live site (`fetch()`-verified the live `main.css` matched what was
+  shipped, byte for byte in the relevant rules — ruling out a caching/
+  upload problem before looking for a code bug) rather than guessed at.
+  **1. اطلاعیه tile and the article cards beside it rendering visibly
+  bigger than local.** Confirmed live via `getComputedStyle`:
+  `.grid-cards--with-spotlight`'s 3 columns were NOT equal
+  (321.75px / 321.77px / 444.48px) despite `grid-template-columns:
+  repeat(3, 1fr)`. Root cause: grid *and* flex items default to
+  `min-width: auto`, not `0` — `.card-spotlight-more a` has
+  `white-space: nowrap` (intentional, for its ellipsis truncation) and
+  `flex: 1`, so a genuinely long اطلاعیه title (the real one live —
+  "اعلامیه مشترک احزاب و سازمانهای مارکسیست‑لنینیست‑ مائوئیست") refused
+  to shrink below its own text width, forcing `.card-spotlight`'s own
+  grid track wider than an equal 1fr share and stealing width from the
+  article-card columns beside it. This session's local test titles were
+  all short enough by coincidence to never hit this. Fixed with
+  `min-width: 0` on `.card-spotlight` itself and on both nested flex
+  containers that could independently hit the same floor
+  (`.card-spotlight-item--featured` + its inner `<div>`,
+  `.card-spotlight-more a`) — `overflow: hidden`/`text-overflow:
+  ellipsis` were already correct, they just couldn't take effect while
+  the min-content floor was still in force.
+  Verified by reproducing the exact live conditions locally (WP-CLI,
+  DB_HOST switched per the usual procedure): created a temporary
+  اطلاعیه with that same real title, confirmed the 3 columns computed
+  to 362.656px / 362.672px / 362.656px — equal within sub-pixel
+  rounding — then deleted the test post.
+  **2. A 5th انتشارات حزب card wrapping to its own row** instead of all
+  5 sitting in one line, once the client uploaded a real 5th item.
+  Confirmed live: `.issue-grid`'s content width is 1136px
+  (`--wrap-wide` 1200px minus 2rem padding per side); the `auto-fit`
+  fix from Phase 12 capped each card at `minmax(160px, 210px)`, and 5
+  cards at that 210px cap plus 4×1.5rem gaps need 1146px — 10px more
+  than the row actually has, so the 5th had nowhere to go. This
+  session's earlier local verification only ever had 2 real items in
+  this section (the client hadn't uploaded the rest yet), so the
+  "does 5 actually fit" case was never tested, only the "few items"
+  case the fix was originally built for. Corrected the cap to 200px
+  (5×200 + 4×24 = 1096px, ~40px to spare instead of a cap a few pixels
+  too tight for this exact container). Verified by creating 3 temporary
+  test party_publication posts locally (bringing the real total to 5,
+  matching live) — confirmed all 5 render in one row at 200px each,
+  zero wrap — then deleted the test posts.
+  **3. Also fixed while investigating** (Farhad's third, smaller ask,
+  same live report): `.issue-card-title` — used on every `.issue-grid`
+  shelf (انتشارات حزب, اسناد حزب, کتابخانه) — never set its own
+  `line-height`, so a wrapped 2-line title inherited `body`'s
+  `line-height: 1.95`, tuned for long-form paragraph text, not a small
+  14px card title. Every other heading style on the site already sets
+  its own tighter line-height; this was the one left out. Set to `1.4`,
+  matching that convention — confirmed live: 19.6px computed line-height
+  at the 14px font-size, down from ~27.3px.
+  Confirmed no regressions at tablet width (820px): the 5-card row
+  naturally wraps to 3+2 there, which is expected at that narrower
+  width and was never part of the complaint — not re-capped to force
+  one row where the viewport genuinely has no room for it.
+  Theme version bumped 1.6.0 → 1.6.1.
+  Approved by: Farhad, in this session (2026-09-08) — Phase 15 of the
+  Technical Scoping Plan.

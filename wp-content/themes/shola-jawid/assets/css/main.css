@@ -987,6 +987,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
+  /*
+   * min-width: 0 — the real fix for a bug reported live 2026-09-08:
+   * Farhad saw this tile (and the article cards beside it) rendering
+   * visibly bigger on the live domain than on local. Root cause: this
+   * tile is a CSS Grid item, and grid/flex items default to
+   * `min-width: auto`, not 0 — meaning a descendant that can't shrink
+   * below its own content size (here, .card-spotlight-more a's
+   * `white-space: nowrap`, meant to truncate with an ellipsis) can force
+   * *this item's own grid track* wider than an equal 1fr share, which
+   * then steals width from the article-card columns beside it. Local
+   * testing used short seed titles that happened to fit anyway, so this
+   * never surfaced until a real, longer اطلاعیه title went live.
+   * `min-width: 0` here (plus on the two descendant flex containers
+   * below) removes that floor, letting `overflow: hidden` +
+   * `text-overflow: ellipsis` actually do their job instead of being
+   * silently overridden by the min-content-size floor.
+   */
+  min-width: 0;
   /* Winston Red (--winston-red), not --maroon — changed 2026-09-07 per
      Farhad: the tile should match the masthead's own background so the
      two read as one consistent "official" color, not two different
@@ -1113,7 +1131,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   display: flex;
   align-items: flex-start;
   gap: .75rem;
+  min-width: 0;
 }
+.card-spotlight-item--featured > div { min-width: 0; }
 
 /* The 2 smaller, "not the newest" اطلاعیه‌ها — title + date only, thin
    dividers instead of card-style spacing, so they read as a compact
@@ -1131,10 +1151,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   align-items: center;
   gap: .65rem;
   padding-block: .55rem;
+  min-width: 0;
 }
 .card-spotlight-more li + li { border-top: 1px solid rgba(255, 255, 255, .2); }
 .card-spotlight-more a {
   flex: 1;
+  min-width: 0;
   color: rgba(255, 255, 255, .95);
   font-size: var(--t-small);
   line-height: 1.5;
@@ -1736,7 +1758,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   grid-template-columns: repeat(2, 1fr);
 }
 @media (min-width: 640px) {
-  .issue-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 210px)); justify-content: start; }
+  /*
+   * Cap corrected 210px -> 200px, 2026-09-08: Farhad reported a 5th
+   * انتشارات حزب card wrapping to its own row instead of all 5 sitting
+   * in one line. Confirmed live: this section's real content width is
+   * 1136px (--wrap-wide 1200px minus 2rem padding each side); 5 cards
+   * at the old 210px cap plus 4×1.5rem gaps need 1146px — 10px more
+   * than actually available, so the 5th had nowhere to go but the next
+   * row. 200px leaves real headroom (5×200 + 4×24 = 1096px, ~40px to
+   * spare) instead of a cap that happened to be a few pixels too tight
+   * for this exact container width.
+   */
+  .issue-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 200px)); justify-content: start; }
 }
 
 .issue-card { display: flex; flex-direction: column; gap: .75rem; }
@@ -1749,7 +1782,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .issue-card:hover .issue-card-media { transform: translateY(-3px); }
 .issue-card-media img { width: 100%; height: 100%; object-fit: cover; }
-.issue-card-title { font-size: var(--t-small); font-weight: 700; color: var(--ink); }
+/*
+ * line-height added 2026-09-08 — Farhad reported the space between a
+ * wrapped title's two lines in انتشارات حزب (and every other .issue-grid
+ * shelf) as too loose. Root cause: this rule never set its own
+ * line-height, so it inherited body{line-height:1.95} — a value tuned
+ * for long-form paragraph text, not a small 14px card title. Every other
+ * heading style on the site (.h-card, .h-page, .h-section, etc.) sets
+ * its own tighter line-height already; this was the one left out.
+ */
+.issue-card-title { font-size: var(--t-small); font-weight: 700; line-height: 1.4; color: var(--ink); }
 .issue-card-title a:hover { color: var(--crimson); }
 .issue-card-date { font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .08em; color: var(--stone); text-transform: uppercase; }
 /*
