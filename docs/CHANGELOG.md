@@ -6587,3 +6587,26 @@ trail of *why* the build deviated from — or newly applied — a rule in
   across shared utility classes, not a homepage-only patch).
   Approved by: Farhad, in this session (2026-09-07) — Phase 12 of the
   Technical Scoping Plan.
+
+- **Changed:** Farhad reviewed the shipped tile live and flagged the
+  small uppercase "اطلاعیه" eyebrow label as buried — easy to miss at a
+  glance despite the tile's own bold red background, asking for
+  something that "attracts attention pretty much in an instance,"
+  offering background-color, icon size, or general sizing as options.
+  Diagnosed why raising its own opacity further (like the earlier
+  contrast fixes) wouldn't help here: a same-color label can't get any
+  louder against a background that's already fully saturated — the fix
+  is flipping polarity instead. Reworked into a solid white flag/badge
+  (`background: var(--paper)`, `color: var(--winston-red)`, bold,
+  letterspaced, padded) that reads instantly against the red tile,
+  rather than a new one-off shape: same solid-background + colored-text
+  + uppercase treatment `.badge-current` already uses elsewhere on the
+  site, just inverted for this darker background, and still no
+  border-radius anywhere (this design has no rounded/pill elements —
+  see .card's "no borders, whitespace only" principle). Icon enlarged
+  12px → 16px and given the same red-on-white treatment.
+  Verified live: badge renders at 84×38px, contrast 5.89:1 (comfortably
+  above WCAG AA), zero tile overflow at desktop (1440px), tablet
+  (820px), and mobile (375px, screenshot-confirmed).
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.
