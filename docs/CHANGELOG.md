@@ -6297,3 +6297,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.3.6 → 1.3.7.
   Approved by: Farhad, in this session (2026-09-06) — Phase 9 of the
   Technical Scoping Plan.
+
+## 2026-09-07 — Phase 10 (homepage: تازه‌ها merged into مقالات)
+- **Changed:** `front-page.php`'s standalone تازه‌ها "recent" grid section
+  (hero + 6 more article cards) removed entirely, after Farhad relayed
+  the client's conclusion — following the Phase 9 discussion above —
+  that تازه‌ها and مقالات had become the same thing (تازه‌ها being
+  مقاله-only since Phase 9) with no real distinction left between them.
+  Rather than keep two sections showing near-identical content, the
+  homepage now shows one: the hero (still a single latest مقاله, same
+  markup/featured-image handling as before, just simplified from a
+  7-post query + `array_slice` down to a plain 1-post query since the
+  grid it used to sit above is gone), immediately followed by مقالات —
+  renamed **تازه‌ترین مقالات** (heading and aria-label both) to make its
+  now-dual "recent + articles" role explicit — sitting directly under
+  the hero instead of below اسناد حزب/گزارش... previously did. No change
+  to مقالات's own query (still 6 posts, still excludes `report`-taxonomy
+  posts, still no exclusion against the hero — same accepted-duplication
+  reasoning already in place since 2026-09-02).
+  Every other homepage section (گزارش, اسناد حزب, نشریات, انتشارات حزب,
+  کتابخانه, موضوعات) is untouched — same query, same position relative
+  to each other, only shifted up by the removed تازه‌ها block. Checked
+  background-band alternation after the removal: cream (تازه‌ترین
+  مقالات) → paper (گزارش) → tint (اسناد حزب) → paper (نشریات) → tint
+  (انتشارات حزب) → cream (کتابخانه) → paper (موضوعات) — no two adjacent
+  sections share a background, unaffected by the reorder.
+  `home_articles_section_aria` and `home_latest_heading`
+  (`class-label-settings.php`) — the client-editable admin labels تازه‌ها
+  used to render from — are now unused on the homepage. Left registered
+  rather than deleted, so a value an editor already saved isn't silently
+  lost, but their settings-page descriptions are now prefixed
+  "(غیرفعال — بخش «تازه‌ها» از صفحهٔ اصلی حذف شد)" so no editor is left
+  editing a field with no visible effect and no explanation why.
+  Verified locally: homepage loads with zero PHP/console errors; hero
+  renders once at the top, تازه‌ترین مقالات renders directly below it
+  with 6 cards (including the same post as the hero, as expected), every
+  section below it in the original order, nothing duplicated or missing.
+  Theme version bumped 1.3.7 → 1.3.8. Plugin version bumped 1.2.3 →
+  1.2.4 (label-settings description text only).
+  Approved by: Farhad, in this session (2026-09-07) — Phase 10 of the
+  Technical Scoping Plan.

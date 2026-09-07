@@ -62,6 +62,17 @@ class Label_Settings {
 	 * editing one silently change the others somewhere an editor might
 	 * not expect — kept as separate keys instead.
 	 *
+	 * `home_articles_section_aria` and `home_latest_heading` (front-page.php's
+	 * standalone تازه‌ها "recent" grid) are now unused: that grid was removed
+	 * entirely 2026-09-07 (client decision, relayed by Farhad — see
+	 * docs/CHANGELOG.md and front-page.php's own top docblock), merged into
+	 * the renamed تازه‌ترین مقالات section instead, which uses its own plain
+	 * hardcoded strings, not these keys. Kept registered (not deleted) so an
+	 * override an editor already saved isn't silently lost, and their
+	 * settings-page descriptions below are prefixed "(غیرفعال)" rather than
+	 * removed, so no editor is left editing a field with no visible effect
+	 * and no explanation why.
+	 *
 	 * `latest_documents_heading` (page-library.php's own heading,
 	 * covering the whole library across all collections) and
 	 * `home_latest_documents_heading` (front-page.php's card section
@@ -110,8 +121,8 @@ class Label_Settings {
 	 */
 	public static function get_descriptions() {
 		return array(
-			'home_articles_section_aria'  => __( 'صفحهٔ اصلی — برچسب دسترس‌پذیری بخش «تازه‌ها»', 'shola-core' ),
-			'home_latest_heading'         => __( 'صفحهٔ اصلی — عنوان بخش «تازه‌ها»', 'shola-core' ),
+			'home_articles_section_aria'  => __( '(غیرفعال — بخش «تازه‌ها» از صفحهٔ اصلی حذف شد) برچسب دسترس‌پذیری بخش «تازه‌ها»', 'shola-core' ),
+			'home_latest_heading'         => __( '(غیرفعال — بخش «تازه‌ها» از صفحهٔ اصلی حذف شد) عنوان بخش «تازه‌ها»', 'shola-core' ),
 			'home_topics_link_more'       => __( 'صفحهٔ اصلی — پیوند «همهٔ موضوعات» کنار بخش تازه‌ترین', 'shola-core' ),
 			'home_topics_section_heading' => __( 'صفحهٔ اصلی — عنوان بخش موضوعات', 'shola-core' ),
 			'latest_documents_heading'    => __( 'کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),

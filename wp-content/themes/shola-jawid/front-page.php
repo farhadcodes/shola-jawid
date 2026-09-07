@@ -8,14 +8,18 @@
  * conversion (see the "WP conversion (Phase 4.2)" comments in that
  * file).
  *
- * Section order, locked 2026-09-05 (Phase 4, Technical Scoping Plan —
- * see docs/CHANGELOG.md for the full history of how this order and each
- * section's content settled): headline article, تازه‌ها, مقالات, اسناد
- * حزب, گزارش, نشریات (شمارهٔ جاری), انتشارات حزب, کتابخانه, موضوعات.
- * اطلاعیه‌ها and a newsletter signup band were both in earlier versions
- * of this page and are deliberately not present — removed 2026-08-24 and
- * 2026-08-08 respectively, per Farhad (see docs/CHANGELOG.md); their own
- * CPT/archive/nav presence elsewhere on the site is untouched.
+ * Section order, changed 2026-09-07 (client decision, relayed by
+ * Farhad): headline article, تازه‌ترین مقالات, گزارش, اسناد حزب, نشریات
+ * (شمارهٔ جاری), انتشارات حزب, کتابخانه, موضوعات. This reverses the
+ * previous 2026-09-05 order — تازه‌ها (the standalone "recent" grid) is
+ * removed entirely, not just relabeled: the client concluded it and
+ * مقالات were duplicating the same content, so the homepage now shows
+ * one merged "latest articles" section directly under the hero instead
+ * of two (see docs/CHANGELOG.md). اطلاعیه‌ها and a newsletter signup
+ * band were both in earlier versions of this page and are deliberately
+ * not present — removed 2026-08-24 and 2026-08-08 respectively, per
+ * Farhad (see docs/CHANGELOG.md); their own CPT/archive/nav presence
+ * elsewhere on the site is untouched.
  *
  * @package shola-jawid
  */
@@ -27,33 +31,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 /*
- * تازه‌ها — articles only, newest first. First result is the hero, the
- * rest fill the grid.
- *
- * Changed 2026-09-06: this used to also include `document` (کتابخانه)
- * — a deliberate "everything new" mixed feed, client-confirmed
- * 2026-09-02 (see docs/CHANGELOG.md and مقالات's own comment below,
- * which still describes that older reasoning). Reversed after the
- * client saw it live: uploading a library book made it show up here,
- * on the homepage's "latest" section, which read as wrong in
- * practice even though it was working exactly as originally
- * specified — کتابخانه already has its own homepage shelf further
- * down this page, and content should only ever surface there, not
- * duplicate into تازه‌ها too. Farhad confirmed with the client this
- * section should be مقاله only, permanently, not a mixed stream.
+ * Hero — single latest مقاله. Unchanged behavior/markup from the
+ * previous تازه‌ها query's hero (same shola_get_featured_image() call,
+ * same fields) — only the standalone "recent grid" this hero used to
+ * sit above is gone, merged into تازه‌ترین مقالات below (2026-09-07;
+ * see this file's own top docblock and docs/CHANGELOG.md).
  */
-$latest_query = new WP_Query(
+$hero_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
-		'posts_per_page' => 7,
+		'posts_per_page' => 1,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
 );
-$latest_posts = $latest_query->posts;
-
-$hero          = $latest_posts ? array_shift( $latest_posts ) : null;
-$latest_posts  = array_slice( $latest_posts, 0, 6 );
+$hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
 ?>
 
 <?php if ( $hero ) : ?>
@@ -93,64 +85,25 @@ $latest_posts  = array_slice( $latest_posts, 0, 6 );
 	<hr class="rule wrap">
 <?php endif; ?>
 
-<?php if ( $latest_posts ) : ?>
-	<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_articles_section_aria' ) ); ?>">
-		<div class="section-head row-between">
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_heading' ) ); ?></h2>
-			</div>
-			<?php
-			/*
-			 * "همهٔ موضوعات ←" (link to /topics/) removed here 2026-09-05
-			 * per Farhad: it mislabeled this section (تازه‌ها was, at the
-			 * time, the mixed "everything new" feed — since narrowed to
-			 * مقاله-only on 2026-09-06, see the query comment above — but
-			 * either way this section was never topic-scoped) and duplicated
-			 * the موضوعات section further down this same page, which
-			 * already lists every topic directly — no "view all" needed
-			 * for a link that just repeats content already on the page.
-			 * The home_topics_link_more label (inc/template-tags.php)
-			 * is now unused here but left defined in case a real "view
-			 * all" destination is added for this section later.
-			 */
-			?>
-		</div>
-		<div class="grid-cards">
-			<?php
-			foreach ( $latest_posts as $p ) {
-				get_template_part(
-					'template-parts/cards/card',
-					null,
-					array(
-						'post' => $p,
-						'type' => 'article',
-					)
-				);
-			}
-			?>
-		</div>
-	</section>
-<?php endif; ?>
-
 <?php
 /*
- * مقالات (Articles) — latest 6 posts of type `post`, every topic
- * combined, no exclusion against تازه‌ها above. Client-confirmed
- * 2026-09-02 (see docs/CHANGELOG.md): duplication between the two
- * sections is expected and fine, so the newest article always shows in
- * both — this held even back when تازه‌ها was a mixed "everything new"
- * feed (articles + documents), and still holds now that تازه‌ها is
- * مقاله-only too (2026-09-06) — the two sections just show almost the
- * same thing at that point, by design, not by oversight. Previously
- * this excluded anything already in $latest_query (post__not_in) to
- * avoid duplicates; removed per that 2026-09-02 confirmation.
+ * تازه‌ترین مقالات (renamed from مقالات, 2026-09-07) — latest 6 posts of
+ * type `post`, every topic combined. This used to be a separate section
+ * sitting below a standalone تازه‌ها "recent" grid (hero + 6 more
+ * articles), with deliberate content overlap between the two,
+ * client-confirmed 2026-09-02 (see docs/CHANGELOG.md). The client later
+ * concluded تازه‌ها and مقالات were showing the same thing twice with no
+ * real distinction, so تازه‌ها's grid was removed entirely (2026-09-07)
+ * and this section — renamed to make its "recent articles" role
+ * explicit — now sits directly under the hero instead, taking over that
+ * position. No query change: still 6 posts, still no exclusion against
+ * the hero above (same accepted-duplication reasoning as before).
  *
  * `report` exclusion added 2026-09-05 (Phase 4, Technical Scoping Plan):
- * unlike its relationship with تازه‌ها above, this section specifically
- * must NOT show reports — Farhad relayed the client's instruction that
- * موضوعات/مقالات and گزارش are two separate feeds, reports only ever
- * belong in their own homepage section and archive.
+ * this section specifically must NOT show reports — Farhad relayed the
+ * client's instruction that موضوعات/مقالات and گزارش are two separate
+ * feeds, reports only ever belong in their own homepage section and
+ * archive.
  */
 $articles_query = new WP_Query(
 	array(
@@ -171,12 +124,12 @@ $articles_query = new WP_Query(
 ?>
 
 <?php if ( $articles_query->have_posts() ) : ?>
-	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'مقالات', 'shola-jawid' ); ?>">
+	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'مقالات', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?></h2>
 				</div>
 				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
