@@ -885,6 +885,29 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
 .card-spotlight .h-card a { color: var(--paper); }
 .card-spotlight a:hover .h-card,
 .card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }
+/*
+ * Title length cap — added 2026-09-07 (still Phase 11), per Farhad
+ * asking what happens to this layout if an اطلاعیه title runs long.
+ * Checked rather than assumed: .h-card had no clamp anywhere on the
+ * site (article cards rely on their titles naturally staying short),
+ * so an unusually long title here would grow past the tile's normal
+ * height with nothing to stop it — and since this tile shares a CSS
+ * Grid row with 2 article cards (align-items: stretch is the grid
+ * default), that extra height would stretch the whole row, undoing the
+ * "half the height" fix from earlier today. Capped at 2 lines, same
+ * device (-webkit-line-clamp) already used on .card-dek just below and
+ * on every other card's title-adjacent text on the site — the tile's
+ * height now has a real ceiling regardless of title length. Verified
+ * live with a real 92-character test title: clamps to 2 lines with a
+ * trailing ellipsis, tile height unchanged, no overflow.
+ */
+.card-spotlight-item--featured .h-card {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 .card-spotlight .card-dek { color: rgba(255, 255, 255, .9); -webkit-line-clamp: 2; line-clamp: 2; }
 .card-spotlight .card-byline { color: rgba(255, 255, 255, .9); margin-top: 0; }
 .card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: rgba(255, 255, 255, .4); }

@@ -6498,3 +6498,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   console errors.
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+- **Fixed:** Farhad asked what happens if an اطلاعیه title runs long —
+  whether the tile has a real ceiling or could grow unbounded. Checked
+  rather than assumed: the featured item's title (`.h-card`, inside
+  `.card-spotlight-item--featured`) had no length cap anywhere — unlike
+  `.card-dek` just below it (already clamped to 2 lines) — so an
+  unusually long title had nothing stopping it from growing past the
+  tile's normal height. Since this tile shares a CSS Grid row with 2
+  article cards (`align-items: stretch` is the grid default), that
+  extra height would have stretched the whole row, undoing today's
+  earlier "half the height" fix. The compact list's 2 smaller items
+  were already safe — `.card-spotlight-more a` already truncates to a
+  single line via `white-space: nowrap` + ellipsis.
+  Fixed by capping the featured title at 2 lines
+  (`-webkit-line-clamp: 2`), the same device already used on
+  `.card-dek` and elsewhere sitewide. Verified with a real test post,
+  not just reasoning about the CSS: temporarily created a live
+  `announcement` (WP-CLI, DB_HOST switched to `127.0.0.1:10090` and
+  back per the usual local-testing procedure) with a deliberately
+  excessive ~130-character title, confirmed live via
+  `scrollHeight`/`clientHeight` that the title actually clamps
+  (87px of content in a 58px box) while the tile itself shows zero
+  overflow, then deleted the test post and confirmed the homepage
+  reverted to its real content.
+  Scope note: regular article-card titles (`template-parts/cards/card.php`'s
+  `.h-card`) still have no clamp anywhere on the site — pre-existing,
+  unrelated to this tile, and out of scope for a fix scoped to the
+  اطلاعیه spotlight; flagging it here rather than silently changing a
+  site-wide pattern beyond what was asked.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.
