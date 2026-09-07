@@ -6441,3 +6441,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   cells filled, no gap, no overlap.
   Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
   Technical Scoping Plan.
+
+- **Changed:** two more fixes from Farhad's live-screenshot review of
+  the spotlight tile. (1) Tile background changed `--maroon` →
+  `--winston-red`, matching the masthead's own background exactly
+  (confirmed live: both compute to `rgb(204, 0, 0)`) — a deliberate
+  widening of Winston Red's original scope (Phase A, 2026-08-24:
+  documented at the time as "scoped only to the masthead background")
+  to a second, explicitly client-approved use, not silent scope creep.
+  (2) تازه‌ترین مقالات's own "همهٔ مقالات" link — via `.section-head`'s
+  plain space-between — landed at the grid's true left edge, which is
+  where the spotlight tile sits, not the article columns the link
+  actually points to; Farhad flagged this as reading "irrelevant" from
+  a screenshot circling exactly that mismatch. Fixed with a new
+  `.section-head--with-spotlight` modifier (added only when a spotlight
+  renders): pads the header row's end side by exactly one grid column +
+  gap at desktop, so the link's edge lands at the boundary between the
+  spotlight and article columns instead of the container's true edge —
+  confirmed live: spotlight tile spans 0–357px, link's own left edge
+  sits at 389px (357 + the 32px column gap), i.e. now aligned with
+  where the article cards actually start. Confirmed the fix is scoped
+  correctly: at tablet width the new modifier's padding computes to
+  `0px` (media query doesn't apply there), so the tile's own
+  full-width-banner layout at that breakpoint is unaffected.
+  Approved by: Farhad, in this session (2026-09-07) — Phase 11 of the
+  Technical Scoping Plan.

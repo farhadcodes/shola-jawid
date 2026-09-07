@@ -842,12 +842,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: .6rem; }
  */
 .grid-cards--with-spotlight { grid-auto-flow: dense; }
 
+/*
+ * تازه‌ترین مقالات's own "همهٔ مقالات" link, when a spotlight tile is
+ * present: at desktop, .section-head's plain space-between (heading at
+ * one edge, link at the other) put the link at the grid's true left
+ * edge — which is where the spotlight tile sits, not the article
+ * columns the link is actually about. Farhad flagged this from a live
+ * screenshot as reading as irrelevant/misplaced. Fixed by padding the
+ * header row's end side (the left, under this site's dir="rtl") by
+ * exactly one grid column + one gap — the spotlight tile's own
+ * footprint — so the link's edge lands at the boundary between the
+ * spotlight column and the article columns instead of the container's
+ * true edge. Scoped to `.section-head--with-spotlight` (added in
+ * front-page.php only when the tile actually renders) so every other
+ * `.section-head` on the site is untouched. Tablet/mobile don't need
+ * this: the tile becomes a full-width banner ABOVE the grid there, not
+ * a side column, so the plain space-between already lines up correctly.
+ */
+@media (min-width: 1000px) {
+  .section-head--with-spotlight { padding-inline-end: calc((100% - 4rem) / 3 + 2rem); }
+}
+
 .card-spotlight {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
-  background: var(--maroon);
+  /* Winston Red (--winston-red), not --maroon — changed 2026-09-07 per
+     Farhad: the tile should match the masthead's own background so the
+     two read as one consistent "official" color, not two different
+     reds. This is a deliberate widening of Winston Red's original scope
+     (Phase A, 2026-08-24: "scoped only to the masthead background,
+     crimson untouched everywhere else") — still exactly 2 uses, both
+     explicitly client-approved, not scope creep. */
+  background: var(--winston-red);
   color: var(--paper);
   padding: 1.75rem;
 }

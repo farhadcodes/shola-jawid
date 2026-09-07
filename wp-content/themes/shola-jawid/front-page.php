@@ -162,7 +162,7 @@ $articles_query = new WP_Query(
 <?php if ( $articles_query->have_posts() ) : ?>
 	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?>">
 		<div class="wrap">
-			<div class="section-head row-between">
+			<div class="section-head row-between<?php echo $has_spotlight ? ' section-head--with-spotlight' : ''; ?>">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?></h2>
