@@ -8,16 +8,26 @@
  * conversion (see the "WP conversion (Phase 4.2)" comments in that
  * file).
  *
- * Section order, changed 2026-09-07 (client decision, relayed by
- * Farhad): headline article, تازه‌ترین مقالات, گزارش, اسناد حزب, نشریات
- * (شمارهٔ جاری), انتشارات حزب, کتابخانه, موضوعات. This reverses the
- * previous 2026-09-05 order — تازه‌ها (the standalone "recent" grid) is
- * removed entirely, not just relabeled: the client concluded it and
- * مقالات were duplicating the same content, so the homepage now shows
- * one merged "latest articles" section directly under the hero instead
- * of two (see docs/CHANGELOG.md). A newsletter signup band was in an
- * earlier version of this page and is deliberately not present —
- * removed 2026-08-08, per Farhad (see docs/CHANGELOG.md).
+ * Section order, last changed 2026-09-08 (Phase 16, client decision
+ * relayed by Farhad): headline article, تازه‌ترین مقالات, گزارش, نشریات
+ * (شمارهٔ جاری), انتشارات حزب, کتابخانه, اسناد حزب, موضوعات. اسناد حزب
+ * moved down from right after گزارش (its position since 2026-09-07) to
+ * directly above موضوعات at the very bottom — the client wanted it
+ * lower in the page's hierarchy, below the other homepage shelves
+ * (نشریات/انتشارات حزب/کتابخانه) rather than above them, while staying
+ * above the topics list. See docs/CHANGELOG.md for the full record,
+ * including the background-band fix this move required (نشریات's
+ * background changed plain → cream, since گزارش — also plain — landed
+ * directly above it once اسناد حزب moved out from between them).
+ *
+ * Before that, order changed 2026-09-07 (client decision, relayed by
+ * Farhad): تازه‌ها (the standalone "recent" grid) was removed entirely,
+ * not just relabeled — the client concluded it and مقالات were
+ * duplicating the same content, so the homepage now shows one merged
+ * "latest articles" section directly under the hero instead of two (see
+ * docs/CHANGELOG.md). A newsletter signup band was in an earlier
+ * version of this page and is deliberately not present — removed
+ * 2026-08-08, per Farhad (see docs/CHANGELOG.md).
  *
  * اطلاعیه‌ها is back on the homepage as of 2026-09-07 (Phase 11) — not as
  * its own full section like the one removed 2026-08-24, but as a
@@ -212,6 +222,16 @@ $articles_query = new WP_Query(
  * section somewhere to actually point to — every other homepage section
  * with a "see all" link already had one; this was the one exception,
  * for the same reason it had no archive at all until now.
+ *
+ * $has_reports captured 2026-09-08 (Phase 16, اسناد حزب reorder): this
+ * section's own background (plain/paper) is now نشریات's immediate
+ * neighbor whenever گزارش actually has content — but گزارش hides
+ * entirely when empty, in which case تازه‌ترین مقالات's cream band
+ * becomes نشریات's real neighbor instead. Captured once, before the
+ * loop below consumes `have_posts()`, so نشریات's own section tag
+ * (further down this file) can pick cream vs. plain correctly for
+ * whichever case is actually true, instead of a background hardcoded
+ * for only one of the two.
  */
 $reports_query = new WP_Query(
 	array(
@@ -228,8 +248,9 @@ $reports_query = new WP_Query(
 		),
 	)
 );
+$has_reports = $reports_query->have_posts();
 ?>
-<?php if ( $reports_query->have_posts() ) : ?>
+<?php if ( $has_reports ) : ?>
 	<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_reports_heading' ) ); ?>">
 		<div class="section-head row-between">
 			<div class="kicker-row">
@@ -253,51 +274,6 @@ $reports_query = new WP_Query(
 			endwhile;
 			wp_reset_postdata();
 			?>
-		</div>
-	</section>
-<?php endif; ?>
-
-<?php
-/*
- * اسناد حزب (Party Documents) — added 2026-09-05 (Phase 4, Technical
- * Scoping Plan), replacing what this position used to hold: a
- * post_type=document query with no collection filter, labeled "اسناد
- * حزب" even though اسناد حزب had by then already become its own
- * independent post type (party_document) elsewhere on the site (see
- * shola-core\Post_Types' docblock on that CPT). That mismatch is what
- * this change fixes — this section now genuinely queries
- * party_document, matching its label. The general-library query that
- * used to live here moved to its own new «کتابخانه» section, after
- * انتشارات حزب below, rather than being deleted.
- */
-$party_documents_query = new WP_Query(
-	array(
-		'post_type'      => 'party_document',
-		'posts_per_page' => 4,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
-?>
-<?php if ( $party_documents_query->have_posts() ) : ?>
-	<section class="sect-tint sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_latest_documents_heading' ) ); ?>">
-		<div class="wrap">
-			<div class="section-head row-between">
-				<div class="kicker-row">
-					<p class="section-marker"></p>
-					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_documents_heading' ) ); ?></h2>
-				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'همهٔ اسناد', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-			</div>
-			<div class="issue-grid">
-				<?php
-				while ( $party_documents_query->have_posts() ) :
-					$party_documents_query->the_post();
-					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
-				endwhile;
-				wp_reset_postdata();
-				?>
-			</div>
 		</div>
 	</section>
 <?php endif; ?>
@@ -383,11 +359,7 @@ foreach ( $publication_terms as $pub_term ) {
 	<?php
 	/*
 	 * شمارهٔ جاری reordered ahead of انتشارات حزب, 2026-08-24 (Phase A,
-	 * client-approved). Background changed from .sect-cream to plain
-	 * (paper), 2026-08-24 (Phase C, گزارشات-section removal) — its
-	 * cream banding depended on گزارشات's paper band sitting directly
-	 * above it; with that paper band gone, plain keeps alternation
-	 * intact against its neighbors.
+	 * client-approved).
 	 *
 	 * aria-label corrected from "شمارهٔ جاری و کتابخانه" to just
 	 * "شمارهٔ جاری", Phase B (2026-08-24, see docs/CHANGELOG.md) — this
@@ -401,9 +373,26 @@ foreach ( $publication_terms as $pub_term ) {
 	 * (Phase 4, Technical Scoping Plan) — text only, per Farhad: "همه‌چیز
 	 * خوب است، همین‌طور که هست باقی بماند" for everything else about this
 	 * section (query, layout, position relative to انتشارات حزب below).
+	 *
+	 * Background made dynamic, 2026-09-08 (Phase 16, اسناد حزب reorder —
+	 * see this file's top docblock and docs/CHANGELOG.md): this section's
+	 * background has always been chosen based on whichever section sits
+	 * directly above it — plain worked from 2026-08-24 because گزارش's
+	 * own paper band always sat there. Now that اسناد حزب moved further
+	 * down the page, this section's real neighbor above depends on
+	 * whether گزارش actually has content: when it does, گزارش (plain)
+	 * sits directly above and this section needs to differ (cream); when
+	 * گزارش is empty and hides (its own have_posts() guard), تازه‌ترین
+	 * مقالات's cream band becomes the real neighbor instead, and cream
+	 * here would clash with it — plain is what's needed in that case.
+	 * `$has_reports` (captured above, before گزارش's own loop consumes
+	 * it) picks correctly for whichever is actually true, rather than a
+	 * background hardcoded for only one of the two — found live: with
+	 * zero reports currently published, a hardcoded-cream version
+	 * clashed with تازه‌ترین مقالات's cream directly above it.
 	 */
 	?>
-	<section class="sect" aria-label="<?php esc_attr_e( 'نشریات', 'shola-jawid' ); ?>">
+	<section class="<?php echo $has_reports ? 'sect-cream' : ''; ?> sect" aria-label="<?php esc_attr_e( 'نشریات', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head">
 				<div class="kicker-row">
@@ -531,7 +520,12 @@ $party_publications_query = new WP_Query(
  * own real section using its own real content type in that earlier
  * position. .sect-cream, same class that position's query previously
  * had, keeping background-band alternation intact against انتشارات
- * حزب's .sect-tint above and موضوعات's plain band below.
+ * حزب's .sect-tint above.
+ *
+ * Directly below this section as of 2026-09-08 (Phase 16) is اسناد حزب
+ * again — moved here from its earlier position further up the page
+ * (see this file's top docblock) — not موضوعات anymore; still no clash,
+ * since اسناد حزب's own .sect-tint differs from this section's cream.
  *
  * `posts_per_page` set to 5, 2026-09-05 (Phase 5, Technical Scoping
  * Plan) — was 4, already under Farhad's stated 5-item limit for this
@@ -561,6 +555,55 @@ $library_documents_query = new WP_Query(
 				<?php
 				while ( $library_documents_query->have_posts() ) :
 					$library_documents_query->the_post();
+					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
+/*
+ * اسناد حزب (Party Documents) — added 2026-09-05 (Phase 4, Technical
+ * Scoping Plan), originally positioned right after گزارش. Moved to here
+ * — directly above موضوعات, at the very bottom of the page's content
+ * sections — 2026-09-08 (Phase 16), per Farhad relaying the client's
+ * decision to lower this section's prominence relative to the other
+ * homepage shelves (نشریات, انتشارات حزب, کتابخانه), which all moved up
+ * a position as a result. Query/label/link unchanged — genuinely queries
+ * `party_document`, matching its label (see the original 2026-09-05 note
+ * this replaces for that history).
+ *
+ * .sect-tint unchanged: still distinct from کتابخانه's .sect-cream
+ * directly above and موضوعات's plain band directly below, so
+ * background-band alternation holds in this new position exactly as it
+ * did in the old one.
+ */
+$party_documents_query = new WP_Query(
+	array(
+		'post_type'      => 'party_document',
+		'posts_per_page' => 4,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+);
+?>
+<?php if ( $party_documents_query->have_posts() ) : ?>
+	<section class="sect-tint sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_latest_documents_heading' ) ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_documents_heading' ) ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'همهٔ اسناد', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="issue-grid">
+				<?php
+				while ( $party_documents_query->have_posts() ) :
+					$party_documents_query->the_post();
 					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
 				endwhile;
 				wp_reset_postdata();

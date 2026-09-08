@@ -6804,3 +6804,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.6.0 → 1.6.1.
   Approved by: Farhad, in this session (2026-09-08) — Phase 15 of the
   Technical Scoping Plan.
+
+## 2026-09-08 (later same day) — Phase 16 (اسناد حزب reorder)
+- **Changed:** homepage section order — اسناد حزب moved from right after
+  گزارش down to directly above موضوعات, at the very bottom of the
+  page's content sections, per Farhad relaying the client's decision to
+  lower this section's prominence relative to نشریات/انتشارات حزب/
+  کتابخانه (all of which move up one position as a result). Shared the
+  reordering outcome with Farhad and got explicit confirmation before
+  touching any code, per his request. New order: headline article,
+  تازه‌ترین مقالات, گزارش, نشریات (شمارهٔ جاری), انتشارات حزب, کتابخانه,
+  اسناد حزب, موضوعات. Query/label/link/count for اسناد حزب itself
+  unchanged — only its position in the page moved.
+  **Two background-band issues found and fixed while doing this**, not
+  assumed safe just because the move itself was simple:
+  (1) Removing اسناد حزب from between گزارش and نشریات made those two
+  — both a plain/paper background — directly adjacent whenever گزارش
+  actually has content, which would have broken the site's long-standing
+  "no two adjacent sections share a background" rule. Made نشریات's
+  background dynamic instead of guessing one value: a new `$has_reports`
+  boolean (captured once, before گزارش's own loop consumes
+  `have_posts()`) drives it — cream when گزارش is visible (plain) above
+  it, plain when گزارش is empty and hides (in which case تازه‌ترین
+  مقالات's cream band becomes the real neighbor instead). Verified both
+  branches live, not just one: temporarily tagged a test post into the
+  `report` taxonomy to force گزارش visible, confirmed نشریات switched to
+  cream with no clash; deleted the test post and reconfirmed the
+  zero-reports state (نشریات plain) also has no clash against تازه‌ترین
+  مقالات.
+  (2) اسناد حزب's own `.sect-tint` still doesn't clash in its new spot
+  (کتابخانه's cream above, موضوعات's plain below) — confirmed, no change
+  needed there.
+  Verified with a live per-section background-color sweep (not
+  eyeballed) at all 3 breakpoints — desktop (1440px), tablet (820px),
+  mobile (375px) — confirming both the new section order and zero
+  adjacent-background clashes at each; zero console errors at any of
+  them.
+  Theme version bumped 1.6.1 → 1.7.0 (homepage structural reorder, not a
+  patch).
+  Approved by: Farhad, in this session (2026-09-08) — Phase 16 of the
+  Technical Scoping Plan.
