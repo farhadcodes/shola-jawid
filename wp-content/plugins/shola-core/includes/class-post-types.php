@@ -318,6 +318,56 @@ class Post_Types {
 			)
 		);
 
+		/*
+		 * هدر صفحهٔ اصلی (hero_section) — added 2026-09-09, per Farhad
+		 * relaying a client request for a second hero layout (headline
+		 * article + a side column showing a publication's latest issue),
+		 * plus Farhad's own idea for how to avoid rebuilding the hero from
+		 * scratch every time the client changes their mind: instead of one
+		 * hardcoded hero, editors save any number of hero_section entries
+		 * (each just a layout choice + rail-publication choice, never the
+		 * headline article itself — that always stays "latest published
+		 * post," live, regardless of which entry is active) and flip a
+		 * single "active" flag between them. Deliberately not `public`:
+		 * this post type has no front-end URL/template of its own, it's
+		 * pure admin configuration consumed by front-page.php's hero query
+		 * — see Meta_Fields for the active-flag singleton logic and the
+		 * admin list-table "Set as active" shortcut.
+		 *
+		 * Phase 1 of this feature (this registration + the CMS mechanism
+		 * only) deliberately does NOT touch front-page.php's existing hero
+		 * markup yet, per Farhad's explicit instruction to build the system
+		 * standalone first, then migrate the current hero into it and test
+		 * layout-by-layout as a separate step.
+		 */
+		register_post_type(
+			'hero_section',
+			array(
+				'labels'       => array(
+					'name'               => __( 'هدر صفحهٔ اصلی', 'shola-core' ),
+					'singular_name'      => __( 'نسخهٔ هدر', 'shola-core' ),
+					'add_new'            => __( 'افزودن نسخه', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن نسخهٔ هدر جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش نسخهٔ هدر', 'shola-core' ),
+					'new_item'           => __( 'نسخهٔ هدر جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ نسخهٔ هدر', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی نسخه‌های هدر', 'shola-core' ),
+					'not_found'          => __( 'نسخه‌ای یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'نسخه‌ای در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ نسخه‌های هدر', 'shola-core' ),
+					'menu_name'          => __( 'هدر صفحهٔ اصلی', 'shola-core' ),
+				),
+				'public'       => false,
+				'show_ui'      => true,
+				'show_in_menu' => true,
+				'show_in_rest' => true,
+				'has_archive'  => false,
+				'menu_icon'    => 'dashicons-align-pull-right',
+				'supports'     => array( 'title' ),
+				'rewrite'      => false,
+			)
+		);
+
 		register_post_type(
 			'announcement',
 			array(

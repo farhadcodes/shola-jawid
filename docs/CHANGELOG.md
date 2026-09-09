@@ -6844,3 +6844,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   patch).
   Approved by: Farhad, in this session (2026-09-08) — Phase 16 of the
   Technical Scoping Plan.
+
+## 2026-09-09 — Phase 17 (hero_section CPT — switchable hero variants)
+- **Added:** a new `hero_section` custom post type in `shola-core`, per the
+  client's request (relayed by Farhad) for a second hero layout (headline
+  article + a side column showing a publication's latest issue), combined
+  with Farhad's own proposal for the underlying mechanism: rather than
+  hardcode one hero design and rebuild it from scratch every time the
+  client changes their mind, editors save any number of `hero_section`
+  entries and flip a single "active" flag between them — nothing already
+  built is ever deleted to try a new design.
+  **Data model** (see class-post-types.php's hero_section docblock for
+  the full rationale): each entry holds only (1) `shcore_hero_active`
+  (boolean, singleton-enforced), (2) `shcore_hero_layout` (`single` or
+  `lead_rail`), and (3) `shcore_hero_rail_publication` (`shola-jawid` or
+  `a-world-to-win`, only meaningful for `lead_rail`). The headline article
+  itself is deliberately never stored per-entry — it stays "latest
+  published post," computed live, regardless of which hero variant is
+  active, per Farhad's explicit instruction.
+  **Singleton enforcement**: `Meta_Fields::deactivate_other_hero_sections()`
+  runs from `save_meta_boxes()` whenever an entry is saved active,
+  clearing the flag on every other `hero_section` (any status). Verified
+  in both directions with real saves through the wp-admin edit screen
+  (not just code review): activating one entry via its own metabox
+  checkbox correctly deactivated the other; using the list-table row
+  action (below) on the other correctly reversed it.
+  **Admin UX**: a "وضعیت" (status) column on the `hero_section` list table
+  (فعال/غیرفعال at a glance) and a one-click "تنظیم به‌عنوان فعال" row
+  action (`admin.php?action=shcore_set_active_hero`, nonce-verified,
+  capability-checked) so switching the live variant never requires
+  opening an entry and finding a checkbox.
+  **Bug caught and fixed while building the metabox, before shipping**:
+  the rail-publication dropdown's first version queried
+  `get_terms( 'publication', parent => 0 )`, which also surfaced the
+  taxonomy's auto-created "دسته‌بندی‌نشده" (Uncategorized) top-level term
+  as a selectable option — meaningless here. Fixed by looking up the two
+  real publication slugs (`shola-jawid`, `a-world-to-win`) by name
+  directly, matching `sanitize_hero_rail_publication()`'s own fixed
+  two-slug vocabulary instead of trusting a broader taxonomy query.
+  **Seeding**: one default, active, `single`-layout entry ("هدر پیش‌فرض
+  (تک‌ستونی)") is seeded on `admin_init` (idempotent, same option-flag
+  pattern as `Taxonomies::migrate_legacy_party_documents()`), so the
+  admin list isn't empty and the mechanism is testable immediately.
+  **Deliberately out of scope for this phase, per Farhad's explicit
+  instruction**: front-page.php's actual hero markup is untouched — this
+  post type has no effect on the live site yet. Wiring the homepage hero
+  to read from the active `hero_section` entry, building the `lead_rail`
+  template (the new side-column layout), and migrating today's hero into
+  this system as its `single` entry are follow-up work, tested
+  layout-by-layout as its own step.
+  Also fixed in passing: `SHCORE_VERSION` (the cache-busting constant in
+  `shola-core.php`) had drifted to `1.1.2` while the plugin header already
+  read `1.3.0` — brought back in sync as part of this version bump.
+  Plugin version bumped 1.3.0 → 1.4.0.
+  Approved by: Farhad, in this session (2026-09-09) — Phase 17 of the
+  Technical Scoping Plan.

@@ -32,6 +32,29 @@ class Meta_Fields {
 		add_action( 'save_post', array( __CLASS__, 'save_meta_boxes' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_filter( 'upload_mimes', array( __CLASS__, 'ensure_pdf_mime_allowed' ) );
+
+		/*
+		 * hero_section admin-list UX (2026-09-09): a status column so an
+		 * editor can see which variant is live without opening each one,
+		 * and a one-click "Set as active" row action instead of requiring
+		 * them to open an entry and find the checkbox — see
+		 * class-post-types.php's hero_section docblock for the feature.
+		 */
+		add_filter( 'manage_hero_section_posts_columns', array( __CLASS__, 'add_hero_status_column' ) );
+		add_action( 'manage_hero_section_posts_custom_column', array( __CLASS__, 'render_hero_status_column' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_hero_set_active_row_action' ), 10, 2 );
+		add_action( 'admin_action_shcore_set_active_hero', array( __CLASS__, 'handle_set_active_hero' ) );
+
+		/*
+		 * Seed one default, active hero_section entry (تک‌ستونی — today's
+		 * existing hero design) so the admin list isn't empty and the
+		 * active-flag mechanism is immediately testable, even before
+		 * front-page.php is wired to read from this post type. Same
+		 * idempotent admin_init + option-flag pattern as
+		 * Taxonomies::migrate_legacy_party_documents() — safe to run on
+		 * every admin page load, only ever inserts once.
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'seed_default_hero_section' ) );
 	}
 
 	/**
@@ -202,6 +225,51 @@ class Meta_Fields {
 			)
 		);
 
+		/*
+		 * hero_section (2026-09-09) — see class-post-types.php's docblock
+		 * on this CPT for the full rationale. `shcore_hero_active` is a
+		 * singleton in practice (enforced in save_meta_boxes(), not here —
+		 * register_post_meta() has no cross-post constraint mechanism), so
+		 * exactly one hero_section (or none, before an editor has picked
+		 * one) is ever active at a time.
+		 */
+		register_post_meta(
+			'hero_section',
+			'shcore_hero_active',
+			array(
+				'type'              => 'boolean',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'hero_section',
+			'shcore_hero_layout',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'single',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_hero_layout' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'hero_section',
+			'shcore_hero_rail_publication',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'shola-jawid',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_hero_rail_publication' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
 		// post (article/note).
 		register_post_meta(
 			'post',
@@ -292,6 +360,33 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Restrict to the two hero layouts this feature ships with (see
+	 * class-post-types.php's hero_section docblock). An unrecognized value
+	 * (e.g. a future layout type removed later) falls back to the safest
+	 * option — single, the current site's existing hero design.
+	 *
+	 * @param mixed $value Raw meta value.
+	 * @return string
+	 */
+	public static function sanitize_hero_layout( $value ) {
+		return in_array( $value, array( 'single', 'lead_rail' ), true ) ? $value : 'single';
+	}
+
+	/**
+	 * Restrict to the two fixed `publication` term slugs (شعله جاوید /
+	 * جهان برای فتح) a hero_section's rail can source its latest issue
+	 * from. Hardcoded like sanitize_language() above rather than checked
+	 * against get_terms(), since this is the same kind of small, fixed
+	 * vocabulary — not something editors can add to.
+	 *
+	 * @param mixed $value Raw meta value.
+	 * @return string
+	 */
+	public static function sanitize_hero_rail_publication( $value ) {
+		return in_array( $value, array( 'shola-jawid', 'a-world-to-win' ), true ) ? $value : 'shola-jawid';
+	}
+
+	/**
 	 * Restrict to the two locales this project is bilingual-ready for.
 	 * Only `fa` is active per CLAUDE.md §1; `en` is scaffolded, not wired
 	 * to anything live.
@@ -343,6 +438,7 @@ class Meta_Fields {
 		add_meta_box( 'shcore_party_publication_fields', __( 'اطلاعات اثر', 'shola-core' ), array( __CLASS__, 'render_party_publication_metabox' ), 'party_publication', 'normal', 'high' );
 		add_meta_box( 'shcore_party_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_party_document_metabox' ), 'party_document', 'normal', 'high' );
 		add_meta_box( 'shcore_article_fields', __( 'اطلاعات مقاله', 'shola-core' ), array( __CLASS__, 'render_article_metabox' ), 'post', 'normal', 'high' );
+		add_meta_box( 'shcore_hero_fields', __( 'تنظیمات هدر', 'shola-core' ), array( __CLASS__, 'render_hero_metabox' ), 'hero_section', 'normal', 'high' );
 	}
 
 	/**
@@ -540,6 +636,67 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the hero_section metabox fields: the active-flag checkbox,
+	 * the layout picker, and (only meaningful for the "lead_rail" layout)
+	 * the rail-publication picker. The headline article itself is
+	 * deliberately never a field here — see class-post-types.php's
+	 * hero_section docblock.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_hero_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$is_active         = (bool) get_post_meta( $post->ID, 'shcore_hero_active', true );
+		$layout            = get_post_meta( $post->ID, 'shcore_hero_layout', true );
+		$rail_publication  = get_post_meta( $post->ID, 'shcore_hero_rail_publication', true );
+		$layout           = $layout ? $layout : 'single';
+		$rail_publication = $rail_publication ? $rail_publication : 'shola-jawid';
+
+		/*
+		 * Restricted to exactly the two real publication slugs
+		 * sanitize_hero_rail_publication() accepts — a plain
+		 * get_terms( parent => 0 ) query also picks up the taxonomy's
+		 * auto-created "دسته‌بندی‌نشده" (Uncategorized) top-level term,
+		 * which would show as a selectable but meaningless option here
+		 * (caught live while testing this screen, 2026-09-09).
+		 */
+		$publication_terms = array();
+		foreach ( array( 'shola-jawid', 'a-world-to-win' ) as $pub_slug ) {
+			$term = get_term_by( 'slug', $pub_slug, 'publication' );
+			if ( $term && ! is_wp_error( $term ) ) {
+				$publication_terms[] = $term;
+			}
+		}
+		?>
+		<p>
+			<label>
+				<input type="checkbox" id="shcore_hero_active" name="shcore_hero_active" value="1" <?php checked( $is_active ); ?>>
+				<strong><?php esc_html_e( 'این نسخه هم‌اکنون فعال است', 'shola-core' ); ?></strong>
+			</label>
+		</p>
+		<p class="description"><?php esc_html_e( 'فعال‌سازی این نسخه، آن را در صفحهٔ اصلی نمایش می‌دهد و فعال بودن سایر نسخه‌های هدر را خودکار غیرفعال می‌کند.', 'shola-core' ); ?></p>
+		<p>
+			<label for="shcore_hero_layout"><strong><?php esc_html_e( 'نوع چیدمان', 'shola-core' ); ?></strong></label><br>
+			<select id="shcore_hero_layout" name="shcore_hero_layout">
+				<option value="single" <?php selected( $layout, 'single' ); ?>><?php esc_html_e( 'تک‌ستونی (مقالهٔ سرخط)', 'shola-core' ); ?></option>
+				<option value="lead_rail" <?php selected( $layout, 'lead_rail' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + ستون نشریه', 'shola-core' ); ?></option>
+			</select>
+		</p>
+		<p class="description"><?php esc_html_e( 'چیدمان تک‌ستونی، طرح فعلی سایت است. چیدمان دوستونی، ستونی برای آخرین شمارهٔ یک نشریه در کنار مقالهٔ سرخط اضافه می‌کند.', 'shola-core' ); ?></p>
+		<p>
+			<label for="shcore_hero_rail_publication"><strong><?php esc_html_e( 'نشریهٔ ستون کناری', 'shola-core' ); ?></strong></label><br>
+			<select id="shcore_hero_rail_publication" name="shcore_hero_rail_publication">
+				<?php foreach ( $publication_terms as $term ) : ?>
+					<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $rail_publication, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+		<p class="description"><?php esc_html_e( 'فقط در چیدمان دوستونی استفاده می‌شود؛ آخرین شمارهٔ این نشریه در ستون کناری نمایش داده خواهد شد.', 'shola-core' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Shared fa/en select, since both post and document carry a language
 	 * field.
 	 *
@@ -615,6 +772,7 @@ class Meta_Fields {
 			'party_publication' => array( 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
 			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
+			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {
@@ -622,6 +780,19 @@ class Meta_Fields {
 		}
 
 		foreach ( $fields_by_type[ $post->post_type ] as $field ) {
+			if ( 'shcore_hero_active' === $field ) {
+				// A checkbox is absent from $_POST entirely when unchecked
+				// — unlike every other field here, "not present" is a real,
+				// meaningful value (inactive), not "leave the old value
+				// alone", so this can't use the generic isset() branch
+				// below.
+				$is_active = isset( $_POST['shcore_hero_active'] );
+				update_post_meta( $post_id, 'shcore_hero_active', $is_active );
+				if ( $is_active ) {
+					self::deactivate_other_hero_sections( $post_id );
+				}
+				continue;
+			}
 			if ( 'shcore_contents' === $field ) {
 				// Repeater rows arrive as shcore_contents[N][section|title|byline].
 				// Absent entirely (JS never touched, or every row removed) is a
@@ -636,6 +807,166 @@ class Meta_Fields {
 				update_post_meta( $post_id, $field, wp_unslash( $_POST[ $field ] ) );
 			}
 		}
+	}
+
+	/**
+	 * Enforces the hero_section active-flag singleton: whenever one entry
+	 * is saved as active, every other entry (any status — a stray active
+	 * flag left on a draft would be just as wrong as one on a published
+	 * entry) is explicitly set inactive. Runs from save_meta_boxes() only,
+	 * never from register_meta()'s sanitize_callback, since that callback
+	 * has no way to see or modify *other* posts.
+	 *
+	 * @param int $active_id Post ID of the hero_section just marked active.
+	 * @return void
+	 */
+	private static function deactivate_other_hero_sections( $active_id ) {
+		$others = get_posts(
+			array(
+				'post_type'      => 'hero_section',
+				'posts_per_page' => -1,
+				'post__not_in'   => array( $active_id ),
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+			)
+		);
+
+		foreach ( $others as $other_id ) {
+			update_post_meta( $other_id, 'shcore_hero_active', false );
+		}
+	}
+
+	/**
+	 * Add a "وضعیت" (status) column to the hero_section list table, right
+	 * after the title, so an editor can see which variant is live without
+	 * opening each one.
+	 *
+	 * @param array<string, string> $columns Default columns.
+	 * @return array<string, string>
+	 */
+	public static function add_hero_status_column( $columns ) {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$new['shcore_hero_status'] = __( 'وضعیت', 'shola-core' );
+			}
+		}
+		return $new;
+	}
+
+	/**
+	 * Render the "وضعیت" column's value for one row.
+	 *
+	 * @param string $column Column key being rendered.
+	 * @param int    $post_id Post ID for this row.
+	 * @return void
+	 */
+	public static function render_hero_status_column( $column, $post_id ) {
+		if ( 'shcore_hero_status' !== $column ) {
+			return;
+		}
+		$is_active = (bool) get_post_meta( $post_id, 'shcore_hero_active', true );
+		if ( $is_active ) {
+			echo '<strong style="color:#0a7d2c">' . esc_html__( 'فعال', 'shola-core' ) . '</strong>';
+		} else {
+			echo '<span style="color:#777">' . esc_html__( 'غیرفعال', 'shola-core' ) . '</span>';
+		}
+	}
+
+	/**
+	 * Add a one-click "تنظیم به‌عنوان فعال" row action on inactive
+	 * hero_section entries, so switching the live variant doesn't require
+	 * opening it and finding the checkbox. Already-active entries get no
+	 * such link — there's nothing useful to do from here once it's live.
+	 *
+	 * @param array<string, string> $actions Existing row actions.
+	 * @param \WP_Post              $post Post object for this row.
+	 * @return array<string, string>
+	 */
+	public static function add_hero_set_active_row_action( $actions, $post ) {
+		if ( 'hero_section' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+			return $actions;
+		}
+		if ( (bool) get_post_meta( $post->ID, 'shcore_hero_active', true ) ) {
+			return $actions;
+		}
+
+		$url = wp_nonce_url(
+			admin_url( 'admin.php?action=shcore_set_active_hero&post=' . $post->ID ),
+			'shcore_set_active_hero_' . $post->ID
+		);
+
+		$actions['shcore_set_active_hero'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'تنظیم به‌عنوان فعال', 'shola-core' ) . '</a>';
+		return $actions;
+	}
+
+	/**
+	 * Handles the "Set as active" row-action link: verifies the nonce and
+	 * edit capability, marks the requested hero_section active, deactivates
+	 * every other one (same helper save_meta_boxes() uses), then redirects
+	 * back to the list table.
+	 *
+	 * @return void
+	 */
+	public static function handle_set_active_hero() {
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+
+		if ( ! $post_id
+			|| ! isset( $_GET['_wpnonce'] )
+			|| ! wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'shcore_set_active_hero_' . $post_id )
+			|| 'hero_section' !== get_post_type( $post_id )
+			|| ! current_user_can( 'edit_post', $post_id )
+		) {
+			wp_die( esc_html__( 'درخواست نامعتبر است.', 'shola-core' ) );
+		}
+
+		update_post_meta( $post_id, 'shcore_hero_active', true );
+		self::deactivate_other_hero_sections( $post_id );
+
+		wp_safe_redirect( admin_url( 'edit.php?post_type=hero_section' ) );
+		exit;
+	}
+
+	/**
+	 * Seed one default, active "تک‌ستونی" hero_section entry so the admin
+	 * list isn't empty and the active-flag mechanism is testable
+	 * immediately — see init()'s comment on why this runs on admin_init
+	 * rather than only on plugin activation.
+	 *
+	 * @return void
+	 */
+	public static function seed_default_hero_section() {
+		if ( get_option( 'shcore_default_hero_seeded' ) ) {
+			return;
+		}
+
+		$existing = get_posts(
+			array(
+				'post_type'      => 'hero_section',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( ! $existing ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => 'hero_section',
+					'post_status' => 'publish',
+					'post_title'  => __( 'هدر پیش‌فرض (تک‌ستونی)', 'shola-core' ),
+				)
+			);
+
+			if ( $post_id && ! is_wp_error( $post_id ) ) {
+				update_post_meta( $post_id, 'shcore_hero_active', true );
+				update_post_meta( $post_id, 'shcore_hero_layout', 'single' );
+				update_post_meta( $post_id, 'shcore_hero_rail_publication', 'shola-jawid' );
+			}
+		}
+
+		update_option( 'shcore_default_hero_seeded', true );
 	}
 
 	/**
