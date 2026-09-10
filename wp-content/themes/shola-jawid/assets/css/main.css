@@ -1360,9 +1360,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    pattern (NYT, WaPo-style top-story modules) use a short, wide banner
    band, not a cinematic full-screen slide. clamp() keeps it
    proportional to viewport width instead of one fixed pixel value. */
+/* Floor raised 420px -> 480px, 2026-09-10, alongside the cover-size
+   rework below: a portrait 3/4 cover needs more height per unit of
+   width than the old landscape 3/2 one did, so the card needed a
+   little more room to hold a reasonably-sized cover without shrinking
+   it down to something Farhad flagged as "very small... shrunk down".
+   Still nowhere near the original full-viewport-height design this
+   whole clamp replaced — 480-560px stays a compact, wide banner, not
+   the "shallow"/disproportionate module the very first version of
+   this layout was criticized for. */
 @media (min-width: 901px) {
   .hero-lead--with-rail .hero-media,
-  .hero-lead--with-rail .hero-main { height: clamp(420px, 42vw, 560px); }
+  .hero-lead--with-rail .hero-main { height: clamp(480px, 42vw, 560px); }
 }
 
 .hero-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
@@ -1408,28 +1417,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   flex-direction: column;
   justify-content: center;
 }
-/*
- * Bug caught live, 2026-09-10, right after the cover's aspect-ratio
- * changed from 3/2 to 3/4 above: a full-width (256px) 3/4 cover needs
- * ~341px of height on its own — combined with the rest of the card's
- * content, more than the hero's own compact clamped height
- * (420-560px, tuned earlier this session to fix a different
- * "shallow/too tall" complaint) can hold. Since .hero-rail is a flex
- * sibling stretched to match .hero-main's explicit height, content
- * taller than that forced the whole row (and the rail specifically)
- * to grow past the photo's own height — a ~50px gap opened up below
- * the (shorter) photo, caught via getBoundingClientRect(), not
- * eyeballed. Capping the cover to a smaller fixed width here (rather
- * than shrinking the whole rail, which would cramp the title/dek text
- * needlessly) keeps the exact same 3/4 book-cover shape at a size that
- * reliably fits, at every width the two-column layout can appear at —
- * verified against 420px, the layout's realistic worst case (the
- * clamp's floor, which real viewports around 901-999px actually hit).
- * `.hero-pub-card` (the `overlay` layout's floating card) doesn't have
- * this constraint — it isn't stretched to match a fixed-height sibling
- * — so it keeps the full-width cover untouched.
- */
-.hero-rail .hero-pub-card-cover { width: 120px; margin-inline: 0; }
 /* Shared publication-card content classes (shola_render_hero_publication_card())
    — used inside both .hero-rail (crimson bg) and .hero-pub-card (paper
    bg, `overlay` layout below), renamed from hero-rail-* to hero-pub-
@@ -1446,9 +1433,32 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    uploaded cover image, whatever its real dimensions, always fills
    this frame exactly — cropped to fit if its proportions differ,
    never stretched or overflowing — same guarantee .issue-cover
-   already provides. */
-.hero-pub-card-cover { display: block; aspect-ratio: 3 / 4; overflow: hidden; margin-bottom: 1rem; }
+   already provides.
+
+   width: min(220px, 100%) is the size used whenever this card is
+   stacked full-width (mobile/tablet, both layouts, <901px) or shown
+   standalone — a generous, clearly-legible book-cover size since
+   nothing constrains the available height there. Narrowed further for
+   the two side-by-side/floating desktop contexts just below, each for
+   its own reason: Farhad's live feedback on BOTH, in the same round —
+   `.hero-rail`'s full-width (256px) cover needed ~341px of height
+   alone, more than the two-column hero's own compact clamped height
+   (raised to 480-560px above, but not by that much) had room for,
+   forcing the rail taller than the photo beside it — a real ~50px gap,
+   caught via getBoundingClientRect(); `.hero-pub-card`'s same full-
+   width cover made the whole floating card read as "very large in
+   height", extending well up the photo instead of staying a compact
+   corner card, per Farhad's own screenshot with a line marking how
+   far down it should stay. 160px keeps the same clear book-cover
+   shape at a size verified to fit both constraints — checked against
+   901px, the exact width where both contexts' constraints first
+   apply. */
+.hero-pub-card-cover { display: block; aspect-ratio: 3 / 4; overflow: hidden; margin-bottom: 1rem; width: min(220px, 100%); }
 .hero-pub-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (min-width: 901px) {
+  .hero-rail .hero-pub-card-cover,
+  .hero-pub-card .hero-pub-card-cover { width: 160px; margin-inline: 0; }
+}
 /* Compact title/dek sizing shared by both card contexts — bug caught
    live while testing the `overlay` layout, 2026-09-10: only .hero-rail
    had this sizing, so .hero-pub-card's title/dek fell back to the

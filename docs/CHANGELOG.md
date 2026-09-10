@@ -7262,3 +7262,39 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.10.1 → 1.10.2.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (cover-size rebalance)
+- **Fixed:** the previous cover-size fix (120×160, scoped to `.hero-rail`
+  only) overcorrected — Farhad's next round of live screenshots showed
+  two opposite problems at once: `overlay`'s floating card (still using
+  the full 256×341 cover, untouched by that fix since it wasn't the one
+  with the overflow bug) now read as "very large in height", its top
+  edge reaching well up the photo past where Farhad marked a line it
+  should stay below; `lead_rail`'s 120×160 cover, by contrast, looked
+  "very small... shrunk down".
+  Resolved both at once with one coherent approach instead of two more
+  one-off patches: `.hero-pub-card-cover` now defaults to
+  `width: min(220px, 100%)` — a generous size used whenever the card is
+  full-width (mobile/tablet stacking, both layouts, <901px, addressing
+  Farhad's explicit "mobile version... should not be crumbled
+  together") — and narrows to 160px specifically for the two desktop
+  contexts that have a real space constraint: `.hero-rail` (stretched
+  to match the hero's own height) and `.hero-pub-card` (kept compact so
+  it stays a corner card, not a near-full-height column). Also raised
+  `lead_rail`'s compact-height clamp floor from 420px to 480px, since a
+  portrait 3/4 cover needs more height per unit width than the old
+  landscape 3/2 one — a small, deliberate trade-off for a visibly
+  bigger cover, still nowhere near the original full-viewport-height
+  design two fixes ago.
+  Verified live, not assumed: at 950px (the layout's real worst case,
+  where the height clamp sits at its new 480px floor), `lead_rail`'s
+  photo and rail measure identically (480px each, zero overflow) with
+  a visibly larger 160×213 cover. The `overlay` card now measures
+  458px tall total (down from ~585-600px) and its top edge sits at
+  ~42% down the photo — comfortably in the lower half, not near the
+  top. Mobile (375px) confirmed both layouts now show the larger
+  220×293 cover when stacked, addressing the "not crumbled" request.
+  Zero console errors at any width or layout.
+  Theme version bumped 1.10.2 → 1.10.3.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.
