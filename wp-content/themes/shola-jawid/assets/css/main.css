@@ -1403,11 +1403,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   flex: 0 0 320px;
   background: var(--winston-red);
   color: var(--paper);
-  padding: 2.5rem var(--gap-pad-x);
+  padding: 2rem var(--gap-pad-x);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+/*
+ * Bug caught live, 2026-09-10, right after the cover's aspect-ratio
+ * changed from 3/2 to 3/4 above: a full-width (256px) 3/4 cover needs
+ * ~341px of height on its own — combined with the rest of the card's
+ * content, more than the hero's own compact clamped height
+ * (420-560px, tuned earlier this session to fix a different
+ * "shallow/too tall" complaint) can hold. Since .hero-rail is a flex
+ * sibling stretched to match .hero-main's explicit height, content
+ * taller than that forced the whole row (and the rail specifically)
+ * to grow past the photo's own height — a ~50px gap opened up below
+ * the (shorter) photo, caught via getBoundingClientRect(), not
+ * eyeballed. Capping the cover to a smaller fixed width here (rather
+ * than shrinking the whole rail, which would cramp the title/dek text
+ * needlessly) keeps the exact same 3/4 book-cover shape at a size that
+ * reliably fits, at every width the two-column layout can appear at —
+ * verified against 420px, the layout's realistic worst case (the
+ * clamp's floor, which real viewports around 901-999px actually hit).
+ * `.hero-pub-card` (the `overlay` layout's floating card) doesn't have
+ * this constraint — it isn't stretched to match a fixed-height sibling
+ * — so it keeps the full-width cover untouched.
+ */
+.hero-rail .hero-pub-card-cover { width: 120px; margin-inline: 0; }
 /* Shared publication-card content classes (shola_render_hero_publication_card())
    — used inside both .hero-rail (crimson bg) and .hero-pub-card (paper
    bg, `overlay` layout below), renamed from hero-rail-* to hero-pub-
@@ -1415,7 +1437,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    markup. No color is set here on purpose (a card's background isn't
    fixed) — each parent context sets its own text colors below. */
 .hero-pub-card-kicker { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; }
-.hero-pub-card-cover { display: block; aspect-ratio: 3 / 2; overflow: hidden; margin-bottom: 1rem; }
+/* aspect-ratio 3/4, not 3/2 — Farhad's feedback, 2026-09-10: issue
+   covers are book/magazine covers (portrait, roughly A4/letter
+   proportions), matching .issue-cover's own ratio elsewhere on the
+   site (نشریات section, etc.) — a wide 3/2 crop read as visually
+   inconsistent with that established "book cover" shape. object-fit:
+   cover (already set below) plus this fixed aspect-ratio means any
+   uploaded cover image, whatever its real dimensions, always fills
+   this frame exactly — cropped to fit if its proportions differ,
+   never stretched or overflowing — same guarantee .issue-cover
+   already provides. */
+.hero-pub-card-cover { display: block; aspect-ratio: 3 / 4; overflow: hidden; margin-bottom: 1rem; }
 .hero-pub-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* Compact title/dek sizing shared by both card contexts — bug caught
    live while testing the `overlay` layout, 2026-09-10: only .hero-rail

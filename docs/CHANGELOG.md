@@ -7219,3 +7219,46 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.10.0 → 1.10.1.
   Approved by: Farhad, in this session (2026-09-10) — Phase 18 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (hero cover proportions)
+- **Fixed:** the hero publication card's cover image (both `lead_rail`'s
+  rail and `overlay`'s floating card, since they share
+  `shola_render_hero_publication_card()`) was cropped to a wide 3:2
+  landscape shape — Farhad flagged this from a live screenshot as
+  inconsistent with real issue covers, which are book/magazine-style
+  portrait shapes (matching `.issue-cover`'s own 3:4 ratio used
+  elsewhere, e.g. the نشریات section). Confirmed understanding with
+  Farhad before changing anything, per his request.
+  `.hero-pub-card-cover`'s `aspect-ratio` changed from `3/2` to `3/4`.
+  `object-fit: cover` (already in place) continues to guarantee any
+  uploaded cover image — whatever its real dimensions — fills this
+  frame exactly, cropped as needed, never stretched or overflowing;
+  Farhad asked for this explicitly and it was already the existing
+  behavior, just now applied to the correct shape.
+  **Real bug found and fixed while verifying, not shipped blind**: a
+  full-width (256px) 3/4 cover needs ~341px of height on its own —
+  more than `lead_rail`'s compact clamped hero height (420-560px,
+  tuned earlier this session for a different "too tall" complaint) has
+  room for once the rest of the card's content (kicker/title/dek/
+  button/padding, ~269px) is added. Since `.hero-rail` is stretched to
+  match `.hero-main`'s explicit height, the overflow forced the whole
+  row taller than the photo — a ~50px gap opened up below the photo,
+  caught via `getBoundingClientRect()` at the layout's realistic worst
+  case (viewports around 901-999px, where the height clamp sits at its
+  420px floor), not just eyeballed at one comfortable width.
+  Fixed by capping the cover to 120×160px (still the same 3:4 shape,
+  just sized to reliably fit) inside `.hero-rail` specifically, rather
+  than shrinking the whole rail or its text — `.hero-pub-card` (the
+  `overlay` layout's card) keeps the original full-width 256×341 cover
+  since it isn't height-constrained the same way (it floats freely
+  over a photo tall enough to hold it, not stretched to match a fixed-
+  height sibling).
+  Verified at the exact 420px clamp floor (950px viewport): hero photo
+  and rail now measure identically (420px each, zero gap). Re-verified
+  desktop (1920px, 560px each, zero gap) and tablet stacking (768px,
+  cover still 120×160, full-width rail) all correct. `overlay` layout
+  re-confirmed unaffected (still the full 256×341 cover, comfortably
+  within its own taller photo). Zero console errors at any width.
+  Theme version bumped 1.10.1 → 1.10.2.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.
