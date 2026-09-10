@@ -7500,3 +7500,41 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.12.0 → 1.12.1.
   Approved by: Farhad, in this session (2026-09-10) — Phase 20 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 21 (site-wide article cards + spotlight ellipsis)
+- **Changed — article card title/dek sizing, site-wide.** Farhad
+  flagged from live screenshots (both تازه‌ترین مقالات and a topic
+  archive — `template-parts/cards/card.php` is shared by both, so the
+  fix applies everywhere it's used) that the excerpt read as too
+  short/thin next to the title. Two changes together: `.h-card`
+  (title) 1px smaller (`var(--t-h4)` 20px → 19px, scoped to `.card
+  .h-card` rather than changing the shared `--t-h4` token other
+  headings also use); `.card-dek` (excerpt) a full step up the
+  existing type scale (`var(--t-small)` 14px → `var(--t-body)` 17px).
+  Paired with doubling the word count fed into `wp_trim_words()` in
+  card.php (24 → 48, per Farhad's explicit ask) — verified live this
+  was actually most of the "short" complaint: at 24 words the excerpt
+  often ran out of text before filling `.card-dek`'s existing 3-line
+  clamp, leaving visible empty space below a 1-2 line excerpt next to
+  a full-height title. Confirmed live (not assumed) that 48 words
+  reliably fills all 3 lines now — `scrollHeight` (149px) vs.
+  `clientHeight` (89px, the clamped 3-line box) on a real card.
+- **Fixed — اطلاعیه spotlight title's "…" rendered dark instead of
+  white.** Farhad caught this live on the production site
+  (sholajawid.com, a real long اطلاعیه title that actually truncates).
+  Root cause, confirmed via `getComputedStyle()` on the live site
+  before touching any code: `.card-spotlight-item--featured .h-card`
+  is the element webkit's line-clamp truncates and generates the "…"
+  for, but only its child `<a>` was ever styled white elsewhere in
+  this file — the `.h-card` block itself was left at `.h-card`'s own
+  default dark `--ink` color. The visible title text still looked
+  fully white (inherited from the anchor's own override), so this only
+  ever surfaced once a title was long enough to actually truncate,
+  which is why it went unnoticed until now. Added `color: var(--paper)`
+  directly to the truncating rule. Re-verified on shola-jawid.local
+  (not just production) after the fix.
+  Zero console errors across all three fixes, checked on the
+  homepage's تازه‌ترین مقالات grid and a topic archive page.
+  Theme version bumped 1.12.1 → 1.13.0.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 21 of the
+  Technical Scoping Plan.

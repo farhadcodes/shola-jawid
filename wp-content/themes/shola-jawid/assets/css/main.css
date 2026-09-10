@@ -966,9 +966,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .card a:hover .h-card,
 .card .h-card a:hover { color: var(--winston-red); }
+/* .h-card 1px smaller (var(--t-h4), 20px -> 19px, scoped here rather
+   than changing the shared --t-h4 token, which other unrelated
+   headings also use) and .card-dek bumped a full step up the type
+   scale (var(--t-small), 14px -> var(--t-body), 17px) — both per
+   Farhad's live feedback, 2026-09-10: the excerpt read as too short/
+   thin next to the title. Paired with doubling the word count fed
+   into wp_trim_words() in card.php (24 -> 48), the excerpt now
+   reliably fills its existing 3-line clamp instead of sometimes
+   running out of words before reaching it — that gap, not the font
+   size alone, was most of why it read as "short". */
+.card .h-card { font-size: calc(var(--t-h4) - 1px); }
 .card-dek {
   color: var(--ink-soft);
-  font-size: var(--t-small);
+  font-size: var(--t-body);
   line-height: 1.75;
   /* Length safety net, same reasoning as .dek above — cards are the
      tightest layout context (grid columns), so a lower ceiling. */
@@ -1159,6 +1170,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+  /*
+   * color: var(--paper), added 2026-09-10 — Farhad caught this live on
+   * the production site (a real long اطلاعیه title, truncated): the
+   * "…" this line-clamp inserts rendered dark instead of matching the
+   * white title text. Root cause: this .h-card element is what
+   * webkit's line-clamp actually truncates and generates the ellipsis
+   * for, but only its child <a> was ever styled white (elsewhere in
+   * this file) — the .h-card block itself was left at .h-card's own
+   * default dark ink color. The visible title text still looked fully
+   * white (inherited from the anchor), so this only ever surfaced once
+   * a title was long enough to actually truncate — confirmed live via
+   * getComputedStyle() on production, not guessed: the anchor reported
+   * white, the parent .h-card reported var(--ink) (#0F0F0F).
+   */
+  color: var(--paper);
 }
 .card-spotlight .card-dek { color: rgba(255, 255, 255, .9); -webkit-line-clamp: 2; line-clamp: 2; }
 .card-spotlight .card-byline { color: rgba(255, 255, 255, .9); margin-top: 0; }

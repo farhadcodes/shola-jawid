@@ -98,7 +98,19 @@ if ( 'document' === $card_type ) {
 			<?php endif; ?>
 		</p>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $card_post ) ); ?></a></h3>
-		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 24 ) ); ?></p>
+		<?php
+		/*
+		 * 24 -> 48 words, 2026-09-10, per Farhad's live feedback (screenshots
+		 * of تازه‌ترین مقالات and a topic archive): the excerpt often ran out
+		 * of words before filling .card-dek's own 3-line clamp, leaving
+		 * visible empty space below a short 1-2 line excerpt next to a
+		 * full-height title — read as "very short". 48 is generous enough
+		 * that the clamp (not the word count) is what stops the text in
+		 * the normal case, matching how .card-dek's larger font-size
+		 * change (main.css §09) was reasoned about at the same time.
+		 */
+		?>
+		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 48 ) ); ?></p>
 		<?php
 		/*
 		 * Byline (author/username) removed site-wide, 2026-09-02, per the
