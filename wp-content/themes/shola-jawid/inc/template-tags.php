@@ -824,7 +824,19 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
 		<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
 	<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
-	<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 18 ) ); ?></p>
+	<?php
+	/*
+	 * 18 -> 12 words, 2026-09-10: Farhad flagged this specifically on
+	 * the widest rail context (rail_full's ~34%-viewport-wide panel) —
+	 * at that width, 18 words wrapped into a noticeably wide block that
+	 * read as sprawling rather than a tight caption. 12 sits inside his
+	 * own suggested 10-12 range and below every other compact-card dek
+	 * on the site (.card-spotlight uses 16) — this card is consistently
+	 * the narrowest/most compact context a dek appears in, across all
+	 * four hero layouts, not just rail_full.
+	 */
+	?>
+	<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 12 ) ); ?></p>
 	<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
 	<?php
 }

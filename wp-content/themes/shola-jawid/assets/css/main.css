@@ -1450,6 +1450,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    markup. No color is set here on purpose (a card's background isn't
    fixed) — each parent context sets its own text colors below. */
 .hero-pub-card-kicker { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; }
+/* align-self: flex-start on the card's own button — bug caught live on
+   `rail_full` (its rail is far wider than lead_rail's 320px, ~34% of
+   the viewport, which is what made this visible enough to flag): both
+   .hero-rail and .hero-pub-card are `display: flex; flex-direction:
+   column`, and a flex column's default align-items is `stretch` —
+   with nothing overriding it, the button (an inline-flex element, but
+   still a direct flex-column child) stretched to the full cross-axis
+   width of its parent instead of sizing to its own content, the wider
+   the rail, the more obviously wrong it looked. flex-start keeps it a
+   normal, content-sized button sitting at the block's own reading
+   start (the visual right, in this RTL site) — fixed for every layout
+   sharing this card (`.hero-rail`, `.hero-pub-card`), not just
+   `rail_full`, since they all share the exact same underlying cause. */
+.hero-rail .btn,
+.hero-pub-card .btn { align-self: flex-start; }
 /* aspect-ratio 3/4, not 3/2 — Farhad's feedback, 2026-09-10: issue
    covers are book/magazine covers (portrait, roughly A4/letter
    proportions), matching .issue-cover's own ratio elsewhere on the

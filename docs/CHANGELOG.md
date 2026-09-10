@@ -7466,3 +7466,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   1.11.1 → 1.12.0.
   Approved by: Farhad, in this session (2026-09-10) — Phase 20 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 20 continued (button + dek length)
+- **Fixed — publication card button stretched full-width.** Farhad
+  flagged this live on `rail_full` (screenshot, marked with a green
+  circle): the "دریافت شماره" button spanned the rail's entire width
+  instead of being a normal, compact button. Root cause: both
+  `.hero-rail` and `.hero-pub-card` are `display: flex; flex-
+  direction: column`, and a flex column's default `align-items` is
+  `stretch` — with nothing overriding it, the button (an inline-flex
+  element, but still a direct flex-column child) stretched to fill the
+  full cross-axis width. This was actually present in every layout
+  using this shared card (`lead_rail`'s rail, `overlay`'s card too) —
+  just far less visually obvious at their narrower widths than at
+  `rail_full`'s ~34%-of-viewport rail, which is what made it visible
+  enough to flag. Fixed the shared root cause once
+  (`.hero-rail .btn, .hero-pub-card .btn { align-self: flex-start; }`)
+  rather than patching `rail_full` alone, so all three layouts get a
+  normal, content-sized, reading-start-aligned (visual right, in this
+  RTL site) button. Verified live: button width dropped from spanning
+  the full rail/card width to ~93px (its real content size) in all
+  three layouts, confirmed via `getBoundingClientRect()`.
+- **Changed — publication card dek trimmed 18 → 12 words.** Farhad
+  flagged the excerpt reading as "extending all the way to the left"
+  on `rail_full`'s wide rail, and asked for roughly 10-12 words,
+  matching what's "standard" elsewhere on the site. 12 sits inside his
+  own suggested range and below every other compact-card dek already
+  on the site (`.card-spotlight`'s own dek uses 16) — reasonable, since
+  this card is consistently the narrowest/most compact context a dek
+  appears in, across all four hero layouts.
+  Zero console errors in either fix, at any of the three affected
+  layouts.
+  Theme version bumped 1.12.0 → 1.12.1.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 20 of the
+  Technical Scoping Plan.
