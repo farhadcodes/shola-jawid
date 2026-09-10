@@ -6899,3 +6899,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Plugin version bumped 1.3.0 → 1.4.0.
   Approved by: Farhad, in this session (2026-09-09) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 — Phase 17 continued (front-page.php wired to hero_section)
+- **Changed:** front-page.php's hero now looks up the active
+  `hero_section` entry (added the previous session) to decide which
+  layout to render, instead of always rendering the one hardcoded
+  design. The headline article query itself is completely unchanged —
+  per Farhad's explicit instruction, the hero_section CPT only ever
+  controls layout/rail, never which article leads.
+  No active entry (a theoretical edge case, not something that can
+  currently happen since one is always seeded) falls back to `single`
+  — today's only layout — so the homepage can never render broken or
+  blank because of this.
+  `lead_rail` layout additionally looks up the latest `issue` for
+  whichever publication the active entry names; if that publication
+  has no issues yet, silently falls back to `single` rather than
+  showing a rail with nothing in it.
+  **Verified this is a genuinely zero-visual-change migration, not just
+  assumed safe**: loaded the homepage with the seeded default entry
+  (`single`) active — pixel-identical to before this change, zero
+  console errors. Then switched the entry to `lead_rail` directly via
+  WP-CLI and reloaded: confirmed the new `hero-lead--with-rail` class
+  is correctly added with no visual regression (no CSS targets that
+  class yet — this session's next step is designing and building that
+  layout's actual markup/CSS, presented to Farhad before implementing
+  since it's a real visual design decision, not just data wiring).
+  Reverted the test entry back to `single` before finishing.
+  Theme version bumped 1.7.0 → 1.7.1.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.

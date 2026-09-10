@@ -51,6 +51,13 @@ get_header();
  * same fields) — only the standalone "recent grid" this hero used to
  * sit above is gone, merged into تازه‌ترین مقالات below (2026-09-07;
  * see this file's own top docblock and docs/CHANGELOG.md).
+ *
+ * The headline article itself is never affected by which hero_section
+ * variant is active (added 2026-09-10, Phase 17 continued — see
+ * shola-core's hero_section CPT docblock): it always stays "latest
+ * published post," computed live here exactly as before. Only the
+ * *layout wrapped around it* (single vs. lead_rail) and an optional
+ * rail alongside it depend on the active hero_section entry.
  */
 $hero_query = new WP_Query(
 	array(
@@ -61,10 +68,67 @@ $hero_query = new WP_Query(
 	)
 );
 $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
+
+/*
+ * Active hero_section lookup (2026-09-10). No active entry (e.g. the
+ * CPT exists but every entry was somehow left inactive) degrades to
+ * 'single' — today's only layout — rather than breaking the homepage;
+ * see class-post-types.php's hero_section docblock for why this CPT
+ * never controls *which* article leads, only the layout around it.
+ */
+$active_hero_query = new WP_Query(
+	array(
+		'post_type'      => 'hero_section',
+		'posts_per_page' => 1,
+		'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- single boolean flag, tiny post type, admin-managed.
+			array(
+				'key'   => 'shcore_hero_active',
+				'value' => '1',
+			),
+		),
+	)
+);
+$active_hero        = $active_hero_query->have_posts() ? $active_hero_query->posts[0] : null;
+$hero_layout        = $active_hero ? get_post_meta( $active_hero->ID, 'shcore_hero_layout', true ) : 'single';
+$hero_layout        = $hero_layout ? $hero_layout : 'single';
+$hero_rail_issue    = null;
+$hero_rail_pub_term = null;
+
+if ( $hero && 'lead_rail' === $hero_layout ) {
+	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
+	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
+	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
+
+	if ( $hero_rail_pub_term && ! is_wp_error( $hero_rail_pub_term ) ) {
+		$hero_rail_query = new WP_Query(
+			array(
+				'post_type'      => 'issue',
+				'posts_per_page' => 1,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, one row.
+					array(
+						'taxonomy' => 'publication',
+						'field'    => 'term_id',
+						'terms'    => $hero_rail_pub_term->term_id,
+					),
+				),
+			)
+		);
+		$hero_rail_issue = $hero_rail_query->have_posts() ? $hero_rail_query->posts[0] : null;
+	}
+
+	// No issue found for the configured publication (none published
+	// yet) — fall back to the single layout rather than showing a
+	// hero with a half-empty rail.
+	if ( ! $hero_rail_issue ) {
+		$hero_layout = 'single';
+	}
+}
 ?>
 
 <?php if ( $hero ) : ?>
-	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+	<section class="hero-lead<?php echo 'lead_rail' === $hero_layout ? ' hero-lead--with-rail' : ''; ?>" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
 			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 		</a>
