@@ -7050,3 +7050,70 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.8.1 → 1.8.2.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (third hero layout: overlay)
+- **Added:** a third hero_section layout, `overlay` ("مقالهٔ سرخط با
+  کارت شناور روی تصویر") — per a client idea relayed by Farhad with a
+  sketch: the exact same full-bleed photo/headline as `single`
+  (untouched, no CSS changes to that layout), with a white publication
+  card floating over the photo's lower corner instead of a full side
+  column, on desktop only. On tablet and mobile the card drops below
+  the photo as a plain full-width block instead of overlaying it —
+  Farhad's own recommendation, confirmed before building, once we
+  discussed that overlaying it on a small screen would collide with the
+  hero's own headline text.
+  Plugin: `sanitize_hero_layout()` now accepts `overlay` as a third
+  value; the hero_section metabox's "نوع چیدمان" dropdown gained the
+  third option and its description was reworded to cover all three
+  layouts; "نشریهٔ ستون کناری" label/description generalized to "نشریهٔ
+  کارت/ستون نشریه" since the field is now shared by two layouts, not
+  one. Plugin version bumped 1.4.0 → 1.5.0.
+  Theme: `shola_render_hero_publication_card()` (new, `inc/template-
+  tags.php`) is now the single source of the "latest issue" card's
+  content (kicker, cover, title, dek, button), called by both
+  `lead_rail`'s `<aside class="hero-rail">` and `overlay`'s new
+  `<div class="hero-pub-card">` — extracted so the two layouts'
+  identical card content can't drift apart, same reasoning as
+  `shola_render_hero_body()` from earlier in this phase. Renamed the
+  card's inner CSS classes from `hero-rail-*` to `hero-pub-card-*`
+  accordingly (no color set on the shared classes themselves — each
+  parent, `.hero-rail` (crimson) or `.hero-pub-card` (paper), sets its
+  own text colors).
+  `.hero-pub-card` is deliberately NOT nested inside `.wrap` (which is
+  `position:absolute`) — as a static sibling of it inside `.hero-lead`
+  (`position:relative`), it naturally renders directly below the photo
+  in normal document flow at narrow widths with zero extra markup;
+  above the stack breakpoint, CSS switches it to `position:absolute`
+  and floats it instead. Positioned with the same "stay centered like
+  the rest of the page even though the photo is full-bleed" math
+  Farhad asked for on `lead_rail` earlier this session: `inset-inline-
+  end: calc(max(0, (100% - 1200px) / 2) + gap-pad-x)`, RTL-safe with no
+  hardcoded left/right.
+  **Two bugs caught and fixed live before shipping, not assumed
+  correct:**
+  (1) the card's title/dek initially used the site's default (much
+  larger) heading size, since the compact sizing rule only targeted
+  `.hero-rail .h-page`/`.dek`, not the new `.hero-pub-card` context —
+  ballooned the card to 547px tall (a 96px 2-line title alone) instead
+  of the intended ~415px; fixed by sharing that sizing rule across both
+  contexts.
+  (2) the card's own breakpoint (721px) was too low: at tablet width
+  (768px) the hero's headline text is still in its desktop bottom-
+  anchored position (its own mobile repositioning only starts below
+  720px), so overlaying the card there too made them visually collide
+  — caught live testing tablet width, not assumed safe. Raised the
+  card's stack breakpoint to 901px, matching `lead_rail`'s own stack
+  breakpoint, so both multi-element hero layouts agree on where
+  "enough room for two things at once" starts.
+  Verified live at all 3 breakpoints after both fixes: desktop
+  (1920px) — card's left edge measured via `getBoundingClientRect()`
+  at 384.5px, an exact pixel match with the very next section's own
+  content-column edge; tablet (768px) — card confirmed `position:
+  static`, full width, stacked cleanly below the photo with zero
+  overlap; mobile (375px) — same static full-width stacking, hero photo
+  itself pixel-identical to the `single` layout's own mobile view.
+  Zero console errors at any width. Re-confirmed both `single` and
+  `lead_rail` layouts are completely unaffected by this refactor.
+  Theme version bumped 1.8.2 → 1.9.0.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.

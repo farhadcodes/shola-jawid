@@ -1360,12 +1360,28 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   flex-direction: column;
   justify-content: center;
 }
-.hero-rail-kicker { font-size: 0.65rem; font-weight: 700; color: var(--paper); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; opacity: .85; }
-.hero-rail-cover { display: block; aspect-ratio: 3 / 2; overflow: hidden; margin-bottom: 1rem; }
-.hero-rail-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hero-rail .h-page { font-size: 1.05rem; line-height: 1.4; }
+/* Shared publication-card content classes (shola_render_hero_publication_card())
+   — used inside both .hero-rail (crimson bg) and .hero-pub-card (paper
+   bg, `overlay` layout below), renamed from hero-rail-* to hero-pub-
+   card-* 2026-09-10 once a second layout started reusing the same
+   markup. No color is set here on purpose (a card's background isn't
+   fixed) — each parent context sets its own text colors below. */
+.hero-pub-card-kicker { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; }
+.hero-pub-card-cover { display: block; aspect-ratio: 3 / 2; overflow: hidden; margin-bottom: 1rem; }
+.hero-pub-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Compact title/dek sizing shared by both card contexts — bug caught
+   live while testing the `overlay` layout, 2026-09-10: only .hero-rail
+   had this sizing, so .hero-pub-card's title/dek fell back to the
+   site's much larger default heading size, ballooning the card's
+   height (a 96px 2-line title instead of the intended ~40px). */
+.hero-rail .h-page,
+.hero-pub-card .h-page { font-size: 1.05rem; line-height: 1.4; }
+.hero-rail .dek,
+.hero-pub-card .dek { font-size: 0.85rem; }
+
+.hero-rail .hero-pub-card-kicker { color: var(--paper); opacity: .85; }
 .hero-rail .h-page a { color: var(--paper); }
-.hero-rail .dek { font-size: 0.85rem; color: rgba(255, 255, 255, .82); }
+.hero-rail .dek { color: rgba(255, 255, 255, .82); }
 /* Rail's own button is inverted (paper bg / crimson text) — .btn-primary's
    default crimson-on-paper would vanish against this panel's own crimson
    background otherwise. */
@@ -1388,6 +1404,57 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+  }
+}
+
+/* --- ۱۰.۳ · Hero "کارت شناور روی تصویر" layout (hero_section: overlay) --
+   Added 2026-09-10, Phase 17 continued — third layout per a client idea
+   (relayed by Farhad, with a sketch): same full-bleed hero as `single`
+   (its .hero-media/.wrap/.hero-body/::before/::after rules all apply
+   completely unchanged, since this layout adds no modifier class to
+   those), with a white publication card floating over the photo's lower
+   corner on desktop only — see the 901px breakpoint note below on why
+   tablet gets the stacked-below treatment too, not just phones.
+
+   Mobile/tablet-first: .hero-pub-card starts as a plain static block.
+   .wrap is position:absolute (see .hero-lead > .wrap above), which
+   takes it out of normal flow, so .hero-pub-card — a later, still-
+   static sibling inside the same position:relative .hero-lead —
+   naturally renders directly below .hero-media in the box model with
+   zero extra markup; no separate "stacked version" of this layout
+   needed. Above the breakpoint below it switches to position:absolute
+   and floats instead.
+
+   Kept centered like every other section even though the photo itself
+   is full-bleed, per Farhad's explicit instruction: the card's
+   inset-inline-end is calculated as the same gap a centered 1200px
+   .wrap would have from the true edge — max(0, (100% - 1200px) / 2) +
+   the standard section padding — so on an ultra-wide monitor the card
+   still lines up with where the page's real content column begins,
+   never drifting out to the literal browser edge. */
+.hero-pub-card {
+  background: var(--paper);
+  padding: 1.75rem var(--gap-pad-x);
+}
+.hero-pub-card .hero-pub-card-kicker { color: var(--crimson); }
+/* min-width:901px, not 721px — bug caught live while testing tablet
+   (768px), 2026-09-10: at that width the headline text is still in its
+   own desktop bottom-anchored position (its mobile repositioning only
+   kicks in below 720px), so overlaying the card there too made them
+   collide. 901px matches the lead_rail layout's own stack breakpoint,
+   so both multi-element hero layouts agree on where "enough room for
+   two things at once" starts. */
+@media (min-width: 901px) {
+  .hero-pub-card {
+    position: absolute;
+    z-index: 4;
+    bottom: 2.5rem;
+    inset-inline-end: calc(max(0px, (100% - var(--wrap-wide)) / 2) + var(--gap-pad-x));
+    width: 320px;
+    max-width: calc(100% - 2 * var(--gap-pad-x));
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
   }
 }
 

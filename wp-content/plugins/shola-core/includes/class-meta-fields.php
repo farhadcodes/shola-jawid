@@ -360,16 +360,21 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Restrict to the two hero layouts this feature ships with (see
-	 * class-post-types.php's hero_section docblock). An unrecognized value
-	 * (e.g. a future layout type removed later) falls back to the safest
-	 * option — single, the current site's existing hero design.
+	 * Restrict to the three hero layouts this feature ships with (see
+	 * class-post-types.php's hero_section docblock) — `single` (today's
+	 * full-bleed hero), `lead_rail` (headline + a separate rail column),
+	 * and `overlay` (2026-09-10, third layout per Farhad relaying a
+	 * client idea: same full-bleed hero as `single`, with a white
+	 * publication card floating over the photo's lower corner instead of
+	 * a full side column). An unrecognized value (e.g. a future layout
+	 * type removed later) falls back to the safest option — single, the
+	 * current site's existing hero design.
 	 *
 	 * @param mixed $value Raw meta value.
 	 * @return string
 	 */
 	public static function sanitize_hero_layout( $value ) {
-		return in_array( $value, array( 'single', 'lead_rail' ), true ) ? $value : 'single';
+		return in_array( $value, array( 'single', 'lead_rail', 'overlay' ), true ) ? $value : 'single';
 	}
 
 	/**
@@ -681,18 +686,19 @@ class Meta_Fields {
 			<select id="shcore_hero_layout" name="shcore_hero_layout">
 				<option value="single" <?php selected( $layout, 'single' ); ?>><?php esc_html_e( 'تک‌ستونی (مقالهٔ سرخط)', 'shola-core' ); ?></option>
 				<option value="lead_rail" <?php selected( $layout, 'lead_rail' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + ستون نشریه', 'shola-core' ); ?></option>
+				<option value="overlay" <?php selected( $layout, 'overlay' ); ?>><?php esc_html_e( 'مقالهٔ سرخط با کارت شناور روی تصویر', 'shola-core' ); ?></option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'چیدمان تک‌ستونی، طرح فعلی سایت است. چیدمان دوستونی، ستونی برای آخرین شمارهٔ یک نشریه در کنار مقالهٔ سرخط اضافه می‌کند.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'تک‌ستونی: طرح فعلی سایت. دوستونی: ستونی جدا برای آخرین شمارهٔ یک نشریه، کنار مقالهٔ سرخط. کارت شناور: همان تصویر تمام‌عرض تک‌ستونی، با کارتی سفید از آخرین شماره روی گوشهٔ تصویر.', 'shola-core' ); ?></p>
 		<p>
-			<label for="shcore_hero_rail_publication"><strong><?php esc_html_e( 'نشریهٔ ستون کناری', 'shola-core' ); ?></strong></label><br>
+			<label for="shcore_hero_rail_publication"><strong><?php esc_html_e( 'نشریهٔ کارت/ستون نشریه', 'shola-core' ); ?></strong></label><br>
 			<select id="shcore_hero_rail_publication" name="shcore_hero_rail_publication">
 				<?php foreach ( $publication_terms as $term ) : ?>
 					<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $rail_publication, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'فقط در چیدمان دوستونی استفاده می‌شود؛ آخرین شمارهٔ این نشریه در ستون کناری نمایش داده خواهد شد.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'در چیدمان دوستونی و کارت شناور استفاده می‌شود؛ آخرین شمارهٔ این نشریه نمایش داده خواهد شد. در چیدمان تک‌ستونی نادیده گرفته می‌شود.', 'shola-core' ); ?></p>
 		<?php
 	}
 

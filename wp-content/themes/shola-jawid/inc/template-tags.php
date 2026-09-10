@@ -801,3 +801,30 @@ function shola_render_hero_body( $hero ) {
 	<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
 	<?php
 }
+
+/**
+ * Renders the "latest issue of a publication" card content shown by two
+ * hero_section layouts (front-page.php): `lead_rail`'s side column and
+ * `overlay`'s floating card. Identical content either way — kicker, cover,
+ * publication name + issue number, dek, "دریافت شماره" button — only the
+ * two layouts' own CSS (`.hero-rail` vs. `.hero-overlay-card`) differs in
+ * how the surrounding card is positioned/colored. Pulled into one shared
+ * helper, 2026-09-10, so a future content change to this card can't be
+ * made in one layout and forgotten in the other.
+ *
+ * @param WP_Post $issue The issue post to feature.
+ * @param WP_Term $pub_term The issue's publication term.
+ * @return void
+ */
+function shola_render_hero_publication_card( $issue, $pub_term ) {
+	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	?>
+	<p class="hero-pub-card-kicker"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></p>
+	<a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="hero-pub-card-cover reveal">
+		<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+	</a>
+	<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 18 ) ); ?></p>
+	<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+	<?php
+}

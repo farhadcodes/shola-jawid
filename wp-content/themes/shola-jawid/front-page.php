@@ -94,7 +94,7 @@ $hero_layout        = $hero_layout ? $hero_layout : 'single';
 $hero_rail_issue    = null;
 $hero_rail_pub_term = null;
 
-if ( $hero && 'lead_rail' === $hero_layout ) {
+if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay' ), true ) ) {
 	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
 	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
@@ -127,7 +127,7 @@ if ( $hero && 'lead_rail' === $hero_layout ) {
 }
 ?>
 
-<?php if ( $hero && 'lead_rail' !== $hero_layout ) : ?>
+<?php if ( $hero && 'single' === $hero_layout ) : ?>
 	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
 			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
@@ -140,7 +140,7 @@ if ( $hero && 'lead_rail' === $hero_layout ) {
 	</section>
 
 	<hr class="rule wrap">
-<?php elseif ( $hero ) : ?>
+<?php elseif ( $hero && 'lead_rail' === $hero_layout ) : ?>
 	<?php
 	/*
 	 * لید + ستون نشریه (2026-09-10, Phase 17 continued): the headline
@@ -158,7 +158,6 @@ if ( $hero && 'lead_rail' === $hero_layout ) {
 	 * rail on the visual left in this RTL layout — matching the
 	 * client's own description of the request — with no hardcoded side.
 	 */
-	$rail_number = get_post_meta( $hero_rail_issue->ID, 'shcore_issue_number', true );
 	?>
 	<section class="hero-lead hero-lead--with-rail" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<div class="hero-main">
@@ -172,14 +171,43 @@ if ( $hero && 'lead_rail' === $hero_layout ) {
 			</div>
 		</div>
 		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-			<p class="hero-rail-kicker"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></p>
-			<a href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>" class="hero-rail-cover reveal">
-				<?php echo shola_get_featured_image( $hero_rail_issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
-			</a>
-			<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>" class="link-quiet"><?php echo esc_html( $hero_rail_pub_term->name ); ?><?php echo $rail_number ? ' — ' . esc_html( $rail_number ) : ''; ?></a></h2>
-			<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero_rail_issue ), 18 ) ); ?></p>
-			<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
 		</aside>
+	</section>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero && 'overlay' === $hero_layout ) : ?>
+	<?php
+	/*
+	 * کارت شناور روی تصویر (2026-09-10, Phase 17 continued): a third
+	 * layout per a client idea (relayed by Farhad, with a sketch) — same
+	 * full-bleed photo/headline as `single` (identical .hero-media/.wrap/
+	 * .hero-body, so it shares that layout's CSS untouched), with
+	 * .hero-pub-card added as a third child of .hero-lead showing the
+	 * same publication-card content as lead_rail's rail.
+	 *
+	 * .hero-pub-card is deliberately NOT nested inside .wrap: .wrap is
+	 * position:absolute, so a static sibling of it inside .hero-lead
+	 * (position:relative) naturally renders directly below the photo in
+	 * normal document flow at narrow widths (mobile) — no separate
+	 * mobile-only markup branch needed. Above the mobile breakpoint,
+	 * CSS switches it to position:absolute to float over the photo's
+	 * lower corner instead. Same RTL approach as lead_rail: no hardcoded
+	 * left/right, positioned via the logical inset-inline-end property.
+	 */
+	?>
+	<section class="hero-lead hero-lead--overlay" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+		</a>
+		<div class="wrap">
+			<div class="hero-body">
+				<?php shola_render_hero_body( $hero ); ?>
+			</div>
+		</div>
+		<div class="hero-pub-card" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
+		</div>
 	</section>
 
 	<hr class="rule wrap">
