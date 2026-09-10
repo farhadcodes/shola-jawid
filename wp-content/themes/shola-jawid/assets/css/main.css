@@ -22,6 +22,32 @@
   /* Approved v6 deviations (see docs/CHANGELOG.md) */
   --winston-red:    #CC0000;
   --cinder-red:     #330A0A;
+  /*
+   * --winston-red-deep/-tint (2026-09-10): derived from --winston-red
+   * the same way --crimson-deep/-tint were derived from --crimson (a
+   * ~25%-darker shade for hover/active states, a ~90%-white-mixed tint
+   * for light backgrounds/selection), needed once Farhad asked for
+   * --winston-red to fully replace --crimson site-wide, not just the
+   * masthead + اطلاعیه tile it was originally scoped to (see the
+   * `--crimson` token's own comment below — that scoping is now
+   * historical, not a standing rule). Every --crimson/-deep/-tint
+   * declaration in this file was repointed to these three; the old
+   * tokens are kept defined (not deleted) since they're still part of
+   * the original locked brand-guide table, just no longer referenced
+   * by any rule here.
+   */
+  --winston-red-deep: #990000;
+  /*
+   * #FCF0F0, not a straight hue-for-hue swap of --crimson-tint's own
+   * white-mix ratio — checked the actual contrast math (same discipline
+   * as the winston-red accessibility check elsewhere in this file), not
+   * just eyeballed: --stone body text on top of a --crimson-tint-style
+   * 90%-white mix of --winston-red computed to ~4.45:1, just under the
+   * 4.5:1 AA threshold .sect-tint's real paragraph text needs. Mixed
+   * lighter (~94% white) instead, giving ~4.8:1 — same visual role
+   * (a barely-there pink wash), safely above the threshold.
+   */
+  --winston-red-tint: #FCF0F0;
 
   /* Functional */
   --ok:             #1E7B4F;
@@ -290,8 +316,8 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 [lang="en"], .latin { font-family: var(--font-en); }
 [lang="en"] .ui, .latin.ui { font-family: var(--font-ui); }
 
-::selection { background: var(--crimson-tint); color: var(--crimson-deep); }
-:focus-visible { outline: 2px solid var(--crimson); outline-offset: 3px; }
+::selection { background: var(--winston-red-tint); color: var(--winston-red-deep); }
+:focus-visible { outline: 2px solid var(--winston-red); outline-offset: 3px; }
 
 /* -------------------------------------------------------------------------
    ۰۳ · Skip link (a11y)
@@ -300,7 +326,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
   position: absolute; top: -100px; inset-inline-start: 8px;
   z-index: 60;
   padding: .5rem 1rem;
-  background: var(--crimson); color: var(--paper);
+  background: var(--winston-red); color: var(--paper);
   font-size: var(--t-small); font-weight: 600;
 }
 .skip-link:focus { top: 8px; }
@@ -334,9 +360,13 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
 
 .masthead {
   border-bottom: 2px solid var(--maroon);
-  /* Winston Red (--winston-red), not crimson — approved client deviation,
-     scoped to the masthead background only; crimson (--crimson) is
-     untouched everywhere else on the site. See docs/CHANGELOG.md. */
+  /* Winston Red (--winston-red) — originally an approved client deviation
+     scoped to the masthead background only (crimson untouched elsewhere);
+     2026-09-10, Farhad asked for --winston-red to become the site's one
+     red everywhere, retiring --crimson from active use entirely — see
+     the design-tokens comment at the top of this file and
+     docs/CHANGELOG.md. This masthead use is now just one of many, not
+     a special case anymore. */
   background: var(--winston-red);
   /*
    * position: sticky (was relative), 2026-09-07, Phase 13 — client-
@@ -409,7 +439,7 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
   padding: calc(.5rem * var(--mast-scale)) calc(.25rem * var(--mast-scale));
   transition: color var(--dur) var(--ease), font-size var(--dur) var(--ease), gap var(--dur) var(--ease), padding var(--dur) var(--ease);
 }
-.mast-btn:hover { color: var(--crimson-tint); }
+.mast-btn:hover { color: var(--winston-red-tint); }
 
 .mast-nameplate {
   font-family: var(--font-display);
@@ -582,7 +612,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--ink);
   padding: .4rem 0;
 }
-.menu-close:hover { color: var(--crimson); }
+.menu-close:hover { color: var(--winston-red); }
 
 /* WP conversion (Phase 4.1): replaces inline style="" on _menu.html's top
    bar and the popup's smaller nameplate instance. */
@@ -650,7 +680,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--paper);
   transition: background var(--dur) var(--ease);
 }
-.menu-social a:hover { background: var(--crimson); }
+.menu-social a:hover { background: var(--winston-red); }
 
 .menu-side { display: flex; flex-direction: column; gap: 2.5rem; }
 .menu-section-title {
@@ -668,7 +698,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--ink);
   transition: color var(--dur) var(--ease);
 }
-.menu-list a:hover { color: var(--crimson); }
+.menu-list a:hover { color: var(--winston-red); }
 .menu-list-small a { font-size: var(--t-body); font-weight: 400; }
 
 /* WP conversion (Phase 4.1): replaces inline style="" on _menu.html's
@@ -680,20 +710,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    ------------------------------------------------------------------------- */
 .h-display {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--crimson-deep);
+  color: var(--winston-red-deep);
   font-size: clamp(2.25rem, 5vw, var(--t-display));
   line-height: 1.15;
   letter-spacing: -.005em;
 }
 .h-page {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--crimson-deep);
+  color: var(--winston-red-deep);
   font-size: clamp(2rem, 4vw, var(--t-h1));
   line-height: 1.2;
 }
 .h-section {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--crimson-deep);
+  color: var(--winston-red-deep);
   font-size: clamp(1.6rem, 3vw, var(--t-h2));
   line-height: 1.25;
 }
@@ -742,10 +772,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .type-label .glyph {
   width: 12px; height: 12px;
   display: inline-block;
-  color: var(--crimson);
+  color: var(--winston-red);
 }
 .type-label a { color: var(--stone); transition: color var(--dur) var(--ease); }
-.type-label a:hover { color: var(--crimson); }
+.type-label a:hover { color: var(--winston-red); }
 .type-label .divider { opacity: .5; }
 
 /* Quiet section marker — replaces the loud crimson kicker */
@@ -754,13 +784,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-size: 0.8125rem;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: var(--crimson);
+  color: var(--winston-red);
   display: inline-flex; align-items: center; gap: .6rem;
 }
 .section-marker::before {
   content: ""; display: inline-block;
   width: 24px; height: 1px;
-  background: var(--crimson);
+  background: var(--winston-red);
 }
 /* margin-bottom reduced 2.5rem -> 2rem, 2026-09-07 full-homepage review
    (same pass as .sect above — see docs/CHANGELOG.md). */
@@ -784,18 +814,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    ۰۸ · Links & buttons
    ------------------------------------------------------------------------- */
 .link {
-  color: var(--crimson);
+  color: var(--winston-red);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
   transition: color var(--dur) var(--ease);
 }
-.link:hover { color: var(--crimson-deep); }
+.link:hover { color: var(--winston-red-deep); }
 
 .link-quiet {
   transition: color var(--dur) var(--ease);
 }
-.link-quiet:hover { color: var(--crimson); }
+.link-quiet:hover { color: var(--winston-red); }
 
 .link-more {
   display: inline-flex; align-items: center; gap: .4rem;
@@ -803,12 +833,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-size: 0.8125rem;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--crimson);
+  color: var(--winston-red);
   padding: .4rem 0;
   border-bottom: 1px solid transparent;
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
-.link-more:hover { color: var(--crimson-deep); border-color: var(--crimson-deep); }
+.link-more:hover { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
 .link-more .arr { display: inline-block; transform: translateY(-1px); }
 
 .btn {
@@ -821,10 +851,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   user-select: none;
   border: 1px solid transparent;
 }
-.btn-primary { background: var(--crimson); color: var(--paper); }
-.btn-primary:hover { background: var(--crimson-deep); }
-.btn-ghost { border-color: var(--crimson); color: var(--crimson-deep); background: transparent; }
-.btn-ghost:hover { background: var(--crimson); color: var(--paper); }
+.btn-primary { background: var(--winston-red); color: var(--paper); }
+.btn-primary:hover { background: var(--winston-red-deep); }
+.btn-ghost { border-color: var(--winston-red); color: var(--winston-red-deep); background: transparent; }
+.btn-ghost:hover { background: var(--winston-red); color: var(--paper); }
 .btn-sm { padding: .5rem 1rem; font-size: var(--t-caption); }
 
 .tag-outline {
@@ -836,7 +866,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border: 1px solid var(--line);
   transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.tag-outline:hover { border-color: var(--crimson); color: var(--crimson); }
+.tag-outline:hover { border-color: var(--winston-red); color: var(--winston-red); }
 
 .badge-current {
   display: inline-block;
@@ -844,8 +874,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-family: var(--font-nav);
   font-size: 0.8125rem;
   letter-spacing: .08em;
-  color: var(--crimson-deep);
-  background: var(--crimson-tint);
+  color: var(--winston-red-deep);
+  background: var(--winston-red-tint);
   text-transform: uppercase;
 }
 .badge-archive {
@@ -876,7 +906,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--crimson);
+  background: var(--winston-red);
   mix-blend-mode: screen;
   opacity: 0;
   transition: opacity .45s var(--ease);
@@ -898,7 +928,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   transition: color var(--dur) var(--ease);
 }
 .card a:hover .h-card,
-.card .h-card a:hover { color: var(--crimson); }
+.card .h-card a:hover { color: var(--winston-red); }
 .card-dek {
   color: var(--ink-soft);
   font-size: var(--t-small);
@@ -1008,10 +1038,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   /* Winston Red (--winston-red), not --maroon — changed 2026-09-07 per
      Farhad: the tile should match the masthead's own background so the
      two read as one consistent "official" color, not two different
-     reds. This is a deliberate widening of Winston Red's original scope
-     (Phase A, 2026-08-24: "scoped only to the masthead background,
-     crimson untouched everywhere else") — still exactly 2 uses, both
-     explicitly client-approved, not scope creep. */
+     reds. At the time this was a deliberate widening of Winston Red's
+     original scope (Phase A, 2026-08-24: "scoped only to the masthead
+     background, crimson untouched everywhere else") beyond just the
+     masthead — since 2026-09-10, --winston-red is the site's one red
+     everywhere, so this is no longer a special case either. */
   background: var(--winston-red);
   color: var(--paper);
   padding: 1.75rem;
@@ -1269,7 +1300,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-body .type-label a { color: var(--paper); }
 .hero-body .h-display { margin-top: 1rem; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--paper); text-shadow: 0 2px 20px rgba(0, 0, 0, .75), 0 1px 3px rgba(0, 0, 0, .9); }
 .hero-body .h-display a { transition: color var(--dur) var(--ease); }
-.hero-body .h-display a:hover { color: var(--crimson-tint); }
+.hero-body .h-display a:hover { color: var(--winston-red-tint); }
 .hero-body .dek { margin-top: 1.25rem; max-width: 640px; font-size: clamp(0.9rem, 1.28vw, 1.05rem); color: rgba(255, 255, 255, .94); text-shadow: 0 1px 10px rgba(0, 0, 0, .65); }
 .hero-body .card-byline { margin-top: 1.25rem; font-size: 0.7rem; color: rgba(255, 255, 255, .8); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
 
@@ -1353,7 +1384,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    the site, just at a larger, deliberate scale for this one card. */
 .hero-rail {
   flex: 0 0 320px;
-  background: var(--crimson);
+  background: var(--winston-red);
   color: var(--paper);
   padding: 2.5rem var(--gap-pad-x);
   display: flex;
@@ -1385,7 +1416,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 /* Rail's own button is inverted (paper bg / crimson text) — .btn-primary's
    default crimson-on-paper would vanish against this panel's own crimson
    background otherwise. */
-.hero-rail .btn-primary { background: var(--paper); color: var(--crimson-deep); }
+.hero-rail .btn-primary { background: var(--paper); color: var(--winston-red-deep); }
 .hero-rail .btn-primary:hover { background: var(--cream); }
 
 @media (max-width: 900px) {
@@ -1436,7 +1467,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   background: var(--paper);
   padding: 1.75rem var(--gap-pad-x);
 }
-.hero-pub-card .hero-pub-card-kicker { color: var(--crimson); }
+.hero-pub-card .hero-pub-card-kicker { color: var(--winston-red); }
 /* min-width:901px, not 721px — bug caught live while testing tablet
    (768px), 2026-09-10: at that width the headline text is still in its
    own desktop bottom-anchored position (its mobile repositioning only
@@ -1470,11 +1501,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    scope creep. See docs/CHANGELOG.md for the full review. */
 .sect { padding-block: 3rem; }
 .sect-lg { padding-block: 5.5rem; }
-.sect-tint { background: var(--crimson-tint); }
+.sect-tint { background: var(--winston-red-tint); }
 .sect-cream { background: var(--cream); }
 
 .rule       { height: 1px; background: var(--line); border: 0; }
-.rule-crimson { height: 2px; background: var(--crimson); border: 0; }
+.rule-crimson { height: 2px; background: var(--winston-red); border: 0; }
 
 /* -------------------------------------------------------------------------
    ۱۲ · Article page — Aeon-style split
@@ -1584,13 +1615,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   margin-bottom: 1.2rem;
 }
 .article-crumb a { color: var(--stone); transition: color var(--dur) var(--ease); }
-.article-crumb a:hover { color: var(--crimson); }
-.article-crumb .active { color: var(--crimson); }
+.article-crumb a:hover { color: var(--winston-red); }
+.article-crumb .active { color: var(--winston-red); }
 
 .article-title {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--crimson-deep);
+  color: var(--winston-red-deep);
   font-size: clamp(2.1rem, 4.5vw, 3.25rem);
   line-height: 1.15;
   letter-spacing: -.005em;
@@ -1677,19 +1708,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    version read as barely-there; Farhad confirmed by eye it needed more
    time to actually register. */
 @keyframes shola-target-flash {
-  0%, 35% { background-color: var(--crimson-tint); }
+  0%, 35% { background-color: var(--winston-red-tint); }
   100%    { background-color: transparent; }
 }
 .prose .about-section:target {
   animation: shola-target-flash 2.2s var(--ease);
 }
-.prose a { color: var(--crimson); text-decoration: underline; text-underline-offset: 4px; transition: color var(--dur) var(--ease); }
-.prose a:hover { color: var(--crimson-deep); }
+.prose a { color: var(--winston-red); text-decoration: underline; text-underline-offset: 4px; transition: color var(--dur) var(--ease); }
+.prose a:hover { color: var(--winston-red-deep); }
 .prose ul, .prose ol { padding-inline-start: 1.5rem; }
 .prose ul { list-style: disc outside; }
 .prose ol { list-style: persian outside; }
 .prose blockquote {
-  border-inline-start: 2px solid var(--crimson);
+  border-inline-start: 2px solid var(--winston-red);
   padding-inline-start: 1.5rem;
   color: var(--ink-soft);
   font-style: italic;
@@ -1708,7 +1739,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--crimson-deep);
+  color: var(--winston-red-deep);
   font-size: clamp(1.5rem, 2.8vw, 1.9rem);
   line-height: 1.5;
   margin-block: 2.5rem 2.5rem !important;
@@ -1769,14 +1800,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   width: 100%;
 }
 .share-option .glyph { width: 1.1rem; height: 1.1rem; flex-shrink: 0; color: var(--stone); }
-.share-option:hover { background: var(--cream); color: var(--crimson); }
-.share-option:hover .glyph { color: var(--crimson); }
+.share-option:hover { background: var(--cream); color: var(--winston-red); }
+.share-option:hover .glyph { color: var(--winston-red); }
 
 /* Related essays rail — reuses card anatomy */
 .related-rail {
   margin-top: 5rem;
   padding-top: 3rem;
-  border-top: 2px solid var(--crimson);
+  border-top: 2px solid var(--winston-red);
 }
 
 /* -------------------------------------------------------------------------
@@ -1789,7 +1820,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .progress-bar {
   height: 100%; width: 0;
-  background: var(--crimson);
+  background: var(--winston-red);
 }
 
 /* -------------------------------------------------------------------------
@@ -1903,10 +1934,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-bottom: 1px solid var(--line);
   transition: background var(--dur) var(--ease);
 }
-.doc-row:hover { background: color-mix(in oklab, var(--crimson-tint) 40%, var(--paper)); }
+.doc-row:hover { background: color-mix(in oklab, var(--winston-red-tint) 40%, var(--paper)); }
 .doc-row .doc-body { flex: 1; min-width: 0; }
 .doc-row .doc-body a { font-weight: 700; transition: color var(--dur) var(--ease); }
-.doc-row .doc-body a:hover { color: var(--crimson); }
+.doc-row .doc-body a:hover { color: var(--winston-red); }
 .doc-row .doc-meta { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; margin-top: .35rem; }
 
 /*
@@ -1977,7 +2008,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * its own tighter line-height already; this was the one left out.
  */
 .issue-card-title { font-size: var(--t-small); font-weight: 700; line-height: 1.4; color: var(--ink); }
-.issue-card-title a:hover { color: var(--crimson); }
+.issue-card-title a:hover { color: var(--winston-red); }
 .issue-card-date { font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .08em; color: var(--stone); text-transform: uppercase; }
 /*
  * Contrast fix, 2026-09-07 full-homepage review: found via a systematic
@@ -2003,14 +2034,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   margin-bottom: 3rem;
 }
 .topic-nav a {
-  color: var(--crimson);
+  color: var(--winston-red);
   font-size: var(--t-small);
   padding-block: .35rem;
   transition: color var(--dur) var(--ease);
   border-bottom: 1px solid transparent;
 }
-.topic-nav a:hover { color: var(--crimson-deep); border-color: var(--crimson-deep); }
-.topic-nav .active { color: var(--crimson-deep); border-color: var(--crimson-deep); }
+.topic-nav a:hover { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
+.topic-nav .active { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
 
 /* Latest / Popular tabs */
 .filter-tabs {
@@ -2047,7 +2078,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--ink);
   transition: color var(--dur) var(--ease);
 }
-.topic-list a:hover .name { color: var(--crimson); }
+.topic-list a:hover .name { color: var(--winston-red); }
 .topic-list .count {
   font-family: var(--font-nav);
   font-size: 0.8125rem;
@@ -2089,7 +2120,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-weight: 700; color: var(--ink);
   transition: color var(--dur) var(--ease);
 }
-.announce-list a:hover { color: var(--crimson); }
+.announce-list a:hover { color: var(--winston-red); }
 
 /* -------------------------------------------------------------------------
    ۱۷ · Forms
@@ -2106,7 +2137,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .field::placeholder { color: var(--stone); }
 .field:hover { border-color: var(--stone); }
-.field:focus { border-color: var(--crimson); outline: none; }
+.field:focus { border-color: var(--winston-red); outline: none; }
 .field.dark {
   background: transparent; color: var(--paper);
   border-color: color-mix(in oklab, var(--paper) 30%, transparent);
@@ -2131,9 +2162,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-size: var(--t-small); font-weight: 600;
   transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.page-num:hover { border-color: var(--crimson); color: var(--crimson); }
+.page-num:hover { border-color: var(--winston-red); color: var(--winston-red); }
 .page-num[aria-current="page"] {
-  background: var(--crimson); color: var(--paper); border-color: var(--crimson);
+  background: var(--winston-red); color: var(--paper); border-color: var(--winston-red);
 }
 
 /* -------------------------------------------------------------------------
@@ -2157,7 +2188,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .footer-name {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--crimson); font-size: 1.75rem; line-height: 1;
+  color: var(--winston-red); font-size: 1.75rem; line-height: 1;
 }
 .footer-tagline {
   margin-top: .75rem;
@@ -2176,7 +2207,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--stone);
   transition: color var(--dur) var(--ease);
 }
-.footer-social a:hover { color: var(--crimson); }
+.footer-social a:hover { color: var(--winston-red); }
 .footer-col h3 {
   font-family: var(--font-nav);
   font-size: 0.8125rem;
@@ -2191,7 +2222,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--ink);
   transition: color var(--dur) var(--ease);
 }
-.footer-col a:hover { color: var(--crimson); }
+.footer-col a:hover { color: var(--winston-red); }
 
 .footer-base {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
@@ -2289,7 +2320,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   display: grid; gap: 2rem;
   grid-template-columns: 1fr;
   padding-block: 2rem;
-  border-top: 2px solid var(--crimson);
+  border-top: 2px solid var(--winston-red);
 }
 .publication-item--archived { border-top: 1px solid var(--line); }
 .publication-item h2 { margin-top: 1rem; font-size: clamp(1.8rem, 3vw, 2.4rem); }
@@ -2304,7 +2335,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    ------------------------------------------------------------------------- */
 .publication-current {
   padding-bottom: 3rem;
-  border-bottom: 2px solid var(--crimson);
+  border-bottom: 2px solid var(--winston-red);
   margin-bottom: 3rem;
 }
 
@@ -2347,7 +2378,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    (.wpcf7-response-output) and each field's inline tip
    (.wpcf7-not-valid-tip).  */
 .wpcf7-response-output,
-.wpcf7-not-valid-tip { color: var(--crimson); }
+.wpcf7-not-valid-tip { color: var(--winston-red); }
 /* Found while checking Farhad's screenshot of the above fix (2026-08-08):
    the circled black text wasn't .wpcf7-response-output at all (that part
    was already correctly crimson) — it was CF7's separate
@@ -2392,13 +2423,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .search-results-count { margin-bottom: 1.5rem; }
 .search-no-results { text-align: center; }
 .card-dek mark,
-.h-card-lg mark { background: var(--crimson-tint); color: var(--crimson-deep); padding: 0 .2em; }
+.h-card-lg mark { background: var(--winston-red-tint); color: var(--winston-red-deep); padding: 0 .2em; }
 
 /* -------------------------------------------------------------------------
    ۲۷ · Issue table of contents (single-issue.php, Phase 4.2) — replaces
    body-issue-single.html's inline style="" attributes.
    ------------------------------------------------------------------------- */
-.issue-toc-head { padding-top: 2rem; border-top: 2px solid var(--crimson); margin-top: 2rem; }
+.issue-toc-head { padding-top: 2rem; border-top: 2px solid var(--winston-red); margin-top: 2rem; }
 .issue-toc { display: grid; gap: 0; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
 .issue-toc li { padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
 .issue-toc .meta-mono { margin-bottom: .35rem; }

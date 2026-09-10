@@ -7117,3 +7117,65 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.8.2 → 1.9.0.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 18 (Winston Red replaces crimson site-wide)
+- **Changed — rules change, not just a feature commit (CLAUDE.md §8)**:
+  `--winston-red` (#CC0000, the masthead's own color) is now this
+  site's one red, used everywhere `--crimson`/`--crimson-deep`/
+  `--crimson-tint` used to be — buttons, links, hover states, kickers,
+  badges, form focus rings, pagination, footer, breadcrumbs, share
+  buttons, contact-form validation, everywhere. Farhad flagged the
+  inconsistency directly from three screenshots: the "دریافت شماره"
+  button and several hover states were still the older, more muted
+  crimson (#8E1B1B), visibly different from the brighter red already
+  used in the masthead and the اطلاعیه spotlight tile, reading as two
+  unrelated reds on the same page.
+  **This supersedes two earlier, deliberately-scoped decisions**, both
+  already on record: Phase A (2026-08-24) explicitly scoped Winston Red
+  to the masthead background only ("crimson untouched everywhere
+  else"); Phase 11 (2026-09-07) widened that to the اطلاعیه tile too,
+  explicitly noting "still exactly 2 uses ... not scope creep." Farhad's
+  instruction this session removes that boundary entirely — recorded
+  here per CLAUDE.md §8 rather than left implicit in a diff.
+  **Two new derived tokens added**, `--winston-red-deep` (#990000) and
+  `--winston-red-tint` (#FCF0F0), mirroring how `--crimson-deep`/
+  `--crimson-tint` were originally derived from `--crimson` (a ~25%-
+  darker shade for hover/active states, a light tint for backgrounds/
+  selection) — not literally re-scaled from crimson's own ratios,
+  recalculated against Winston Red's own hue.
+  **Contrast checked before shipping, not assumed safe** (same
+  discipline as the existing winston-red accessibility comment this
+  file already had): a straight 90%-white-mix tint (matching
+  `--crimson-tint`'s own ratio) put `--stone` body text on `.sect-tint`
+  backgrounds at ~4.45:1 — just under the 4.5:1 AA floor that section's
+  real paragraph text needs. Mixed lighter (~94% white,
+  `--winston-red-tint`'s final value) instead, measuring ~4.8:1. White
+  text on the base `--winston-red` (buttons, badges) measures ~5.9:1 —
+  lower than old crimson's ~9:1 headroom, but still comfortably AA-
+  compliant.
+  **Every functional `var(--crimson*)` declaration in `main.css`**
+  (~50 occurrences — buttons, links/hovers, badges, `::selection`,
+  `:focus-visible`, prose links, share buttons, form validation,
+  pagination, topic nav, footer) was repointed to the matching
+  `var(--winston-red*)`. The original `--crimson`/`--crimson-deep`/
+  `--crimson-tint`/`--maroon` token *definitions* are kept (not
+  deleted) — they're still part of the original locked brand-guide
+  table, just no longer referenced by any rule in this file. Stale
+  comments describing the old "scoped to masthead only" rule were
+  updated so they read as history, not a standing constraint.
+  Scope: this theme's own `main.css` only — `shola-core`'s admin-only
+  `video-guide.css` (wp-admin editor tooling, not a public page) and
+  the archived brand-guideline reference docs in `docs/IA-reference/`
+  were deliberately left untouched, since "throughout the website"
+  means the public-facing site, not internal admin chrome or historical
+  reference documents.
+  Verified live across multiple templates, not just the homepage: the
+  hero's button/kicker (both hero layouts), pagination's current-page
+  background, and a topic archive's active-nav-item color all measured
+  via `getComputedStyle()` as exactly `rgb(204, 0, 0)` /
+  `rgb(153, 0, 0)` (Winston Red / its new deep variant) — an exact
+  match with the masthead's own background. Zero console errors on any
+  page checked.
+  Theme version bumped 1.9.0 → 1.10.0.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 18 of the
+  Technical Scoping Plan.
