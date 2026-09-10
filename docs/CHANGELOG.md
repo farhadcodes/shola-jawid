@@ -6928,3 +6928,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.7.0 → 1.7.1.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (lead_rail hero layout built)
+- **Added:** the actual "لید + ستون نشریه" (Lead + Rail) hero layout,
+  designed and confirmed with Farhad before any CSS was written (a real
+  visual-design decision, not just data wiring): the headline hero stays
+  at its full existing size/photo/overlay (~70% width), a new rail
+  column (~30%, `--paper` background, dark text — deliberate light/dark
+  contrast against the photo, distinct from the small inset-tile style
+  already used for the اطلاعیه spotlight elsewhere) sits beside it
+  showing the active hero_section entry's configured publication's
+  latest issue (cover, title, short dek, "دریافت شماره" button).
+  **RTL handled with zero hardcoded left/right**: the hero markup
+  (`.hero-main`) comes first in the DOM, the rail (`.hero-rail`) second
+  — CSS's normal logical flex ordering already puts the rail on the
+  visual left in this RTL layout with no special-casing, matching the
+  client's own description of the request ("another column on the
+  left").
+  **Refactor to keep the two layouts from drifting apart**: the hero's
+  kicker/title/dek/date markup (identical between `single` and
+  `lead_rail`) was pulled into one shared `shola_render_hero_body()`
+  helper in `inc/template-tags.php`, called from both branches in
+  front-page.php, rather than duplicated inline in each.
+  **CSS approach**: `.hero-lead`'s existing `::before`/`::after` (photo
+  scrim + gradient) and `> .wrap` positioning are written for a
+  full-bleed single-column hero, so `.hero-lead--with-rail` disables
+  them and re-applies the identical rules scoped to `.hero-main`
+  instead — otherwise the scrim would stretch across the rail column
+  too. Below 900px the two columns stack (rail becomes a full-width
+  card below the unchanged hero); below 720px, `.hero-main > .wrap`
+  gets the same lower-band text-position treatment `.hero-lead > .wrap`
+  already had for the `single` layout at that width — the existing
+  rule's selector doesn't reach the new nested `.wrap`, so it needed an
+  explicit twin.
+  If the active entry's configured publication has no issues yet,
+  front-page.php silently falls back to `single` rather than showing a
+  rail with nothing in it (existing fallback from the previous session's
+  wiring, exercised for the first time here).
+  **Verified live at all 3 breakpoints** by temporarily switching the
+  seeded hero_section entry to `lead_rail` via WP-CLI: desktop (1280px)
+  — two columns, rail correctly on the visual left, zero console errors;
+  tablet (768px) — stacks to one column, rail's own rect confirmed
+  (DOM measurement, not just eyeballed) directly below the hero at full
+  width; mobile (375px) — hero identical to the `single` layout's own
+  mobile treatment, rail confirmed present and fully readable below it
+  via `innerText`. (Two screenshots at tablet width came back
+  blank/garbled after a scroll — the same known sticky-masthead
+  scroll+screenshot tool artifact seen earlier in this project, not a
+  real bug: cross-checked and confirmed correct via
+  `getBoundingClientRect()`/`innerText` instead of trusting those
+  particular screenshots.) Reverted the test entry back to `single` and
+  reconfirmed the homepage is pixel-identical to before this whole
+  feature — zero regression to the existing design.
+  Theme version bumped 1.7.1 → 1.8.0 (new hero layout, not a patch).
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.

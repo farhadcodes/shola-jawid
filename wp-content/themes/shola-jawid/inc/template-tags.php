@@ -764,3 +764,40 @@ function shola_get_primary_topic( $post ) {
 	$terms = get_the_terms( $post, 'topic' );
 	return ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
 }
+
+/**
+ * Renders the homepage hero's kicker/title/dek/date block — identical
+ * markup between the `single` and `lead_rail` hero_section layouts
+ * (front-page.php), only what wraps around it differs. Pulled into one
+ * shared helper, 2026-09-10 (Phase 17 continued), so the two layout
+ * branches in front-page.php can't silently drift apart from each other
+ * over time.
+ *
+ * @param WP_Post $hero The headline article.
+ * @return void
+ */
+function shola_render_hero_body( $hero ) {
+	$hero_term = shola_get_primary_topic( $hero );
+	?>
+	<p class="type-label">
+		<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>
+		<span><?php echo has_post_format( 'aside', $hero ) ? esc_html__( 'یادداشت', 'shola-jawid' ) : esc_html__( 'مقاله', 'shola-jawid' ); ?></span>
+		<?php if ( $hero_term ) : ?>
+			<span class="divider">/</span>
+			<a href="<?php echo esc_url( get_term_link( $hero_term ) ); ?>"><?php echo esc_html( $hero_term->name ); ?></a>
+		<?php endif; ?>
+	</p>
+	<h1 class="h-display">
+		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>"><?php echo esc_html( get_the_title( $hero ) ); ?></a>
+	</h1>
+	<p class="dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero ), 34 ) ); ?></p>
+	<?php
+	/*
+	 * Byline (author/username) removed site-wide, 2026-09-02, per the
+	 * client's explicit instruction (relayed by Farhad) — the date
+	 * stays.
+	 */
+	?>
+	<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
+	<?php
+}

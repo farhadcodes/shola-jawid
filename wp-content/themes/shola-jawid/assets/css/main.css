@@ -1273,6 +1273,79 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-body .dek { margin-top: 1.25rem; max-width: 640px; font-size: clamp(0.9rem, 1.28vw, 1.05rem); color: rgba(255, 255, 255, .94); text-shadow: 0 1px 10px rgba(0, 0, 0, .65); }
 .hero-body .card-byline { margin-top: 1.25rem; font-size: 0.7rem; color: rgba(255, 255, 255, .8); text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
 
+/* --- ۱۰.۱ · Hero "لید + ستون نشریه" layout (hero_section: lead_rail) ----
+   Added 2026-09-10, Phase 17 continued. .hero-lead's own ::before/::after
+   (gray wash + dark gradient) and > .wrap positioning above are written
+   for a full-bleed single-column hero, so they're disabled here and the
+   same rules are re-applied scoped to .hero-main instead — otherwise the
+   photo's scrim would stretch across the rail column too. .hero-main
+   comes first in the DOM, .hero-rail second: no left/right written
+   anywhere, RTL's normal reading-order flow already puts the rail on the
+   visual left, matching the client's own description of the request. */
+.hero-lead--with-rail { display: flex; align-items: stretch; }
+.hero-lead--with-rail::before,
+.hero-lead--with-rail::after { content: none; }
+
+.hero-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
+.hero-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--stone);
+  opacity: .7;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-main::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, .55) 35%, rgba(0, 0, 0, 0) 75%);
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-main > .wrap {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  padding-block-end: 5rem;
+}
+
+.hero-rail {
+  flex: 0 0 320px;
+  background: var(--paper);
+  padding: 2.5rem var(--gap-pad-x);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.hero-rail-kicker { font-size: 0.65rem; font-weight: 700; color: var(--crimson); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; }
+.hero-rail-cover { display: block; aspect-ratio: 3 / 2; overflow: hidden; margin-bottom: 1rem; }
+.hero-rail-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-rail .h-page { font-size: 1.05rem; line-height: 1.4; }
+.hero-rail .dek { font-size: 0.85rem; color: var(--stone); }
+
+@media (max-width: 900px) {
+  .hero-lead--with-rail { flex-direction: column; }
+  .hero-main { flex: none; width: 100%; }
+  .hero-rail { flex: none; width: 100%; }
+}
+@media (max-width: 720px) {
+  /* Same lower-band text positioning as .hero-lead > .wrap's own
+     720px rule above — .wrap sits one level deeper here (.hero-main
+     > .wrap), so that rule's selector doesn't reach it. */
+  .hero-main > .wrap {
+    top: 42%;
+    bottom: 0;
+    padding-block-end: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+}
+
 /* -------------------------------------------------------------------------
    ۱۱ · Sections & rules
    ------------------------------------------------------------------------- */

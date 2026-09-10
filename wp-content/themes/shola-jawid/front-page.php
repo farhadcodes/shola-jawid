@@ -127,38 +127,59 @@ if ( $hero && 'lead_rail' === $hero_layout ) {
 }
 ?>
 
-<?php if ( $hero ) : ?>
-	<section class="hero-lead<?php echo 'lead_rail' === $hero_layout ? ' hero-lead--with-rail' : ''; ?>" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+<?php if ( $hero && 'lead_rail' !== $hero_layout ) : ?>
+	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
 			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 		</a>
 		<div class="wrap">
 			<div class="hero-body">
-				<?php
-				$hero_term = shola_get_primary_topic( $hero );
-				?>
-				<p class="type-label">
-					<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>
-					<span><?php echo has_post_format( 'aside', $hero ) ? esc_html__( 'یادداشت', 'shola-jawid' ) : esc_html__( 'مقاله', 'shola-jawid' ); ?></span>
-					<?php if ( $hero_term ) : ?>
-						<span class="divider">/</span>
-						<a href="<?php echo esc_url( get_term_link( $hero_term ) ); ?>"><?php echo esc_html( $hero_term->name ); ?></a>
-					<?php endif; ?>
-				</p>
-				<h1 class="h-display">
-					<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>"><?php echo esc_html( get_the_title( $hero ) ); ?></a>
-				</h1>
-				<p class="dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero ), 34 ) ); ?></p>
-				<?php
-				/*
-				 * Byline (author/username) removed site-wide, 2026-09-02,
-				 * per the client's explicit instruction (relayed by
-				 * Farhad) — the date stays.
-				 */
-				?>
-				<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $hero ) ); ?>"><?php echo esc_html( get_the_date( '', $hero ) ); ?></time></p>
+				<?php shola_render_hero_body( $hero ); ?>
 			</div>
 		</div>
+	</section>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero ) : ?>
+	<?php
+	/*
+	 * لید + ستون نشریه (2026-09-10, Phase 17 continued): the headline
+	 * hero stays visually identical to the `single` layout above (same
+	 * .hero-media/.wrap/.hero-body markup, just nested one level deeper
+	 * inside .hero-main so the photo's dark scrim/gradient — moved onto
+	 * .hero-main in CSS — doesn't stretch across the rail column too).
+	 * The rail beside it always shows whichever publication the active
+	 * hero_section entry names (شعله جاوید by default), never a
+	 * manually-picked issue — see this file's hero_rail_* query above.
+	 *
+	 * Deliberately no rtl-specific left/right logic here: .hero-main
+	 * simply comes first in the DOM and .hero-rail second, so CSS's
+	 * normal (logical, not physical) flex ordering already puts the
+	 * rail on the visual left in this RTL layout — matching the
+	 * client's own description of the request — with no hardcoded side.
+	 */
+	$rail_number = get_post_meta( $hero_rail_issue->ID, 'shcore_issue_number', true );
+	?>
+	<section class="hero-lead hero-lead--with-rail" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<div class="hero-main">
+			<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+				<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+			</a>
+			<div class="wrap">
+				<div class="hero-body">
+					<?php shola_render_hero_body( $hero ); ?>
+				</div>
+			</div>
+		</div>
+		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<p class="hero-rail-kicker"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></p>
+			<a href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>" class="hero-rail-cover reveal">
+				<?php echo shola_get_featured_image( $hero_rail_issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+			</a>
+			<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>" class="link-quiet"><?php echo esc_html( $hero_rail_pub_term->name ); ?><?php echo $rail_number ? ' — ' . esc_html( $rail_number ) : ''; ?></a></h2>
+			<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero_rail_issue ), 18 ) ); ?></p>
+			<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $hero_rail_issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+		</aside>
 	</section>
 
 	<hr class="rule wrap">
