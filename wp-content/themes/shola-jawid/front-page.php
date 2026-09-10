@@ -94,7 +94,7 @@ $hero_layout        = $hero_layout ? $hero_layout : 'single';
 $hero_rail_issue    = null;
 $hero_rail_pub_term = null;
 
-if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay' ), true ) ) {
+if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full' ), true ) ) {
 	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
 	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
@@ -208,6 +208,49 @@ if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay' ), true ) ) 
 		<div class="hero-pub-card" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
 			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
 		</div>
+	</section>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero && 'rail_full' === $hero_layout ) : ?>
+	<?php
+	/*
+	 * مقالهٔ سرخط + ستون نشریهٔ تمام‌عرض (2026-09-10, Phase 17 continued):
+	 * a fourth layout per a client sketch — visually the same idea as
+	 * `lead_rail` (a solid-color rail with the publication card beside
+	 * the full-size headline photo), but full-bleed edge-to-edge on the
+	 * rail's outer side instead of staying inside the centered 1200px
+	 * content column `lead_rail` deliberately uses. Reuses .hero-main
+	 * (full generic scrim/text-overlay treatment, no modifier needed)
+	 * and .hero-rail (crimson bg, white text, inverted button — all
+	 * already scoped to the plain class name, not `.hero-lead--with-
+	 * rail` specifically) for the shared inner styling, but a distinct
+	 * `.hero-lead--rail-full` outer class so none of `lead_rail`'s own
+	 * compact-height clamp or narrowed cover-size rules apply here —
+	 * this layout keeps the full viewport-based height `single`/
+	 * `overlay` already use, matching the client's sketch (a tall
+	 * panel, not a short banner), with its own, separately-tuned rail
+	 * width/cover sizing in main.css §10.4.
+	 *
+	 * DOM order unchanged from `lead_rail`: .hero-main first, .hero-rail
+	 * second — RTL's normal reading-order flow puts the rail on the
+	 * visual left with no hardcoded side, same as every other multi-
+	 * column hero layout this project has built.
+	 */
+	?>
+	<section class="hero-lead hero-lead--rail-full" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<div class="hero-main">
+			<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+				<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+			</a>
+			<div class="wrap">
+				<div class="hero-body">
+					<?php shola_render_hero_body( $hero ); ?>
+				</div>
+			</div>
+		</div>
+		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
+		</aside>
 	</section>
 
 	<hr class="rule wrap">

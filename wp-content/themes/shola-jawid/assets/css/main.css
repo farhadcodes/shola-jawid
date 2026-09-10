@@ -1504,10 +1504,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-rail .btn-primary { background: var(--paper); color: var(--winston-red); }
 .hero-rail .btn-primary:hover { background: var(--cream); }
 
+/*
+ * Scoped to .hero-lead--with-rail specifically, not bare .hero-main/
+ * .hero-rail — bug caught live 2026-09-10 while building the
+ * `rail_full` layout below: these two class names are shared by
+ * multiple hero_section layouts (see main.css §10.4), and an
+ * unscoped `.hero-rail { flex: none; width: 100% }` here applied to
+ * *every* layout reusing that class, not just `lead_rail`. Since
+ * `rail_full` never opts into `flex-direction: column` the way
+ * `lead_rail` does above, both its children ended up independently
+ * forced to `width: 100%` inside a row-direction flex container —
+ * the rail overflowed off the left edge entirely (caught via
+ * getBoundingClientRect() showing a negative x, not just eyeballed).
+ */
 @media (max-width: 900px) {
   .hero-lead--with-rail { flex-direction: column; }
-  .hero-main { flex: none; width: 100%; }
-  .hero-rail { flex: none; width: 100%; }
+  .hero-lead--with-rail .hero-main { flex: none; width: 100%; }
+  .hero-lead--with-rail .hero-rail { flex: none; width: 100%; }
 }
 @media (max-width: 720px) {
   /* Same lower-band text positioning as .hero-lead > .wrap's own
@@ -1601,6 +1614,47 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     overflow: hidden;
     box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
   }
+}
+
+/* --- ۱۰.۴ · Hero "لید + ستون نشریهٔ تمام‌عرض" layout (hero_section:
+   rail_full) --------------------------------------------------------
+   Added 2026-09-10, Phase 17 continued — fourth layout per a client
+   sketch: the same idea as `lead_rail` (a solid-color rail with the
+   publication card beside the full-size headline photo), but the
+   rail's outer edge bleeds all the way to the true browser edge
+   instead of stopping at the centered 1200px content column
+   `lead_rail` deliberately uses. Reuses `.hero-main` and `.hero-rail`
+   as-is for the shared inner styling (scrim/text overlay, crimson
+   background, inverted button, publication-card content — all
+   already scoped to those plain class names, not `.hero-lead--with-
+   rail` specifically), so only what's genuinely different about this
+   layout needs new rules here: no width cap, no compact-height clamp
+   (full viewport height instead, matching the client's sketch — a
+   tall panel, not `lead_rail`'s short banner — this layout simply
+   never opts into that clamp), and a bigger cover since the extra
+   height leaves real room for one. */
+.hero-lead--rail-full { display: flex; align-items: stretch; }
+.hero-lead--rail-full::before,
+.hero-lead--rail-full::after { content: none; }
+.hero-lead--rail-full .hero-rail {
+  flex: 0 0 34%;
+  min-width: 320px;
+}
+/* Bigger cover than lead_rail's 160px — this layout keeps the full
+   viewport height (no compact clamp), so there's no overflow risk to
+   guard against, and a larger, full-width-of-the-rail cover reads
+   better against that much more vertical space. */
+@media (min-width: 901px) {
+  .hero-lead--rail-full .hero-rail .hero-pub-card-cover { width: min(240px, 100%); }
+}
+/* Hidden below 721px — Farhad's explicit instruction: this layout is
+   desktop (and, pending live tablet review, tablet) only, never
+   mobile. .hero-main alone (flex: 1 1 70%) naturally expands to fill
+   the full row once its sibling is gone, so mobile renders the same
+   full-bleed photo + headline as `single`/`overlay`, no extra markup
+   branch needed. */
+@media (max-width: 720px) {
+  .hero-lead--rail-full .hero-rail { display: none; }
 }
 
 /* -------------------------------------------------------------------------

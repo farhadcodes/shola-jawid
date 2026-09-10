@@ -7406,3 +7406,63 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.11.0 → 1.11.1.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 20 (fourth hero layout: rail_full)
+- **Added:** a fourth hero_section layout, `rail_full` ("مقالهٔ سرخط +
+  ستون نشریهٔ تمام‌عرض") — per a client sketch: visually the same idea
+  as `lead_rail` (a solid Winston Red panel with the publication card
+  beside the full-size headline photo), but the panel's outer edge
+  bleeds all the way to the true browser edge instead of stopping at
+  the centered 1200px content column `lead_rail` deliberately uses.
+  Confirmed the exact visual (a client-drawn mockup, not just a verbal
+  description) before writing any CSS, per Farhad's own request to
+  review understanding first.
+  Deliberately reuses `.hero-main`/`.hero-rail` as-is for the shared
+  inner styling (photo scrim/text overlay, crimson background,
+  inverted button, publication-card content) rather than duplicating
+  it — only what's genuinely new gets its own rules: no width cap
+  (`.hero-lead--rail-full`, not `.hero-lead--with-rail`), no compact-
+  height clamp (keeps the full viewport height `single`/`overlay`
+  already use, matching the client's sketch — a tall panel, not
+  `lead_rail`'s short banner), and a bigger cover (`min(240px, 100%)`
+  vs. `lead_rail`'s 160px) since the extra height leaves real room for
+  one without the overflow risk `lead_rail` had to be fixed for
+  earlier.
+  Desktop AND tablet, not mobile: the rail is hidden below 721px
+  (falling back to the same full-bleed photo + headline `single`/
+  `overlay` already show there), per Farhad's explicit "computer, not
+  mobile" instruction. Tablet (721-900px) was tested live, not assumed
+  either way — the side-by-side treatment (rail floored at a 320px
+  minimum width via `min-width`, main flexing to fill the rest) reads
+  cleanly at 768px, no cramping, so it was kept rather than falling
+  back to a stacked treatment there.
+  **Real bug found and fixed while testing, not shipped blind**: at
+  tablet width, `lead_rail`'s own stacking media query
+  (`@media (max-width: 900px) { .hero-main {...} .hero-rail {...} }`)
+  turned out to target the bare `.hero-main`/`.hero-rail` class names,
+  not scoped to `.hero-lead--with-rail` — since `rail_full` reuses
+  those same two class names, that rule silently applied to it too,
+  forcing both children to `width: 100%` inside a row-direction
+  container with no `flex-direction: column` to make sense of it. The
+  rail was pushed entirely off-screen (`x: -320`, caught via
+  `getBoundingClientRect()`, not eyeballed) at tablet width. Fixed at
+  the root — scoped that rule to `.hero-lead--with-rail .hero-main`/
+  `.hero-lead--with-rail .hero-rail` explicitly, which is what it was
+  always meant to mean; re-verified `lead_rail`'s own tablet stacking
+  is unaffected by the fix.
+  Verified live at all three breakpoints: desktop (1600px) — rail's
+  left edge at `x: 0`, main's right edge at the true viewport edge
+  (accounting for the scrollbar), both confirmed via
+  `getBoundingClientRect()`; tablet (768px) — side-by-side, no
+  overflow, cover still a legible 220×293; mobile (375px) — rail
+  `display: none`, `.hero-main` naturally expands to fill 100% of the
+  row, identical to `single`'s own mobile hero. Zero console errors at
+  any width. `single`, `lead_rail`, and `overlay` all reconfirmed
+  unaffected.
+  Plugin: `sanitize_hero_layout()` now accepts `rail_full` as a fourth
+  value; the hero_section metabox's "نوع چیدمان" dropdown gained the
+  fourth option, description updated to cover all four layouts.
+  Plugin version bumped 1.5.0 → 1.6.0. Theme version bumped
+  1.11.1 → 1.12.0.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 20 of the
+  Technical Scoping Plan.
