@@ -7298,3 +7298,27 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.10.2 → 1.10.3.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (overlay card: desktop-only)
+- **Changed:** the `overlay` layout's floating publication card no
+  longer appears at all on mobile/tablet (<901px) — Farhad's
+  instruction, after seeing it stacked full-width below the photo
+  there: the same "latest issue" information already appears in the
+  نشریات section further down the same homepage, so repeating it a
+  second time in the hero on a small screen is redundant clutter, not
+  worth keeping at a smaller size. `.hero-pub-card` is now `display:
+  none` below 901px and `display: block` (its existing absolute-
+  positioned floating treatment, unchanged) above it — mobile/tablet
+  now renders an `overlay` hero identically to the `single` layout's
+  hero (full-bleed photo + headline only), and the card only appears
+  once there's room for it to float without competing for space.
+  Verified live: mobile (375px) and tablet (768px) both confirmed
+  `display: none` via `getComputedStyle()`; desktop (1600px) confirmed
+  still `display: block` / `position: absolute`, unaffected. Zero
+  console errors at any width. `lead_rail`'s rail (a different, still-
+  stacking-on-mobile UI element — a full column, not a "floating
+  card") was not touched; only the `overlay` layout's card, which is
+  what Farhad's screenshot and instruction were both about.
+  Theme version bumped 1.10.3 → 1.10.4.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.

@@ -1503,17 +1503,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    (its .hero-media/.wrap/.hero-body/::before/::after rules all apply
    completely unchanged, since this layout adds no modifier class to
    those), with a white publication card floating over the photo's lower
-   corner on desktop only — see the 901px breakpoint note below on why
-   tablet gets the stacked-below treatment too, not just phones.
+   corner on desktop only.
 
-   Mobile/tablet-first: .hero-pub-card starts as a plain static block.
-   .wrap is position:absolute (see .hero-lead > .wrap above), which
-   takes it out of normal flow, so .hero-pub-card — a later, still-
-   static sibling inside the same position:relative .hero-lead —
-   naturally renders directly below .hero-media in the box model with
-   zero extra markup; no separate "stacked version" of this layout
-   needed. Above the breakpoint below it switches to position:absolute
-   and floats instead.
+   Desktop-only, full stop, as of 2026-09-10: earlier the same day this
+   stacked full-width below the photo on mobile/tablet instead of
+   disappearing — Farhad asked for it to be removed there entirely,
+   not just restyled: the same "latest issue" info already appears in
+   the نشریات section further down the same page, so repeating it
+   again in the hero on a small screen is redundant clutter, not a
+   design worth preserving at a smaller size. `display: none` below
+   901px means mobile/tablet now shows exactly the same hero as the
+   `single` layout — just the full-bleed photo and headline, nothing
+   else — and only reintroduces the card once there's enough width for
+   it to float without competing for space with anything.
 
    Kept centered like every other section even though the photo itself
    is full-bleed, per Farhad's explicit instruction: the card's
@@ -1523,6 +1525,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    still lines up with where the page's real content column begins,
    never drifting out to the literal browser edge. */
 .hero-pub-card {
+  display: none;
   background: var(--paper);
   padding: 1.75rem var(--gap-pad-x);
 }
@@ -1536,6 +1539,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    two things at once" starts. */
 @media (min-width: 901px) {
   .hero-pub-card {
+    display: block;
     position: absolute;
     z-index: 4;
     bottom: 2.5rem;
