@@ -1302,6 +1302,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-lead--with-rail::before,
 .hero-lead--with-rail::after { content: none; }
 
+/* Compact fixed height, desktop only (≥901px — below that the two
+   columns stack per the 900px breakpoint further down, where the
+   `single` layout's own full-viewport-height treatment is fine since
+   it's no longer sitting beside a much-shorter rail). Farhad's
+   feedback, same day as the width fix above: at the original full
+   viewport height, a two-column "Lead + Rail" module reads as
+   disproportionate/empty rather than editorial — real examples of this
+   pattern (NYT, WaPo-style top-story modules) use a short, wide banner
+   band, not a cinematic full-screen slide. clamp() keeps it
+   proportional to viewport width instead of one fixed pixel value. */
+@media (min-width: 901px) {
+  .hero-lead--with-rail .hero-media,
+  .hero-lead--with-rail .hero-main { height: clamp(420px, 42vw, 560px); }
+}
+
 .hero-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
 .hero-main::before {
   content: "";
@@ -1329,19 +1344,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   padding-block-end: 5rem;
 }
 
+/* Solid crimson, not var(--paper) — Farhad's feedback, same day: white
+   on white (the page's own background) read as "merging in", like an
+   unstyled leftover, not a deliberate module. crimson is this site's
+   one recurring accent color (masthead bar, buttons, tags), so a solid
+   crimson panel here reads as on-brand emphasis rather than a new,
+   unrelated color — the same accent already used everywhere else on
+   the site, just at a larger, deliberate scale for this one card. */
 .hero-rail {
   flex: 0 0 320px;
-  background: var(--paper);
+  background: var(--crimson);
+  color: var(--paper);
   padding: 2.5rem var(--gap-pad-x);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.hero-rail-kicker { font-size: 0.65rem; font-weight: 700; color: var(--crimson); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; }
+.hero-rail-kicker { font-size: 0.65rem; font-weight: 700; color: var(--paper); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; opacity: .85; }
 .hero-rail-cover { display: block; aspect-ratio: 3 / 2; overflow: hidden; margin-bottom: 1rem; }
 .hero-rail-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero-rail .h-page { font-size: 1.05rem; line-height: 1.4; }
-.hero-rail .dek { font-size: 0.85rem; color: var(--stone); }
+.hero-rail .h-page a { color: var(--paper); }
+.hero-rail .dek { font-size: 0.85rem; color: rgba(255, 255, 255, .82); }
+/* Rail's own button is inverted (paper bg / crimson text) — .btn-primary's
+   default crimson-on-paper would vanish against this panel's own crimson
+   background otherwise. */
+.hero-rail .btn-primary { background: var(--paper); color: var(--crimson-deep); }
+.hero-rail .btn-primary:hover { background: var(--cream); }
 
 @media (max-width: 900px) {
   .hero-lead--with-rail { flex-direction: column; }

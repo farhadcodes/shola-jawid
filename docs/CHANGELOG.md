@@ -7011,3 +7011,42 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.8.0 → 1.8.1.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (lead_rail: height + rail color)
+- **Changed:** two more rounds of visual feedback on the `lead_rail`
+  hero from Farhad, testing it live on his own machine (screenshot):
+  (1) the hero was still using the `single` layout's full-viewport-
+  height treatment, which reads as disproportionate/empty for a
+  two-column module — a tall, narrow rail with a small text block just
+  vertically centered in a huge column looks unfinished, not like a
+  real editorial "Lead + Rail" pattern (NYT/WaPo-style top-story
+  modules use a short, wide banner band, not a cinematic full-screen
+  slide); (2) the rail's `var(--paper)` (white) background visually
+  merged into the page's own white background, reading as an unstyled
+  leftover rather than a deliberate card.
+  **Fix 1 — compact height, desktop only**: `.hero-lead--with-rail
+  .hero-media`/`.hero-main` now use `height: clamp(420px, 42vw, 560px)`
+  above 901px, instead of the `single` layout's `calc(100dvh -
+  masthead)`. Scoped to `min-width: 901px` deliberately — below the
+  900px stack breakpoint the two columns already collapse to one on
+  top of the other, where the `single` layout's own full-height mobile
+  treatment is correct and untouched.
+  **Fix 2 — solid crimson rail**: `--crimson` instead of `--paper`,
+  with `--paper` text. Not a new color — this is the site's one
+  recurring accent (masthead bar, buttons, tags) used at a larger,
+  deliberate scale for one card, not an unrelated addition. The rail's
+  own "دریافت شماره" button is inverted (paper background, `--crimson-
+  deep` text) since `.btn-primary`'s default crimson-on-paper would
+  otherwise vanish against the rail's own now-crimson background.
+  Verified live: at 1920px, `.hero-main`/`.hero-rail` both measure
+  560px tall (the clamp's own maximum, confirmed via
+  `getBoundingClientRect()`, not eyeballed) and computed
+  `background-color`/`color` on the rail and its button match the
+  intended tokens exactly; re-confirmed the `single` layout is still
+  byte-for-byte unaffected (switched back to it locally, pixel-
+  identical screenshot to before any of today's hero work); tablet
+  (768px) and mobile (375px) both still stack correctly with the rail's
+  new crimson color applied, zero console errors at any width.
+  Theme version bumped 1.8.1 → 1.8.2.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.
