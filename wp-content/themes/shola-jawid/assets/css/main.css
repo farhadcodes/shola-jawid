@@ -708,22 +708,39 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 /* -------------------------------------------------------------------------
    ۰۷ · Typography components
    ------------------------------------------------------------------------- */
+/*
+ * .h-display/.h-page/.h-section use plain --winston-red, not
+ * --winston-red-deep, 2026-09-10: the initial Phase 18 swap (see the
+ * design-tokens comment at the top of this file) mechanically mapped
+ * --crimson-deep → --winston-red-deep everywhere it appeared, including
+ * these three heading styles — technically consistent, but Farhad
+ * caught it live from screenshots: a static heading in the darker
+ * "deep" shade still visually reads as "a different, muted red" next
+ * to the masthead's own brighter, exact --winston-red, the same
+ * complaint that started this whole change. Reserving --winston-red-
+ * deep for genuine interactive feedback (:hover/:active/:focus, where
+ * a color shift is expected UX, not a mismatch) and using the exact
+ * masthead red for every *resting*, prominently-visible heading/label
+ * — see .article-title, .pull-line, .badge-current, .topic-nav
+ * .active, .btn-ghost, and .hero-rail .btn-primary further down for
+ * the same fix applied for the same reason.
+ */
 .h-display {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   font-size: clamp(2.25rem, 5vw, var(--t-display));
   line-height: 1.15;
   letter-spacing: -.005em;
 }
 .h-page {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   font-size: clamp(2rem, 4vw, var(--t-h1));
   line-height: 1.2;
 }
 .h-section {
   font-family: var(--font-display); font-weight: 700;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   font-size: clamp(1.6rem, 3vw, var(--t-h2));
   line-height: 1.25;
 }
@@ -853,7 +870,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .btn-primary { background: var(--winston-red); color: var(--paper); }
 .btn-primary:hover { background: var(--winston-red-deep); }
-.btn-ghost { border-color: var(--winston-red); color: var(--winston-red-deep); background: transparent; }
+.btn-ghost { border-color: var(--winston-red); color: var(--winston-red); background: transparent; }
 .btn-ghost:hover { background: var(--winston-red); color: var(--paper); }
 .btn-sm { padding: .5rem 1rem; font-size: var(--t-caption); }
 
@@ -874,7 +891,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-family: var(--font-nav);
   font-size: 0.8125rem;
   letter-spacing: .08em;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   background: var(--winston-red-tint);
   text-transform: uppercase;
 }
@@ -1416,7 +1433,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 /* Rail's own button is inverted (paper bg / crimson text) — .btn-primary's
    default crimson-on-paper would vanish against this panel's own crimson
    background otherwise. */
-.hero-rail .btn-primary { background: var(--paper); color: var(--winston-red-deep); }
+.hero-rail .btn-primary { background: var(--paper); color: var(--winston-red); }
 .hero-rail .btn-primary:hover { background: var(--cream); }
 
 @media (max-width: 900px) {
@@ -1621,7 +1638,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .article-title {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   font-size: clamp(2.1rem, 4.5vw, 3.25rem);
   line-height: 1.15;
   letter-spacing: -.005em;
@@ -1739,7 +1756,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--winston-red-deep);
+  color: var(--winston-red);
   font-size: clamp(1.5rem, 2.8vw, 1.9rem);
   line-height: 1.5;
   margin-block: 2.5rem 2.5rem !important;
@@ -2041,7 +2058,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-bottom: 1px solid transparent;
 }
 .topic-nav a:hover { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
-.topic-nav .active { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
+.topic-nav .active { color: var(--winston-red); border-color: var(--winston-red); }
 
 /* Latest / Popular tabs */
 .filter-tabs {
@@ -2423,7 +2440,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .search-results-count { margin-bottom: 1.5rem; }
 .search-no-results { text-align: center; }
 .card-dek mark,
-.h-card-lg mark { background: var(--winston-red-tint); color: var(--winston-red-deep); padding: 0 .2em; }
+.h-card-lg mark { background: var(--winston-red-tint); color: var(--winston-red); padding: 0 .2em; }
 
 /* -------------------------------------------------------------------------
    ۲۷ · Issue table of contents (single-issue.php, Phase 4.2) — replaces

@@ -7179,3 +7179,43 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.9.0 → 1.10.0.
   Approved by: Farhad, in this session (2026-09-10) — Phase 18 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 18 continued (headings still off-brand)
+- **Fixed:** Farhad caught, from live screenshots, that several
+  prominent headings/labels still read as "the old crimson" even after
+  the Phase 18 swap above — the hero overlay card's title, the
+  homepage's "تازه‌ترین مقالات" section heading, and a single article
+  page's "مطالب دیگر" heading. Root cause: Phase 18's swap mechanically
+  mapped every old `--crimson-deep` declaration to `--winston-red-deep`
+  — technically consistent, but `--winston-red-deep` (#990000) is
+  darker/more muted than the masthead's own exact `--winston-red`
+  (#CC0000), so a *static* heading in that deep shade still visually
+  reads as "a different, muted red" next to the masthead — the same
+  complaint that started Phase 18 in the first place, just one shade
+  removed from it.
+  **Fix**: reserved `--winston-red-deep` for genuine interactive
+  feedback only (`:hover`/`:active` states, where a color shift is
+  expected UX, not a mismatch) and switched every *resting*, visibly-
+  prominent heading/label to the exact masthead `--winston-red`
+  instead: `.h-display`, `.h-page`, `.h-section` (all three, plus
+  `.article-title` and `.pull-line`, which weren't caught by the first
+  pass since they weren't visible in the original three screenshots),
+  `.btn-ghost`'s resting text color, `.hero-rail .btn-primary`'s resting
+  text color, `.badge-current`, `.topic-nav .active` (a static
+  "currently selected" state, not a hover), and `.h-card-lg mark`.
+  Genuine hover states (`.btn-primary:hover`, `.link:hover`,
+  `.prose a:hover`, `.topic-nav a:hover`, etc.) and `::selection` were
+  deliberately left on `--winston-red-deep` — a hover state is supposed
+  to look different from the resting color, that's expected feedback,
+  not the "two unrelated reds" problem Farhad flagged.
+  Contrast re-verified for the two resting-state repoints onto tint
+  backgrounds (`--winston-red` on `--winston-red-tint`, used by
+  `.badge-current`/`.h-card-lg mark`): ~5.3:1, still comfortably AA.
+  Verified live: the hero overlay card's title, the homepage's
+  "تازه‌ترین مقالات" heading, and the single article page's "مطالب
+  دیگر" heading all measured via `getComputedStyle()` as exactly
+  `rgb(204, 0, 0)` — an exact match with the masthead background.
+  Zero console errors.
+  Theme version bumped 1.10.0 → 1.10.1.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 18 of the
+  Technical Scoping Plan.
