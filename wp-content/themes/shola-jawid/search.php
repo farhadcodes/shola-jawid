@@ -74,8 +74,29 @@ $filters = array(
 
 		<div class="search-results-wrap">
 			<?php if ( have_posts() ) : ?>
-				<p class="meta-mono search-results-count" lang="en">
-					<?php echo esc_html( shola_to_persian_digits( $GLOBALS['wp_query']->found_posts ) ); ?> RESULTS FOR "<?php echo esc_html( $search_query ); ?>"
+				<?php
+				/*
+				 * Bug fix, 2026-09-10: this line was literal hardcoded
+				 * English ("N RESULTS FOR \"query\""), not wrapped in any
+				 * translation function — caught live by Farhad on a
+				 * Persian-only site (CLAUDE.md §1: no hardcoded UI copy in
+				 * template files, ever). `lang="en"` removed along with
+				 * it — that attribute exists for genuinely-Latin content
+				 * (PDF/KB/MB technical units, month abbreviations — see
+				 * CLAUDE.md's own list of what's allowed to stay Latin),
+				 * not for content that's simply been written in English by
+				 * mistake.
+				 */
+				?>
+				<p class="meta-mono search-results-count">
+					<?php
+					printf(
+						/* translators: 1: number of results (Persian digits), 2: the search query. */
+						esc_html__( '%1$s نتیجه برای «%2$s»', 'shola-jawid' ),
+						esc_html( shola_to_persian_digits( $GLOBALS['wp_query']->found_posts ) ),
+						esc_html( $search_query )
+					);
+					?>
 				</p>
 
 				<ul class="stack-lg">
@@ -108,7 +129,7 @@ $filters = array(
 						);
 						if ( $links ) {
 							foreach ( $links as $link ) {
-								$link = shola_to_persian_digits( $link );
+								$link = shola_persian_digits_pagination_link( $link );
 								$link = str_replace( 'page-numbers', 'page-num', $link );
 								echo wp_kses_post( $link );
 							}

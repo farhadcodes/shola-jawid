@@ -105,7 +105,8 @@ while ( have_posts() ) :
 			<div class="article-footer">
 				<?php if ( $post_tags ) : ?>
 					<div>
-						<p class="meta-mono" lang="en">TAGS</p>
+						<?php // Bug fix, 2026-09-10: hardcoded English label, caught live by Farhad. ?>
+						<p class="meta-mono"><?php esc_html_e( 'برچسب‌ها', 'shola-jawid' ); ?></p>
 						<ul class="tag-list">
 							<?php foreach ( $post_tags as $post_tag ) : ?>
 								<li><a class="tag-outline" href="<?php echo esc_url( get_term_link( $post_tag ) ); ?>"><?php echo esc_html( $post_tag->name ); ?></a></li>

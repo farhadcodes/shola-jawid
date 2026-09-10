@@ -85,7 +85,7 @@ $reports_query = new WP_Query(
 					);
 					if ( $links ) {
 						foreach ( $links as $link ) {
-							$link = shola_to_persian_digits( $link );
+							$link = shola_persian_digits_pagination_link( $link );
 							$link = str_replace( 'page-numbers', 'page-num', $link );
 							echo wp_kses_post( $link );
 						}

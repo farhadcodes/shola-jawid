@@ -7538,3 +7538,113 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.12.1 → 1.13.0.
   Approved by: Farhad, in this session (2026-09-10) — Phase 21 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 22 (search "RESULTS FOR" + site-wide pagination 404s)
+
+- **Fixed — hardcoded English strings surfaced by Farhad after a full
+  site walkthrough.** He specifically flagged the search results page
+  showing `"" RESULTS FOR ۳۸` in Latin script next to Persian digits.
+  Grepped the whole theme for the pattern this represents (ALL-CAPS
+  literals, `lang="en"` attributes, English inside otherwise-Persian
+  strings) rather than fixing only the reported instance, per §1's "no
+  hardcoded UI copy in template files, ever" rule. Found and fixed
+  five distinct cases: `search.php`'s "RESULTS FOR" (now
+  `'%1$s نتیجه برای «%2$s»'`, translators-commented, `esc_html__()`
+  under the `shola-jawid` text-domain); `single.php`'s hardcoded
+  "TAGS" label (`'برچسب‌ها'`); `single-issue.php`'s hardcoded "SECTION"
+  word plus a second, subtler bug in the same line — it was printing
+  the raw `topic` taxonomy **slug** instead of the term's real Persian
+  name (fixed via `get_term_by( 'slug', ..., 'topic' )`); and
+  `shola_get_publication_meta_line()`'s (`inc/template-tags.php`)
+  hardcoded "ISSUE"/"ISSUES" (now plain `'%1$s شماره · %2$s'` — no
+  singular/plural split needed in Persian, so switched `_n()` to a
+  plain `__()`; kept it un-escaped since every call site already wraps
+  the return value in `esc_html()`, to avoid double-escaping). Also
+  removed two now-stale `lang="en"` attributes
+  (`taxonomy-publication.php`, `page-publications.php`) left over from
+  before that meta-line bug was fixed at the source.
+  Deliberately left untouched, flagged for Farhad's decision rather
+  than guessed at: the masthead's Latin "SHOLA JAWID" code
+  (`shola_get_masthead_code()`) and `taxonomy-publication.php`'s
+  dynamically-built "SJ-32"-style Latin catalogue code
+  (`strtoupper($root_slug) . '-' . shola_to_persian_digits($number)`)
+  — both read as intentional v6-prototype brand/stylistic marks (same
+  category as a book's ISBN-style spine code), not accidental English
+  vocabulary, so translating them without confirmation would risk an
+  unrequested visual deviation under §9.
+
+- **Fixed — pagination page 2/3 showing a real 404,** the second bug
+  Farhad reported (with screenshots of `/page/۲/?s=...` hitting WP's
+  own "برگه پیدا نشد" page). Root-caused in two separate, unrelated
+  layers, both live on every paginated listing in the theme:
+  1. **Digit corruption in pagination hrefs.** `shola_to_persian_digits()`
+     — a blanket ASCII→Persian digit `strtr()` — was being applied to
+     the *entire* `<a href="...">` string `paginate_links()` returns,
+     corrupting both URL-encoded search queries (`%D8%A7` →
+     `%D۸%A۷`) and the `/page/2/` path segment itself (`2` → `۲`),
+     which WordPress's own rewrite rule (`page/([0-9]+)`, ASCII-only)
+     no longer matches. Fixed by adding
+     `shola_persian_digits_pagination_link()` (`inc/template-tags.php`)
+     — extracts the `href="..."` attribute behind a placeholder,
+     Persian-izes the rest of the markup, restores the untouched href
+     — and swapping it in at all 8 call sites that build pagination
+     (`search.php`, `taxonomy-publication.php`, `taxonomy-topic.php`,
+     `taxonomy-collection.php`, `archive-announcement.php`,
+     `page-reports.php`, `page-party-publications.php`,
+     `page-party-documents.php`).
+  2. **Rewrite-rule slug collisions.** Independently, several custom
+     post types are registered with a rewrite slug that shares a URL
+     prefix with a sibling static Page or taxonomy archive:
+     `party_publication`/`party_document` use the exact same slug as
+     their own listing Page (`party-publications`, `party-documents`);
+     `issue`'s slug (`publications/%publication%`) shares the
+     `publication` taxonomy's own `publications` archive prefix; and
+     `document`'s slug (`library/%collection%`) shares the
+     `collection` taxonomy's `library` prefix. WordPress checks each
+     CPT's auto-generated single-post rewrite rule before the
+     page/taxonomy's own pagination rule, so `.../page/2/` was being
+     misparsed as a request for a single post literally named "page"
+     — a genuine "no such post" 404, raised at URL-parsing time, before
+     the template or even WP's `pre_handle_404` filter hook ever runs.
+     Confirmed via `wp rewrite list` (showing the exact colliding
+     rule) and `read_network_requests` (showing `?paged=2` redirecting
+     to the pretty `/page/2/` URL that then actually 404s). Two earlier
+     fix attempts were tried and confirmed ineffective before finding
+     this: syncing a template's secondary `WP_Query::max_num_pages`
+     onto the main query (too late — runs after WordPress's 404
+     decision is already made) and filtering `redirect_canonical`
+     (never fires for this case, since WP never computes a redirect
+     URL here — it's a direct 404). Fixed at the actual layer WordPress
+     resolves URLs: added four explicit, `'top'`-priority
+     `add_rewrite_rule()` calls (`class-post-types.php`,
+     `register_pagination_collision_fixes()`) that match
+     `party-publications/page/N/`, `party-documents/page/N/`,
+     `publications/{term}/page/N/`, and `library/{term}/page/N/`
+     directly to the correct page/taxonomy query — checked before the
+     colliding CPT rule gets a chance to misparse them — followed by
+     `wp rewrite flush`. This pairs with the already-existing
+     `pre_handle_404` filter in `inc/setup.php`
+     (`shola_skip_404_for_secondary_query_pagination()`, added earlier
+     this session): that filter handles a *different*, narrower
+     problem — WordPress's own "does this static Page have that many
+     `<!--nextpage-->` splits" check rejecting a template's secondary
+     `WP_Query` pagination even once the URL parses correctly — and
+     stays necessary for `party-publications`/`party-documents`/
+     `reports` even after this rewrite-rule fix.
+     Verified live on all previously-404ing URLs, confirming real
+     content (not the 404 template) and non-`is404` page titles:
+     `/publications/shola-jawid-dowre-1/page/2/`,
+     `/party-publications/page/2/`, `/party-documents/page/2/`,
+     `/library/classics/page/2/` (no real page 2 content yet — 6 of 6
+     posts fit on page 1 — but confirmed it no longer hard-404s, same
+     as `reports`/`topics` did before this session). Also re-verified
+     `search.php` end-to-end (Persian digits, real page 2 content,
+     `is404` false) and spot-checked `/announcements/page/2/`, which
+     correctly 404s — that one's a genuine out-of-range request (8
+     announcements, 10 per page, no real page 2 to show), not a bug.
+  Theme version bumped 1.13.0 → 1.14.0. Plugin (shola-core) version
+  bumped 1.6.0 → 1.7.0 (new rewrite rules live in
+  `class-post-types.php`, per §2's content-model/rewrite-rule
+  ownership rule).
+  Approved by: Farhad, in this session (2026-09-10) — Phase 22 of the
+  Technical Scoping Plan.

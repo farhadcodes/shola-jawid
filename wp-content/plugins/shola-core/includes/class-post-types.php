@@ -30,6 +30,7 @@ class Post_Types {
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_types' ) );
 		add_action( 'init', array( __CLASS__, 'register_rewrite_tags' ) );
+		add_action( 'init', array( __CLASS__, 'register_pagination_collision_fixes' ) );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_issue_permalink' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_document_permalink' ), 10, 2 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'include_cpts_in_search' ) );
@@ -407,6 +408,52 @@ class Post_Types {
 	public static function register_rewrite_tags() {
 		add_rewrite_tag( '%publication%', '([^/]+)' );
 		add_rewrite_tag( '%collection%', '([^/]+)' );
+	}
+
+	/**
+	 * Fix a rewrite-rule collision found 2026-09-10 (Farhad reported page
+	 * 2/3 of several listings 404ing): `issue` and `document` are
+	 * registered with a rewrite slug that is a shared URL prefix with a
+	 * sibling taxonomy archive (`publications/%publication%` vs. the
+	 * `publication` taxonomy's own `publications` slug; `library/%collection%`
+	 * vs. the `collection` taxonomy's `library` slug), and `party_publication`/
+	 * `party_document` use a slug identical to their own listing Page's slug
+	 * (`party-publications`, `party-documents`). WordPress generates each
+	 * CPT's single-post rewrite rule generically (e.g.
+	 * `publications/([^/]+)/([^/]+)(?:/([0-9]+))?/?$`), and that rule is
+	 * checked before the taxonomy/page's own pagination rule — so
+	 * `.../page/2/` gets misparsed as a single-post lookup for a post
+	 * literally named "page", which genuinely doesn't exist, and 404s
+	 * before either the page/taxonomy template or the `pre_handle_404`
+	 * filter (see inc/setup.php) ever gets a chance to run.
+	 *
+	 * Fix: register the exact `.../page/N/` pagination path for each
+	 * affected page/taxonomy as its own rule, added to the 'top' of the
+	 * rewrite rules so it's checked before the colliding CPT rule.
+	 *
+	 * @return void
+	 */
+	public static function register_pagination_collision_fixes() {
+		add_rewrite_rule(
+			'^party-publications/page/([0-9]+)/?$',
+			'index.php?pagename=party-publications&paged=$matches[1]',
+			'top'
+		);
+		add_rewrite_rule(
+			'^party-documents/page/([0-9]+)/?$',
+			'index.php?pagename=party-documents&paged=$matches[1]',
+			'top'
+		);
+		add_rewrite_rule(
+			'^publications/([^/]+)/page/([0-9]+)/?$',
+			'index.php?publication=$matches[1]&paged=$matches[2]',
+			'top'
+		);
+		add_rewrite_rule(
+			'^library/([^/]+)/page/([0-9]+)/?$',
+			'index.php?collection=$matches[1]&paged=$matches[2]',
+			'top'
+		);
 	}
 
 	/**

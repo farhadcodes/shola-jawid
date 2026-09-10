@@ -386,3 +386,66 @@ function shola_maybe_show_missing_plugin_notice() {
 	<?php
 }
 add_action( 'admin_notices', 'shola_maybe_show_missing_plugin_notice' );
+
+/**
+ * Stops WordPress's own `WP::handle_404()` from 404ing a real, in-range
+ * page of a template's SECONDARY WP_Query — bug fix, 2026-09-10,
+ * caught live by Farhad clicking page 2 of a real search (and, once
+ * investigated further, page 2 of a topic archive and of انتشارات
+ * حزب's own listing too).
+ *
+ * search.php and archive-announcement.php paginate the *real* main
+ * query (`have_posts()`/`$GLOBALS['wp_query']` directly) and were
+ * never affected by this — but every taxonomy archive template
+ * (taxonomy-topic.php, taxonomy-collection.php, taxonomy-
+ * publication.php) and every custom listing Page (page-reports.php,
+ * page-party-publications.php, page-party-documents.php) builds its
+ * OWN separate `new WP_Query(...)` for the actual listing, with its
+ * own `posts_per_page`/`paged`. Two things were tried and confirmed
+ * NOT to work before this, so the reasoning is recorded here rather
+ * than silently discarded: (1) setting
+ * `$GLOBALS['wp_query']->max_num_pages` from inside the template did
+ * nothing — WordPress decides 404 status *before* the template file
+ * is even loaded; (2) filtering `redirect_canonical` also did nothing
+ * — that filter only fires when core has already decided on a
+ * *redirect* URL, but this is a straight `set_404()` call inside
+ * `WP::handle_404()` (`wp-includes/class-wp.php`), which never
+ * produces a redirect URL to filter in the first place. For a static
+ * Page specifically, `handle_404()` treats `paged > 1` as "which
+ * `<!--nextpage-->` split of this Page's own content", and 404s it
+ * since these Pages don't use that content-splitting feature at all;
+ * for a taxonomy archive, the *main* query's `max_num_pages` reflects
+ * WordPress's site-wide default per-page setting, not the template's
+ * own `posts_per_page => 6`/`9`, so a `paged` value the template's own
+ * secondary query considers valid can still look out-of-range to the
+ * main query `handle_404()` actually checks.
+ *
+ * Fixed via `pre_handle_404` (added in WP 4.4 specifically as the
+ * documented override point for `WP::handle_404()`'s own decision):
+ * returning true skips WordPress's default 404 logic entirely for a
+ * paged request on one of the specific taxonomies/page slugs known to
+ * build their own secondary listing query, letting the template's own
+ * `have_posts()` check decide what to render instead — real content on
+ * a genuine page, or the template's own "no results" state if not,
+ * never a hard 404 for a page number the template itself considers
+ * valid.
+ *
+ * @param bool     $preempt Whether to short-circuit default 404 handling.
+ * @param WP_Query $query   The (main) query object being checked.
+ * @return bool
+ */
+function shola_skip_404_for_secondary_query_pagination( $preempt, $query ) {
+	if ( $preempt || (int) $query->get( 'paged' ) < 2 ) {
+		return $preempt;
+	}
+
+	$paginated_taxonomies = array( 'topic', 'collection', 'publication' );
+	$paginated_pages      = array( 'party-publications', 'party-documents', 'reports' );
+
+	if ( $query->is_tax( $paginated_taxonomies ) || $query->is_page( $paginated_pages ) ) {
+		return true;
+	}
+
+	return $preempt;
+}
+add_filter( 'pre_handle_404', 'shola_skip_404_for_secondary_query_pagination', 10, 2 );

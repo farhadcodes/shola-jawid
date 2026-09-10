@@ -40,6 +40,69 @@ function shola_to_persian_digits( $number ) {
 }
 
 /**
+ * Renders a paginate_links() page numbers strip safely — Persian digits
+ * in the visible label, ASCII digits (untouched) inside every href.
+ *
+ * Bug fix, 2026-09-10: every archive/search template on this site called
+ * shola_to_persian_digits() directly on each full `<a href="...">2</a>`
+ * string from paginate_links(), converting *every* digit it found —
+ * including inside the href. That silently broke pagination site-wide:
+ * on search.php specifically, it corrupted the URL-encoded search query
+ * (`%D8%A7...` → `%D۸%A۷...`, no longer valid percent-encoding) *and*
+ * turned `/page/2/` into `/page/۲/`, which doesn't match WordPress's own
+ * `page/([0-9]+)` rewrite rule (ASCII digits only) — a real 404, caught
+ * live by Farhad clicking page 2 of a real search. On taxonomy archives
+ * (pretty permalinks), the same `/page/۲/` corruption breaks the rewrite
+ * match the same way; on the handful of static pages already using
+ * query-string pagination (`?paged=2`), the digit inside `paged=2`
+ * itself got corrupted instead, silently resetting to page 1 rather
+ * than 404ing — different failure mode, same root cause.
+ *
+ * Fixed at the root, once, rather than patching each of the 8 templates
+ * that had this pattern independently: protects every href="..." value
+ * from the conversion (swapped out for a placeholder, converted back
+ * after), so only the human-visible link text (page numbers, and any
+ * digits WordPress puts in prev/next text) ever gets Persian digits.
+ *
+ * @param string $link_html One `<a>`/`<span>` string from paginate_links().
+ * @return string
+ */
+function shola_persian_digits_pagination_link( $link_html ) {
+	/*
+	 * Bug fix within this same fix, caught live before shipping: the
+	 * first version's placeholder was `{{SHOLA_HREF_0}}` — containing a
+	 * digit, which shola_to_persian_digits() below then converted right
+	 * along with everything else ({{SHOLA_HREF_۰}}), breaking the
+	 * strtr() match on the way back out. wp_kses_post() at the call
+	 * site then silently dropped the resulting malformed attribute-
+	 * looking text, stripping the href entirely — worse than the
+	 * original bug (no link at all, not just a broken one). Using a
+	 * placeholder with no digits in it avoids the problem outright, and
+	 * a single placeholder is enough since each call only ever handles
+	 * one <a>/<span> string (at most one href to protect).
+	 */
+	$href = null;
+
+	$link_html = preg_replace_callback(
+		'/href="[^"]*"/',
+		static function ( $matches ) use ( &$href ) {
+			$href = $matches[0];
+			return '{{SHOLA_HREF_PLACEHOLDER}}';
+		},
+		$link_html
+	);
+
+	$link_html = shola_to_persian_digits( $link_html );
+
+	if ( null !== $href ) {
+		$link_html = str_replace( '{{SHOLA_HREF_PLACEHOLDER}}', $href, $link_html );
+	}
+
+	return $link_html;
+}
+
+
+/**
  * Jalali (Dari) "month year" label for the `.issue-card-date` mono
  * contexts (issue/document/party-document cards, publication headers,
  * search results) — e.g. "سرطان ۱۴۰۵". Replaces the earlier
@@ -672,9 +735,16 @@ function shola_get_publication_meta_line( $term ) {
 		? shola_to_persian_digits( $years[0] )
 		: shola_to_persian_digits( $years[0] ) . '–' . shola_to_persian_digits( end( $years ) );
 
+	/*
+	 * Bug fix, 2026-09-10: this was literal hardcoded English ("N ISSUE"/
+	 * "N ISSUES"), caught live by Farhad. No _n() singular/plural split
+	 * needed for the Persian replacement — Persian nouns don't inflect
+	 * for count the way English does, so "%1$s شماره" already reads
+	 * correctly whether %1$s is ۱ or ۳۲.
+	 */
 	return sprintf(
-		/* translators: 1: issue count, 2: year or year range. */
-		_n( '%1$s ISSUE · %2$s', '%1$s ISSUES · %2$s', count( $issues ), 'shola-jawid' ),
+		/* translators: 1: issue count (Persian digits), 2: year or year range. */
+		__( '%1$s شماره · %2$s', 'shola-jawid' ),
 		shola_to_persian_digits( count( $issues ) ),
 		$year_range
 	);

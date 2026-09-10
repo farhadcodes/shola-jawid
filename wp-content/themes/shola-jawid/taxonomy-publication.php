@@ -191,7 +191,8 @@ $archive_query = new WP_Query(
 			<?php if ( $meta_line ) : ?>
 				<div class="row row-tight center mt-md">
 					<span class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>"><?php echo esc_html( shola_publication_status_label( $root_slug ) ); ?></span>
-					<span class="meta-mono" lang="en"><?php echo esc_html( $meta_line ); ?></span>
+					<?php // lang="en" removed, 2026-09-10: $meta_line is pure Persian now (shola_get_publication_meta_line()'s own "ISSUE(S)" bug fixed at the source). ?>
+					<span class="meta-mono"><?php echo esc_html( $meta_line ); ?></span>
 				</div>
 			<?php endif; ?>
 		</header>
@@ -274,7 +275,7 @@ $archive_query = new WP_Query(
 					);
 					if ( $links ) {
 						foreach ( $links as $link ) {
-							$link = shola_to_persian_digits( $link );
+							$link = shola_persian_digits_pagination_link( $link );
 							$link = str_replace( 'page-numbers', 'page-num', $link );
 							echo wp_kses_post( $link );
 						}

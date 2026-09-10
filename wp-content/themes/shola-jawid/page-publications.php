@@ -63,7 +63,8 @@ get_header();
 							<p class="dek"><?php echo esc_html( $term->description ); ?></p>
 						<?php endif; ?>
 						<?php if ( $meta_line ) : ?>
-							<p class="meta-mono" lang="en"><?php echo esc_html( $meta_line ); ?></p>
+							<?php // lang="en" removed, 2026-09-10: $meta_line is pure Persian now (shola_get_publication_meta_line()'s own "ISSUE(S)" bug fixed at the source). ?>
+							<p class="meta-mono"><?php echo esc_html( $meta_line ); ?></p>
 						<?php endif; ?>
 						<div class="row">
 							<a class="btn <?php echo $is_current ? 'btn-primary' : 'btn-ghost'; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>">

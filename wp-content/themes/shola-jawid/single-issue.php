@@ -190,7 +190,38 @@ while ( have_posts() ) :
 					<?php foreach ( $toc as $i => $entry ) : ?>
 						<li>
 							<?php if ( $entry['section'] ) : ?>
-								<p class="meta-mono" lang="en"><?php echo esc_html( shola_to_persian_digits( sprintf( '%02d', $i + 1 ) ) . ' · SECTION · ' . strtoupper( $entry['section'] ) ); ?></p>
+								<?php
+								/*
+								 * Two bugs fixed here together, 2026-09-10, caught
+								 * live by Farhad: (1) the literal word "SECTION" was
+								 * hardcoded English, never wrapped for translation;
+								 * (2) $entry['section'] stores a `topic` taxonomy
+								 * *slug* (e.g. "economy") or the fixed pseudo-value
+								 * "TRANSLATION" — see class-meta-fields.php's TOC
+								 * repeater — so `strtoupper()`-ing it and printing it
+								 * directly showed the raw English slug to readers
+								 * ("ECONOMY"), not its real Persian topic name. Now
+								 * looks the term up and shows its actual name, with
+								 * "TRANSLATION" mapped to "ترجمه" same as the admin
+								 * repeater's own pseudo-option label.
+								 */
+								if ( 'TRANSLATION' === $entry['section'] ) {
+									$section_label = __( 'ترجمه', 'shola-jawid' );
+								} else {
+									$section_term  = get_term_by( 'slug', $entry['section'], 'topic' );
+									$section_label = ( $section_term && ! is_wp_error( $section_term ) ) ? $section_term->name : $entry['section'];
+								}
+								?>
+								<p class="meta-mono">
+									<?php
+									printf(
+										/* translators: 1: row number (Persian digits), 2: section/topic name. */
+										esc_html__( '%1$s · بخش: %2$s', 'shola-jawid' ),
+										esc_html( shola_to_persian_digits( sprintf( '%02d', $i + 1 ) ) ),
+										esc_html( $section_label )
+									);
+									?>
+								</p>
 							<?php endif; ?>
 							<span class="link-quiet"><?php echo esc_html( $entry['title'] ); ?></span>
 							<?php if ( $entry['byline'] ) : ?>
