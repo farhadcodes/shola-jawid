@@ -342,19 +342,39 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; font-size: inherit; line-height: 
    ۰۵ · Masthead — crimson field with white nameplate (historical anchor)
    ------------------------------------------------------------------------- */
 /*
- * #mast-sentinel (header.php) — invisible, 1x1px, pinned 80px from the
- * top of the page (not the viewport: position:absolute with no
- * positioned ancestor places it against the initial containing block,
- * so it holds that document coordinate while the page scrolls under
- * it). main.js watches it via IntersectionObserver to know when the
- * user has scrolled past 80px, without a raw scroll-event listener.
+ * #mast-sentinel (header.php) — invisible, pinned 80px from the top of
+ * the page (not the viewport: position:absolute with no positioned
+ * ancestor places it against the initial containing block, so it
+ * holds that document coordinate while the page scrolls under it).
+ * main.js watches it via IntersectionObserver to know when the user
+ * has scrolled past 80px, without a raw scroll-event listener.
+ *
+ * height: 48px, not the original 1px — bug fix, 2026-09-10: Farhad
+ * reported the sticky masthead's shrink visibly "flickering"/"buzzing"
+ * while scrolling, worst on tablet (reported live from Chrome's iPad
+ * emulation, where touch-style momentum scrolling is jumpier than a
+ * mouse wheel). Root cause: a 1px-tall sentinel gives
+ * IntersectionObserver a razor-thin, single-point threshold — any tiny
+ * back-and-forth scroll jitter right at that exact pixel (routine with
+ * touch/momentum scrolling, and even ordinary sub-pixel scroll
+ * rounding) flips `isIntersecting` rapidly, and every flip restarts
+ * the shrink/expand CSS transition in the opposite direction, which is
+ * exactly what reads as "buzzing". A taller sentinel turns that single
+ * point into a buffer zone — the observer only reports "not
+ * intersecting" once the whole 48px band has scrolled past, so small
+ * jitter within that band no longer flips the class back and forth.
+ * Purely a hysteresis fix — the masthead still starts shrinking at the
+ * same ~80px scroll position as before, it just no longer flickers
+ * doing it. Affects all breakpoints (mobile/tablet/desktop all share
+ * this one sentinel/observer), not just tablet — tablet's touch-style
+ * scrolling just made the pre-existing jitter far more visible there.
  */
 #mast-sentinel {
   position: absolute;
   inset-block-start: 80px;
   inset-inline-start: 0;
   width: 1px;
-  height: 1px;
+  height: 48px;
   pointer-events: none;
 }
 
@@ -1064,20 +1084,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--paper);
   padding: 1.75rem;
   /*
-   * Mobile-only reorder, 2026-09-07 (still Phase 11): Farhad's real-
-   * device screenshot (iPhone 16 Pro Max width, 440px — still inside
-   * the <720px single-column layout) showed the tile sitting directly
-   * under تازه‌ترین مقالات's own heading, above every article card —
-   * correct on desktop (where it's a deliberate side-by-side column)
-   * but wrong here, since a single stacked column reads top-to-bottom
-   * as "read this first," and an اطلاعیه isn't meant to outrank the
-   * section's own articles at this width. `order: 1` — the tile is
+   * Mobile-first reorder, 2026-09-07 (Phase 11), widened to tablet
+   * 2026-09-10: Farhad's real-device screenshot (iPhone 16 Pro Max
+   * width, 440px — inside the <720px single-column layout) showed the
+   * tile sitting directly under تازه‌ترین مقالات's own heading, above
+   * every article card — correct on true desktop (≥1000px, where it's
+   * a deliberate side-by-side column, `grid-column: 3` below) but
+   * wrong at narrower widths, since a stacked/2-column layout reads
+   * top-to-bottom as "read this first," and an اطلاعیه isn't meant to
+   * outrank the section's own articles there. `order: 1` — the tile is
    * first in DOM (unchanged; screen readers/no-CSS fallback still meet
-   * it first) but visually last in the single-column stack, after all
-   * 5 article cards (which keep their default `order: 0`). Reset back
-   * to `order: 0` at ≥720px in the media query below, so tablet and
-   * desktop — explicitly confirmed untouched with Farhad — keep their
-   * existing tile-first layout exactly as shipped.
+   * it first) but visually last, after all 5 article cards (which keep
+   * their default `order: 0`).
+   *
+   * Originally reset back to `order: 0` at ≥720px (tablet included),
+   * per Farhad's explicit tablet-untouched confirmation at the time —
+   * revisited 2026-09-10: Farhad reviewed the tablet width specifically
+   * and asked for the same after-the-articles placement mobile already
+   * had, not the desktop tile-first treatment. The `order: 0` reset
+   * below now only applies at ≥1000px (true desktop), so tablet
+   * (720-999px) falls through to this same `order: 1`.
    */
   order: 1;
 }
@@ -1221,10 +1247,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 
 @media (min-width: 720px) {
-  .card-spotlight { grid-column: 1 / -1; order: 0; }
+  .card-spotlight { grid-column: 1 / -1; }
 }
 @media (min-width: 1000px) {
-  .card-spotlight { grid-column: 3; }
+  .card-spotlight { grid-column: 3; order: 0; }
 }
 
 .grid-cards-4 {

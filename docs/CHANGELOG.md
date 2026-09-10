@@ -7322,3 +7322,52 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.10.3 → 1.10.4.
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 19 (masthead flicker + tablet spotlight order)
+- **Fixed — sticky masthead flicker, site-wide (Phase 13's own bug,
+  caught live on tablet).** Farhad reported the sticky/shrinking
+  masthead visibly "flickering"/"buzzing" while scrolling — worst on
+  tablet, reported from Chrome's iPad emulation, where touch-style
+  momentum scrolling is jumpier than a mouse wheel. Root cause:
+  `#mast-sentinel` (the invisible marker `main.js`'s
+  IntersectionObserver watches to know when the page has scrolled past
+  80px) was only 1px tall — a razor-thin, single-point threshold where
+  any tiny back-and-forth scroll jitter right at that exact pixel
+  (routine with touch/momentum scrolling, and even ordinary sub-pixel
+  scroll rounding) flips `isIntersecting` rapidly. Every flip restarts
+  the shrink/expand CSS transition (padding, font-size, gap, icon
+  sizes — the whole `--mast-scale` system) in the opposite direction,
+  which is exactly what reads as buzzing.
+  Fixed with a hysteresis buffer, not a logic change: `#mast-sentinel`
+  height raised 1px → 48px, so the observer only reports "not
+  intersecting" once the whole 48px band has scrolled past — small
+  jitter within that band no longer flips the class back and forth.
+  The masthead still starts shrinking at the same ~80px scroll
+  position as before; it just no longer flickers doing it. This is
+  the one shared sentinel/observer for the whole site (mobile, tablet,
+  desktop all use it) — tablet's touch-style scrolling just made the
+  pre-existing jitter far more visible there, so the fix applies
+  everywhere, per Farhad's explicit ask.
+  Verified live: real scroll (not `window.scrollTo()`, confirmed
+  unreliable for triggering this observer in this environment) past
+  the threshold correctly sets `.is-scrolled`; scrolling back to the
+  top correctly removes it. Zero console errors.
+- **Changed — اطلاعیه spotlight tile order, tablet only.** Previously
+  the tile sat first (above the article grid) at every width ≥720px
+  (tablet and desktop alike) — Farhad reviewed the tablet width
+  specifically and asked for the same "after the articles" placement
+  the `<720px` mobile layout already had, since a tablet's 2-column
+  grid reads top-to-bottom similarly to mobile's single column. The
+  `order: 0` reset (tile-first) that used to apply at `≥720px` now
+  only applies at `≥1000px` (true desktop, where the tile is a
+  deliberate side-by-side column via `grid-column: 3`) — tablet
+  (720-999px) now falls through to the same `order: 1` mobile already
+  had. Desktop's own `grid-column: 3` side-placement is untouched.
+  Verified live at all three breakpoints via computed `order` and
+  actual rendered position (`getBoundingClientRect()`, not just the
+  CSS property): tablet (768px) — `order: 1`, tile confirmed
+  positioned below every article card; desktop (1440px) — `order: 0`,
+  `grid-column: 3`, unchanged; mobile (375px) — `order: 1`, unchanged.
+  Theme version bumped 1.10.4 → 1.11.0.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 19 of the
+  Technical Scoping Plan.
