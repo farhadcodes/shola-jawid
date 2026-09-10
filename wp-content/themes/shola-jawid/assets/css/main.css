@@ -1556,6 +1556,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   padding: 1.75rem var(--gap-pad-x);
 }
 .hero-pub-card .hero-pub-card-kicker { color: var(--winston-red); }
+/* Title breathing room, 2026-09-10 — Farhad's feedback, same round as
+   the width fix above: the title sat flush against the kicker/cover
+   above and the dek below, with no room of its own. A touch smaller
+   (0.95rem vs the shared .h-page/.hero-rail size of 1.05rem) plus its
+   own margin-block gives it real spacing on every side without
+   affecting .hero-rail's title (a separate, still-visible-on-mobile
+   selector, deliberately left untouched — this only targets
+   .hero-pub-card, which doesn't render at all below 901px anyway). */
+.hero-pub-card .h-page { font-size: 0.95rem; margin-block: 0.65rem; }
 /* min-width:901px, not 721px — bug caught live while testing tablet
    (768px), 2026-09-10: at that width the headline text is still in its
    own desktop bottom-anchored position (its mobile repositioning only
@@ -1570,7 +1579,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     z-index: 4;
     bottom: 2.5rem;
     inset-inline-end: calc(max(0px, (100% - var(--wrap-wide)) / 2) + var(--gap-pad-x));
-    width: 320px;
+    /*
+     * Width matched to one full track of تازه‌ترین مقالات's own
+     * 3-column grid below, 2026-09-10 — Farhad flagged from a live
+     * screenshot that the card's fixed 320px width didn't line up
+     * with that grid, even though its outer (left) edge already did:
+     * ( wrap-wide − 2×gap-pad-x − 2×grid-column-gap ) ÷ 3 columns is
+     * exactly how .grid-cards' own `repeat(3, 1fr)` computes each
+     * column's width inside the same capped/centered content area
+     * (see .grid-cards, main.css §09) — reusing that formula here
+     * (rather than a second hardcoded pixel guess) means both edges
+     * of this card land exactly on that grid's real column
+     * boundaries, not just approximately, and stay correct if
+     * --wrap-wide/--gap-pad-x/the grid's gap are ever retuned
+     * together. Verified live via getBoundingClientRect() against the
+     * actual rendered grid, not just computed by hand.
+     */
+    width: calc((var(--wrap-wide) - (var(--gap-pad-x) * 2) - (1.5rem * 2)) / 3);
     max-width: calc(100% - 2 * var(--gap-pad-x));
     border-radius: 4px;
     overflow: hidden;

@@ -7371,3 +7371,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.10.4 → 1.11.0.
   Approved by: Farhad, in this session (2026-09-10) — Phase 19 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (overlay card: geometric polish)
+- **Changed:** final polish round on the `overlay` layout's floating
+  card, desktop only — Farhad flagged from a live screenshot that the
+  card's fixed 320px width didn't line up with تازه‌ترین مقالات's own
+  3-column article grid further down the same page (its outer/left
+  edge already did, from an earlier fix, but its inner/right edge
+  didn't), and asked for the title to get more breathing room.
+  **Width**: `.hero-pub-card`'s width is no longer a flat 320px — now
+  `calc((var(--wrap-wide) - (var(--gap-pad-x) * 2) - (1.5rem * 2)) / 3)`,
+  the exact same formula `.grid-cards`' `repeat(3, 1fr)` uses to size
+  each of its own columns inside the same capped/centered content
+  area. Reusing the real formula (not a second hand-picked pixel
+  value) means both of the card's edges land exactly on that grid's
+  real column boundaries, and stay correct if `--wrap-wide`/
+  `--gap-pad-x`/the grid's own gap are ever retuned together.
+  **Title spacing**: `.hero-pub-card .h-page` (the card's title only —
+  `.hero-rail`'s own title, still visible on mobile for the `lead_rail`
+  layout, is untouched) now uses a slightly smaller 0.95rem (was the
+  shared 1.05rem) with its own `margin-block: 0.65rem`, giving it real
+  space from the cover above and the dek below instead of sitting
+  flush against both.
+  Verified live via `getBoundingClientRect()`, not eyeballed: the
+  card's left edge (144.5px) exactly matches تازه‌ترین مقالات's grid's
+  own left edge, and the card's right edge (507.156px) exactly matches
+  that grid's leftmost column's own right edge — a pixel-exact match,
+  not an approximation. Re-confirmed the card still fits comfortably
+  within the photo's height (455px card vs. ~900px+ photo at normal
+  desktop heights) despite the extra width. Mobile (375px) reconfirmed
+  untouched — `.hero-pub-card` still `display: none` there, and
+  `lead_rail`'s own title (still visible on mobile) reconfirmed at its
+  original, unchanged 1.05rem size. Zero console errors.
+  Theme version bumped 1.11.0 → 1.11.1.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.
