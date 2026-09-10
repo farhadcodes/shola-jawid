@@ -6983,3 +6983,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.7.1 → 1.8.0 (new hero layout, not a patch).
   Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
   Technical Scoping Plan.
+
+## 2026-09-10 (later same day) — Phase 17 continued (lead_rail width capped)
+- **Fixed:** the `lead_rail` hero layout shipped a few minutes earlier
+  was full-bleed edge-to-edge like the `single` layout it's built
+  alongside — Farhad caught this live on his own machine (screenshot):
+  on a wide monitor the rail column drifted all the way to the far edge
+  of the browser window, disconnected from where the rest of the
+  homepage's content actually sits. Farhad's own stated rule for the
+  fix: the one-column hero stays full width always; the two-column
+  hero should always be a centered, capped band matching the rest of
+  the page — never wider than that regardless of how wide the browser
+  gets.
+  `.hero-lead--with-rail` now carries the exact same box model as every
+  other section's `.wrap` (`max-width: var(--wrap-wide)` [1200px],
+  `margin-inline: auto`, `padding-inline: var(--gap-pad-x)`) — the
+  `single` layout's own `.hero-lead` rule is completely untouched, this
+  cap only applies to the two-column variant.
+  Verified live at a genuinely wide viewport (1920px, since the bug
+  only shows above ~1264px): `getBoundingClientRect()` confirms the
+  hero and the very next section's `.wrap` now share identical `left`/
+  `right`/`width` values (1200px, 352.4px–1552.4px) — pixel-exact
+  alignment with the rest of the page, not just "looks close." Also
+  reconfirmed at tablet width (768px, below the cap) that nothing
+  regressed there — still stacks to one column, full width as before,
+  zero console errors at either width.
+  Theme version bumped 1.8.0 → 1.8.1.
+  Approved by: Farhad, in this session (2026-09-10) — Phase 17 of the
+  Technical Scoping Plan.

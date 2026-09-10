@@ -1281,8 +1281,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    photo's scrim would stretch across the rail column too. .hero-main
    comes first in the DOM, .hero-rail second: no left/right written
    anywhere, RTL's normal reading-order flow already puts the rail on the
-   visual left, matching the client's own description of the request. */
-.hero-lead--with-rail { display: flex; align-items: stretch; }
+   visual left, matching the client's own description of the request.
+
+   Width-capped and centered like every other section's .wrap, added
+   same day per Farhad: the first version was full-bleed (like the
+   `single` layout it's built alongside), but on a wide monitor that
+   left the rail column stranded at the far edge of the browser window,
+   disconnected from where the rest of the homepage's content actually
+   sits. `single` is deliberately left untouched — this cap applies only
+   to the two-column variant, per Farhad's explicit instruction ("when
+   there's two columns, it should always be a centered 1200px band...
+   the one-column hero stays full width"). */
+.hero-lead--with-rail {
+  display: flex;
+  align-items: stretch;
+  max-width: var(--wrap-wide);
+  margin-inline: auto;
+  padding-inline: var(--gap-pad-x);
+}
 .hero-lead--with-rail::before,
 .hero-lead--with-rail::after { content: none; }
 
