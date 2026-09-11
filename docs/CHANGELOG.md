@@ -7648,3 +7648,76 @@ trail of *why* the build deviated from — or newly applied — a rule in
   ownership rule).
   Approved by: Farhad, in this session (2026-09-10) — Phase 22 of the
   Technical Scoping Plan.
+
+## 2026-09-11 — Phase 23 (full-site QA audit + privacy-link fix)
+
+- **Audited:** Farhad asked for a full designer+developer pass over
+  the live production site (sholajawid.com) after the pagination/
+  English-text fixes shipped, to catch anything else — content
+  population, design, or language. Checked the homepage, several
+  single-post types (article, issue, party-publication, library
+  document), taxonomy archives, About, and Contact, on desktop and
+  mobile, for console errors, failed network requests, SEO tags,
+  responsive layout, and content correctness. Two apparent bugs
+  chased down during this pass turned out to be false positives from
+  the review tooling itself, not the site (recorded so they aren't
+  re-investigated later): a homepage section that photographed as a
+  blank white screenshot was confirmed live and correct via the raw
+  page text/DOM — a screenshot-capture timing glitch, not a rendering
+  bug; a console 404 on an article page traced back to the auditor's
+  own mistyped test URL from a prior navigation, not a real request
+  the page made.
+  Confirmed clean: zero real console/network errors, all SEO meta
+  tags (title/description/canonical/OG) present and correctly
+  localized, `lang="fa-IR"`/`dir="rtl"` correct, self-hosted fonts
+  loading, mobile layout reflows with no horizontal overflow, footer
+  nav links all resolve, social icons carry proper Persian
+  `aria-label`s, and the §7 credit-block policy is correctly followed
+  (no public-facing footer credit, which is intentional per that
+  section's own explicit rule against a forced "powered by" link —
+  not a gap).
+  Found and fixed (this entry): the Contact page's privacy-policy
+  link. Found, flagged for Farhad, not yet fixed (content/data,
+  outside a developer's authority to silently resolve):
+  1. Two posts under انتشارات حزب share the exact same title
+     (`رويزيونيزم پسا ماركسيستي- لنينيستي- مائوئيستيدر حزب كمونيست
+     (مائوئيست) افغانستان جاي ندارد`, at two different permalinks),
+     using Arabic ي/ك letterforms instead of Persian ی/ک throughout,
+     and missing a space between "مائوئيستي" and "در" — needs
+     distinguishing titles (likely different volumes/parts) and a
+     letterform/spacing fix in wp-admin.
+  2. "منتخب آثار مائوتسه دون – جلد دوم" is filed under the
+     جنبش بین‌المللی collection in کتابخانه while volumes ۱، ۳، and ۴
+     of the same work are filed under آثار کلاسیک — looks like a
+     mis-tag on that one post's `collection` term.
+  3. **More significant:** re-reading this file's own 2026-08-06
+     entries while tracing the dead privacy link surfaced that the
+     Contact page's public email (`info.sholajawid@gmail.com`) was
+     explicitly decided as a *placeholder* back then, pending
+     Farhad's real address, and was never followed up — it's still
+     the live recipient for both the CF7 contact-form submissions and
+     the `mailto:` links on Contact and About. Flagged directly to
+     Farhad as the top-priority item, since a developer substituting
+     a guessed real address without being told it would be worse than
+     leaving the documented placeholder in place.
+  4. About page's editorial-board/funding/subscriber copy reads like
+     placeholder-style boilerplate; flagged for Farhad to confirm it's
+     the real, final copy (plausible as-is, e.g. staff using initials
+     for safety, given the organization) rather than silently assumed
+     either way.
+  **Fixed:** the Contact page's "جزئیات در سیاست حریم خصوصی" line
+  linked to a literal `href="#"` — a placeholder from the original
+  2026-08-06 build (matching v6's own prototype, which never linked
+  to a real privacy page either — see that date's entry). Rather than
+  invent privacy-policy content or a page, wired it to WordPress
+  core's own Privacy Policy mechanism: `get_privacy_policy_url()`
+  (`page-contact.php`) — if a page is set under Settings → Privacy it
+  links there, otherwise the sentence's second clause is dropped
+  instead of pointing at a dead link. No plugin needed, no content
+  invented on Farhad's behalf. Verified live on shola-jawid.local
+  (no Privacy Policy page currently set, matching production): renders
+  the fallback sentence cleanly, no console errors, no dangling link;
+  will start linking automatically the moment a real Privacy Policy
+  page is set, no further code change required.
+  Theme version bumped 1.14.0 → 1.14.1.
+  Approved by: Farhad, in this session (2026-09-11).

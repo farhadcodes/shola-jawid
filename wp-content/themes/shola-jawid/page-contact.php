@@ -43,13 +43,28 @@ get_header();
 					<p class="meta-mono"><?php esc_html_e( 'حریم خصوصی', 'shola-jawid' ); ?></p>
 					<p>
 						<?php
-						echo wp_kses_post(
-							sprintf(
-								/* translators: %s: privacy policy link (placeholder, not yet a real destination). */
-								__( 'نشانی ایمیل شما فقط برای پاسخگویی استفاده می‌شود؛ در پایگاه داده‌ای برای بازاریابی نگهداری نمی‌شود. جزئیات در %s.', 'shola-jawid' ),
-								'<a class="link" href="#">' . esc_html__( 'سیاست حریم خصوصی', 'shola-jawid' ) . '</a>'
-							)
-						);
+						/*
+						 * Fixed 2026-09-11: this used to link to a literal "#"
+						 * (a placeholder from the 2026-08-06 build, see
+						 * docs/CHANGELOG.md — v6's own prototype had no real
+						 * privacy page either). Wired to WordPress core's own
+						 * Privacy Policy page mechanism instead of inventing
+						 * one: if a page is set under Settings → Privacy, link
+						 * to it; if not, drop the dangling promise rather than
+						 * point at a dead link.
+						 */
+						$privacy_policy_url = get_privacy_policy_url();
+						if ( $privacy_policy_url ) {
+							echo wp_kses_post(
+								sprintf(
+									/* translators: %s: link to the site's Privacy Policy page. */
+									__( 'نشانی ایمیل شما فقط برای پاسخگویی استفاده می‌شود؛ در پایگاه داده‌ای برای بازاریابی نگهداری نمی‌شود. جزئیات در %s.', 'shola-jawid' ),
+									'<a class="link" href="' . esc_url( $privacy_policy_url ) . '">' . esc_html__( 'سیاست حریم خصوصی', 'shola-jawid' ) . '</a>'
+								)
+							);
+						} else {
+							esc_html_e( 'نشانی ایمیل شما فقط برای پاسخگویی استفاده می‌شود؛ در پایگاه داده‌ای برای بازاریابی نگهداری نمی‌شود.', 'shola-jawid' );
+						}
 						?>
 					</p>
 				</aside>
