@@ -238,7 +238,7 @@
       var autoDir    = 1;   // 1 = reading-order forward, -1 = backward
       var paused     = false;
       var pauseTimer = null;
-      var speed      = 0.15; // px per animation frame — cut from 0.4, 2026-09-13: Farhad tested the drift live and it read as "extremely fast"
+      var speed      = 0.05; // px per animation frame — cut 0.4 -> 0.15 -> 0.05, 2026-09-13: still read as too fast/distracting after the first cut, per Farhad's live feedback both times
 
       /* Driven via scrollBy(), not a direct `scrollLeft = x` assignment
          — confirmed live (not assumed) that a direct assignment on

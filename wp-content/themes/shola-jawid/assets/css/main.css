@@ -1750,7 +1750,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    (padding-block-end below) is unaffected by this and stays fixed. */
 .hero-lead--filmstrip > .wrap { padding-block-end: 9rem; }
 
-:root { --filmstrip-overlap: 100px; }
+:root { --filmstrip-overlap: 118px; }
 /* Fourth pass, still 2026-09-13, per Farhad's second live comparison:
    the strip no longer bleeds the full photo width. It's now a compact
    cluster anchored to the side the headline text starts from
@@ -1864,7 +1864,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-filmstrip-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
 
 @media (max-width: 640px) {
-  :root { --filmstrip-overlap: 72px; }
+  :root { --filmstrip-overlap: 85px; }
   .hero-lead--filmstrip > .wrap { padding-block-end: 7.5rem; }
   .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
   .hero-filmstrip-track { width: 100%; }

@@ -7997,3 +7997,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   horizontal overflow at any tested width.
   Theme version bumped 1.15.3 → 1.15.4 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Changed — filmstrip layout, sixth pass, same day.** Farhad, happy
+  with the overall direction, asked for two more fine-tuning passes:
+  a further small upward nudge on the cards ("polish it... without
+  harassing the eye," a design-quality ask rather than a new specific
+  problem), and the auto-drift still reading as too fast even after
+  the third pass's cut — "just bothering me... make sure it's very
+  smooth and just a little movement."
+  - `--filmstrip-overlap`: 100px → 118px desktop, 72px → 85px mobile —
+    a modest further pull-up (not a big layout change), landing ~78%
+    of the card visible at desktop / ~80% at mobile (up from ~66-68%),
+    while re-confirming text-to-strip separation stays positive at
+    both sizes (no collision reintroduced).
+  - Auto-drift `speed` (assets/js/main.js): 0.15 → 0.05 px/frame — a
+    third cut (0.4 → 0.15 → 0.05, roughly a 90% reduction from the
+    original), since the first cut alone wasn't enough per this same
+    live-feedback loop.
+  Verified: visible-card-fraction and text-gap measurements re-run at
+  both 1024×768 and 375×812 (78%/68px and 80%/77px respectively, no
+  overflow either width), zero console errors. The drift speed itself
+  still can't be visually screen-recorded in this session's tooling
+  (see the second-pass entry's own note on requestAnimationFrame not
+  firing in this environment) — the reduction is a direct, requested
+  numeric change to the one variable controlling it, not a guess.
+  Theme version bumped 1.15.4 → 1.15.5 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
