@@ -7812,3 +7812,50 @@ trail of *why* the build deviated from — or newly applied — a rule in
   bumped 1.7.0 → 1.8.0 (new `filmstrip` layout option lives in
   `class-meta-fields.php`, per §2's content-model ownership rule).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Fixed — filmstrip layout redesigned same day, second pass.** Farhad
+  compared the first version directly against his reference screenshot
+  and flagged the real gap: it sat in its own centered, padded band
+  below the photo, reading as a separate new section rather than part
+  of the hero — not what the reference showed. Restated the specific
+  differences back to him before touching code (per his own explicit
+  "show me your understanding first" preference from earlier this
+  session) and got confirmation before implementing:
+  1. **Overlap, not a gap.** `shola_render_hero_filmstrip()`
+     (`inc/template-tags.php`) no longer wraps the strip in `.wrap`;
+     `.hero-filmstrip` (main.css §10.5) now bleeds full-width like
+     `.hero-media` itself, with a new `margin-top:
+     calc(-1 * var(--filmstrip-overlap))` pulling it up to visually
+     overlap the photo's bottom edge. Overlap amount deliberately
+     modest (64px desktop / 36px mobile), not matched pixel-for-pixel
+     to the reference: this site's hero headline is bottom-anchored
+     (`.hero-lead > .wrap`, `padding-block-end: 5rem`) — a different
+     convention from the reference's top-anchored headline, which
+     left its own photo's bottom edge free — so overlapping too far
+     would collide with text every other hero layout already relies
+     on. Tuned to sit clear of that reserved band, verified live at
+     both desktop and 375px mobile widths.
+  2. **Floating cards, not flat thumbnails.** `.hero-strip-card`
+     (`template-parts/cards/hero-strip-card.php`) gained a box-shadow
+     and 4px radius, reusing the exact shadow recipe `.hero-pub-card`
+     already established for "a white card floating over the hero
+     photo" in the `overlay` layout (2026-09-10) — the one place this
+     design already breaks its own no-radius rule, deliberately, for
+     this exact kind of floating element, so this isn't a new
+     exception, it's applying an existing one consistently.
+  3. **Image-forward cards, not text-below-image.** Title/date moved
+     from a plain caption below the image to overlaid directly on it,
+     behind a dark gradient scrim reusing `.hero-lead::after`'s own
+     recipe scaled down — each card now reads as a small self-
+     contained "mini-hero" tile (closer to the reference's clean,
+     image-forward cards) instead of a photo-plus-caption list item
+     that visually fought with the hero photo it now overlaps.
+  Re-verified end-to-end on the same test hero_section entry (ID 225):
+  overlap sits correctly below the headline's reserved bottom band at
+  both desktop and mobile widths, no page-level horizontal overflow,
+  card shadows and scrim text legible against both the photo behind
+  them and each other, arrow buttons stay legible (opaque paper
+  background + their own shadow) regardless of what's behind them.
+  Theme version bumped 1.15.0 → 1.15.1 (plugin unchanged — this pass
+  was theme-only markup/CSS).
+  Approved by: Farhad, in this session (2026-09-13).

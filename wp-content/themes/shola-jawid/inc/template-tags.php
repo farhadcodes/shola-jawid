@@ -922,6 +922,15 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  * chosen over a JS-only transform carousel (site must stay usable with
  * JS disabled, per CLAUDE.md §5).
  *
+ * Not wrapped in `.wrap` (2026-09-13, revised same day per Farhad's
+ * direct comparison against his reference screenshot — the first pass
+ * sat in its own centered, padded band below the photo, reading as a
+ * separate section rather than part of the hero): full-bleed like
+ * `.hero-media` itself, with a negative margin in main.css §10.5
+ * pulling it up to overlap the photo's bottom edge, matching the
+ * reference's layered look instead of a clean handoff to the next
+ * section.
+ *
  * @param WP_Post[] $posts Recent articles to show, latest first.
  * @return void
  */
@@ -930,7 +939,7 @@ function shola_render_hero_filmstrip( $posts ) {
 		return;
 	}
 	?>
-	<div class="hero-filmstrip wrap" aria-label="<?php esc_attr_e( 'آخرین مقالات', 'shola-jawid' ); ?>">
+	<div class="hero-filmstrip" aria-label="<?php esc_attr_e( 'آخرین مقالات', 'shola-jawid' ); ?>">
 		<?php
 		/*
 		 * Arrow direction, RTL: "prev" (an earlier/already-passed article

@@ -1702,12 +1702,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    filmstrip) --------------------------------------------------------
    Added 2026-09-13, Phase 24 — fifth layout, adapted from a client
    reference screenshot (a modern SaaS-style hero with a card filmstrip
-   under it) rather than copied literally: no CTA button/star-rating
-   (neither fits this site), mirrored for RTL, and restyled to this
-   design's own "no borders, whitespace only" / no-rounded-corners
-   language instead of the reference's rounded pill button and cards.
+   layered over the bottom of the photo) rather than copied literally:
+   no CTA button/star-rating (neither fits this site), mirrored for
+   RTL, and restyled to this design's own square-cornered visual
+   language instead of the reference's rounded pill button.
    The headline photo above this strip is plain `.hero-lead` (identical
    to `single`, no new modifier) — only the strip itself is new markup.
+
+   Revised same day (Phase 24, second pass) after Farhad compared the
+   first version directly against his reference screenshot: that
+   version sat in its own centered, padded band below the photo,
+   reading as a distinct new section rather than part of the hero — not
+   what the reference showed. This version instead: (1) drops `.wrap`
+   and bleeds full-width like `.hero-media` itself; (2) uses a negative
+   margin-top to pull the strip up so it visually overlaps the photo's
+   bottom edge, layered rather than handed off cleanly; (3) gives each
+   card its own floating white/photo card treatment (shadow + slight
+   radius, matching `.hero-pub-card`'s existing "floating card over the
+   hero photo" precedent from the `overlay` layout — the one place this
+   design already breaks its own no-radius rule, deliberately, for
+   exactly this kind of floating element) instead of a plain inline
+   thumbnail; (4) overlays the title/date on the image behind a dark
+   gradient scrim — a small version of `.hero-lead`'s own headline
+   treatment — instead of plain text below the image, so each card
+   reads as a self-contained "mini-hero" tile against the photo behind
+   it, closer to the reference's clean, image-forward cards.
+
+   Overlap amount (var(--filmstrip-overlap)) is deliberately modest,
+   not matched pixel-for-pixel to the reference: this site's hero
+   headline is bottom-anchored (`.hero-lead > .wrap`, `bottom: 0`,
+   `padding-block-end: 5rem` — a different convention from the
+   reference's top-anchored headline, which leaves its own photo's
+   bottom edge free), so pulling the strip up too far would collide
+   with the headline text every other hero layout already relies on.
+   Tuned to sit clear of that 5rem reserved band on any real viewport.
 
    Scroll behavior: `.hero-filmstrip-track` is a native horizontally
    scrolling flex row (works with zero JS — keyboard, trackpad, touch
@@ -1716,15 +1744,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    wires the two arrow buttons to scrollBy() on top of that native
    scroll — see that file's own comment for the RTL scrollLeft-sign
    detection this needed. */
+:root { --filmstrip-overlap: 64px; }
 .hero-filmstrip {
+  position: relative;
+  z-index: 5;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding-block: 2rem;
+  gap: .75rem;
+  width: 100%;
+  margin-top: calc(-1 * var(--filmstrip-overlap));
+  padding-inline: var(--gap-pad-x);
+  padding-block-end: 1.5rem;
 }
 .hero-filmstrip-track {
   display: flex;
-  gap: 1.25rem;
+  gap: .75rem;
   overflow-x: auto;
   /* No CSS scroll-behavior:smooth here, deliberately: main.js's arrow
      buttons already request behavior:'smooth' explicitly per-call on
@@ -1740,14 +1774,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-strip-card {
   flex: 0 0 auto;
   scroll-snap-align: start;
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: .6rem;
+  display: block;
+  width: 190px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
 }
 .hero-strip-card-media {
+  position: relative;
   display: block;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 2.4;
   overflow: hidden;
 }
 .hero-strip-card-media img {
@@ -1755,21 +1791,46 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   transition: transform calc(var(--dur) * 3) var(--ease);
 }
 .hero-strip-card:hover .hero-strip-card-media img { transform: scale(1.04); }
+/* Dark gradient behind the caption — same recipe as .hero-lead::after,
+   scaled down for a much shorter card. */
+.hero-strip-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .45) 45%, rgba(0, 0, 0, 0) 80%);
+  pointer-events: none;
+}
+.hero-strip-card-caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: .75rem;
+}
 .hero-strip-card-title {
-  font-size: var(--t-small); font-weight: 700; line-height: 1.4; color: var(--ink);
-  /* Clamp to 2 lines — this card is too narrow (200px) for a long
+  font-size: var(--t-small); font-weight: 700; line-height: 1.35; color: var(--paper);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+  /* Clamp to 2 lines — this card is too narrow (190px) for a long
      title to run unclamped without pushing every card in the row to a
      different height. */
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.hero-strip-card:hover .hero-strip-card-title { color: var(--winston-red); }
-.hero-strip-card-date { font-size: var(--t-caption); color: var(--ink-soft); }
+.hero-strip-card:hover .hero-strip-card-title { color: var(--winston-red-tint); }
+.hero-strip-card-date {
+  margin-top: .35rem;
+  font-size: var(--t-caption);
+  color: rgba(255, 255, 255, .8);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+}
 
 /* Arrow buttons — same square-bordered shape language as .page-num
    (main.css §14), not a new circular/pill shape: this design has no
-   rounded elements anywhere (see .card-spotlight's own comment on that
-   principle), so the reference screenshot's circular arrows were
-   redrawn to match this site instead of copied as-is. */
+   rounded elements anywhere outside the floating-card exception above
+   (see .card-spotlight's own comment on that principle), so the
+   reference screenshot's circular arrows were redrawn to match this
+   site instead of copied as-is. Opaque paper background so they stay
+   legible regardless of what's behind them — the photo above, a card,
+   or plain page background below the fold of the overlap. */
 .hero-filmstrip-arrow {
   flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center;
@@ -1777,14 +1838,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border: 1px solid var(--line);
   color: var(--ink);
   background: var(--paper);
+  box-shadow: 0 10px 25px -12px rgba(15, 15, 15, .35);
   transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .hero-filmstrip-arrow svg { width: 16px; height: 16px; }
 .hero-filmstrip-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
 
 @media (max-width: 640px) {
-  .hero-filmstrip { padding-block: 1.25rem; gap: .5rem; }
-  .hero-strip-card { width: 148px; }
+  :root { --filmstrip-overlap: 36px; }
+  .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
+  .hero-strip-card { width: 132px; }
+  .hero-strip-card-caption { padding: .5rem; }
   .hero-filmstrip-arrow { width: 2.25rem; height: 2.25rem; }
   .hero-filmstrip-arrow svg { width: 14px; height: 14px; }
 }

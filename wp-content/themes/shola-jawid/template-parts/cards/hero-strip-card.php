@@ -8,6 +8,17 @@
  * ~200px wide in a horizontally scrolling row, too narrow for either of
  * those components' full anatomy.
  *
+ * Title/date overlaid directly on the image behind a dark gradient
+ * scrim (2026-09-13, revised same day per Farhad's direct comparison
+ * against his reference screenshot) — a small version of the same
+ * text-over-photo treatment `.hero-lead`'s own headline already uses,
+ * rather than a separate white caption strip below the image: since
+ * this card now floats over the hero photo itself (main.css §10.5's
+ * negative margin), a plain white text block below the image would
+ * have fought visually with the photo it overlaps, while an all-photo
+ * card with overlaid text reads as one small "mini-hero" tile, closer
+ * to the reference's own clean, image-forward cards.
+ *
  * @param array $args {
  *     @type WP_Post $post Article post object. Defaults to the global $post.
  * }
@@ -26,6 +37,8 @@ if ( ! $strip_post ) {
 	<div class="hero-strip-card-media">
 		<?php echo shola_get_featured_image( $strip_post, 'shola_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</div>
-	<p class="hero-strip-card-title"><?php echo esc_html( get_the_title( $strip_post ) ); ?></p>
-	<p class="hero-strip-card-date"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $strip_post ) ); ?>"><?php echo esc_html( get_the_date( '', $strip_post ) ); ?></time></p>
+	<div class="hero-strip-card-caption">
+		<p class="hero-strip-card-title"><?php echo esc_html( get_the_title( $strip_post ) ); ?></p>
+		<p class="hero-strip-card-date"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $strip_post ) ); ?>"><?php echo esc_html( get_the_date( '', $strip_post ) ); ?></time></p>
+	</div>
 </a>
