@@ -8107,3 +8107,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   errors.
   Theme version bumped 1.15.7 → 1.15.8 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Fixed — filmstrip hover effect, third correction same day.** The
+  height-change approach avoided pixel distortion, but changing the
+  media box's aspect ratio necessarily changes how much of the photo
+  `object-fit: cover` shows — Farhad's final live look correctly read
+  that as the image itself changing/"zooming" on hover, and asked for
+  the photo to stay completely inert: only the frame should move.
+  `.hero-strip-card-media` is now a single fixed height always (152px
+  desktop / 106px mobile) with no hover rule touching it at all — the
+  image genuinely cannot change under any circumstance. The card
+  itself grows instead, via `padding-block-end` transitioning
+  0 → 21px (0 → 15px mobile): since the media sits inside the same
+  `overflow: hidden`, rounded, shadowed `.hero-strip-card`, the extra
+  padding visibly extends the frame's own box (and its shadow, which
+  follows the box) below the now-static photo, so the card reads as
+  physically taller while the image above it never moves, re-crops,
+  or scales. `.hero-filmstrip-track`'s `align-items: flex-end` (added
+  the previous pass) stays required for the same reason as before —
+  the card's total height still changes on hover, just via padding
+  now instead of the media's own height, so siblings still need to
+  size independently rather than being stretched to match.
+  Verified the new rules live via the page's own CSSOM — confirmed
+  `.hero-strip-card-media`'s `height` has no hover-scoped rule
+  anywhere in the stylesheet (the image is provably static), and
+  `.hero-strip-card:hover { padding-block-end: 21px }` is the only
+  thing that changes. Zero console errors.
+  Theme version bumped 1.15.8 → 1.15.9 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
