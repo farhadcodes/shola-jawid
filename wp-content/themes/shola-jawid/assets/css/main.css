@@ -1795,15 +1795,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-filmstrip-track {
   display: flex;
-  /* flex-end, not the default stretch: each card must size to its own
-     height independently, not be stretched to match its tallest
-     sibling — otherwise a hover-triggered height increase on one card
-     (below) would drag every other card in the row taller too, since
-     stretch makes them all match the container's cross-size. flex-end
-     also keeps every card's bottom edge flush together, so a taller
-     card visibly grows upward from that shared baseline, matching the
-     "grows taller" effect below. */
-  align-items: flex-end;
+  align-items: flex-end; /* cards sit on a shared bottom line */
   gap: .75rem;
   width: 860px;
   max-width: 100%;
@@ -1826,26 +1818,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   scrollbar-width: none;
 }
 .hero-filmstrip-track::-webkit-scrollbar { display: none; }
-/* Hover "grows taller" (2026-09-13, per Farhad's explicit ask — three
-   corrections same day). Attempt 1: `transform: scale()` on the whole
-   card grew both axes (wider too, crowding the next card). Attempt 2:
-   `scaleY()` kept width fixed but, being a transform, visibly
-   stretched the photo's pixels. Attempt 3: grew the media box's real
-   `height` instead of a transform — no pixel distortion, but
-   `object-fit: cover` then reveals a different crop of the same photo
-   as the box's aspect ratio changes, which still reads as the image
-   itself changing/"zooming" on hover, per Farhad's final live
-   feedback: he wants the frame to grow with the photo completely
-   inert, not just undistorted.
-   This version freezes `.hero-strip-card-media` (and so the image) at
-   a single fixed height always — it never changes on hover — and
-   grows the *card* instead, via `padding-block-end` transitioning
-   0 → 21px (0 → 15px mobile). Since the media sits above that padding
-   inside the same overflow:hidden, rounded, shadowed card, the frame
-   visibly gets taller (and its shadow grows with it, `.hero-strip-
-   card` having no height of its own) while the photo above stays
-   pixel-for-pixel identical throughout — nothing about it moves,
-   crops differently, or scales. */
 .hero-strip-card {
   flex: 0 0 auto;
   scroll-snap-align: start;
@@ -1854,10 +1826,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
-  padding-block-end: 0;
-  transition: padding-block-end var(--dur) var(--ease);
+  /* Hover: whole card scales up evenly, no distortion. */
+  transform-origin: center bottom; /* grows up, bottom stays put */
+  transition: transform var(--dur) var(--ease);
 }
-.hero-strip-card:hover { padding-block-end: 21px; }
+.hero-strip-card:hover { transform: scale(1.06); }
 .hero-strip-card-media {
   display: block;
   height: 152px;
@@ -1899,7 +1872,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
   .hero-filmstrip-track { width: 100%; }
   .hero-strip-card { width: 132px; }
-  .hero-strip-card:hover { padding-block-end: 15px; }
   .hero-strip-card-media { height: 106px; }
   .hero-filmstrip-arrow { width: 2.25rem; height: 2.25rem; }
   .hero-filmstrip-arrow svg { width: 14px; height: 14px; }

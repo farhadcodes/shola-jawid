@@ -8135,3 +8135,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   thing that changes. Zero console errors.
   Theme version bumped 1.15.8 → 1.15.9 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Changed — filmstrip hover, final version, same day.** Frozen-
+  image + padding (previous entry) read as "not getting taller" and
+  a "jump" to Farhad live. Asked him directly which trade-off he
+  preferred — width-locked (no photo growth) vs. a uniform scale
+  (photo grows too, tiny width increase) — he confirmed the uniform
+  scale. `.hero-strip-card:hover` is now `transform: scale(1.06)`,
+  `transform-origin: center bottom` so it grows upward from a fixed
+  bottom edge, not a jump. Simplified in-code comments to short,
+  one-line notes per his explicit request. Verified live via the
+  page's CSSOM. Theme 1.15.9 → 1.15.10 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
