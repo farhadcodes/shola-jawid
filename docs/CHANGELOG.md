@@ -8023,3 +8023,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   numeric change to the one variable controlling it, not a guess.
   Theme version bumped 1.15.4 → 1.15.5 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Changed — filmstrip layout, seventh pass, same day.** Farhad
+  reported the auto-drift still read as too fast even after the
+  sixth pass's cut, described what he wants as "a little soft
+  movement... lively," and separately asked for a hover effect: each
+  card should "get a little taller" when the pointer is over it.
+  - `speed` (assets/js/main.js): 0.05 → 0.008 — a much larger cut
+    (~6x) than the previous two increments, deliberately, rather than
+    another small step: two prior reductions (0.4→0.15, 0.15→0.05)
+    each still came back as "too fast," so this pass assumes the
+    earlier steps were too timid rather than trying a third similar-
+    sized nudge.
+  - Hover "grow taller" (main.css §10.5): moved the existing hover
+    effect from just the image (`.hero-strip-card-media img { transform:
+    scale(1.04) }`) to the whole card (`.hero-strip-card:hover {
+    transform: scale(1.07) }`) — the shadow now grows along with the
+    photo, reading as the card itself lifting/enlarging rather than a
+    zoomed-in photo inside a static frame. `transform-origin: center
+    bottom`, not the default center: this card floats low over the
+    hero photo (the layout's own negative-margin overlap), so growing
+    from the true center would push its top edge further up into the
+    photo/headline area above it — anchoring growth to the bottom
+    keeps that upward creep from happening.
+  Verified the hover rule is correctly present in the live stylesheet
+  (`.hero-strip-card:hover { transform: scale(1.07); }`, confirmed via
+  the page's own CSSOM, not just read from the source file) — a
+  hover-triggered `transform:scale` is well-supported, low-risk CSS
+  that doesn't need further live interaction testing to trust. The
+  drift speed, as with the sixth pass, still can't be visually
+  screen-recorded in this session's tooling; the cut is a direct,
+  requested, and this time deliberately large numeric change to the
+  one variable controlling it.
+  Theme version bumped 1.15.5 → 1.15.6 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).

@@ -1825,7 +1825,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
+  /* Hover "grows taller" (2026-09-13, per Farhad's explicit ask) —
+     scales the whole card, not just the image inside it, so the
+     shadow grows along with it and it reads as the card itself
+     lifting/enlarging, not just a zoomed photo. transform-origin
+     anchored to the bottom: this card floats low over the hero photo
+     (main.css §10.5's overlap), so growing from center would push the
+     top edge further up into that photo/headline area — growing from
+     the bottom instead keeps the visible top of the card the only
+     part that moves. */
+  transform-origin: center bottom;
+  transition: transform var(--dur) var(--ease);
 }
+.hero-strip-card:hover { transform: scale(1.07); }
 .hero-strip-card-media {
   display: block;
   aspect-ratio: 3 / 2.4;
@@ -1833,9 +1845,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-strip-card-media img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform calc(var(--dur) * 3) var(--ease);
 }
-.hero-strip-card:hover .hero-strip-card-media img { transform: scale(1.04); }
 
 .hero-filmstrip-controls {
   flex: 0 0 auto;
