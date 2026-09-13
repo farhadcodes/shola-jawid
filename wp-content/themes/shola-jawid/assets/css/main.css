@@ -1698,6 +1698,97 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .hero-lead--rail-full .hero-rail { display: none; }
 }
 
+/* --- ۱۰.۵ · Hero "لید + نوار افقی آخرین مقالات" layout (hero_section:
+   filmstrip) --------------------------------------------------------
+   Added 2026-09-13, Phase 24 — fifth layout, adapted from a client
+   reference screenshot (a modern SaaS-style hero with a card filmstrip
+   under it) rather than copied literally: no CTA button/star-rating
+   (neither fits this site), mirrored for RTL, and restyled to this
+   design's own "no borders, whitespace only" / no-rounded-corners
+   language instead of the reference's rounded pill button and cards.
+   The headline photo above this strip is plain `.hero-lead` (identical
+   to `single`, no new modifier) — only the strip itself is new markup.
+
+   Scroll behavior: `.hero-filmstrip-track` is a native horizontally
+   scrolling flex row (works with zero JS — keyboard, trackpad, touch
+   swipe all just work, satisfying CLAUDE.md §5's "usable with JS
+   disabled" floor). assets/js/main.js layers a slow auto-drift and
+   wires the two arrow buttons to scrollBy() on top of that native
+   scroll — see that file's own comment for the RTL scrollLeft-sign
+   detection this needed. */
+.hero-filmstrip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 2rem;
+}
+.hero-filmstrip-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  /* No CSS scroll-behavior:smooth here, deliberately: main.js's arrow
+     buttons already request behavior:'smooth' explicitly per-call on
+     scrollBy(), and the auto-drift needs plain instant scrollLeft
+     writes every animation frame — found live that scroll-behavior:
+     smooth on this element intercepts those tiny per-frame writes too,
+     each one restarting a new smooth-scroll animation before the last
+     one finishes, so the net movement over time was zero. */
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.hero-filmstrip-track::-webkit-scrollbar { display: none; }
+.hero-strip-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.hero-strip-card-media {
+  display: block;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+.hero-strip-card-media img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform calc(var(--dur) * 3) var(--ease);
+}
+.hero-strip-card:hover .hero-strip-card-media img { transform: scale(1.04); }
+.hero-strip-card-title {
+  font-size: var(--t-small); font-weight: 700; line-height: 1.4; color: var(--ink);
+  /* Clamp to 2 lines — this card is too narrow (200px) for a long
+     title to run unclamped without pushing every card in the row to a
+     different height. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hero-strip-card:hover .hero-strip-card-title { color: var(--winston-red); }
+.hero-strip-card-date { font-size: var(--t-caption); color: var(--ink-soft); }
+
+/* Arrow buttons — same square-bordered shape language as .page-num
+   (main.css §14), not a new circular/pill shape: this design has no
+   rounded elements anywhere (see .card-spotlight's own comment on that
+   principle), so the reference screenshot's circular arrows were
+   redrawn to match this site instead of copied as-is. */
+.hero-filmstrip-arrow {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.75rem; height: 2.75rem;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: var(--paper);
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.hero-filmstrip-arrow svg { width: 16px; height: 16px; }
+.hero-filmstrip-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
+
+@media (max-width: 640px) {
+  .hero-filmstrip { padding-block: 1.25rem; gap: .5rem; }
+  .hero-strip-card { width: 148px; }
+  .hero-filmstrip-arrow { width: 2.25rem; height: 2.25rem; }
+  .hero-filmstrip-arrow svg { width: 14px; height: 14px; }
+}
+
 /* -------------------------------------------------------------------------
    ۱۱ · Sections & rules
    ------------------------------------------------------------------------- */

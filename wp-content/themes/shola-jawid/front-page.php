@@ -125,6 +125,37 @@ if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full'
 		$hero_layout = 'single';
 	}
 }
+
+/*
+ * نوار افقی آخرین مقالات (2026-09-13, Phase 24 — fifth hero layout, per a
+ * client reference screenshot relayed by Farhad): the site's other recent
+ * articles, latest first, excluding the headline article itself so it
+ * isn't shown twice in the same hero (Farhad's explicit instruction —
+ * unlike تازه‌ترین مقالات further down the page, which deliberately does
+ * NOT exclude the hero, per the older 2026-09-02 decision for that
+ * unrelated section). Fixed count, not an editor-configurable field —
+ * matches how every other homepage query on this page (تازه‌ترین مقالات,
+ * etc.) already uses a fixed number rather than a setting.
+ */
+$hero_filmstrip_posts = array();
+if ( $hero && 'filmstrip' === $hero_layout ) {
+	$hero_filmstrip_query = new WP_Query(
+		array(
+			'post_type'      => 'post',
+			'posts_per_page' => 10,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'post__not_in'   => array( $hero->ID ),
+		)
+	);
+	$hero_filmstrip_posts = $hero_filmstrip_query->posts;
+
+	// No other articles to show yet — fall back to the plain single
+	// layout rather than a hero with an empty strip below it.
+	if ( ! $hero_filmstrip_posts ) {
+		$hero_layout = 'single';
+	}
+}
 ?>
 
 <?php if ( $hero && 'single' === $hero_layout ) : ?>
@@ -252,6 +283,34 @@ if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full'
 			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
 		</aside>
 	</section>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero && 'filmstrip' === $hero_layout ) : ?>
+	<?php
+	/*
+	 * مقالهٔ سرخط + نوار افقی آخرین مقالات (2026-09-13, Phase 24): a fifth
+	 * layout per a client reference screenshot (a modern SaaS-style hero
+	 * with a card filmstrip beneath it) — adapted for this site rather
+	 * than copied literally, per Farhad's own instruction: no CTA button
+	 * or star-rating (neither makes sense here), and mirrored for RTL
+	 * reading order instead of the reference's LTR layout. The headline
+	 * itself reuses `single`'s exact .hero-media/.wrap/.hero-body markup
+	 * unchanged (identical CSS, no new modifier needed there) — only the
+	 * filmstrip band below it, in a separate sibling <section>, is new.
+	 */
+	?>
+	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+		</a>
+		<div class="wrap">
+			<div class="hero-body">
+				<?php shola_render_hero_body( $hero ); ?>
+			</div>
+		</div>
+	</section>
+
+	<?php shola_render_hero_filmstrip( $hero_filmstrip_posts ); ?>
 
 	<hr class="rule wrap">
 <?php endif; ?>

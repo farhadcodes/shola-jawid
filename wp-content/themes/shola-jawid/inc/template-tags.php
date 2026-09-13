@@ -910,3 +910,50 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
 	<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
 	<?php
 }
+
+/**
+ * Renders the "filmstrip" hero layout's horizontal recent-articles strip
+ * (front-page.php) — a scrollable row of template-parts/cards/hero-strip-
+ * card.php thumbnails plus the two prev/next arrow buttons. The strip
+ * scrolls natively (touch/trackpad/keyboard) with zero JS; assets/js/
+ * main.js layers a slow auto-drift and wires the arrow buttons to
+ * `scrollBy()` on top of that native behavior — see that file's own
+ * "نوار افقی آخرین مقالات" section for why a native-scroll base was
+ * chosen over a JS-only transform carousel (site must stay usable with
+ * JS disabled, per CLAUDE.md §5).
+ *
+ * @param WP_Post[] $posts Recent articles to show, latest first.
+ * @return void
+ */
+function shola_render_hero_filmstrip( $posts ) {
+	if ( ! $posts ) {
+		return;
+	}
+	?>
+	<div class="hero-filmstrip wrap" aria-label="<?php esc_attr_e( 'آخرین مقالات', 'shola-jawid' ); ?>">
+		<?php
+		/*
+		 * Arrow direction, RTL: "prev" (an earlier/already-passed article
+		 * in reading order) sits to the visual right and "next" to the
+		 * visual left — same convention already used site-wide for
+		 * pagination (paginate_links()'s 'prev_text' => '→' / 'next_text'
+		 * => '←' in search.php and every taxonomy/archive template), not
+		 * a literal copy of the LTR reference screenshot's arrow shapes.
+		 */
+		?>
+		<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--prev" data-filmstrip-dir="-1" aria-label="<?php esc_attr_e( 'مقالهٔ قبلی', 'shola-jawid' ); ?>">
+			<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</button>
+		<div class="hero-filmstrip-track">
+			<?php
+			foreach ( $posts as $strip_post ) {
+				get_template_part( 'template-parts/cards/hero-strip-card', null, array( 'post' => $strip_post ) );
+			}
+			?>
+		</div>
+		<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--next" data-filmstrip-dir="1" aria-label="<?php esc_attr_e( 'مقالهٔ بعدی', 'shola-jawid' ); ?>">
+			<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</button>
+	</div>
+	<?php
+}

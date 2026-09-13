@@ -188,4 +188,111 @@
     window.addEventListener("resize", update);
     update();
   }
+
+  /* ---------- نوار افقی آخرین مقالات (هیرو "filmstrip", 2026-09-13) ----------
+     .hero-filmstrip-track already scrolls natively with zero JS (touch,
+     trackpad, keyboard) — main.css §10.5. This section only layers two
+     enhancements on top: the two arrow buttons calling scrollBy(), and a
+     slow, continuous auto-drift that reverses direction at each end
+     (paused while a visitor is actually interacting with the strip).
+     Both degrade to nothing if JS is disabled; the strip stays fully
+     scrollable by hand either way. */
+  var filmstripTrack = document.querySelector(".hero-filmstrip-track");
+  if (filmstripTrack) {
+    /* RTL scrollLeft sign is not consistent across browsers: some report
+       0/negative values scrolling "forward" (toward the start of the
+       row) from a natural starting position of 0, others start at the
+       maximum positive value and count down. Rather than guess per
+       browser, feature-detect it once: nudge scrollLeft by +1 and see
+       which way the browser actually interpreted that. `dirSign` then
+       lets the rest of this code always think in one consistent
+       direction ("+1 step" = further into the row, reading-order
+       forward) regardless of the browser underneath it. */
+    var dirSign = 1;
+    (function detectRtlScrollSign() {
+      var start = filmstripTrack.scrollLeft;
+      filmstripTrack.scrollBy({ left: 1, behavior: "auto" });
+      if (filmstripTrack.scrollLeft <= start) {
+        dirSign = -1;
+      }
+      filmstripTrack.scrollBy({ left: start - filmstripTrack.scrollLeft, behavior: "auto" });
+    })();
+
+    function maxScroll() {
+      return filmstripTrack.scrollWidth - filmstripTrack.clientWidth;
+    }
+
+    /* ---- دکمه‌های پیکان ---- */
+    var filmstripArrows = document.querySelectorAll("[data-filmstrip-dir]");
+    filmstripArrows.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var step = filmstripTrack.clientWidth * 0.7;
+        var dir = parseFloat(btn.getAttribute("data-filmstrip-dir")) || 1;
+        filmstripTrack.scrollBy({ left: dirSign * dir * step, behavior: "smooth" });
+      });
+    });
+
+    /* ---- لغزش خودکار آرام ---- */
+    var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reducedMotion && maxScroll() > 4) {
+      var autoDir    = 1;   // 1 = reading-order forward, -1 = backward
+      var paused     = false;
+      var pauseTimer = null;
+      var speed      = 0.4; // px per animation frame, deliberately slow
+
+      /* Driven via scrollBy(), not a direct `scrollLeft = x` assignment
+         — confirmed live (not assumed) that a direct assignment on
+         this element silently has no effect at all, while scrollBy()
+         reliably moves it (same method the arrow buttons already use
+         above). `pendingFraction` accumulates the sub-pixel remainder
+         a speed like 0.4px/frame leaves behind — scrollBy() only takes
+         a delta, and passing it a fractional 0.4 every frame would
+         still round away to a 0px move each time; only ever request a
+         whole-pixel delta once the remainder has accumulated to at
+         least one. */
+      var pendingFraction = 0;
+
+      var pause = function () {
+        paused = true;
+        if (pauseTimer) { clearTimeout(pauseTimer); }
+      };
+      var resumeSoon = function () {
+        if (pauseTimer) { clearTimeout(pauseTimer); }
+        pauseTimer = setTimeout(function () { paused = false; }, 1200);
+      };
+
+      ["mouseenter", "focusin", "touchstart", "pointerdown"].forEach(function (evt) {
+        filmstripTrack.addEventListener(evt, pause, { passive: true });
+      });
+      ["mouseleave", "focusout", "touchend", "pointerup"].forEach(function (evt) {
+        filmstripTrack.addEventListener(evt, resumeSoon, { passive: true });
+      });
+
+      var tick = function () {
+        if (!paused) {
+          var max = maxScroll();
+          var current = filmstripTrack.scrollLeft * dirSign; // 0..max, reading-order-forward units
+          pendingFraction += autoDir * speed;
+          var deltaPixels = Math.trunc(pendingFraction);
+          if (deltaPixels !== 0) {
+            // Clamp the requested step so it can't overshoot past 0/max
+            // and cause the strip to visibly bump against the end
+            // before reversing next frame.
+            var next = current + deltaPixels;
+            if (next >= max) {
+              deltaPixels = Math.round(max - current);
+              autoDir = -1;
+            } else if (next <= 0) {
+              deltaPixels = Math.round(0 - current);
+              autoDir = 1;
+            }
+            filmstripTrack.scrollBy({ left: dirSign * deltaPixels, behavior: "auto" });
+            pendingFraction -= deltaPixels; // keep the sub-pixel remainder, don't discard it
+          }
+        }
+        window.requestAnimationFrame(tick);
+      };
+      window.requestAnimationFrame(tick);
+    }
+  }
 })();

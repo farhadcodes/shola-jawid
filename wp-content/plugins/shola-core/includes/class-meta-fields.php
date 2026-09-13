@@ -360,26 +360,31 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Restrict to the four hero layouts this feature ships with (see
+	 * Restrict to the five hero layouts this feature ships with (see
 	 * class-post-types.php's hero_section docblock) — `single` (today's
 	 * full-bleed hero), `lead_rail` (headline + a separate, centered
 	 * rail column), `overlay` (2026-09-10, third layout per Farhad
 	 * relaying a client idea: same full-bleed hero as `single`, with a
 	 * white publication card floating over the photo's lower corner
-	 * instead of a full side column), and `rail_full` (2026-09-10,
-	 * fourth layout per a client sketch: visually the same idea as
-	 * `lead_rail` — a solid-color panel with the publication card
-	 * beside the full-size headline photo — but edge-to-edge full-bleed
-	 * on the outer side instead of staying inside the centered content
-	 * column). An unrecognized value (e.g. a future layout type removed
-	 * later) falls back to the safest option — single, the current
-	 * site's existing hero design.
+	 * instead of a full side column), `rail_full` (2026-09-10, fourth
+	 * layout per a client sketch: visually the same idea as `lead_rail`
+	 * — a solid-color panel with the publication card beside the
+	 * full-size headline photo — but edge-to-edge full-bleed on the
+	 * outer side instead of staying inside the centered content
+	 * column), and `filmstrip` (2026-09-13, fifth layout per a client
+	 * reference screenshot: the same full-bleed headline hero as
+	 * `single`, with a horizontally scrolling strip of the site's other
+	 * recent articles — not tied to any one publication, so it has no
+	 * rail-publication field — added directly below it). An
+	 * unrecognized value (e.g. a future layout type removed later)
+	 * falls back to the safest option — single, the current site's
+	 * existing hero design.
 	 *
 	 * @param mixed $value Raw meta value.
 	 * @return string
 	 */
 	public static function sanitize_hero_layout( $value ) {
-		return in_array( $value, array( 'single', 'lead_rail', 'overlay', 'rail_full' ), true ) ? $value : 'single';
+		return in_array( $value, array( 'single', 'lead_rail', 'overlay', 'rail_full', 'filmstrip' ), true ) ? $value : 'single';
 	}
 
 	/**
@@ -693,9 +698,10 @@ class Meta_Fields {
 				<option value="lead_rail" <?php selected( $layout, 'lead_rail' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + ستون نشریه', 'shola-core' ); ?></option>
 				<option value="overlay" <?php selected( $layout, 'overlay' ); ?>><?php esc_html_e( 'مقالهٔ سرخط با کارت شناور روی تصویر', 'shola-core' ); ?></option>
 				<option value="rail_full" <?php selected( $layout, 'rail_full' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + ستون نشریهٔ تمام‌عرض', 'shola-core' ); ?></option>
+				<option value="filmstrip" <?php selected( $layout, 'filmstrip' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + نوار افقی آخرین مقالات', 'shola-core' ); ?></option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'تک‌ستونی: طرح فعلی سایت. دوستونی: ستونی جدا برای آخرین شمارهٔ یک نشریه، کنار مقالهٔ سرخط. کارت شناور: همان تصویر تمام‌عرض تک‌ستونی، با کارتی سفید از آخرین شماره روی گوشهٔ تصویر. ستون تمام‌عرض: مانند دوستونی، با این تفاوت که ستون نشریه تا لبهٔ مرورگر ادامه می‌یابد، نه فقط داخل بخش مرکزی صفحه. فقط در نمایشگرهای بزرگ‌تر (رایانه) دیده می‌شود.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'تک‌ستونی: طرح فعلی سایت. دوستونی: ستونی جدا برای آخرین شمارهٔ یک نشریه، کنار مقالهٔ سرخط. کارت شناور: همان تصویر تمام‌عرض تک‌ستونی، با کارتی سفید از آخرین شماره روی گوشهٔ تصویر. ستون تمام‌عرض: مانند دوستونی، با این تفاوت که ستون نشریه تا لبهٔ مرورگر ادامه می‌یابد، نه فقط داخل بخش مرکزی صفحه. فقط در نمایشگرهای بزرگ‌تر (رایانه) دیده می‌شود. نوار افقی: همان تصویر تمام‌عرض تک‌ستونی، با نواری از آخرین مقالات (به‌جز خودِ مقالهٔ سرخط) زیر آن که به‌آرامی و خودکار می‌لغزد و با دو دکمهٔ پیکان هم قابل کنترل دستی است؛ فیلد «نشریهٔ کارت/ستون نشریه» در این چیدمان نادیده گرفته می‌شود.', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_hero_rail_publication"><strong><?php esc_html_e( 'نشریهٔ کارت/ستون نشریه', 'shola-core' ); ?></strong></label><br>
 			<select id="shcore_hero_rail_publication" name="shcore_hero_rail_publication">

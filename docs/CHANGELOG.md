@@ -7721,3 +7721,94 @@ trail of *why* the build deviated from — or newly applied — a rule in
   page is set, no further code change required.
   Theme version bumped 1.14.0 → 1.14.1.
   Approved by: Farhad, in this session (2026-09-11).
+
+## 2026-09-13 — Phase 25 (fifth hero layout: filmstrip)
+
+- **Added:** a fifth `hero_section` layout, `filmstrip` — the same
+  full-bleed headline hero as `single`, with a horizontally scrolling
+  strip of the site's other recent articles added directly below it.
+  Farhad's request came with a reference screenshot of a modern
+  SaaS-style hero (photo background, headline, a "Get Started" pill
+  button, a star-rating line, and a card carousel underneath); before
+  building anything, restated the request back to him in plain terms
+  and got two explicit confirmations first: (1) the CTA button and the
+  star-rating do not fit this site and are excluded entirely — only
+  the headline/photo and the card strip are adapted; (2) the layout is
+  mirrored for RTL rather than copied at the reference's LTR
+  positions, and restyled to this site's own square-bordered, no-
+  rounded-corners visual language (see `.card-spotlight`'s existing
+  "no rounded/pill elements anywhere" principle) instead of the
+  reference's circular arrow buttons and pill CTA shape.
+  Implementation: `class-meta-fields.php`'s `sanitize_hero_layout()`
+  and the hero_section admin layout picker gained the new `filmstrip`
+  option (no rail-publication field needed — this layout isn't tied
+  to one publication); `front-page.php` queries the site's 10 latest
+  posts, excluding the headline article itself (Farhad's explicit
+  instruction — "it will be duplicated" — unlike تازه‌ترین مقالات
+  further down the page, which deliberately does NOT exclude the
+  hero, a separate, older 2026-09-02 decision for that unrelated
+  section); a new `shola_render_hero_filmstrip()` helper
+  (`inc/template-tags.php`) and `template-parts/cards/hero-strip-
+  card.php` (a new, deliberately minimal image+title+date thumbnail —
+  too narrow at ~200px for either `card.php`'s or `issue-card.php`'s
+  full anatomy, not a variant of either) render the strip and its two
+  arrow buttons.
+  Scroll mechanism, main.css §10.5 + main.js: `.hero-filmstrip-track`
+  is a native `overflow-x: auto` scroll container — works with zero
+  JS (touch, trackpad, keyboard), satisfying CLAUDE.md §5's "usable
+  with JS disabled" floor on its own. main.js layers two enhancements
+  on top: the arrow buttons call `scrollBy({behavior:'smooth'})`, and
+  a slow, continuous auto-drift reverses direction at each end,
+  pausing while a visitor is actually interacting with the strip.
+  **Two real bugs caught and fixed via live testing, not assumed
+  correct from reading the code:**
+  1. A direct `track.scrollLeft = x` assignment was silently having no
+     effect at all in this specific environment, while `scrollBy()`
+     reliably moved it — confirmed by instrumenting the actual running
+     script, not guessed. Rewrote the auto-drift to always move via
+     `scrollBy()` (the same method the arrow buttons already used),
+     removing an entire layer of "track our own intended position and
+     resync against outside scrolls" bookkeeping the direct-assignment
+     approach had needed — reading `scrollLeft` fresh each frame is
+     safe once `scrollBy()` is the only write path, since nothing
+     else's write can go stale against it.
+  2. `scroll-behavior: smooth` in CSS on `.hero-filmstrip-track` was
+     intercepting the auto-drift's own tiny per-frame `scrollBy()`
+     calls, each restarting a new smooth-scroll animation before the
+     last one finished, netting zero visible movement over time even
+     though the underlying math was accumulating correctly. Removed
+     that CSS property from the track (the arrow buttons already pass
+     `behavior:'smooth'` explicitly per-call, so this cost them
+     nothing) and drive the auto-drift with explicit `behavior:'auto'`
+     (instant) per-frame nudges instead — the standard, animation-
+     timing-independent technique, and also why a 0.4px/frame speed
+     needed its own JS-side sub-pixel accumulator (`pendingFraction`)
+     rather than passing that fractional amount to `scrollBy()`
+     directly, since a sub-pixel delta rounds away to a 0px move on
+     its own.
+  Verified: RTL scroll-sign detection, arrow-button clicks, and the
+  auto-drift's accumulation math all confirmed correct via direct
+  live instrumentation of the actual shipped code (not a rewritten
+  stand-in) on shola-jawid.local — a test hero_section entry (ID 225)
+  created via WP-CLI with `shcore_hero_layout=filmstrip` and set
+  active. Mobile layout re-verified separately (375px viewport):
+  cards shrink to 148px, both arrows stay on-screen, no page-level
+  horizontal overflow. Zero console errors throughout. One tooling
+  caveat worth recording: this session's automated browser tool does
+  not service `requestAnimationFrame` at all in its preview tab
+  (confirmed directly — 0 callback firings measured over several
+  seconds of real time, independent of the tab's visibility state),
+  so the live continuous auto-drift animation itself could not be
+  visually screen-recorded end-to-end in this session — verified
+  instead by substituting `setInterval` for `requestAnimationFrame`
+  around the exact same shipped tick logic and confirming it moves
+  the strip correctly, plus a full manual code review of the
+  accumulation math. `requestAnimationFrame` is a universally-
+  serviced API in any real visitor's foregrounded browser tab; asked
+  Farhad to do one live visual confirmation of the drift's smoothness
+  on his own machine as the final check this session's tooling
+  couldn't complete on its own.
+  Theme version bumped 1.14.1 → 1.15.0. Plugin (shola-core) version
+  bumped 1.7.0 → 1.8.0 (new `filmstrip` layout option lives in
+  `class-meta-fields.php`, per §2's content-model ownership rule).
+  Approved by: Farhad, in this session (2026-09-13).
