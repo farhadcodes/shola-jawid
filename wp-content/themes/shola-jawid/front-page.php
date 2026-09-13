@@ -293,13 +293,19 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	 * with a card filmstrip beneath it) — adapted for this site rather
 	 * than copied literally, per Farhad's own instruction: no CTA button
 	 * or star-rating (neither makes sense here), and mirrored for RTL
-	 * reading order instead of the reference's LTR layout. The headline
-	 * itself reuses `single`'s exact .hero-media/.wrap/.hero-body markup
-	 * unchanged (identical CSS, no new modifier needed there) — only the
-	 * filmstrip band below it, in a separate sibling <section>, is new.
+	 * reading order instead of the reference's LTR layout.
+	 *
+	 * `hero-lead--filmstrip` added (Phase 24, third pass, still
+	 * 2026-09-13) after Farhad flagged the strip sitting low enough to
+	 * clip below the first viewport, and the headline text crowding the
+	 * overlapping strip below it: unlike every other layout, this one
+	 * needs a shorter photo (freeing vertical room for the strip inside
+	 * the same first screen) and more breathing room under the headline
+	 * text before the overlap starts — both handled by this modifier in
+	 * main.css §10.5, not by touching `single`'s own shared rules.
 	 */
 	?>
-	<section class="hero-lead" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+	<section class="hero-lead hero-lead--filmstrip" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
 			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 		</a>

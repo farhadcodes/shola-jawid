@@ -7859,3 +7859,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.15.0 → 1.15.1 (plugin unchanged — this pass
   was theme-only markup/CSS).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Fixed — filmstrip layout, third pass, same day.** Farhad tested
+  the second pass live and sent back a marked-up screenshot of his own
+  homepage with three concrete, specific problems, plus one separate
+  request:
+  1. Auto-drift "moving extremely fast left and right" — cut
+     `assets/js/main.js`'s auto-drift `speed` from 0.4 to 0.15
+     px/frame (roughly a 60% reduction).
+  2. Headline title/dek sitting "very low," crowded by the overlapping
+     strip right below it.
+  3. The strip itself sitting "deep down" — not "completely visible"
+     without scrolling on his actual screen.
+  4. (Separate ask) per-card title/date text removed entirely —
+     "clean, without any extra busy information."
+  Root cause of #2/#3 together: the second pass's overlap amount and
+  the shared hero's existing `padding-block-end: 5rem` (used by every
+  other hero layout, tuned for those layouts' needs, not this one)
+  left too little vertical room between the bottom-anchored headline
+  text and the overlapping strip, and too little total headroom within
+  one viewport for the strip to clear the fold on a real screen —
+  this session's own testing had only checked that the *overlap itself*
+  landed correctly, not the composition's total height against a real
+  viewport, which is exactly the gap Farhad's live test caught.
+  Fixed with a new `.hero-lead--filmstrip` modifier (main.css §10.5,
+  added to the `<section>` in front-page.php's filmstrip branch,
+  scoped to this layout only so `single`/`lead_rail`/`overlay`/
+  `rail_full`'s shared rules are untouched): shortens `.hero-media` by
+  an extra fixed amount (140px desktop / 100px mobile, on top of the
+  usual masthead subtraction) so there's real headroom for the strip
+  within one screen, and increases the headline `.wrap`'s
+  `padding-block-end` from the shared 5rem to 8rem (6.5rem mobile) so
+  the text sits higher, clear of the overlap zone. Card caption (title
+  + date + its dark gradient scrim) removed from `hero-strip-card.php`
+  entirely per point 4 — the title survives as the link's `aria-label`
+  so a screen-reader user isn't left with an unlabeled link, only the
+  visible text came off.
+  Verified this time against the actual failure mode, not just the
+  overlap's own position: measured `.hero-filmstrip`'s real bounding
+  rect against `window.innerHeight` directly (not eyeballed) at both a
+  1024×768 desktop viewport (strip bottom 741px, comfortably inside
+  768px, ~27px margin) and a 375×812 mobile viewport (strip bottom
+  798px, inside 812px) — both fit with zero scrolling required. Text-
+  to-strip separation confirmed at ~110px on both sizes, plenty clear
+  of the reserved band. Zero console errors.
+  Theme version bumped 1.15.1 → 1.15.2 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
