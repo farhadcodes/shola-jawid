@@ -1740,28 +1740,53 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    wires the two arrow buttons to scrollBy() on top of that native
    scroll — see that file's own comment for the RTL scrollLeft-sign
    detection this needed. */
-.hero-lead--filmstrip .hero-media {
-  height: calc(100vh - 128px - 140px);
-  height: calc(100dvh - var(--masthead-h, 128px) - 140px);
-}
+/* Photo height reverted to the same full-viewport sizing every other
+   hero layout uses (2026-09-13, fourth pass) — the previous pass
+   shortened it so the whole strip fit inside the first screen with no
+   scrolling, but Farhad's reference screenshot is itself cropped
+   right at the card row, and he confirmed that's the intended look:
+   the strip naturally sits low enough to only partially show, rather
+   than being fully contained above the fold. Text-vs-strip separation
+   (padding-block-end below) is unaffected by this and stays fixed. */
 .hero-lead--filmstrip > .wrap { padding-block-end: 8rem; }
 
-:root { --filmstrip-overlap: 64px; }
+:root { --filmstrip-overlap: 44px; }
+/* Fourth pass, still 2026-09-13, per Farhad's second live comparison:
+   the strip no longer bleeds the full photo width. It's now a compact
+   cluster anchored to the same side the headline text starts from
+   (inline-start — the right, in this RTL site) — "coming through from
+   the right" in his own words — sized to show about four cards, with
+   the rest reachable by scrolling/the arrows and hinted at by a fade
+   at the cluster's far (inline-end/left) edge instead of a hard clip.
+   Both arrow buttons moved into their own `.hero-filmstrip-controls`
+   cluster after the track (previously one flanked each end) so they
+   sit together at that same faded edge, per his explicit instruction. */
 .hero-filmstrip {
   position: relative;
   z-index: 5;
   display: flex;
   align-items: center;
   gap: .75rem;
-  width: 100%;
+  width: fit-content;
+  max-width: calc(100% - var(--gap-pad-x) * 2);
+  margin-inline-start: var(--gap-pad-x);
+  margin-inline-end: auto;
   margin-top: calc(-1 * var(--filmstrip-overlap));
-  padding-inline: var(--gap-pad-x);
   padding-block-end: 1.5rem;
 }
 .hero-filmstrip-track {
   display: flex;
   gap: .75rem;
+  width: 860px;
+  max-width: 100%;
   overflow-x: auto;
+  /* Fades out toward the far edge instead of a hard clip — a physical
+     (not logical) "to left" direction, matching `.hero-lead::after`'s
+     own scrim above, which is also a fixed physical-direction
+     gradient: the fade's visual side is what was actually requested,
+     independent of writing-mode. */
+  mask-image: linear-gradient(to left, black 0%, black 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 78%, transparent 100%);
   /* No CSS scroll-behavior:smooth here, deliberately: main.js's arrow
      buttons already request behavior:'smooth' explicitly per-call on
      scrollBy(), and the auto-drift needs plain instant scrollLeft
@@ -1793,6 +1818,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-strip-card:hover .hero-strip-card-media img { transform: scale(1.04); }
 
+.hero-filmstrip-controls {
+  flex: 0 0 auto;
+  display: flex;
+  gap: .5rem;
+}
 /* Arrow buttons — same square-bordered shape language as .page-num
    (main.css §14), not a new circular/pill shape: this design has no
    rounded elements anywhere outside the floating-card exception above
@@ -1816,12 +1846,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 
 @media (max-width: 640px) {
   :root { --filmstrip-overlap: 36px; }
-  .hero-lead--filmstrip .hero-media {
-    height: calc(100vh - 128px - 100px);
-    height: calc(100dvh - var(--masthead-h, 128px) - 100px);
-  }
   .hero-lead--filmstrip > .wrap { padding-block-end: 6.5rem; }
   .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
+  .hero-filmstrip-track { width: 100%; }
   .hero-strip-card { width: 132px; }
   .hero-filmstrip-arrow { width: 2.25rem; height: 2.25rem; }
   .hero-filmstrip-arrow svg { width: 14px; height: 14px; }

@@ -931,6 +931,13 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  * reference's layered look instead of a clean handoff to the next
  * section.
  *
+ * Fourth pass, still 2026-09-13: track width capped to ~4 cards (main
+ * .css §10.5) with the rest reachable by scrolling/the arrows, masked
+ * to fade out at its far edge instead of a hard clip, and both arrow
+ * buttons grouped together in their own cluster after the track
+ * (rather than one flanking each end) — all per Farhad's direct
+ * comparison against his reference screenshot again.
+ *
  * @param WP_Post[] $posts Recent articles to show, latest first.
  * @return void
  */
@@ -940,19 +947,6 @@ function shola_render_hero_filmstrip( $posts ) {
 	}
 	?>
 	<div class="hero-filmstrip" aria-label="<?php esc_attr_e( 'آخرین مقالات', 'shola-jawid' ); ?>">
-		<?php
-		/*
-		 * Arrow direction, RTL: "prev" (an earlier/already-passed article
-		 * in reading order) sits to the visual right and "next" to the
-		 * visual left — same convention already used site-wide for
-		 * pagination (paginate_links()'s 'prev_text' => '→' / 'next_text'
-		 * => '←' in search.php and every taxonomy/archive template), not
-		 * a literal copy of the LTR reference screenshot's arrow shapes.
-		 */
-		?>
-		<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--prev" data-filmstrip-dir="-1" aria-label="<?php esc_attr_e( 'مقالهٔ قبلی', 'shola-jawid' ); ?>">
-			<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-		</button>
 		<div class="hero-filmstrip-track">
 			<?php
 			foreach ( $posts as $strip_post ) {
@@ -960,9 +954,26 @@ function shola_render_hero_filmstrip( $posts ) {
 			}
 			?>
 		</div>
-		<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--next" data-filmstrip-dir="1" aria-label="<?php esc_attr_e( 'مقالهٔ بعدی', 'shola-jawid' ); ?>">
-			<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-		</button>
+		<?php
+		/*
+		 * Arrow direction, RTL: "prev" (an earlier/already-passed article
+		 * in reading order) sits to the visual right and "next" to the
+		 * visual left — same convention already used site-wide for
+		 * pagination (paginate_links()'s 'prev_text' => '→' / 'next_text'
+		 * => '←' in search.php and every taxonomy/archive template), not
+		 * a literal copy of the reference screenshot's arrow shapes.
+		 * Grouped together in one cluster (not one per end) per Farhad's
+		 * explicit instruction, sitting at the track's faded (far) edge.
+		 */
+		?>
+		<div class="hero-filmstrip-controls">
+			<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--prev" data-filmstrip-dir="-1" aria-label="<?php esc_attr_e( 'مقالهٔ قبلی', 'shola-jawid' ); ?>">
+				<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			</button>
+			<button type="button" class="hero-filmstrip-arrow hero-filmstrip-arrow--next" data-filmstrip-dir="1" aria-label="<?php esc_attr_e( 'مقالهٔ بعدی', 'shola-jawid' ); ?>">
+				<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			</button>
+		</div>
 	</div>
 	<?php
 }

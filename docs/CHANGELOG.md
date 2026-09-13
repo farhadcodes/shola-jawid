@@ -7905,3 +7905,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   of the reserved band. Zero console errors.
   Theme version bumped 1.15.1 → 1.15.2 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Changed — filmstrip layout, fourth pass, same day.** Farhad sent
+  another marked-up comparison against his reference screenshot with
+  three more specific asks:
+  1. The strip should no longer span the full photo width — only
+     about four cards visible at once, "coming through from the
+     right" (this site's inline-start/reading-start side) and fading
+     out toward the left instead of a hard clip.
+  2. Both arrow buttons should sit together in one cluster at that
+     faded edge, not one flanking each end of the row.
+  3. The card row should sit low enough that only part of it shows on
+     the first screen (matching how his own reference screenshot is
+     itself cropped right at the card row) — a direct reversal of the
+     third pass's "fit entirely within one viewport" fix. Asked him
+     directly via a multiple-choice check before touching this one,
+     since it read as contradicting his own prior "thumbnails should
+     be completely visible" request — confirmed he meant push the row
+     lower / reduce the overlap, not increase it.
+  Implementation: `shola_render_hero_filmstrip()` restructured so the
+  track comes first and both arrow buttons move into a new
+  `.hero-filmstrip-controls` wrapper after it (`inc/template-tags.php`).
+  `.hero-filmstrip` (main.css §10.5) is no longer full-width — sized
+  to `fit-content` with `margin-inline-end: auto` so it hugs the
+  inline-start (right) edge with the same gutter as the headline text,
+  instead of bleeding edge-to-edge. `.hero-filmstrip-track` capped to
+  `860px` (roughly four 190px cards + gaps) with the remaining posts
+  reachable via scroll/the arrows, and a `mask-image: linear-gradient
+  (to left, black 78%, transparent 100%)` fading its far edge instead
+  of a hard clip — a fixed physical-direction gradient, matching how
+  `.hero-lead::after`'s own scrim already uses `to top` similarly for
+  a decorative (not logical-property) purpose. `.hero-lead--filmstrip
+  .hero-media`'s custom shortened height (added in the third pass)
+  removed entirely — the photo is back to the same full-viewport
+  height every other hero layout uses; only `.wrap`'s increased
+  `padding-block-end` (still 8rem/6.5rem, keeping the headline clear
+  of the strip) stays from that pass. `--filmstrip-overlap` reduced
+  64px → 44px (36px unchanged on mobile) to land the reference's
+  "partially cropped" look.
+  Verified by measuring the actual visible fraction of a card against
+  `window.innerHeight`, not eyeballed: ~28% visible at a 1024×768
+  desktop viewport, ~34% at 375×812 mobile — both close to the
+  requested "30% visible," with no page-level horizontal overflow at
+  either size and headline-to-strip separation still ~126px. Zero
+  console errors.
+  Theme version bumped 1.15.2 → 1.15.3 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
