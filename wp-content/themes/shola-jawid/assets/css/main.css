@@ -1825,10 +1825,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
-  /* Hover "grows taller" (2026-09-13, per Farhad's explicit ask) —
-     scales the whole card, not just the image inside it, so the
-     shadow grows along with it and it reads as the card itself
-     lifting/enlarging, not just a zoomed photo. transform-origin
+  /* Hover "grows taller" (2026-09-13, per Farhad's explicit ask;
+     corrected same day — his first live look showed a uniform
+     scale(), which reads as the whole card getting bigger/wider and
+     crowding into its neighbors, not "taller" as asked; scaleY() only
+     stretches the vertical axis, leaving each card's width — and so
+     its horizontal spacing in the row — untouched). transform-origin
      anchored to the bottom: this card floats low over the hero photo
      (main.css §10.5's overlap), so growing from center would push the
      top edge further up into that photo/headline area — growing from
@@ -1837,7 +1839,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   transform-origin: center bottom;
   transition: transform var(--dur) var(--ease);
 }
-.hero-strip-card:hover { transform: scale(1.07); }
+.hero-strip-card:hover { transform: scaleY(1.14); }
 .hero-strip-card-media {
   display: block;
   aspect-ratio: 3 / 2.4;

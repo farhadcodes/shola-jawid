@@ -8057,3 +8057,22 @@ trail of *why* the build deviated from — or newly applied — a rule in
   one variable controlling it.
   Theme version bumped 1.15.5 → 1.15.6 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Fixed — filmstrip hover effect, same day.** Farhad's first live
+  look at the seventh pass's hover effect showed a real problem with
+  a marked-up screenshot: `scale(1.07)` grows both axes, so the
+  hovered card visibly got *bigger* — wider too, crowding into its
+  neighbor in the row — not "taller" as he'd actually asked for.
+  Changed `.hero-strip-card:hover` from `transform: scale(1.07)` to
+  `transform: scaleY(1.14)` (main.css §10.5) — scales only the
+  vertical axis, so a card's width (and so its horizontal spacing
+  against its neighbors) never changes on hover, only its height,
+  matching "taller" literally instead of "bigger." `transform-origin:
+  center bottom` (unchanged from the seventh pass) still anchors the
+  growth to the bottom, so it's the top edge that extends upward, not
+  a shift into the photo/headline the card overlaps below it.
+  Verified the corrected rule is present in the live stylesheet via
+  the page's own CSSOM (not just the source file). Zero console
+  errors.
+  Theme version bumped 1.15.6 → 1.15.7 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
