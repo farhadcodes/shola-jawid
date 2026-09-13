@@ -1748,29 +1748,48 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    the strip naturally sits low enough to only partially show, rather
    than being fully contained above the fold. Text-vs-strip separation
    (padding-block-end below) is unaffected by this and stays fixed. */
-.hero-lead--filmstrip > .wrap { padding-block-end: 8rem; }
+.hero-lead--filmstrip > .wrap { padding-block-end: 9rem; }
 
-:root { --filmstrip-overlap: 44px; }
+:root { --filmstrip-overlap: 100px; }
 /* Fourth pass, still 2026-09-13, per Farhad's second live comparison:
    the strip no longer bleeds the full photo width. It's now a compact
-   cluster anchored to the same side the headline text starts from
+   cluster anchored to the side the headline text starts from
    (inline-start — the right, in this RTL site) — "coming through from
    the right" in his own words — sized to show about four cards, with
    the rest reachable by scrolling/the arrows and hinted at by a fade
    at the cluster's far (inline-end/left) edge instead of a hard clip.
    Both arrow buttons moved into their own `.hero-filmstrip-controls`
    cluster after the track (previously one flanked each end) so they
-   sit together at that same faded edge, per his explicit instruction. */
+   sit together at that same faded edge, per his explicit instruction.
+
+   Fifth pass, still 2026-09-13, per a third live comparison against
+   the same reference: (1) visibility ratio was backwards — Farhad
+   wanted ~70% of the card visible/~30% cropped, not the other way
+   round, so `--filmstrip-overlap` increased 44px → 100px (pulls the
+   strip up further, showing more of it above the fold); (2) headline
+   `padding-block-end` nudged 8rem → 9rem, a further small upward
+   adjustment on top of the third pass's fix; (3) — the important one
+   — the whole cluster is no longer anchored to the raw viewport edge.
+   It's now `max-width: var(--wrap-wide)` + `margin-inline: auto`, the
+   exact same centered-column treatment every other section's `.wrap`
+   uses (main.css §02), so on a wide monitor it stays framed within
+   the site's normal content column — open photo visible on both sides
+   — instead of stretching to the true browser edge on one side. The
+   cluster still sits flush to that column's own inline-start (right)
+   edge via the track+controls' default flex-start placement, keeping
+   the "enters from the right" reading order Farhad asked for, just
+   bounded within the centered column now rather than the full
+   viewport. */
 .hero-filmstrip {
   position: relative;
   z-index: 5;
   display: flex;
   align-items: center;
   gap: .75rem;
-  width: fit-content;
-  max-width: calc(100% - var(--gap-pad-x) * 2);
-  margin-inline-start: var(--gap-pad-x);
-  margin-inline-end: auto;
+  width: 100%;
+  max-width: var(--wrap-wide);
+  margin-inline: auto;
+  padding-inline: var(--gap-pad-x);
   margin-top: calc(-1 * var(--filmstrip-overlap));
   padding-block-end: 1.5rem;
 }
@@ -1845,8 +1864,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-filmstrip-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
 
 @media (max-width: 640px) {
-  :root { --filmstrip-overlap: 36px; }
-  .hero-lead--filmstrip > .wrap { padding-block-end: 6.5rem; }
+  :root { --filmstrip-overlap: 72px; }
+  .hero-lead--filmstrip > .wrap { padding-block-end: 7.5rem; }
   .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
   .hero-filmstrip-track { width: 100%; }
   .hero-strip-card { width: 132px; }

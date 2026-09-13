@@ -7951,3 +7951,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   console errors.
   Theme version bumped 1.15.2 → 1.15.3 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Changed — filmstrip layout, fifth pass, same day.** Farhad sent a
+  third marked-up comparison with a correction and one more, more
+  important request. Before touching code, restated all four points
+  back to him in plain language (per his own explicit "ask me first"
+  instruction this round) — including asking directly whether the
+  "fade should be on the right, not left" point was its own request or
+  actually describing the same problem the centering fix below would
+  independently resolve — and got confirmation before implementing:
+  1. **Visibility ratio was backwards.** He wanted ~70% of the card
+     visible / ~30% cropped, not the fourth pass's ~30%/70% split —
+     `--filmstrip-overlap` increased 44px → 100px desktop (36px → 72px
+     mobile), pulling the strip up further so more of it shows above
+     the fold.
+  2. **Headline nudged higher again** — `.hero-lead--filmstrip >
+     .wrap`'s `padding-block-end` 8rem → 9rem desktop (6.5rem → 7.5rem
+     mobile), a further small adjustment on top of the third pass's
+     fix, per his "a little upward" note.
+  3. **Fade-direction question resolved by the fix below**, per his
+     own confirmation — not changed separately.
+  4. **The important one: bounded to the site's normal content
+     column.** `.hero-filmstrip` was anchored to the raw viewport edge
+     with `margin-inline-end: auto` (fourth pass) — correct up to
+     1200px wide, but on any wider monitor it could stretch further
+     toward the true browser edge than every other homepage section
+     does. Changed to `max-width: var(--wrap-wide); margin-inline:
+     auto` — the exact same centered-column treatment `.wrap` (main
+     .css §02) already gives تازه‌ترین مقالات's grid and every other
+     section — so past 1200px the cluster stays framed in the middle
+     with open photo on both sides, instead of hugging one edge. The
+     cluster still sits flush to that column's own inline-start
+     (right) edge via the track+controls' ordinary flex-start
+     placement, keeping the "enters from the right" reading order from
+     the fourth pass — just bounded within the centered column now,
+     not the full viewport.
+  Verified: measured the actual visible card fraction again — 66% at
+  a 1024×768 viewport, 68% at 375×812 mobile, both close to the
+  requested 70%. Measured the centering fix directly at a 1920×1000
+  viewport: strip spans exactly 1200px, margins of 352px/368px on
+  either side (equal within rounding) — confirmed it does NOT reach
+  the true browser edge on a wide monitor, which is exactly the
+  regression this pass fixes. Text-to-strip separation still positive
+  (~86px) at standard desktop width. Zero console errors, zero
+  horizontal overflow at any tested width.
+  Theme version bumped 1.15.3 → 1.15.4 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).
