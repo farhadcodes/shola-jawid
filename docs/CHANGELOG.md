@@ -8076,3 +8076,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   errors.
   Theme version bumped 1.15.6 → 1.15.7 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+- **Fixed — filmstrip hover effect, second correction same day.**
+  `scaleY()` did keep the width fixed as intended, but a *transform*
+  scales rendered pixels — so the photo inside each card visibly
+  stretched/warped vertically on hover, which Farhad's next screenshot
+  correctly described as "only the image inside the frame is getting
+  taller" (distorted), not the clean "frame gets taller" effect he
+  wanted.
+  Replaced the transform entirely with a real box-size change:
+  `.hero-strip-card-media` now has an explicit `height: 152px`
+  (106px mobile) that transitions to `173px` (121px mobile) on
+  `.hero-strip-card:hover` — plain `height`, not `aspect-ratio`
+  (not reliably animatable across browsers yet). Since
+  `.hero-strip-card` itself has no explicit height of its own, it
+  simply grows to fit its taller child, carrying its shadow along —
+  the actual frame gets taller, and `object-fit: cover` on the image
+  reveals more of the same undistorted photo as the box grows, rather
+  than stretching pixels.
+  This needed one supporting change: `.hero-filmstrip-track` gained
+  `align-items: flex-end` (was the flex default, `stretch`) — without
+  it, every card in the row would have been forced to match whichever
+  one is tallest at any moment, so hovering one card would have
+  visibly grown all of its neighbors too. `flex-end` also keeps every
+  card's bottom edge on a shared baseline, so the hovered card visibly
+  grows upward from that line, matching the intended effect.
+  Verified the new rules live via the page's own CSSOM (`height: 152px`
+  base / `height: 173px` on hover, `align-items: flex-end` on the
+  track) rather than just reading the source file. Zero console
+  errors.
+  Theme version bumped 1.15.7 → 1.15.8 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-13).

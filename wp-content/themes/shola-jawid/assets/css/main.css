@@ -1795,6 +1795,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-filmstrip-track {
   display: flex;
+  /* flex-end, not the default stretch: each card must size to its own
+     height independently, not be stretched to match its tallest
+     sibling — otherwise a hover-triggered height increase on one card
+     (below) would drag every other card in the row taller too, since
+     stretch makes them all match the container's cross-size. flex-end
+     also keeps every card's bottom edge flush together, so a taller
+     card visibly grows upward from that shared baseline, matching the
+     "grows taller" effect below. */
+  align-items: flex-end;
   gap: .75rem;
   width: 860px;
   max-width: 100%;
@@ -1825,26 +1834,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
-  /* Hover "grows taller" (2026-09-13, per Farhad's explicit ask;
-     corrected same day — his first live look showed a uniform
-     scale(), which reads as the whole card getting bigger/wider and
-     crowding into its neighbors, not "taller" as asked; scaleY() only
-     stretches the vertical axis, leaving each card's width — and so
-     its horizontal spacing in the row — untouched). transform-origin
-     anchored to the bottom: this card floats low over the hero photo
-     (main.css §10.5's overlap), so growing from center would push the
-     top edge further up into that photo/headline area — growing from
-     the bottom instead keeps the visible top of the card the only
-     part that moves. */
-  transform-origin: center bottom;
-  transition: transform var(--dur) var(--ease);
 }
-.hero-strip-card:hover { transform: scaleY(1.14); }
+/* Hover "grows taller" (2026-09-13, per Farhad's explicit ask — twice
+   corrected same day). First attempt used `transform: scale()` on the
+   whole card, which grows both axes (wider too, crowding the next
+   card). Second attempt switched to `scaleY()` — height-only, but a
+   *transform* scales the rendered pixels themselves, so the photo
+   inside visibly stretched/distorted rather than the card cleanly
+   "growing" — Farhad's own screenshot showed this, correctly reading
+   it as "only the image is getting taller" (warped), not the frame.
+   This version instead transitions the media box's real `height` (not
+   a transform), so `object-fit: cover` reveals more of the same
+   undistorted photo as the box grows, exactly like the frame itself
+   getting taller — because it is: the box's actual layout height is
+   what's changing, and `.hero-strip-card` (display:block, no height
+   of its own) simply grows to fit it, carrying its shadow along.
+   Explicit pixel heights, not `aspect-ratio` transitions: `aspect-
+   ratio` is not reliably animatable across browsers yet, plain
+   `height` is. Hover height is the same +14% growth the scaleY()
+   attempt targeted, just applied as a real box size instead of a
+   paint-time stretch. */
 .hero-strip-card-media {
   display: block;
-  aspect-ratio: 3 / 2.4;
+  height: 152px;
   overflow: hidden;
+  transition: height var(--dur) var(--ease);
 }
+.hero-strip-card:hover .hero-strip-card-media { height: 173px; }
 .hero-strip-card-media img {
   width: 100%; height: 100%; object-fit: cover; display: block;
 }
@@ -1881,6 +1897,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .hero-filmstrip { gap: .5rem; padding-block-end: 1rem; }
   .hero-filmstrip-track { width: 100%; }
   .hero-strip-card { width: 132px; }
+  .hero-strip-card-media { height: 106px; }
+  .hero-strip-card:hover .hero-strip-card-media { height: 121px; }
   .hero-filmstrip-arrow { width: 2.25rem; height: 2.25rem; }
   .hero-filmstrip-arrow svg { width: 14px; height: 14px; }
 }
