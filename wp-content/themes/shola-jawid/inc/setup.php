@@ -31,7 +31,24 @@ function shola_setup() {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
-	add_theme_support( 'custom-logo' );
+	/*
+	 * Sized for the client's actual flag logo (2026-09-14, `logo`
+	 * masthead_section layout) — 503×482px source, near-square but not
+	 * exact, so both dimensions are flexible rather than forcing a crop
+	 * to a fixed ratio. 240×240 is a recommended-quality baseline (the
+	 * header displays it much smaller — main.css §05 — but a sharper
+	 * source avoids a blurry upload on high-density/retina screens),
+	 * not the actual render size.
+	 */
+	add_theme_support(
+		'custom-logo',
+		array(
+			'height'      => 240,
+			'width'       => 240,
+			'flex-height' => true,
+			'flex-width'  => true,
+		)
+	);
 	add_theme_support( 'responsive-embeds' );
 
 	/*

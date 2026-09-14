@@ -54,14 +54,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php
 /*
- * Masthead layout switch (2026-09-14): reads the active
- * masthead_section entry, same mechanism front-page.php uses for
- * hero_section. Only 'default' exists right now — today's header,
- * unchanged. A future layout becomes a new elseif branch here.
+ * Masthead layout switch (2026-09-14, extended 2026-09-14 with `logo`):
+ * reads the active masthead_section entry, same mechanism front-page.php
+ * uses for hero_section. The nav/menu markup below is identical for
+ * every layout — only the brand block (.mast-brand, further down)
+ * actually differs, so the layout is branched there only rather than
+ * duplicating this whole template for a one-element difference.
  */
 $shola_masthead_layout = shola_get_active_masthead_layout();
 ?>
-<?php if ( 'default' === $shola_masthead_layout ) : ?>
 <header class="masthead">
 	<div class="wrap masthead-inner">
 
@@ -106,7 +107,35 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 		</div>
 
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>" class="mast-brand">
-			<span class="mast-nameplate"><?php bloginfo( 'name' ); ?></span>
+			<?php
+			/*
+			 * `logo` layout (2026-09-14): the site name text is replaced
+			 * with the logo set at Appearance → Customize → Site Identity
+			 * (native WP feature, add_theme_support('custom-logo') in
+			 * inc/setup.php) — not a separate upload field of its own, so
+			 * there's exactly one place to manage the logo image. Falls
+			 * back to the plain nameplate if no logo has been set yet,
+			 * same as `default`, so an empty Customizer field never leaves
+			 * the header looking broken.
+			 */
+			$shola_logo_id = ( 'logo' === $shola_masthead_layout ) ? get_theme_mod( 'custom_logo' ) : 0;
+			if ( $shola_logo_id ) {
+				echo wp_get_attachment_image(
+					$shola_logo_id,
+					'full',
+					false,
+					array(
+						'class'   => 'mast-logo',
+						'loading' => 'eager',
+						'alt'     => get_bloginfo( 'name' ),
+					)
+				);
+			} else {
+				?>
+				<span class="mast-nameplate"><?php bloginfo( 'name' ); ?></span>
+				<?php
+			}
+			?>
 			<span class="mast-runner" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
 		</a>
 
@@ -124,7 +153,6 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 
 	</div>
 </header>
-<?php endif; ?>
 
 <div id="menu-panel" class="menu-panel" data-open="false" aria-hidden="true" role="dialog" aria-label="<?php esc_attr_e( 'منوی اصلی', 'shola-jawid' ); ?>">
 

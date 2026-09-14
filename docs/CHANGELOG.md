@@ -8193,3 +8193,59 @@ trail of *why* the build deviated from — or newly applied — a rule in
   bumped 1.8.0 → 1.9.0 (new CPT/meta fields live in the plugin, per
   §2's content-model ownership rule).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Added:** second masthead_section layout, `logo` — replaces the
+  text nameplate with the client's flag logo, per Farhad's request
+  (his own file: `Shola Jawid Header Logo.webp`, 503×482px,
+  transparent background, pole intentionally included — kept exactly
+  as supplied, not cropped). Restated the request back to him as a
+  plan before building anything (his own "ask me first" preference,
+  used consistently this session) and got confirmation.
+  Implementation:
+  - Logo image managed through WordPress's own native Customizer
+    (Appearance → Customize → Site Identity), not a separate custom
+    field — `add_theme_support('custom-logo')` (already present in
+    `inc/setup.php`, unused until now) given real `width`/`height`
+    (240×240, a quality baseline, not the render size) and
+    `flex-width`/`flex-height` so the crop tool doesn't force the
+    logo's near-square-but-not-exact ratio into a fixed square.
+  - New `inc/customizer.php`: hooks `customize_register` to add a
+    short helper sentence under that Logo control — recommended
+    size/format for good quality — per Farhad's explicit ask, so
+    whoever uploads a replacement logo later isn't guessing.
+  - `header.php`'s single shared masthead markup (not duplicated —
+    the nav/menu is identical either way, only the brand block
+    differs) now swaps `.mast-nameplate` for
+    `wp_get_attachment_image( get_theme_mod( 'custom_logo' ), ... )`
+    when the `logo` layout is active, wrapped in the *same* `.mast-
+    brand` link, not `the_custom_logo()`'s own output — that function
+    wraps the image in its own `<a>`, which would nest inside the
+    existing brand link (invalid HTML). Falls back to the plain
+    nameplate if no logo is set, so an empty Customizer field can't
+    leave the header looking broken. The date line (`.mast-runner`)
+    is unchanged and untouched — stays exactly where it was, next to
+    the logo instead of the name.
+  - `main.css` §05: new `.mast-logo` — sized by `height`
+    (`clamp(40px, 7vw, 52px) * var(--mast-scale)`), not a fixed
+    width, since the logo is a flag graphic (near-square), not a wide
+    horizontal wordmark — height-based sizing keeps it from looking
+    stretched or squashed at any screen width, and the same `clamp()`
+    + `--mast-scale` formula `.mast-nameplate` already uses means it
+    shrinks with the sticky/scrolled masthead exactly like the text
+    version did.
+  - `class-meta-fields.php`: `sanitize_masthead_layout()` and the
+    admin layout picker gained the `logo` option, labeled "چیدمان با
+    لوگو".
+  Shipped as a real, live change, not just the mechanism: uploaded
+  the actual logo file to the media library, set it as the site's
+  Customizer logo, and created + activated a new masthead_section
+  entry with `shcore_masthead_layout = logo` (all via WP-CLI).
+  Verified live: logo renders centered, correctly proportioned,
+  transparent background blending cleanly into the red masthead, at
+  52px tall on desktop (clamp ceiling) shrinking to ~35px on scroll
+  (0.68× `--mast-scale`, matching the nameplate's own shrink ratio),
+  and correctly sized on a 375px mobile viewport — zero console
+  errors at any size, zero visual regression to the `default` layout.
+  Theme version bumped 1.16.0 → 1.17.0. Plugin (shola-core) version
+  bumped 1.9.0 → 1.10.0.
+  Approved by: Farhad, in this session (2026-09-14).

@@ -487,6 +487,20 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
  * away. max-height/opacity/margin transition (not `display: none`,
  * which can't animate) so it collapses smoothly rather than snapping.
  */
+/*
+ * .mast-logo (2026-09-14, `logo` masthead layout) — replaces
+ * .mast-nameplate in that layout only. Height-based, not fixed-width:
+ * the logo (a flag graphic, not a wide wordmark) is closer to square,
+ * so sizing by height and letting width follow avoids stretching or
+ * squashing. Same clamp()-plus-mast-scale approach as .mast-nameplate
+ * above, so it shrinks with the sticky masthead the same way.
+ */
+.mast-logo {
+  display: inline-block;
+  height: calc(clamp(40px, 7vw, 52px) * var(--mast-scale));
+  width: auto;
+  transition: height var(--dur) var(--ease);
+}
 .mast-runner {
   display: block;
   margin-top: .35rem;
@@ -602,6 +616,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .masthead-left, .masthead-right,
   .mast-btn,
   .mast-nameplate,
+  .mast-logo,
   .mast-runner,
   nav.mast-pub-nav,
   .mast-slash,
