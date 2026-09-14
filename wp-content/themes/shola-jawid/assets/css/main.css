@@ -432,6 +432,17 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
   padding-block: calc(1.5rem * var(--mast-scale));
   transition: padding-block var(--dur) var(--ease);
 }
+/*
+ * `logo` layout only (2026-09-14): Farhad's next live look found the
+ * bar itself too tall once the logo grew — with a bigger logo already
+ * filling the vertical space on its own, the same 1.5rem padding the
+ * text layout needs just reads as excess air above/below it. Tighter
+ * padding here, scoped to `.masthead--logo` only, so the `default`
+ * text layout's own spacing is untouched.
+ */
+.masthead--logo .masthead-inner {
+  padding-block: calc(0.75rem * var(--mast-scale));
+}
 .masthead-left, .masthead-right {
   display: flex; align-items: center;
   gap: calc(.6rem * var(--mast-scale));
@@ -551,6 +562,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 
 @media (max-width: 720px) {
   .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: calc(1rem * var(--mast-scale)); }
+  .masthead--logo .masthead-inner { padding-block: calc(0.6rem * var(--mast-scale)); }
   /* Explicit override, not the shared .hide-mobile utility: bumping
      nav.mast-pub-nav's specificity above (needed to beat .hide-mobile's
      own unconditional `display: initial` on desktop) also made it beat

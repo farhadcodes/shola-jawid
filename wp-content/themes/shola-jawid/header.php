@@ -63,7 +63,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 $shola_masthead_layout = shola_get_active_masthead_layout();
 ?>
-<header class="masthead">
+<header class="masthead <?php echo ( 'logo' === $shola_masthead_layout ) ? 'masthead--logo' : ''; ?>">
 	<div class="wrap masthead-inner">
 
 		<div class="masthead-left">

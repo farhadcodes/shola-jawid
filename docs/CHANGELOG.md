@@ -8295,3 +8295,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   console errors, no horizontal overflow at mobile width.
   Theme version bumped 1.17.1 → 1.17.2 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — masthead height, `logo` layout, same day.** Farhad's
+  next look, with the bar's top/bottom edges marked directly on a
+  screenshot, asked for it more compact vertically — reversing the
+  earlier pass's own goal of matching the `default` layout's height
+  exactly. With his own explicit correction as the newer, more
+  specific instruction, tightened the padding instead of preserving
+  parity with `default`.
+  New `.masthead--logo` class, added to `<header>` only when this
+  layout is active (`header.php`), scopes `.masthead-inner`'s
+  `padding-block` down from the shared 1.5rem (0.75rem here — 24px →
+  12px each side) without touching `default`'s own spacing at all.
+  Same tightening at the ≤720px breakpoint (1rem → 0.6rem).
+  Verified: masthead height dropped from 144.55px → 120.55px at
+  desktop (375px mobile: 90.75px), the logo (still 81px tall — not
+  reduced, only the surrounding padding was) fits with an even 12px
+  margin top and bottom, confirmed via `getBoundingClientRect()`
+  rather than eyeballed. Scroll-collapse and mobile layout re-checked,
+  zero console errors, zero overflow. `default` layout's own height
+  confirmed unaffected (no `.masthead--logo` class present there).
+  Theme version bumped 1.17.2 → 1.17.3 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-14).
