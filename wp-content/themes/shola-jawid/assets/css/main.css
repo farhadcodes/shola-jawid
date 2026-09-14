@@ -2570,14 +2570,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * beyond however many capped columns fit just trails as empty margin
  * (`justify-content: start`), which reads as normal shelf breathing
  * room, not as a layout that's obviously missing content.
- * Base (<640px) mobile behavior is untouched — `repeat(2, 1fr)` already
- * fills the row exactly with 2 items and wasn't part of the complaint;
- * the fix only replaces the ≥640px breakpoints where the emptiness
- * actually showed up.
+ * Base (<640px) mobile was `repeat(2, 1fr)` until 2026-09-14, when the
+ * client (via Farhad) asked for 3 cards per row on mobile instead of
+ * 2 — 3 cards reads as a fuller shelf on the phone-width client review
+ * that prompted the ask. `.issue-card-title`'s font-size gets its own
+ * mobile-only reduction below for the same reason: a 3-up card at this
+ * width is meaningfully narrower than a 2-up one was, and the site's
+ * one shared `.issue-card-title` size (14px, used at every breakpoint)
+ * would wrap a long title across more lines relative to the card's own
+ * height than before, reading as cramped/awkward — smaller text alone
+ * fixes that without shrinking the cover art or touching the grid math
+ * further.
  */
 .issue-grid {
   display: grid; gap: 2rem 1.5rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 @media (min-width: 640px) {
   /*
@@ -2615,6 +2622,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .issue-card-title { font-size: var(--t-small); font-weight: 700; line-height: 1.4; color: var(--ink); }
 .issue-card-title a:hover { color: var(--winston-red); }
+/*
+ * Mobile-only size cut (2026-09-14, same round as .issue-grid's
+ * 2 -> 3 column change above): a 3-up card at ≤640px is noticeably
+ * narrower than a 2-up one was, so the same 14px (var(--t-small))
+ * title wraps across relatively more of the card's own height, which
+ * is what "should not fill awkward[ly]" was flagging. 12px keeps
+ * titles readable while giving long ones room to wrap without
+ * dominating the card — scoped to ≤640px only, matching .issue-grid's
+ * own 3-column breakpoint exactly, so the 2-up/3-up tablet and up
+ * layouts (which have more width per card already) keep the original
+ * 14px.
+ */
+@media (max-width: 640px) {
+  .issue-card-title { font-size: 0.75rem; }
+}
 .issue-card-date { font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .08em; color: var(--stone); text-transform: uppercase; }
 /*
  * Contrast fix, 2026-09-07 full-homepage review: found via a systematic

@@ -8781,3 +8781,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   at both, no horizontal overflow, zero console errors.
   Theme version bumped 1.20.0 → 1.20.1.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — mobile shelf cards (`.issue-grid`): 2 columns → 3.**
+  Client feedback via Farhad: the homepage's PDF/publication "shelf"
+  sections (نشرات, انتشارات حزب, اسناد حزب, کتابخانه — everywhere
+  `.issue-grid` is used: `front-page.php`, `taxonomy-publication.php`,
+  the party-publication/party-document singles and archives) showed
+  only 2 cards per row on mobile and should show 3.
+  `.issue-grid`'s base (≤640px) `grid-template-columns` changed from
+  `repeat(2, 1fr)` to `repeat(3, 1fr)`. The `≥640px` override (`auto-
+  fit, minmax(160px, 200px)`, added in an earlier phase for the
+  shallow-shelf-with-2-items problem) is untouched — this only
+  affects the mobile default.
+  Also reduced `.issue-card-title`'s font-size from the shared 14px
+  (`var(--t-small)`, used at every breakpoint) to 12px, scoped to the
+  same `≤640px` range — Farhad's explicit ask that a long title not
+  "fill awkward[ly]" once cards got narrower from the 3-up change.
+  Verified live at 375px: all three `.issue-grid` instances compute to
+  three equal ~96px columns, long titles (checked against real content
+  like "بیانیهٔ همبستگی با کارگران بندر") wrap cleanly to two lines
+  without crowding the card, no horizontal overflow, zero console
+  errors. Re-verified at 800px that the existing tablet/desktop
+  `auto-fit` layout and the original 14px title size are both
+  untouched — the mobile-only rules don't leak upward.
+  Theme version bumped 1.20.1 → 1.20.2.
+  Approved by: Farhad, in this session (2026-09-14).
