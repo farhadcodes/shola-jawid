@@ -716,17 +716,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   background-repeat: no-repeat;
 }
 /*
- * No mobile-specific override anymore (there was one, positioning the
- * gradient at a hardcoded flush-left offset to match the logo's old
- * flush-left mobile position). Now that the mobile `.masthead--logo`
- * rules above center the [date, logo] pair the same way desktop does,
- * the unconditional `at center` rule already lines up correctly at
- * every width — found live after the mobile centering change: the
- * old hardcoded offset left the white bloom sitting where the logo
- * used to be, not where it now is, a stale position bug the same
- * shape as the specificity bug this mobile override existed to fix in
- * the first place.
+ * Mobile override, `logo-radial` only (2026-09-14): Farhad's next live
+ * look at this specific layout (real Chrome, iPhone 16 Pro Max device
+ * toolbar) asked for it to diverge from the other two logo-based
+ * layouts here — date back at the far-left edge on its own, and the
+ * flag independently centered on the white gradient bleed, "so it
+ * looks beautiful." Explicit ask to leave `logo`/`logo-light` alone;
+ * the shared `[date, logo]`-centered-as-a-pair arrangement above
+ * stays exactly as built for those two, this only diverges for
+ * `logo-radial`.
+ * `.masthead-right` (date) joins `.masthead-left` (menu) as a second
+ * `position: absolute` element pinned to the row's other edge — same
+ * technique, mirrored side. `grid-column: auto` clears the `grid-column:
+ * 2` it would otherwise inherit from the shared rule above: without
+ * this, an out-of-flow grid item still uses its assigned grid AREA as
+ * its containing block instead of the whole grid container, which
+ * would have confined the date's `inset-inline-end` to the narrow
+ * middle column instead of the full row.
+ * `.mast-brand` (logo) stays a normal in-flow grid item — unlike the
+ * shared pattern above, it's now the *only* in-flow item once the date
+ * joins the menu out of flow, so a plain `1fr auto 1fr` centers it
+ * alone in the full row, matching where the gradient's `at center`
+ * already sits.
  */
+@media (max-width: 720px) {
+  .masthead--logo-radial .masthead-inner { grid-template-columns: 1fr auto 1fr; }
+  .masthead--logo-radial .mast-brand { grid-column: 2; }
+  .masthead--logo-radial .masthead-right {
+    position: absolute;
+    grid-column: auto;
+    inset-inline-end: var(--gap-pad-x);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
 
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
    on _header.html's menu/search separator, search icon link, and

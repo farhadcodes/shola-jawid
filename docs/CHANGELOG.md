@@ -8694,3 +8694,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   afterward.
   Theme version bumped 1.19.3 → 1.19.4.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — `logo-radial`'s mobile arrangement diverges from
+  `logo`/`logo-light`: date back at the left edge, flag independently
+  centered.** Farhad's next live look, at this specific layout only,
+  asked for it to look different from the other two on mobile — date
+  on its own at the left, flag centered on the white gradient bleed
+  "so it looks beautiful" — with an explicit instruction not to touch
+  `logo`/`logo-light` (which keep the `[date, logo]`-centered-as-a-pair
+  arrangement from the previous round) or desktop/tablet.
+  Added a `logo-radial`-specific mobile override, layered on top of
+  the shared `.masthead--logo` mobile rules via equal-specificity/
+  later-source-order (same technique as the earlier `logo-radial`
+  mobile overrides): `.masthead-right` (date) becomes a second
+  `position: absolute` element pinned to the opposite edge from the
+  menu, with `grid-column: auto` clearing the column it would
+  otherwise inherit from the shared rule — needed because an
+  out-of-flow grid item still uses an explicitly assigned grid AREA as
+  its containing block instead of the whole container, which would
+  have confined its `inset-inline-end` to one narrow column instead of
+  the full row. With the date now out of flow alongside the menu,
+  `.mast-brand` (the flag) is the only in-flow grid item left, so a
+  plain `1fr auto 1fr` centers it alone in the full row — lining up
+  exactly with the gradient's existing `at center`.
+  Verified live: flag's measured horizontal center lands within 0.1px
+  of exactly half the row's width, date sits at the far-left edge, no
+  horizontal overflow, correct through `.is-scrolled`, zero console
+  errors. Re-verified `logo` unaffected on mobile (still the centered
+  pair) and desktop/tablet unaffected on all three layouts. Reverted
+  the live site's active layout back to `logo` afterward.
+  Theme version bumped 1.19.4 → 1.19.5.
+  Approved by: Farhad, in this session (2026-09-14).
