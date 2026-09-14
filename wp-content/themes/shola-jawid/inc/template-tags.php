@@ -502,6 +502,37 @@ function shola_get_masthead_runner() {
 }
 
 /**
+ * Which masthead_section layout header.php should render — same active-
+ * flag lookup as front-page.php does for hero_section. Falls back to
+ * 'default' (today's header) if no entry is active yet, or the CPT is
+ * empty, so a missing/misconfigured plugin state never breaks the
+ * header on every single page.
+ *
+ * @return string
+ */
+function shola_get_active_masthead_layout() {
+	$active_query = new WP_Query(
+		array(
+			'post_type'      => 'masthead_section',
+			'posts_per_page' => 1,
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- single boolean flag, tiny post type, admin-managed.
+				array(
+					'key'   => 'shcore_masthead_active',
+					'value' => '1',
+				),
+			),
+		)
+	);
+
+	if ( ! $active_query->have_posts() ) {
+		return 'default';
+	}
+
+	$layout = get_post_meta( $active_query->posts[0]->ID, 'shcore_masthead_layout', true );
+	return $layout ? $layout : 'default';
+}
+
+/**
  * Fallback for the `menu_sections` nav location, matching v6's
  * hardcoded defaults (_menu.html) — used until an admin builds a real
  * menu under Appearance → Menus for pages that don't exist yet (Phase

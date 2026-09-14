@@ -8147,3 +8147,49 @@ trail of *why* the build deviated from — or newly applied — a rule in
   one-line notes per his explicit request. Verified live via the
   page's CSSOM. Theme 1.15.9 → 1.15.10 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-13).
+
+## 2026-09-14 — Phase 26 (site header/masthead CMS mechanism)
+
+- **Added:** a new `masthead_section` CPT (shola-core), giving editors
+  a CMS mechanism for the sitewide header (`<header class="masthead">`
+  in header.php — logo/nameplate, top nav, search, hamburger menu,
+  shown on every page) — Farhad's request, so a future header redesign
+  (e.g. once the client sends a real logo) can be switched to via
+  wp-admin instead of a code deploy being the only path.
+  Deliberately the same mechanism as `hero_section` (multiple saved
+  versions, one "active" flag with singleton enforcement, a layout
+  picker inside each version, a list-table status column + one-click
+  "set active" row action, an idempotent admin-seeded default entry)
+  — see that CPT's own docblock for the original reasoning, not
+  duplicated here. Deliberately a *separate* CPT from `hero_section`,
+  not a shared one: one controls the homepage's own lead-article hero,
+  this controls the sitewide header above it (and every other page) —
+  different template, different scope, and needed clearly distinct
+  Persian admin-menu labels ("هدر و ناوبری سایت" vs. hero_section's
+  "هدر صفحهٔ اصلی") so the two aren't confused for the same setting.
+  This is Phase 1 only, matching how hero_section itself was rolled
+  out: the mechanism ships with exactly one layout, `default`,
+  reproducing today's existing header markup byte-for-byte (verified
+  live — zero visual change, zero console errors) — `header.php` now
+  branches on `shola_get_active_masthead_layout()`
+  (`inc/template-tags.php`, same active-flag lookup pattern as
+  front-page.php's hero query) wrapped around the untouched existing
+  markup as the `default` case. A real second layout (with the
+  client's actual logo) is a separate, later step once Farhad provides
+  it, added as a new `elseif` branch the same way hero_section's four
+  extra layouts were each added one at a time.
+  New files/functions: `class-post-types.php` (CPT registration),
+  `class-meta-fields.php` (`shcore_masthead_active`/
+  `shcore_masthead_layout` post meta, `render_masthead_metabox()`,
+  `deactivate_other_masthead_sections()`, status column, row action,
+  `seed_default_masthead_section()` — all mirroring their hero_section
+  counterparts exactly).
+  Verified via WP-CLI (not just read as correct-looking code): CPT
+  registers (`wp post-type list` shows `masthead_section`), the seed
+  function creates one active, `default`-layout entry when none
+  exists, and the live homepage's rendered header is pixel-identical
+  to before this change with zero console errors.
+  Theme version bumped 1.15.10 → 1.16.0. Plugin (shola-core) version
+  bumped 1.8.0 → 1.9.0 (new CPT/meta fields live in the plugin, per
+  §2's content-model ownership rule).
+  Approved by: Farhad, in this session (2026-09-14).

@@ -369,6 +369,59 @@ class Post_Types {
 			)
 		);
 
+		/*
+		 * هدر و ناوبری سایت (masthead_section) — added 2026-09-14, per
+		 * Farhad's request: an editor may ask for the sitewide header
+		 * (logo/nameplate, top nav links, search, hamburger menu — the
+		 * `<header class="masthead">` in header.php, shown on every page,
+		 * not just the homepage) to be redesigned later (e.g. once the
+		 * client sends a real logo), and code deploys shouldn't be the
+		 * only way to switch between an old and new header design.
+		 *
+		 * Same mechanism as hero_section (multiple saved versions, one
+		 * "active" flag, a layout picker inside each version) — see that
+		 * CPT's own docblock above for the reasoning; not duplicated here.
+		 * Deliberately a separate CPT from hero_section, not a shared one:
+		 * hero_section controls the homepage's own lead-article hero,
+		 * this controls the sitewide header that appears above it (and
+		 * every other page) — different template, different scope, and
+		 * their Persian labels need to read as clearly different things
+		 * in the admin menu, not two entries both called "هدر".
+		 *
+		 * This first pass (Phase 26) only wires up the mechanism itself:
+		 * one layout option, `default`, reproducing today's existing
+		 * header exactly — see header.php. No visual change yet; a real
+		 * second layout (with the client's logo) is a separate, later
+		 * step once Farhad provides it.
+		 */
+		register_post_type(
+			'masthead_section',
+			array(
+				'labels'       => array(
+					'name'               => __( 'هدر و ناوبری سایت', 'shola-core' ),
+					'singular_name'      => __( 'نسخهٔ هدر سایت', 'shola-core' ),
+					'add_new'            => __( 'افزودن نسخه', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن نسخهٔ هدر سایت جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش نسخهٔ هدر سایت', 'shola-core' ),
+					'new_item'           => __( 'نسخهٔ هدر سایت جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ نسخهٔ هدر سایت', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی نسخه‌های هدر سایت', 'shola-core' ),
+					'not_found'          => __( 'نسخه‌ای یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'نسخه‌ای در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ نسخه‌های هدر سایت', 'shola-core' ),
+					'menu_name'          => __( 'هدر و ناوبری سایت', 'shola-core' ),
+				),
+				'public'       => false,
+				'show_ui'      => true,
+				'show_in_menu' => true,
+				'show_in_rest' => true,
+				'has_archive'  => false,
+				'menu_icon'    => 'dashicons-menu-alt',
+				'supports'     => array( 'title' ),
+				'rewrite'      => false,
+			)
+		);
+
 		register_post_type(
 			'announcement',
 			array(

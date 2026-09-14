@@ -52,6 +52,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <span id="mast-sentinel" aria-hidden="true"></span>
 
+<?php
+/*
+ * Masthead layout switch (2026-09-14): reads the active
+ * masthead_section entry, same mechanism front-page.php uses for
+ * hero_section. Only 'default' exists right now — today's header,
+ * unchanged. A future layout becomes a new elseif branch here.
+ */
+$shola_masthead_layout = shola_get_active_masthead_layout();
+?>
+<?php if ( 'default' === $shola_masthead_layout ) : ?>
 <header class="masthead">
 	<div class="wrap masthead-inner">
 
@@ -114,6 +124,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	</div>
 </header>
+<?php endif; ?>
 
 <div id="menu-panel" class="menu-panel" data-open="false" aria-hidden="true" role="dialog" aria-label="<?php esc_attr_e( 'منوی اصلی', 'shola-jawid' ); ?>">
 

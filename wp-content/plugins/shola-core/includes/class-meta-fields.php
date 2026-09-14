@@ -55,6 +55,14 @@ class Meta_Fields {
 		 * every admin page load, only ever inserts once.
 		 */
 		add_action( 'admin_init', array( __CLASS__, 'seed_default_hero_section' ) );
+
+		// masthead_section — same admin-list UX + seeding as hero_section
+		// above, see class-post-types.php's docblock on this CPT.
+		add_filter( 'manage_masthead_section_posts_columns', array( __CLASS__, 'add_masthead_status_column' ) );
+		add_action( 'manage_masthead_section_posts_custom_column', array( __CLASS__, 'render_masthead_status_column' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_masthead_set_active_row_action' ), 10, 2 );
+		add_action( 'admin_action_shcore_set_active_masthead', array( __CLASS__, 'handle_set_active_masthead' ) );
+		add_action( 'admin_init', array( __CLASS__, 'seed_default_masthead_section' ) );
 	}
 
 	/**
@@ -270,6 +278,37 @@ class Meta_Fields {
 			)
 		);
 
+		/*
+		 * masthead_section (2026-09-14) — same singleton-active-flag
+		 * pattern as hero_section above, for the sitewide header instead
+		 * of the homepage hero. See class-post-types.php's docblock on
+		 * this CPT for why it's separate from hero_section.
+		 */
+		register_post_meta(
+			'masthead_section',
+			'shcore_masthead_active',
+			array(
+				'type'              => 'boolean',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'masthead_section',
+			'shcore_masthead_layout',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'default',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_masthead_layout' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
 		// post (article/note).
 		register_post_meta(
 			'post',
@@ -388,6 +427,18 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Restrict to the sitewide-header layouts this feature ships with —
+	 * just `default` (today's existing header) for now. New layouts get
+	 * added here as they're built, same as sanitize_hero_layout() above.
+	 *
+	 * @param mixed $value Raw meta value.
+	 * @return string
+	 */
+	public static function sanitize_masthead_layout( $value ) {
+		return in_array( $value, array( 'default' ), true ) ? $value : 'default';
+	}
+
+	/**
 	 * Restrict to the two fixed `publication` term slugs (شعله جاوید /
 	 * جهان برای فتح) a hero_section's rail can source its latest issue
 	 * from. Hardcoded like sanitize_language() above rather than checked
@@ -454,6 +505,7 @@ class Meta_Fields {
 		add_meta_box( 'shcore_party_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_party_document_metabox' ), 'party_document', 'normal', 'high' );
 		add_meta_box( 'shcore_article_fields', __( 'اطلاعات مقاله', 'shola-core' ), array( __CLASS__, 'render_article_metabox' ), 'post', 'normal', 'high' );
 		add_meta_box( 'shcore_hero_fields', __( 'تنظیمات هدر', 'shola-core' ), array( __CLASS__, 'render_hero_metabox' ), 'hero_section', 'normal', 'high' );
+		add_meta_box( 'shcore_masthead_fields', __( 'تنظیمات هدر سایت', 'shola-core' ), array( __CLASS__, 'render_masthead_metabox' ), 'masthead_section', 'normal', 'high' );
 	}
 
 	/**
@@ -715,6 +767,37 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the masthead_section metabox fields: active-flag checkbox +
+	 * layout picker. Same pattern as render_hero_metabox() above, for
+	 * the sitewide header instead of the homepage hero.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_masthead_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$is_active = (bool) get_post_meta( $post->ID, 'shcore_masthead_active', true );
+		$layout    = get_post_meta( $post->ID, 'shcore_masthead_layout', true );
+		$layout    = $layout ? $layout : 'default';
+		?>
+		<p>
+			<label>
+				<input type="checkbox" id="shcore_masthead_active" name="shcore_masthead_active" value="1" <?php checked( $is_active ); ?>>
+				<strong><?php esc_html_e( 'این نسخه هم‌اکنون فعال است', 'shola-core' ); ?></strong>
+			</label>
+		</p>
+		<p class="description"><?php esc_html_e( 'فعال‌سازی این نسخه، آن را در سراسر سایت نمایش می‌دهد و فعال بودن سایر نسخه‌های هدر سایت را خودکار غیرفعال می‌کند.', 'shola-core' ); ?></p>
+		<p>
+			<label for="shcore_masthead_layout"><strong><?php esc_html_e( 'نوع چیدمان', 'shola-core' ); ?></strong></label><br>
+			<select id="shcore_masthead_layout" name="shcore_masthead_layout">
+				<option value="default" <?php selected( $layout, 'default' ); ?>><?php esc_html_e( 'چیدمان فعلی (نام‌بردهٔ متنی)', 'shola-core' ); ?></option>
+			</select>
+		</p>
+		<p class="description"><?php esc_html_e( 'چیدمان فعلی: هدر کنونی سایت (نام‌بردهٔ متنی، پیوندهای ناوبری، جست‌وجو، منو). چیدمان‌های جدید بعداً به این فهرست افزوده می‌شوند.', 'shola-core' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Shared fa/en select, since both post and document carry a language
 	 * field.
 	 *
@@ -791,6 +874,7 @@ class Meta_Fields {
 			'party_document'    => array( 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
 			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
+			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {
@@ -808,6 +892,15 @@ class Meta_Fields {
 				update_post_meta( $post_id, 'shcore_hero_active', $is_active );
 				if ( $is_active ) {
 					self::deactivate_other_hero_sections( $post_id );
+				}
+				continue;
+			}
+			if ( 'shcore_masthead_active' === $field ) {
+				// Same "absent means inactive" reasoning as shcore_hero_active above.
+				$is_active = isset( $_POST['shcore_masthead_active'] );
+				update_post_meta( $post_id, 'shcore_masthead_active', $is_active );
+				if ( $is_active ) {
+					self::deactivate_other_masthead_sections( $post_id );
 				}
 				continue;
 			}
@@ -985,6 +1078,155 @@ class Meta_Fields {
 		}
 
 		update_option( 'shcore_default_hero_seeded', true );
+	}
+
+	/**
+	 * Same singleton-enforcement helper as deactivate_other_hero_sections()
+	 * above, for masthead_section instead.
+	 *
+	 * @param int $active_id Post ID of the masthead_section just marked active.
+	 * @return void
+	 */
+	private static function deactivate_other_masthead_sections( $active_id ) {
+		$others = get_posts(
+			array(
+				'post_type'      => 'masthead_section',
+				'posts_per_page' => -1,
+				'post__not_in'   => array( $active_id ),
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+			)
+		);
+
+		foreach ( $others as $other_id ) {
+			update_post_meta( $other_id, 'shcore_masthead_active', false );
+		}
+	}
+
+	/**
+	 * Same "وضعیت" status column as add_hero_status_column() above, for
+	 * masthead_section's list table.
+	 *
+	 * @param array<string, string> $columns Default columns.
+	 * @return array<string, string>
+	 */
+	public static function add_masthead_status_column( $columns ) {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$new['shcore_masthead_status'] = __( 'وضعیت', 'shola-core' );
+			}
+		}
+		return $new;
+	}
+
+	/**
+	 * Render the "وضعیت" column's value for one masthead_section row.
+	 *
+	 * @param string $column Column key being rendered.
+	 * @param int    $post_id Post ID for this row.
+	 * @return void
+	 */
+	public static function render_masthead_status_column( $column, $post_id ) {
+		if ( 'shcore_masthead_status' !== $column ) {
+			return;
+		}
+		$is_active = (bool) get_post_meta( $post_id, 'shcore_masthead_active', true );
+		if ( $is_active ) {
+			echo '<strong style="color:#0a7d2c">' . esc_html__( 'فعال', 'shola-core' ) . '</strong>';
+		} else {
+			echo '<span style="color:#777">' . esc_html__( 'غیرفعال', 'shola-core' ) . '</span>';
+		}
+	}
+
+	/**
+	 * Same one-click "Set as active" row action as
+	 * add_hero_set_active_row_action() above, for masthead_section.
+	 *
+	 * @param array<string, string> $actions Existing row actions.
+	 * @param \WP_Post              $post Post object for this row.
+	 * @return array<string, string>
+	 */
+	public static function add_masthead_set_active_row_action( $actions, $post ) {
+		if ( 'masthead_section' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+			return $actions;
+		}
+		if ( (bool) get_post_meta( $post->ID, 'shcore_masthead_active', true ) ) {
+			return $actions;
+		}
+
+		$url = wp_nonce_url(
+			admin_url( 'admin.php?action=shcore_set_active_masthead&post=' . $post->ID ),
+			'shcore_set_active_masthead_' . $post->ID
+		);
+
+		$actions['shcore_set_active_masthead'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'تنظیم به‌عنوان فعال', 'shola-core' ) . '</a>';
+		return $actions;
+	}
+
+	/**
+	 * Handles the masthead_section "Set as active" row-action link — same
+	 * flow as handle_set_active_hero() above.
+	 *
+	 * @return void
+	 */
+	public static function handle_set_active_masthead() {
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+
+		if ( ! $post_id
+			|| ! isset( $_GET['_wpnonce'] )
+			|| ! wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'shcore_set_active_masthead_' . $post_id )
+			|| 'masthead_section' !== get_post_type( $post_id )
+			|| ! current_user_can( 'edit_post', $post_id )
+		) {
+			wp_die( esc_html__( 'درخواست نامعتبر است.', 'shola-core' ) );
+		}
+
+		update_post_meta( $post_id, 'shcore_masthead_active', true );
+		self::deactivate_other_masthead_sections( $post_id );
+
+		wp_safe_redirect( admin_url( 'edit.php?post_type=masthead_section' ) );
+		exit;
+	}
+
+	/**
+	 * Seed one default, active masthead_section entry ("چیدمان فعلی") so
+	 * the admin list isn't empty and the mechanism is testable
+	 * immediately — same reasoning as seed_default_hero_section() above.
+	 *
+	 * @return void
+	 */
+	public static function seed_default_masthead_section() {
+		if ( get_option( 'shcore_default_masthead_seeded' ) ) {
+			return;
+		}
+
+		$existing = get_posts(
+			array(
+				'post_type'      => 'masthead_section',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( ! $existing ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => 'masthead_section',
+					'post_status' => 'publish',
+					'post_title'  => __( 'هدر پیش‌فرض (چیدمان فعلی)', 'shola-core' ),
+				)
+			);
+
+			if ( $post_id && ! is_wp_error( $post_id ) ) {
+				update_post_meta( $post_id, 'shcore_masthead_active', true );
+				update_post_meta( $post_id, 'shcore_masthead_layout', 'default' );
+			}
+		}
+
+		update_option( 'shcore_default_masthead_seeded', true );
 	}
 
 	/**
