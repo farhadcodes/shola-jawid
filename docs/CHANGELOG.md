@@ -8249,3 +8249,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.16.0 → 1.17.0. Plugin (shola-core) version
   bumped 1.9.0 → 1.10.0.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Fixed — `logo` masthead layout, same day.** Farhad's live look at
+  the first version (with a marked-up screenshot) found the logo
+  stacked with the date under it looked small and awkward, with the
+  center column reading visibly taller than the rest of the bar.
+  Measured the actual cause rather than guessing: `.mast-brand`'s
+  rendered height was 95.55px — driven by the stacked logo+date
+  content — against `.masthead-left`/`.masthead-right`'s own ~42-47px,
+  and CSS Grid sizes the whole row to its tallest column.
+  Fix: the date moves out of the center column entirely, into
+  `.masthead-left` next to the menu button (new `.mast-runner--inline`
+  modifier, ~2px smaller — 13px → 11px — per Farhad's ask, `hide-
+  mobile` since that row is already tight on a phone screen), so
+  `.mast-brand` holds only the logo. With the date gone, `.mast-logo`
+  could grow substantially larger while the *total* masthead height
+  stayed the same as before this whole feature — confirmed by
+  measuring `.masthead`'s real rendered height with the original
+  `default` layout active (144.68px) and matching `.mast-logo`'s clamp
+  ceiling to it empirically (56px → 139.55px total, still under
+  target; 88px → 151.55px, over; 81px landed at 144.55px, within
+  0.13px of the 144.68px target) rather than guessing a number.
+  Verified live: logo now 81px tall at rest (up from 52px), masthead
+  total height unchanged from before the `logo` layout existed at all,
+  date legible in its new spot and still correctly disappearing on
+  scroll (same collapse behavior as before, just relocated), checked
+  at desktop, scrolled/compact, and 375px mobile — zero console
+  errors, zero horizontal overflow.
+  Theme version bumped 1.17.0 → 1.17.1 (plugin unchanged — this pass
+  was theme-only markup/CSS).
+  Approved by: Farhad, in this session (2026-09-14).

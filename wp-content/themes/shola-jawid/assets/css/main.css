@@ -497,7 +497,7 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
  */
 .mast-logo {
   display: inline-block;
-  height: calc(clamp(40px, 7vw, 52px) * var(--mast-scale));
+  height: calc(clamp(56px, 9.5vw, 81px) * var(--mast-scale));
   width: auto;
   transition: height var(--dur) var(--ease);
 }
@@ -514,6 +514,18 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
   transition: max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
 }
 .masthead.is-scrolled .mast-runner { max-height: 0; opacity: 0; margin-top: 0; }
+/*
+ * .mast-runner--inline (2026-09-14, `logo` layout): the date sitting
+ * inline in .masthead-left next to the menu button, not stacked under
+ * a title — no top margin/block stacking, ~2px smaller than the
+ * stacked version per Farhad's ask so it reads as a compact nav-row
+ * item instead of a headline subtitle.
+ */
+.mast-runner--inline {
+  display: inline-block;
+  margin-top: 0;
+  font-size: 0.6875rem; /* 13px -> 11px, ~2px down from the stacked version */
+}
 
 /* Main nav (desktop-only): نشریات · موضوعات · کتابخانه — replaces the
    old bare publication-switcher (شعله جاوید / جهان برای فتح) that used
