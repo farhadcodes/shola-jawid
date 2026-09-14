@@ -508,7 +508,17 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
  */
 .mast-logo {
   display: inline-block;
-  height: calc(clamp(56px, 9.5vw, 81px) * var(--mast-scale));
+  /*
+   * vertical-align (2026-09-14): an inline-block image sits on its
+   * line box's text baseline by default, which reserves descender
+   * space below it — found live as an asymmetric gap under the logo
+   * (Farhad: "the gap at the bottom of the flag is wider"), measured
+   * at ~2.95px above vs. ~16.9px below for the same padding-block on
+   * both sides. `middle` centers the image on the line instead of
+   * sitting it on the baseline, removing that phantom gap.
+   */
+  vertical-align: middle;
+  height: calc(clamp(56px, 9.5vw, 92px) * var(--mast-scale));
   width: auto;
   transition: height var(--dur) var(--ease);
 }

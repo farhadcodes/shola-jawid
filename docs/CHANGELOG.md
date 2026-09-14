@@ -8448,3 +8448,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.17.6 → 1.18.0 (minor bump: new layout option,
   not a fix).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Fixed — asymmetric gap under the logo, both `logo`/`logo-light`
+  layouts; also made the logo bigger.** Farhad's live look at the
+  white variant (which he'd switched to himself in wp-admin) found the
+  gap under the flag noticeably wider than the gap above it, and asked
+  for the flag a little bigger too.
+  Root cause, confirmed via `getBoundingClientRect()`: `.mast-logo` is
+  `display: inline-block`, which sits on its line box's text baseline
+  by default — that reserves descender space below the image that
+  isn't there above it, measured at 2.95px above vs. 16.9px below for
+  the same `padding-block` on both sides of `.masthead-inner`. Fixed
+  with `vertical-align: middle` on `.mast-logo`, which centers the
+  image on the line instead of baseline-aligning it — not a layout
+  restructure, a one-line property most image-in-a-line-box gaps like
+  this come down to.
+  Also bumped the logo's own size: `.mast-logo`'s clamp ceiling
+  81px → 92px (~13.6% larger), per Farhad's "make the flag a little
+  bigger" — the clamp's other two arguments (`56px` floor, `9.5vw`
+  preferred) are untouched, so responsive scaling between them is
+  unchanged, only the desktop ceiling grew.
+  Both changes live in the shared `.mast-logo` rule, not a layout-
+  scoped one, so they apply identically to `logo` (red) and
+  `logo-light` (white) — verified on both live.
+  Verified via `getBoundingClientRect()`: gap above/below now both
+  2.95px (was 2.95px/16.9px) — perfectly symmetric. Masthead height
+  actually dropped slightly, 102.45px → 99.5px, despite the bigger
+  logo: removing the ~14px phantom baseline gap outweighed the ~11px
+  the taller logo added. Mobile re-checked (375px: masthead 62.4px, no
+  horizontal overflow), zero console errors on both widths.
+  Theme version bumped 1.18.0 → 1.18.1.
+  Approved by: Farhad, in this session (2026-09-14).
