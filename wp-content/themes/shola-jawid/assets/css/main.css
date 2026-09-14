@@ -2796,6 +2796,30 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-family: var(--font-display); font-weight: 700;
   color: var(--winston-red); font-size: 1.75rem; line-height: 1;
 }
+/*
+ * .footer-logo (2026-09-14, Farhad's explicit ask): replaces
+ * .footer-name's text in the same spot once a logo is set (footer.php
+ * — same get_theme_mod('custom_logo') the header's logo-based layouts
+ * read). Height-based sizing, not fixed-width, same reasoning as the
+ * header's .mast-logo: the flag graphic is closer to square than a
+ * wide wordmark, so letting width follow height avoids stretching.
+ * 44px chosen to read at roughly the same visual weight as the
+ * .footer-name text it replaces (1.75rem/28px cap-height, but a logo
+ * mark reads smaller than its bounding box compared to text of the
+ * same box height, so a slightly taller value here still lands
+ * similar in perceived size) — comfortably smaller than the masthead
+ * logo (81-92px) so it doesn't compete with the header for attention,
+ * per Farhad's "reasonable size... not getting out of shape" ask.
+ * display:block (not inline-block): this replaces a block-level <p>
+ * as the first, standalone child of its column, no sibling text is on
+ * the same line, so no baseline-alignment gap to correct for like
+ * .mast-logo needed in the masthead.
+ */
+.footer-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+}
 .footer-tagline {
   margin-top: .75rem;
   font-size: var(--t-small);

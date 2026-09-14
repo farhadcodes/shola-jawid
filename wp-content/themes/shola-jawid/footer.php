@@ -15,7 +15,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="footer-grid">
 
 			<div>
-				<p class="footer-name"><?php bloginfo( 'name' ); ?></p>
+				<?php
+				/*
+				 * Logo in the footer (2026-09-14, Farhad's explicit ask):
+				 * replaces the plain text site name with the same logo set
+				 * at Appearance → Customize → Site Identity — the same
+				 * `get_theme_mod( 'custom_logo' )` header.php's `logo`/
+				 * `logo-light`/`logo-radial` masthead layouts read, so
+				 * there's still exactly one place to manage it. Independent
+				 * of which masthead layout is active (including `default`,
+				 * the plain text one) — the footer always prefers the logo
+				 * once one is set. Falls back to the plain text nameplate
+				 * if no logo has been uploaded yet, same fallback pattern
+				 * as the header, so an empty Customizer field never leaves
+				 * the footer looking broken.
+				 */
+				$shola_footer_logo_id = get_theme_mod( 'custom_logo' );
+				if ( $shola_footer_logo_id ) {
+					echo wp_get_attachment_image(
+						$shola_footer_logo_id,
+						'full',
+						false,
+						array(
+							'class'   => 'footer-logo',
+							'loading' => 'lazy',
+							'alt'     => get_bloginfo( 'name' ),
+						)
+					);
+				} else {
+					?>
+					<p class="footer-name"><?php bloginfo( 'name' ); ?></p>
+					<?php
+				}
+				?>
 				<p class="footer-tagline">
 					<?php esc_html_e( 'پلتفرم نشر دوزبانه برای مقالات، یادداشت‌ها و اسناد؛ با آرشیو کامل نشرات «شعله جاوید» و «جهان برای فتح».', 'shola-jawid' ); ?>
 				</p>

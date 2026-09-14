@@ -8725,3 +8725,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the live site's active layout back to `logo` afterward.
   Theme version bumped 1.19.4 → 1.19.5.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Added: logo in the footer, replacing the plain text site name.**
+  Farhad's explicit ask, independent of the masthead work above: the
+  footer's `.footer-name` ("شعله جاوید" in text) replaced with the same
+  logo set at Appearance → Customize → Site Identity, sized reasonably
+  and not distorted, good on mobile too.
+  `footer.php`: reads the same `get_theme_mod( 'custom_logo' )` the
+  header's `logo`/`logo-light`/`logo-radial` layouts already use —
+  still exactly one place to manage the logo — independent of which
+  masthead layout is active, including `default` (the plain-text one).
+  Falls back to the plain text nameplate if no logo has been uploaded,
+  same fallback pattern as the header, so an empty Customizer field
+  never leaves the footer looking broken.
+  `main.css`: new `.footer-logo` rule, height-based sizing (44px, width
+  auto) so the flag's aspect ratio is preserved and it can't stretch
+  out of shape — comfortably smaller than the masthead's own logo
+  (81-92px) so it doesn't compete with the header, and reads at
+  roughly the same visual weight as the text it replaces. No baseline-
+  alignment gap fix needed here (unlike `.mast-logo` in the masthead):
+  this replaces a standalone block-level `<p>`, not an inline element
+  sharing a text line with siblings.
+  Verified live on desktop (1024px) and mobile (375px): logo renders
+  at its correct aspect ratio (44×46px, not stretched), positioned
+  correctly in the footer's first column at both widths, no horizontal
+  overflow, zero console errors.
+  Theme version bumped 1.19.5 → 1.20.0 (minor bump: new visible
+  feature, not a fix).
+  Approved by: Farhad, in this session (2026-09-14).
