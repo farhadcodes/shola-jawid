@@ -55,25 +55,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php
 /*
  * Masthead layout switch (2026-09-14, extended same day with `logo`,
- * extended again 2026-09-14 with `logo-light`): reads the active
- * masthead_section entry, same mechanism front-page.php uses for
- * hero_section. The nav/menu markup below is identical for every
- * layout — only the brand block (.mast-brand, further down) and the
- * color scheme actually differ, so those are branched here rather
- * than duplicating this whole template.
- * `logo-light` is structurally identical to `logo` (same logo image,
- * same date placement, same responsive grid) — Farhad's explicit ask
- * was "the same structure, reversed colors" — so it shares the
- * `masthead--logo` structural class and every `logo`-layout check
- * below, and only adds `masthead--logo-light` on top for the color
- * override (main.css §05: white background, red text/icons; the logo
- * image itself is untouched either way, per Farhad — "without the
- * flag" meaning the flag graphic keeps its own colors).
+ * `logo-light`, and `logo-radial`): reads the active masthead_section
+ * entry, same mechanism front-page.php uses for hero_section. The
+ * nav/menu markup below is identical for every layout — only the
+ * brand block (.mast-brand, further down) and the color scheme
+ * actually differ, so those are branched here rather than
+ * duplicating this whole template.
+ * `logo-light` and `logo-radial` are both structurally identical to
+ * `logo` (same logo image, same date placement, same responsive
+ * grid) — `logo-light` was Farhad's explicit "same structure,
+ * reversed colors" ask, and `logo-radial` his follow-up "duplicate
+ * the red one, just add a radial-gradient background" ask — so both
+ * share the `masthead--logo` structural class and every `logo`-layout
+ * check below, and only add their own modifier class on top for the
+ * background/color override (main.css §05). The logo image itself is
+ * untouched by any of the three (per Farhad, from the `logo-light`
+ * round — "without the flag" meaning the flag graphic keeps its own
+ * colors).
  */
 $shola_masthead_layout    = shola_get_active_masthead_layout();
-$shola_is_logo_layout     = in_array( $shola_masthead_layout, array( 'logo', 'logo-light' ), true );
+$shola_is_logo_layout     = in_array( $shola_masthead_layout, array( 'logo', 'logo-light', 'logo-radial' ), true );
+$shola_masthead_modifier  = '';
+if ( 'logo-light' === $shola_masthead_layout ) {
+	$shola_masthead_modifier = 'masthead--logo-light';
+} elseif ( 'logo-radial' === $shola_masthead_layout ) {
+	$shola_masthead_modifier = 'masthead--logo-radial';
+}
 ?>
-<header class="masthead <?php echo $shola_is_logo_layout ? 'masthead--logo' : ''; ?> <?php echo ( 'logo-light' === $shola_masthead_layout ) ? 'masthead--logo-light' : ''; ?>">
+<header class="masthead <?php echo $shola_is_logo_layout ? 'masthead--logo' : ''; ?> <?php echo esc_attr( $shola_masthead_modifier ); ?>">
 	<div class="wrap masthead-inner">
 
 		<div class="masthead-left">

@@ -8479,3 +8479,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   horizontal overflow), zero console errors on both widths.
   Theme version bumped 1.18.0 → 1.18.1.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Added: fourth masthead layout, `logo-radial` — the red layout,
+  plus a radial gradient behind the flag.** Farhad's ask, previewed
+  first as a set of static mockups (dot grid / diagonal stripes / star
+  pattern / single watermark for a background-texture question, then a
+  white→red radial-gradient concept specifically) before approval:
+  duplicate the red `logo` layout exactly ("keep the weight as is"),
+  the only change being the background — white at the center, blending
+  out to the same red used everywhere else, so the flag gets a soft
+  halo without the header's overall red identity changing.
+  Fourth option in the masthead_section layout picker alongside
+  `default` / `logo` / `logo-light`. `shola-core`:
+  `sanitize_masthead_layout()` allow-list extended to include
+  `logo-radial`, admin `<select>` gets a fourth `<option>`. Plugin
+  version bumped 1.11.0 → 1.12.0.
+  `header.php`: refactored the class-building from chained ternaries
+  to a small `$shola_masthead_modifier` variable, now that there are
+  three modifier classes instead of one — `logo-radial` reuses
+  `$shola_is_logo_layout` (extended to include it) for every
+  structural check, same as `logo-light` did, so none of today's
+  earlier structural fixes (mobile regrouping, date-on-scroll, gap-
+  under-logo) needed to be redone for a third layout.
+  `main.css`: new `.masthead--logo-radial` rule — unlike `logo-light`,
+  this one recolors nothing (text/icons/border-bottom stay exactly as
+  the red layout), it only layers a `radial-gradient()`
+  `background-image` on top of the existing red `background-color`.
+  Used an explicit fixed-radius circle (`circle calc(100px *
+  var(--mast-scale)) at center`), not a percentage-based gradient
+  (which defaults to `farthest-corner` and would stretch the white
+  bloom out toward the nav text on a wide desktop window) — verified
+  live that it fades to solid red well before reaching "دربارهٔ ما"/
+  "منو" on either side. `* var(--mast-scale)` shrinks the halo with
+  the logo in the sticky-compact state, matching every other sized
+  value in this layout.
+  Two things caught before shipping, not after:
+  (1) `background-repeat`'s default is `repeat` — a fixed-size circle
+  smaller than the box tiles into a grid of red/white circles across
+  the whole bar without an explicit `background-repeat: no-repeat`.
+  (2) The mobile-only rules from earlier today move the logo flush to
+  the left edge (`.masthead--logo .mast-brand { grid-column: 4 }`),
+  but the gradient's `at center` still meant "center of the whole bar"
+  — on mobile that's nowhere near where the logo actually sits anymore,
+  so the halo appeared centered on empty space while the flag sat
+  unlit to the side. Fixed with a `≤720px`-scoped override
+  repositioning the gradient (`at 49px center`, matching the logo's
+  measured on-screen center) and using a smaller radius to match the
+  shorter mobile bar.
+  Verified live on both breakpoints and through `.is-scrolled`: the
+  halo tracks the logo correctly at both desktop-centered and mobile-
+  flush-left positions, shrinks proportionally when the masthead
+  compacts, no overflow, zero console errors. Reverted the live site's
+  active layout back to `logo` afterward, same as the `logo-light`
+  round — this only adds the option.
+  Theme version bumped 1.18.1 → 1.19.0 (minor bump: new layout option).
+  Approved by: Farhad, in this session (2026-09-14).

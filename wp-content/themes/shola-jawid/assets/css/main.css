@@ -620,6 +620,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .masthead--logo .masthead-left { grid-column: 1; order: 1; }
   .masthead--logo .masthead-right { grid-column: 3; order: 2; }
   .masthead--logo .mast-brand { grid-column: 4; order: 3; }
+  /*
+   * `logo-radial` mobile override: the radial-gradient's `at center`
+   * (main.css, `.masthead--logo-radial` block below) centers on the
+   * whole bar, which is correct on desktop (logo is horizontally
+   * centered there) but wrong here — the mobile rules just above move
+   * the logo flush to the left edge instead. Without this override the
+   * white halo sits in the middle of the bar while the flag it's
+   * supposed to glow behind is off to the side. Repositioned to match
+   * the logo's actual measured center on mobile (~49px from the left,
+   * confirmed live via getBoundingClientRect()), with a smaller radius
+   * to match the shorter mobile bar and smaller logo.
+   */
+  .masthead--logo-radial { background-image: radial-gradient(circle calc(70px * var(--mast-scale)) at 49px center, var(--paper) 0%, var(--winston-red) 90%); }
 }
 
 /*
@@ -653,6 +666,38 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .masthead.masthead--logo-light .mast-icon-link { color: color-mix(in oklab, var(--winston-red) 85%, transparent); }
 .masthead.masthead--logo-light .mast-icon-link:hover { color: var(--winston-red); }
+
+/*
+ * `logo-radial` layout (2026-09-14): a fourth masthead layout, Farhad's
+ * explicit ask — duplicate the red `logo` layout exactly ("keep the
+ * weight as is"), the one change being a radial gradient behind the
+ * flag: white at the center, blending out to the same red used
+ * everywhere else. Every other rule in this file (text/icon colors,
+ * border-bottom, grid/spacing/responsive behavior) is untouched here —
+ * unlike `logo-light`, this variant doesn't recolor anything, it only
+ * layers a background-image on top of the same red background-color.
+ * A fixed-radius circle (not a percentage of the box, which defaults
+ * to `farthest-corner` and would stretch the white bloom out toward
+ * the nav text on a wide desktop window) keeps the white halo sized to
+ * the flag itself regardless of how wide the bar is — verified live
+ * that at typical desktop widths the gradient fades to solid red well
+ * before reaching "دربارهٔ ما"/"منو" on either side, so legibility
+ * there is unaffected. `* var(--mast-scale)` on the radius shrinks the
+ * halo together with the logo in the sticky-compact state, the same
+ * proportional-shrink approach as every other sized value in this
+ * layout.
+ * `background-repeat: no-repeat` is required, not decorative: a
+ * radial-gradient with an explicit fixed-size circle (rather than the
+ * default farthest-corner, which always fills the box) is smaller
+ * than the masthead box, and `background-repeat`'s default value is
+ * `repeat` — without this it tiles into a grid of red/white circles
+ * across the whole bar instead of appearing once behind the logo.
+ */
+.masthead--logo-radial {
+  background-color: var(--winston-red);
+  background-image: radial-gradient(circle calc(100px * var(--mast-scale)) at center, var(--paper) 0%, var(--winston-red) 90%);
+  background-repeat: no-repeat;
+}
 
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
    on _header.html's menu/search separator, search icon link, and
