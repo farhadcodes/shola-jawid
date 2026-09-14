@@ -592,34 +592,63 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
      scoped to this element, fixes both directions at once. */
   nav.mast-pub-nav { display: none; }
   /*
-   * `logo` layout, mobile only (2026-09-14): Farhad's live look at the
-   * phone size found the logo floating alone in the middle column with
-   * nothing anchoring it, and the date nowhere to be seen (its span is
-   * `.hide-mobile` in header.php, desktop/tablet only up to here).
-   * Explicitly scoped to `.masthead--logo` and to this ≤720px block only
-   * — tablet/desktop keep the centered-logo layout designed earlier,
+   * `logo` layout, mobile only (2026-09-14, revised same day): Farhad's
+   * live look at the phone size first found the logo floating alone
+   * with nothing anchoring it and the date missing entirely — fixed by
+   * grouping the date next to the logo, flush to the left edge. His
+   * next live look said that read as the date being stuck "on the
+   * left" and asked for it (with the logo) at absolute center instead.
+   * Explicitly scoped to `.masthead--logo` and to this ≤720px block —
+   * tablet/desktop keep the centered-logo layout designed earlier,
    * untouched.
-   * A 4th grid track turns the 3-column row into: menu cluster (col 1,
-   * unchanged, right) — flexible spacer (col 2, absorbs the gap) — date
-   * (col 3) — logo (col 4, leftmost). Explicit `grid-column` per item
-   * instead of relying on `order` alone for placement: with only 3
-   * grid items across 4 named columns, auto-placement can't be told
-   * which column to leave empty, but naming lines directly can.
-   * `order` is still needed alongside it, for a subtler reason: the
-   * grid auto-placement cursor only moves forward through columns in
-   * (order-modified) source order, and `mast-brand` (col 4) sits
-   * before `.masthead-right` (col 3) in header.php's markup — without
-   * reordering them here, the cursor reaches column 4 first and can't
-   * go "back" to column 3 for the date, so it got pushed onto a second
-   * implicit row instead (found live: the date rendered as its own bar
-   * below the logo, not next to it). Giving `.masthead-right` a lower
-   * `order` than `.mast-brand` makes the cursor visit column 3 first,
-   * so both land in row 1 as intended.
+   * True centering of the [date, logo] pair — independent of the menu
+   * button's own width, not just centered in whatever space happens to
+   * be left over after it — needs the menu taken out of the grid's
+   * column flow entirely: `.masthead-left` (menu) becomes
+   * `position: absolute`, pinned to the row's outer edge
+   * (`inset-inline-end: 0`, flush with the padding this row already
+   * has via `.wrap`), so it no longer consumes a grid track or biases
+   * where "center" falls. With only the date and logo left as grid
+   * items, `1fr auto auto 1fr` gives them two matched flexible spacers
+   * on either side, centering the pair in the *full* row width.
+   * `order` is still needed for the same reason as before: the grid
+   * auto-placement cursor only moves forward through columns in
+   * (order-modified) source order, and `mast-brand` (the logo) sits
+   * before `.masthead-right` (the date) in header.php's markup —
+   * without reordering, the cursor reaches the logo's column first and
+   * can't go "back" for the date, pushing it onto a second implicit
+   * row instead of sitting beside the logo (the exact bug hit and
+   * fixed the same way earlier today, before the menu was pulled out
+   * of the grid).
    */
-  .masthead--logo .masthead-inner { grid-template-columns: auto 1fr auto auto; }
-  .masthead--logo .masthead-left { grid-column: 1; order: 1; }
-  .masthead--logo .masthead-right { grid-column: 3; order: 2; }
-  .masthead--logo .mast-brand { grid-column: 4; order: 3; }
+  .masthead--logo .masthead-inner { grid-template-columns: 1fr auto auto 1fr; position: relative; }
+  .masthead--logo .masthead-left {
+    position: absolute;
+    /*
+     * `inset-inline-start`, not `-end`: in this RTL page, inline flow
+     * runs right-to-left, so "start" is the physical right edge —
+     * where the menu button has always been. Got this backwards on
+     * the first try (`-end`), which is the physical left in RTL, and
+     * put the menu on the wrong side of the bar entirely — caught live.
+     * `var(--gap-pad-x)`, not `0`: an absolutely positioned element's
+     * containing block is the nearest positioned ancestor's padding
+     * *edge* — the boundary between border and padding, i.e. the
+     * border box's own edge — which does NOT already account for that
+     * ancestor's own padding the way a normal in-flow grid item would.
+     * `inset-inline-start: 0` therefore sits flush against
+     * `.masthead-inner`'s true outer edge, ignoring its `.wrap`-derived
+     * `padding-inline` entirely — found live: the menu button rendered
+     * flush against the actual viewport edge, no margin at all.
+     * Matching the offset to the same `--gap-pad-x` token `.wrap` uses
+     * for that padding restores the same visual margin the button had
+     * before this became `position: absolute`.
+     */
+    inset-inline-start: var(--gap-pad-x);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .masthead--logo .masthead-right { grid-column: 2; order: 1; }
+  .masthead--logo .mast-brand { grid-column: 3; order: 2; }
 }
 
 /*
@@ -687,24 +716,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   background-repeat: no-repeat;
 }
 /*
- * Mobile override — deliberately placed AFTER the unconditional
- * `.masthead--logo-radial` rule above, not inside the earlier
- * `@media (max-width: 720px)` block with the rest of the mobile
- * `.masthead--logo` rules. Same selector, same specificity (one class
- * each) — a media query changes *when* a rule applies, not its
- * specificity, so with both rules matching at ≤720px the tie goes to
- * whichever comes later in the file; placed earlier, this silently
- * lost every time to the unconditional rule regardless of viewport
- * (found live in an earlier round). This block must stay physically
- * below the base rule for that reason.
- * Position matches the logo's flush-left mobile center; radius kept
- * proportionally narrow like the desktop version, just wider as a
- * percentage since the mobile bar itself is much narrower in absolute
- * terms.
+ * No mobile-specific override anymore (there was one, positioning the
+ * gradient at a hardcoded flush-left offset to match the logo's old
+ * flush-left mobile position). Now that the mobile `.masthead--logo`
+ * rules above center the [date, logo] pair the same way desktop does,
+ * the unconditional `at center` rule already lines up correctly at
+ * every width — found live after the mobile centering change: the
+ * old hardcoded offset left the white bloom sitting where the logo
+ * used to be, not where it now is, a stale position bug the same
+ * shape as the specificity bug this mobile override existed to fix in
+ * the first place.
  */
-@media (max-width: 720px) {
-  .masthead--logo-radial { background-image: radial-gradient(ellipse 26% 160% at 54px center, var(--paper) 0%, var(--paper) 8%, var(--winston-red) 100%); }
-}
 
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
    on _header.html's menu/search separator, search icon link, and

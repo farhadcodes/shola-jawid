@@ -8649,3 +8649,48 @@ trail of *why* the build deviated from — or newly applied — a rule in
   active layout back to `logo` afterward.
   Theme version bumped 1.19.2 → 1.19.3.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — mobile masthead date moved from flush-left to absolute
+  center, all three `logo`-based layouts.** Farhad's live look at the
+  phone size (real Chrome device toolbar, iPhone 16 Pro Max) said the
+  date sitting at the left (the flush-left grouping added earlier
+  today) should be dead center instead.
+  Scoped to the shared `.masthead--logo` mobile rules (`main.css`, the
+  existing `≤720px` block) — applies identically to `logo`,
+  `logo-light`, and `logo-radial`, no per-layout duplication needed.
+  True centering of the `[date, logo]` pair, independent of the menu
+  button's own width rather than just centered in whatever space
+  happened to be left after it: `.masthead-left` (the menu) comes out
+  of the grid's column flow entirely via `position: absolute`, so it
+  no longer consumes a track or biases where "center" falls; the
+  remaining two items get `grid-template-columns: 1fr auto auto 1fr`,
+  two matched flexible spacers centering the pair in the full row.
+  Two mistakes caught and fixed before shipping, not after:
+  (1) first tried `inset-inline-end: 0` to keep the menu at its usual
+  right-side spot — wrong physical side. In this RTL page inline flow
+  runs right-to-left, so "start" is the physical right; `-end` is the
+  physical left, and it put the menu on the wrong side of the bar
+  entirely, caught immediately via screenshot.
+  (2) after correcting to `inset-inline-start`, the menu rendered
+  flush against the true viewport edge with no margin. An absolutely
+  positioned element's containing block is its ancestor's padding
+  *edge* — the boundary between border and padding, not inset by that
+  padding — so `inset-inline-start: 0` ignored `.masthead-inner`'s own
+  `.wrap`-derived `padding-inline` entirely. Fixed by offsetting with
+  `var(--gap-pad-x)`, the same token `.wrap` uses for that padding.
+  Also removed `logo-radial`'s mobile-specific gradient-position
+  override (previously hardcoded to the old flush-left offset): now
+  that mobile centers the same way desktop does, the unconditional
+  `at center` rule already lines up correctly at every width without
+  a special case.
+  Verified live on all three logo-based layouts at 375px width and
+  through `.is-scrolled`: `[date, logo]` pair centered at the row's
+  true midpoint (confirmed via `getBoundingClientRect()`, cluster
+  center within 0.1px of half the row width), menu inset correctly
+  from the edge, `logo-radial`'s white bloom correctly follows the now-
+  centered flag, no horizontal overflow, zero console errors. Desktop/
+  tablet re-checked unaffected (rules are inside the existing ≤720px
+  block only). Reverted the live site's active layout back to `logo`
+  afterward.
+  Theme version bumped 1.19.3 → 1.19.4.
+  Approved by: Farhad, in this session (2026-09-14).
