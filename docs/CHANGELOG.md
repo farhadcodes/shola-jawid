@@ -8339,3 +8339,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   pass.
   Theme version bumped 1.17.3 → 1.17.4 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Fixed — date vanishes on the sticky/shrunk masthead, `logo`
+  layout.** Farhad's live look at the sticky header once scrolled
+  showed the date's spot empty. Root cause: `.mast-runner--inline`
+  (the relocated date, `header.php`) keeps the base `.mast-runner`
+  class for its shared typography, and a pre-existing rule —
+  `.masthead.is-scrolled .mast-runner { max-height: 0; opacity: 0; }`,
+  written for the `default` layout's stacked date so it disappears
+  once the bar compacts — matched it too, hiding Farhad's relocated
+  date the instant the masthead hit `.is-scrolled`. Scoped that rule
+  to `.mast-runner:not(.mast-runner--inline)` so it only ever touches
+  the `default` layout's own date; `.mast-runner--inline` now stays
+  visible through the scrolled state, as intended (it's already a
+  single compact row item, not something that needs to collapse).
+  Verified: forced `.is-scrolled` and read the date's computed style
+  (`opacity: 1`, `max-height: 24px`, non-zero rect) plus a screenshot
+  showing it rendered at the bar's outer-left edge; `default` layout's
+  own hide-on-scroll rule unaffected (selector only adds an exclusion,
+  doesn't remove the original match for elements without the modifier
+  class). Zero console errors.
+  Theme version bumped 1.17.4 → 1.17.5 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-14).

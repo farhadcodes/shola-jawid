@@ -524,13 +524,24 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
   text-transform: uppercase;
   transition: max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
 }
-.masthead.is-scrolled .mast-runner { max-height: 0; opacity: 0; margin-top: 0; }
+/*
+ * :not(.mast-runner--inline) (2026-09-14): the `default` layout's date
+ * stacks under the nameplate and is meant to vanish once the masthead
+ * shrinks. `.mast-runner--inline` (`logo` layout, below) shares the
+ * base `.mast-runner` class for its typography, so an unqualified
+ * selector here caught it too and hid Farhad's relocated date the
+ * moment the sticky masthead compacted — found live, scrolling the
+ * `logo` layout's page.
+ */
+.masthead.is-scrolled .mast-runner:not(.mast-runner--inline) { max-height: 0; opacity: 0; margin-top: 0; }
 /*
  * .mast-runner--inline (2026-09-14, `logo` layout): the date sitting
  * inline in .masthead-left next to the menu button, not stacked under
  * a title — no top margin/block stacking, ~2px smaller than the
  * stacked version per Farhad's ask so it reads as a compact nav-row
- * item instead of a headline subtitle.
+ * item instead of a headline subtitle. Stays visible through
+ * `.is-scrolled` (see the exclusion above) — it's a single compact
+ * row item already, not something that needs to collapse away.
  */
 .mast-runner--inline {
   display: inline-block;
