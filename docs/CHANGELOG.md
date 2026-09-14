@@ -8279,3 +8279,19 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.17.0 → 1.17.1 (plugin unchanged — this pass
   was theme-only markup/CSS).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Fixed — date placement, `logo` layout, same day.** Farhad's next
+  screenshot flagged the date's new spot as wrong: placed first in
+  `.masthead-left` (before منو), it rendered as the outermost/first
+  element in RTL reading order — ahead of the menu button, which read
+  as unprofessional (a date outranking primary navigation).
+  Moved to the opposite side instead: the outer edge of
+  `.masthead-right`, after the search icon — now the true leftmost
+  element in the bar, with منو correctly first in its own cluster.
+  `header.php` swap only; `.mast-runner--inline`'s styling (11px, no
+  block stacking) from the previous pass is unchanged, just relocated.
+  Verified: masthead height unchanged (144.55px, same as the previous
+  pass's own measured target), scroll-collapse behavior intact, no
+  console errors, no horizontal overflow at mobile width.
+  Theme version bumped 1.17.1 → 1.17.2 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-14).

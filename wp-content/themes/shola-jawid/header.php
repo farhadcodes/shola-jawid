@@ -67,21 +67,6 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 	<div class="wrap masthead-inner">
 
 		<div class="masthead-left">
-			<?php if ( 'logo' === $shola_masthead_layout ) : ?>
-				<?php
-				/*
-				 * `logo` layout: the date moves here from inside .mast-brand
-				 * (2026-09-14, Farhad's live feedback on the first version —
-				 * stacked under the logo it left an awkwardly tall, empty-
-				 * looking center column). Smaller than its old size
-				 * (.mast-runner--inline, ~2px down) since it's now sitting
-				 * inline in a nav row next to compact nav text, not stacked
-				 * under a large title.
-				 */
-				?>
-				<span class="mast-runner mast-runner--inline hide-mobile" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
-				<span aria-hidden="true" class="mast-slash hide-mobile">/</span>
-			<?php endif; ?>
 			<button type="button" id="menu-open" class="mast-btn" aria-expanded="false" aria-controls="menu-panel" aria-label="<?php esc_attr_e( 'باز کردن منو', 'shola-jawid' ); ?>">
 				<svg width="22" height="14" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M0 1h16M0 5h16M0 9h16"/></svg>
 				<span><?php esc_html_e( 'منو', 'shola-jawid' ); ?></span>
@@ -150,8 +135,8 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 				<span class="mast-nameplate"><?php bloginfo( 'name' ); ?></span>
 				<?php
 			}
-			// `default` layout only — `logo` shows the date in
-			// .masthead-left instead (see above).
+			// `default` layout only — `logo` shows the date at the outer
+			// edge of .masthead-right instead (see below).
 			if ( 'logo' !== $shola_masthead_layout ) {
 				?>
 				<span class="mast-runner" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
@@ -170,6 +155,19 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link mast-icon-link--lg hide-mobile" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 				<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
+			<?php if ( 'logo' === $shola_masthead_layout ) : ?>
+				<?php
+				/*
+				 * `logo` layout: date at the outer edge of .masthead-right
+				 * (2026-09-14, corrected same day — Farhad's second live
+				 * look found it placed before منو on the other side, which
+				 * read as outranking the menu button; moved to the far
+				 * outer edge, after the search icon, instead).
+				 */
+				?>
+				<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
+				<span class="mast-runner mast-runner--inline hide-mobile" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
+			<?php endif; ?>
 		</div>
 
 	</div>
