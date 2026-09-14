@@ -54,16 +54,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php
 /*
- * Masthead layout switch (2026-09-14, extended 2026-09-14 with `logo`):
- * reads the active masthead_section entry, same mechanism front-page.php
- * uses for hero_section. The nav/menu markup below is identical for
- * every layout — only the brand block (.mast-brand, further down)
- * actually differs, so the layout is branched there only rather than
- * duplicating this whole template for a one-element difference.
+ * Masthead layout switch (2026-09-14, extended same day with `logo`,
+ * extended again 2026-09-14 with `logo-light`): reads the active
+ * masthead_section entry, same mechanism front-page.php uses for
+ * hero_section. The nav/menu markup below is identical for every
+ * layout — only the brand block (.mast-brand, further down) and the
+ * color scheme actually differ, so those are branched here rather
+ * than duplicating this whole template.
+ * `logo-light` is structurally identical to `logo` (same logo image,
+ * same date placement, same responsive grid) — Farhad's explicit ask
+ * was "the same structure, reversed colors" — so it shares the
+ * `masthead--logo` structural class and every `logo`-layout check
+ * below, and only adds `masthead--logo-light` on top for the color
+ * override (main.css §05: white background, red text/icons; the logo
+ * image itself is untouched either way, per Farhad — "without the
+ * flag" meaning the flag graphic keeps its own colors).
  */
-$shola_masthead_layout = shola_get_active_masthead_layout();
+$shola_masthead_layout    = shola_get_active_masthead_layout();
+$shola_is_logo_layout     = in_array( $shola_masthead_layout, array( 'logo', 'logo-light' ), true );
 ?>
-<header class="masthead <?php echo ( 'logo' === $shola_masthead_layout ) ? 'masthead--logo' : ''; ?>">
+<header class="masthead <?php echo $shola_is_logo_layout ? 'masthead--logo' : ''; ?> <?php echo ( 'logo-light' === $shola_masthead_layout ) ? 'masthead--logo-light' : ''; ?>">
 	<div class="wrap masthead-inner">
 
 		<div class="masthead-left">
@@ -118,7 +128,7 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 			 * same as `default`, so an empty Customizer field never leaves
 			 * the header looking broken.
 			 */
-			$shola_logo_id = ( 'logo' === $shola_masthead_layout ) ? get_theme_mod( 'custom_logo' ) : 0;
+			$shola_logo_id = $shola_is_logo_layout ? get_theme_mod( 'custom_logo' ) : 0;
 			if ( $shola_logo_id ) {
 				echo wp_get_attachment_image(
 					$shola_logo_id,
@@ -135,9 +145,9 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 				<span class="mast-nameplate"><?php bloginfo( 'name' ); ?></span>
 				<?php
 			}
-			// `default` layout only — `logo` shows the date at the outer
-			// edge of .masthead-right instead (see below).
-			if ( 'logo' !== $shola_masthead_layout ) {
+			// `default` layout only — `logo`/`logo-light` show the date at
+			// the outer edge of .masthead-right instead (see below).
+			if ( ! $shola_is_logo_layout ) {
 				?>
 				<span class="mast-runner" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
 				<?php
@@ -155,11 +165,11 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link mast-icon-link--lg hide-mobile" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 				<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
-			<?php if ( 'logo' === $shola_masthead_layout ) : ?>
+			<?php if ( $shola_is_logo_layout ) : ?>
 				<?php
 				/*
-				 * `logo` layout: date at the outer edge of .masthead-right
-				 * on desktop/tablet (2026-09-14, corrected same day —
+				 * `logo`/`logo-light` layout: date at the outer edge of
+				 * .masthead-right on desktop/tablet (2026-09-14, corrected same day —
 				 * Farhad's second live look found it placed before منو on
 				 * the other side, which read as outranking the menu
 				 * button; moved to the far outer edge, after the search

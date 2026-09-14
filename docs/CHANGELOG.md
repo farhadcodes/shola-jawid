@@ -8396,3 +8396,55 @@ trail of *why* the build deviated from — or newly applied — a rule in
   upward. Zero console errors.
   Theme version bumped 1.17.5 → 1.17.6 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Added: third masthead layout, `logo-light` — same structure as
+  `logo`, reversed colors.** Farhad's explicit ask: duplicate the
+  `logo` layout exactly, white background, red text/icons, logo image
+  itself untouched ("without the flag" — the flag graphic keeps its
+  own colors, only the surrounding chrome inverts). Now three options
+  in the masthead_section layout picker: `default` (text nameplate),
+  `logo` (red background), `logo-light` (white background).
+  `shola-core` (`class-meta-fields.php`): `sanitize_masthead_layout()`
+  allow-list extended to `array('default','logo','logo-light')`; the
+  admin `<select>` gets a third `<option>`, and the existing two got
+  "(پس‌زمینهٔ قرمز)"/"(پس‌زمینهٔ سفید)" suffixes added to their labels so
+  the picker itself makes the red/white distinction clear (previously
+  just "چیدمان با لوگو" — fine when there was only one logo layout, no
+  longer disambiguating with two). Plugin version bumped 1.10.0 →
+  1.11.0.
+  `shola-jawid` (`header.php`): `logo-light` is deliberately NOT a
+  parallel branch of `logo` — it reuses every `'logo' === layout`
+  structural check (the logo image, the date's position, the mobile
+  regrouping) via a new `$shola_is_logo_layout` boolean, since Farhad
+  was explicit that the structure is identical and only color inverts.
+  A second, narrower check (`'logo-light' === layout`) adds one extra
+  class, `masthead--logo-light`, purely for the color override.
+  Duplicating the whole branch instead would have meant every future
+  structural tweak (like the two mobile-layout fixes earlier today)
+  needing to be made and verified twice.
+  `main.css`: new `.masthead--logo-light` block overrides exactly the
+  properties that use `var(--paper)` (or a color-mix of it) elsewhere
+  in the masthead — background, `.mast-btn`, `.mast-runner`,
+  `.mast-slash`/`.mast-slash-light`, `.mast-icon-link`, focus outline —
+  swapped to `var(--winston-red)`/`var(--winston-red-deep)`. No new
+  grid/spacing/responsive rules: the mobile regrouping and sticky-
+  shrink behavior added earlier today apply to `logo-light` automatically
+  since it shares the `masthead--logo` structural class.
+  One real bug caught before shipping: `.masthead .mast-icon-link` (the
+  existing red-layout search-icon color rule, further down this file)
+  has the exact same specificity as `.masthead--logo-light
+  .mast-icon-link` (two classes each) and comes later in source order,
+  so it was silently winning the cascade and leaving the search icon
+  white on the white background. Fixed by repeating `.masthead` in the
+  `logo-light` selector (`.masthead.masthead--logo-light
+  .mast-icon-link`), which out-specifies it regardless of order.
+  Verified live (temporarily set the active masthead_section entry to
+  `logo-light` via WP-CLI, screenshotted, then reverted to `logo`):
+  white background, red menu/nav/date/search-icon text at both desktop
+  and 375px mobile widths, correct through `.is-scrolled`, flag logo
+  unrecolored, zero console errors. Reverted the live site's active
+  layout back to `logo` afterward — this round only adds the option,
+  Farhad didn't ask to switch the live site to it.
+  Theme version bumped 1.17.6 → 1.18.0 (minor bump: new layout option,
+  not a fix).
+  Approved by: Farhad, in this session (2026-09-14).

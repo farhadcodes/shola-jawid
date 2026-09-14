@@ -612,6 +612,38 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .masthead--logo .mast-brand { grid-column: 4; order: 3; }
 }
 
+/*
+ * `logo-light` layout (2026-09-14): a third masthead layout, Farhad's
+ * explicit ask — "same structure, reversed colors": white background,
+ * red text/icons, logo image itself untouched (it's a raster graphic
+ * with its own colors; only the surrounding chrome inverts). Purely a
+ * color override on top of `.masthead--logo`'s existing structure —
+ * every grid/spacing/responsive rule above is shared unchanged between
+ * the red and white variants, so this block only touches `color` and
+ * `background`. Every element it lists uses `var(--paper)` (or a
+ * color-mix of it) as its base color elsewhere in this file — this is
+ * the exhaustive list of those, swapped to `var(--winston-red)`.
+ */
+.masthead--logo-light {
+  background: var(--paper);
+  border-bottom-color: var(--winston-red);
+}
+.masthead--logo-light :focus-visible { outline-color: var(--winston-red); }
+.masthead--logo-light .mast-btn { color: var(--winston-red); }
+.masthead--logo-light .mast-btn:hover { color: var(--winston-red-deep); }
+.masthead--logo-light .mast-runner { color: color-mix(in oklab, var(--winston-red) 72%, transparent); }
+.masthead--logo-light .mast-slash,
+.masthead--logo-light .mast-slash-light { color: var(--winston-red); }
+/*
+ * `.masthead` repeated in the selector (not just `.masthead--logo-light`):
+ * matches `.masthead .mast-icon-link`'s own specificity further down this
+ * file exactly, and that rule comes later in source order — without the
+ * extra class here it would win the tie and the search icon would stay
+ * the red layout's white/--paper color instead of inverting.
+ */
+.masthead.masthead--logo-light .mast-icon-link { color: color-mix(in oklab, var(--winston-red) 85%, transparent); }
+.masthead.masthead--logo-light .mast-icon-link:hover { color: var(--winston-red); }
+
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
    on _header.html's menu/search separator, search icon link, and
    nameplate-link wrapper — same computed values, moved to classes per

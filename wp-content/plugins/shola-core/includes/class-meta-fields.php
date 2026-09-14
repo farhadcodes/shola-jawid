@@ -435,7 +435,7 @@ class Meta_Fields {
 	 * @return string
 	 */
 	public static function sanitize_masthead_layout( $value ) {
-		return in_array( $value, array( 'default', 'logo' ), true ) ? $value : 'default';
+		return in_array( $value, array( 'default', 'logo', 'logo-light' ), true ) ? $value : 'default';
 	}
 
 	/**
@@ -791,10 +791,11 @@ class Meta_Fields {
 			<label for="shcore_masthead_layout"><strong><?php esc_html_e( 'نوع چیدمان', 'shola-core' ); ?></strong></label><br>
 			<select id="shcore_masthead_layout" name="shcore_masthead_layout">
 				<option value="default" <?php selected( $layout, 'default' ); ?>><?php esc_html_e( 'چیدمان فعلی (نام‌بردهٔ متنی)', 'shola-core' ); ?></option>
-				<option value="logo" <?php selected( $layout, 'logo' ); ?>><?php esc_html_e( 'چیدمان با لوگو', 'shola-core' ); ?></option>
+				<option value="logo" <?php selected( $layout, 'logo' ); ?>><?php esc_html_e( 'چیدمان با لوگو (پس‌زمینهٔ قرمز)', 'shola-core' ); ?></option>
+				<option value="logo-light" <?php selected( $layout, 'logo-light' ); ?>><?php esc_html_e( 'چیدمان با لوگو (پس‌زمینهٔ سفید)', 'shola-core' ); ?></option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'چیدمان فعلی: هدر کنونی سایت (نام‌بردهٔ متنی، پیوندهای ناوبری، جست‌وجو، منو). چیدمان با لوگو: همان هدر، با این تفاوت که به‌جای نام‌بردهٔ متنی، لوگوی سایت (از بخش نمایش ← شخصی‌سازی ← هویت سایت) نمایش داده می‌شود.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'چیدمان فعلی: هدر کنونی سایت (نام‌بردهٔ متنی، پیوندهای ناوبری، جست‌وجو، منو). چیدمان با لوگو (پس‌زمینهٔ قرمز): همان هدر، با این تفاوت که به‌جای نام‌بردهٔ متنی، لوگوی سایت (از بخش نمایش ← شخصی‌سازی ← هویت سایت) نمایش داده می‌شود. چیدمان با لوگو (پس‌زمینهٔ سفید): دقیقاً همان چیدمانِ لوگو، با رنگ‌های معکوس — پس‌زمینه سفید و متن/آیکن‌ها قرمز؛ خودِ لوگو تغییر رنگ نمی‌کند.', 'shola-core' ); ?></p>
 		<?php
 	}
 
