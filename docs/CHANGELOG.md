@@ -8623,3 +8623,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   site's active layout back to `logo` afterward.
   Theme version bumped 1.19.1 → 1.19.2.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — reverted `logo-radial`'s crop, narrowed the gradient.**
+  Farhad's next live look said this "is not close to the prototype" on
+  two specific points: the white gradient was much wider than the
+  reference, and the flag being cropped top/bottom (added two rounds
+  ago) was wrong — the reference's flag is fully visible; that read
+  came from a tightly-exported reference image, not an intentional
+  clipped-pole effect.
+  Removed the entire crop mechanism: `.masthead--logo-radial
+  .masthead-inner`'s definite `height`/`overflow: hidden`/
+  `align-content: center` and `.mast-logo`'s 180px override are gone.
+  `.mast-logo` and `.masthead-inner` are back to the exact same shared
+  rules the plain `logo` layout uses — confirmed masthead height is
+  now 99.5px, identical to `logo`/`logo-light`.
+  Narrowed the gradient: ellipse horizontal radius 45%/55%
+  (desktop/mobile) down to 16%/26%, and the solid-white plateau before
+  the fade to red shortened from 18% to 8% — red now dominates most of
+  the bar, a narrow bright band sits behind the flag, matching the
+  reference's proportions far more closely than the previous pass.
+  Verified live on desktop and mobile, resting and `.is-scrolled`
+  states: flag fully visible (no clipping), narrow visible white band,
+  masthead height matches the other logo layouts exactly, no
+  horizontal overflow, zero console errors. Reverted the live site's
+  active layout back to `logo` afterward.
+  Theme version bumped 1.19.2 → 1.19.3.
+  Approved by: Farhad, in this session (2026-09-14).
