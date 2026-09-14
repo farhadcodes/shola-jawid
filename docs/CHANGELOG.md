@@ -8317,3 +8317,25 @@ trail of *why* the build deviated from — or newly applied — a rule in
   confirmed unaffected (no `.masthead--logo` class present there).
   Theme version bumped 1.17.2 → 1.17.3 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — masthead height, `logo` layout, same day, one more
+  pass.** Farhad's next look, after the previous compacting pass, said
+  it still needed to be "more compact" and asked to shorten it "by
+  15%" from where it stood. Read that as 15% off the previous pass's
+  own measured 120.55px total, targeting ≈102.47px.
+  `.masthead--logo .masthead-inner`'s `padding-block` reduced again
+  (0.75rem → 0.185rem — the same 24px-per-side spacing that started
+  this whole thread down to roughly 6px each side at rest scale),
+  same ≤720px breakpoint override reduced proportionally by the same
+  ratio (0.6rem → 0.15rem). Only the padding moved; `.mast-logo`'s own
+  height (81px) is untouched, same as every prior pass in this thread.
+  Verified via `getBoundingClientRect()`: masthead height landed at
+  102.45px (target 102.47px, off by 0.02px), a 15.0% reduction from
+  the prior 120.55px. Mobile re-checked at 375px width: 75.92px,
+  no horizontal overflow, logo/search/menu row reads cleanly. Zero
+  console errors. Scroll-collapse (`.is-scrolled` / `--mast-scale`)
+  logic itself is unchanged — only the rest-state padding value did —
+  so it continues to compound the same way it already did before this
+  pass.
+  Theme version bumped 1.17.3 → 1.17.4 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-14).
