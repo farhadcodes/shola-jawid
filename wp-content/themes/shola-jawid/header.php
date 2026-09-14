@@ -159,14 +159,20 @@ $shola_masthead_layout = shola_get_active_masthead_layout();
 				<?php
 				/*
 				 * `logo` layout: date at the outer edge of .masthead-right
-				 * (2026-09-14, corrected same day — Farhad's second live
-				 * look found it placed before منو on the other side, which
-				 * read as outranking the menu button; moved to the far
-				 * outer edge, after the search icon, instead).
+				 * on desktop/tablet (2026-09-14, corrected same day —
+				 * Farhad's second live look found it placed before منو on
+				 * the other side, which read as outranking the menu
+				 * button; moved to the far outer edge, after the search
+				 * icon, instead). The separating slash stays desktop/
+				 * tablet-only (nothing else in .masthead-right on mobile
+				 * to separate it from), but the date span itself is not
+				 * `hide-mobile`: at ≤720px it's regrouped next to the
+				 * logo instead (main.css §05 mobile block), per Farhad's
+				 * mobile-specific request — not hidden there.
 				 */
 				?>
 				<span aria-hidden="true" class="hide-mobile mast-slash-light">/</span>
-				<span class="mast-runner mast-runner--inline hide-mobile" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
+				<span class="mast-runner mast-runner--inline" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
 			<?php endif; ?>
 		</div>
 

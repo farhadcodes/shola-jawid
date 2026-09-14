@@ -8361,3 +8361,38 @@ trail of *why* the build deviated from — or newly applied — a rule in
   class). Zero console errors.
   Theme version bumped 1.17.4 → 1.17.5 (plugin unchanged).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — mobile-only regrouping of the logo and date, `logo`
+  layout.** Farhad's phone-size look (DevTools device toolbar, iPhone
+  16 emulation) found the logo floating alone in the middle column
+  with nothing anchoring it, no date anywhere (its span was
+  `hide-mobile` in header.php, desktop/tablet only up to this point),
+  and asked for it fixed on mobile only — tablet/desktop keep the
+  centered-logo design from the earlier rounds, untouched.
+  `header.php`: removed `hide-mobile` from `.mast-runner--inline` (the
+  date span) — its preceding separator slash stays desktop/tablet-only,
+  nothing to separate from on mobile. `main.css`, inside the existing
+  `@media (max-width: 720px)` block, scoped to `.masthead--logo` only:
+  a 4th grid column turns the row into menu cluster (col 1, unchanged,
+  right) — flexible spacer (col 2) — date (col 3) — logo (col 4,
+  leftmost), via explicit `grid-column` per item (auto-placement can't
+  be told which of 4 columns to leave empty with only 3 items).
+  Also needed `order: 1/2/3` on the three items: grid's auto-placement
+  cursor only advances forward through columns in source order, and
+  `mast-brand` (col 4) sits before `.masthead-right` (col 3) in the
+  markup — without reordering, the cursor reached column 4 first and
+  couldn't go back for column 3, pushing the date onto its own
+  implicit second row instead of sitting beside the logo (found live —
+  the date rendered as a second thin bar under the masthead). Giving
+  `.masthead-right` a lower `order` than `.mast-brand` fixed it.
+  Verified via `getBoundingClientRect()` at 375px width: single grid
+  row (was two), masthead height 76.35px, logo flush to the left edge,
+  date immediately to its right, menu/search cluster unmoved on the
+  right. `.is-scrolled` re-checked (date stays visible, no regression
+  from the previous round's fix). No horizontal overflow. Tablet
+  (768px) and desktop re-checked and confirmed byte-for-byte unchanged
+  (still 102.45px, centered logo) — the mobile rules are inside the
+  ≤720px query and scoped to `.masthead--logo`, so they can't leak
+  upward. Zero console errors.
+  Theme version bumped 1.17.5 → 1.17.6 (plugin unchanged).
+  Approved by: Farhad, in this session (2026-09-14).

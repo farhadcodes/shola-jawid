@@ -581,6 +581,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
      items were leaking onto the mobile masthead. Matching specificity,
      scoped to this element, fixes both directions at once. */
   nav.mast-pub-nav { display: none; }
+  /*
+   * `logo` layout, mobile only (2026-09-14): Farhad's live look at the
+   * phone size found the logo floating alone in the middle column with
+   * nothing anchoring it, and the date nowhere to be seen (its span is
+   * `.hide-mobile` in header.php, desktop/tablet only up to here).
+   * Explicitly scoped to `.masthead--logo` and to this ≤720px block only
+   * — tablet/desktop keep the centered-logo layout designed earlier,
+   * untouched.
+   * A 4th grid track turns the 3-column row into: menu cluster (col 1,
+   * unchanged, right) — flexible spacer (col 2, absorbs the gap) — date
+   * (col 3) — logo (col 4, leftmost). Explicit `grid-column` per item
+   * instead of relying on `order` alone for placement: with only 3
+   * grid items across 4 named columns, auto-placement can't be told
+   * which column to leave empty, but naming lines directly can.
+   * `order` is still needed alongside it, for a subtler reason: the
+   * grid auto-placement cursor only moves forward through columns in
+   * (order-modified) source order, and `mast-brand` (col 4) sits
+   * before `.masthead-right` (col 3) in header.php's markup — without
+   * reordering them here, the cursor reaches column 4 first and can't
+   * go "back" to column 3 for the date, so it got pushed onto a second
+   * implicit row instead (found live: the date rendered as its own bar
+   * below the logo, not next to it). Giving `.masthead-right` a lower
+   * `order` than `.mast-brand` makes the cursor visit column 3 first,
+   * so both land in row 1 as intended.
+   */
+  .masthead--logo .masthead-inner { grid-template-columns: auto 1fr auto auto; }
+  .masthead--logo .masthead-left { grid-column: 1; order: 1; }
+  .masthead--logo .masthead-right { grid-column: 3; order: 2; }
+  .masthead--logo .mast-brand { grid-column: 4; order: 3; }
 }
 
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
