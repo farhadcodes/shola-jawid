@@ -8534,3 +8534,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   round — this only adds the option.
   Theme version bumped 1.18.1 → 1.19.0 (minor bump: new layout option).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — `logo-radial` made much bolder, per a reference image.**
+  Farhad's first-pass version (small fixed-radius white circle) read as
+  too subtle; he sent a reference image of the concept applied far more
+  boldly — a wide gradient bleed covering most of the bar's width, a
+  noticeably bigger flag, and the flagpole visibly cropped off at the
+  top and bottom rather than fully contained in the bar — and asked to
+  match it exactly.
+  Gradient: switched from a `circle` with a fixed pixel radius to an
+  `ellipse` sized as percentages of the bar itself (horizontal radius a
+  fraction of width, vertical radius spanning the full height), which
+  is what produces the reference's wide-short bleed shape. Also added a
+  solid-white plateau before the fade to red (`white 0%, white 18%, red
+  100%` instead of a straight `white 0%, red 100%`) — the straight
+  version mixed to red too quickly to read as a visible glow once the
+  bigger flag was covering most of the gradient's original narrow
+  width; first tried at the old narrow width, confirmed via screenshot
+  it was nearly invisible, before widening it.
+  Cropped pole: `.masthead--logo-radial .masthead-inner` gets a
+  *definite* height (not the shared padding-driven auto height every
+  other layout uses) plus `overflow: hidden`; `.mast-logo` is sized
+  taller than that (180px desktop, up from 92px). CSS Grid still sizes
+  its implicit row to the tallest item's natural content height
+  regardless of the container's own specified height, so the oversized
+  logo pushes the grid's content past the container's box, which
+  `overflow: hidden` clips top and bottom symmetrically (centered by
+  the existing `align-items: center`). Deliberately sizing+clipping
+  rather than `position: absolute` on `.mast-brand` (which would have
+  been a simpler way to decouple it from row-height) — absolute
+  positioning would also un-place it from the `grid-column` assignment
+  the mobile-only rules give it, undoing the flush-left mobile position
+  from earlier today. This way the crop works at both the desktop-
+  centered and mobile-flush-left position without touching placement.
+  One real bug caught before shipping, not a design choice: the mobile
+  override for this layout's gradient/sizing was originally placed
+  inside the existing `@media (max-width: 720px)` block alongside the
+  other `.masthead--logo` mobile rules — physically *before* the
+  unconditional `.masthead--logo-radial` rule further down the file.
+  Same selector, same specificity (one class each); a media query
+  changes *when* a rule applies, not its specificity, so with both
+  rules matching at ≤720px the tie went to whichever came later in the
+  file — the unconditional one. Found live: at 375px width the
+  gradient and crop sizing stayed at full desktop values, centered on
+  the whole bar, while the actual (flush-left) logo sat unlit off to
+  the side. Fixed by moving the mobile override into its own `@media`
+  block placed *after* the unconditional rule, so it now correctly
+  wins the specificity tie at mobile widths.
+  Verified live on both breakpoints and through `.is-scrolled`: wide
+  visible white bleed roughly matching the reference's proportions,
+  flagpole cropped top/bottom, mobile gradient/crop now correctly
+  tracks the flush-left logo, no horizontal overflow, zero console
+  errors. Reverted the live site's active layout back to `logo`
+  afterward, same as every other layout-option round today.
+  Theme version bumped 1.19.0 → 1.19.1.
+  Approved by: Farhad, in this session (2026-09-14).

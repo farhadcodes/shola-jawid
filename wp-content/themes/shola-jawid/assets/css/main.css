@@ -620,19 +620,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .masthead--logo .masthead-left { grid-column: 1; order: 1; }
   .masthead--logo .masthead-right { grid-column: 3; order: 2; }
   .masthead--logo .mast-brand { grid-column: 4; order: 3; }
-  /*
-   * `logo-radial` mobile override: the radial-gradient's `at center`
-   * (main.css, `.masthead--logo-radial` block below) centers on the
-   * whole bar, which is correct on desktop (logo is horizontally
-   * centered there) but wrong here — the mobile rules just above move
-   * the logo flush to the left edge instead. Without this override the
-   * white halo sits in the middle of the bar while the flag it's
-   * supposed to glow behind is off to the side. Repositioned to match
-   * the logo's actual measured center on mobile (~49px from the left,
-   * confirmed live via getBoundingClientRect()), with a smaller radius
-   * to match the shorter mobile bar and smaller logo.
-   */
-  .masthead--logo-radial { background-image: radial-gradient(circle calc(70px * var(--mast-scale)) at 49px center, var(--paper) 0%, var(--winston-red) 90%); }
 }
 
 /*
@@ -668,35 +655,84 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .masthead.masthead--logo-light .mast-icon-link:hover { color: var(--winston-red); }
 
 /*
- * `logo-radial` layout (2026-09-14): a fourth masthead layout, Farhad's
- * explicit ask — duplicate the red `logo` layout exactly ("keep the
- * weight as is"), the one change being a radial gradient behind the
- * flag: white at the center, blending out to the same red used
- * everywhere else. Every other rule in this file (text/icon colors,
- * border-bottom, grid/spacing/responsive behavior) is untouched here —
- * unlike `logo-light`, this variant doesn't recolor anything, it only
- * layers a background-image on top of the same red background-color.
- * A fixed-radius circle (not a percentage of the box, which defaults
- * to `farthest-corner` and would stretch the white bloom out toward
- * the nav text on a wide desktop window) keeps the white halo sized to
- * the flag itself regardless of how wide the bar is — verified live
- * that at typical desktop widths the gradient fades to solid red well
- * before reaching "دربارهٔ ما"/"منو" on either side, so legibility
- * there is unaffected. `* var(--mast-scale)` on the radius shrinks the
- * halo together with the logo in the sticky-compact state, the same
- * proportional-shrink approach as every other sized value in this
- * layout.
- * `background-repeat: no-repeat` is required, not decorative: a
- * radial-gradient with an explicit fixed-size circle (rather than the
- * default farthest-corner, which always fills the box) is smaller
- * than the masthead box, and `background-repeat`'s default value is
- * `repeat` — without this it tiles into a grid of red/white circles
- * across the whole bar instead of appearing once behind the logo.
+ * `logo-radial` layout (2026-09-14, revised same day): a fourth
+ * masthead layout, Farhad's explicit ask — duplicate the red `logo`
+ * layout exactly, the one change being a radial gradient behind the
+ * flag. First pass used a small fixed-radius circle; Farhad then sent
+ * a reference image asking for the same concept applied much more
+ * boldly — a wide gradient covering most of the bar's width, a
+ * noticeably bigger flag, and the flagpole visibly cropped off at the
+ * top and bottom of the bar rather than fully contained inside it.
+ * Every other rule in this file (text/icon colors, border-bottom,
+ * grid/spacing/responsive behavior) is still untouched here — this
+ * variant only ever changes the background and the logo's own size/
+ * crop, never recolors text like `logo-light` does.
+ * An `ellipse` (not `circle`) sized as percentages of the bar itself —
+ * not `farthest-corner`, which is proportioned by the *box's own*
+ * corner distance and doesn't let width/height bleed be tuned
+ * independently — reproduces the reference's wide, short bleed shape:
+ * the horizontal radius is a fraction of the bar's width, the vertical
+ * radius spans the bar's full height, so the white core stretches most
+ * of the way across but the outer ~1/3 on each side stays solid red
+ * (verified live against the reference proportions).
+ * `background-repeat: no-repeat` is still required, not decorative:
+ * without it any gradient sized smaller than the box tiles by default.
  */
 .masthead--logo-radial {
   background-color: var(--winston-red);
-  background-image: radial-gradient(circle calc(100px * var(--mast-scale)) at center, var(--paper) 0%, var(--winston-red) 90%);
+  background-image: radial-gradient(ellipse 45% 220% at center, var(--paper) 0%, var(--paper) 18%, var(--winston-red) 100%);
   background-repeat: no-repeat;
+}
+/*
+ * The cropped-pole effect: `.masthead-inner` gets a *definite* height
+ * (not the shared padding-driven auto height every other masthead
+ * layout uses) plus `overflow: hidden`, while `.mast-logo` is sized
+ * taller than that definite height. CSS Grid still sizes the implicit
+ * row to fit its tallest item's natural content height regardless of
+ * the container's own specified height, so the now-oversized logo
+ * pushes the grid's rendered content past the container's box — which
+ * `overflow: hidden` then clips symmetrically top and bottom, since
+ * `align-items: center` (inherited from `.masthead-inner`, shared)
+ * keeps the logo centered in that row before the crop. Deliberately
+ * NOT `position: absolute` on `.mast-brand`, which would have been a
+ * simpler way to decouple the logo from row-height sizing — it would
+ * also un-place it from the `grid-column` assignment the mobile-only
+ * rules further down give it, undoing the flush-left mobile position
+ * from earlier today. Sizing+overflow instead of repositioning means
+ * this crop effect works at both the desktop-centered and the
+ * mobile-flush-left position without touching placement at all.
+ */
+.masthead--logo-radial .masthead-inner {
+  height: calc(100px * var(--mast-scale));
+  overflow: hidden;
+}
+.masthead--logo-radial .mast-logo {
+  height: calc(180px * var(--mast-scale));
+}
+/*
+ * Mobile override, `logo-radial` — deliberately placed AFTER the
+ * unconditional `.masthead--logo-radial` rules above, not inside the
+ * earlier `@media (max-width: 720px)` block with the rest of the
+ * mobile `.masthead--logo` rules. Same selector, same specificity
+ * (one class each) — a media query changes *when* a rule applies, not
+ * its specificity, so with both rules matching at ≤720px the tie goes
+ * to whichever comes later in the file. Placed earlier (as it
+ * originally was, alongside the other mobile `.masthead--logo` rules)
+ * it silently lost every time to the unconditional rule below it,
+ * regardless of viewport — found live: at 375px width the gradient
+ * and crop sizing stayed at their full desktop values, the white
+ * bloom centered on the whole bar while the flush-left mobile logo
+ * sat unlit off to the side. This block must stay physically below
+ * the base rule for that reason — moving it back up would silently
+ * reintroduce the same bug.
+ * Position/ellipse/sizes match the logo's actual measured mobile
+ * center and the shorter mobile bar, same definite-height-plus-
+ * overflow crop technique as desktop, just scaled down.
+ */
+@media (max-width: 720px) {
+  .masthead--logo-radial { background-image: radial-gradient(ellipse 55% 220% at 54px center, var(--paper) 0%, var(--paper) 18%, var(--winston-red) 100%); }
+  .masthead--logo-radial .masthead-inner { height: calc(62px * var(--mast-scale)); }
+  .masthead--logo-radial .mast-logo { height: calc(100px * var(--mast-scale)); }
 }
 
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
