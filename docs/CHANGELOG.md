@@ -8589,3 +8589,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   afterward, same as every other layout-option round today.
   Theme version bumped 1.19.0 → 1.19.1.
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Fixed — `logo-radial`'s crop was silently bottom-only, dragging
+  the nav row down with it.** Farhad's screenshot from his own (real
+  Chrome, not this session's automated browser pane, which had
+  rendered the same CSS looking plausibly correct) browser showed the
+  flagpole's top fully intact, only the bottom cut off, and the whole
+  nav row sitting near the bottom edge of the bar instead of its
+  vertical middle — "nothing like" the reference.
+  Root cause: `align-items: center` (already on `.masthead-inner`,
+  shared by every layout) only centers an item *within its own row
+  track* — it says nothing about where an oversized row sits inside a
+  container whose specified height is smaller than that row's content.
+  Without `align-content`, Grid places a too-tall row flush to the
+  container's block-start (top) by default, so the ~80px difference
+  between the 180px logo and the 100px container overflowed entirely
+  at the bottom. Since the nav items share that same row and are also
+  just `align-items: center`-ed within it, they landed at the row's
+  own vertical middle — which, in a row anchored to the container's
+  top and taller than the container itself, sits below the container's
+  visible center, near its bottom edge.
+  Fixed with one property: `align-content: center` on
+  `.masthead--logo-radial .masthead-inner`, which centers the row
+  itself (not just items within it) inside the container when the two
+  heights differ. Applies automatically on mobile too — the mobile
+  override rule doesn't set `align-content`, so it inherits this fix
+  from the base rule without needing its own copy.
+  Verified via `getBoundingClientRect()`: the logo now overflows
+  exactly 40px above and 40px below the 100px container (symmetric),
+  and the nav row's vertical center lands at y=50 — dead center.
+  Re-checked visually and via console on both desktop and mobile,
+  resting and `.is-scrolled` states; zero errors. Reverted the live
+  site's active layout back to `logo` afterward.
+  Theme version bumped 1.19.1 → 1.19.2.
+  Approved by: Farhad, in this session (2026-09-14).

@@ -690,21 +690,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * taller than that definite height. CSS Grid still sizes the implicit
  * row to fit its tallest item's natural content height regardless of
  * the container's own specified height, so the now-oversized logo
- * pushes the grid's rendered content past the container's box — which
- * `overflow: hidden` then clips symmetrically top and bottom, since
- * `align-items: center` (inherited from `.masthead-inner`, shared)
- * keeps the logo centered in that row before the crop. Deliberately
- * NOT `position: absolute` on `.mast-brand`, which would have been a
- * simpler way to decouple the logo from row-height sizing — it would
- * also un-place it from the `grid-column` assignment the mobile-only
- * rules further down give it, undoing the flush-left mobile position
- * from earlier today. Sizing+overflow instead of repositioning means
- * this crop effect works at both the desktop-centered and the
- * mobile-flush-left position without touching placement at all.
+ * pushes the grid's rendered content past the container's box, which
+ * `overflow: hidden` then clips.
+ * `align-content: center` is required, not optional: `align-items`
+ * (already set on `.masthead-inner`, shared) only centers an item
+ * *within its own row track* — it says nothing about where an
+ * oversized row sits inside a container whose own specified height is
+ * smaller than that row. Without `align-content`, Grid places the row
+ * flush to the container's block-start (top) by default, so all ~80px
+ * of overflow happened at the bottom only — found live (real Chrome,
+ * not just this automated pane, which had rendered it looking
+ * plausibly centered): the flagpole's top was fully intact, only the
+ * bottom was cut off, and the nav row (also centered by `align-items`
+ * within that same top-anchored, too-tall row) landed near the bottom
+ * edge of the visible bar instead of its vertical middle. Centering
+ * the row itself, not just items within it, splits the overflow
+ * evenly top and bottom and puts the nav row back at true center.
+ * Deliberately NOT `position: absolute` on `.mast-brand`, which would
+ * have been a simpler way to decouple the logo from row-height sizing
+ * — it would also un-place it from the `grid-column` assignment the
+ * mobile-only rules further down give it, undoing the flush-left
+ * mobile position from earlier today. Sizing+overflow instead of
+ * repositioning means this crop effect works at both the desktop-
+ * centered and the mobile-flush-left position without touching
+ * placement at all.
  */
 .masthead--logo-radial .masthead-inner {
   height: calc(100px * var(--mast-scale));
   overflow: hidden;
+  align-content: center;
 }
 .masthead--logo-radial .mast-logo {
   height: calc(180px * var(--mast-scale));
