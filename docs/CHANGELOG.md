@@ -8753,3 +8753,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.19.5 → 1.20.0 (minor bump: new visible
   feature, not a fix).
   Approved by: Farhad, in this session (2026-09-14).
+
+- **Changed — footer logo enlarged (~2.9x) and made clickable to
+  home.** Farhad's live look at the first pass (44px) called it too
+  small — "at least 2.5x" bigger, clickable to the home page, still
+  Customizer-managed (already true, no new field needed).
+  `footer.php`: wrapped the logo (and the plain-text fallback) in a new
+  `<a href="<?php echo home_url('/') ?>" class="footer-logo-link">`
+  with an aria-label naming the site and "صفحهٔ اصلی" — the first pass
+  was a bare, unlinked `<img>`.
+  `main.css`: `.footer-logo`'s fixed 44px height replaced with
+  `clamp(72px, 16vw, 128px)` — 128px ceiling is ~2.9x the old size at
+  desktop/tablet widths (past the 2.5x floor asked for), 72px floor
+  keeps it proportionate on narrow phones rather than scaling the same
+  large value down awkwardly (mobile's single-column footer also
+  doesn't have a wide desktop column's spare width to fill). New
+  `.footer-logo-link { display: inline-block; margin-bottom: .5rem }`
+  — the `inline-block` sizes the link to exactly wrap the now much
+  taller image without a baseline-alignment gap below it (the same
+  class of bug `.mast-logo` hit in the masthead, avoided here by
+  giving the wrapper its own block-formatting context up front instead
+  of patching it after with `vertical-align`); the margin gives the
+  bigger logo breathing room above `.footer-tagline`.
+  Verified live: 128px at 1024px width (measured via
+  `getBoundingClientRect()`, correct aspect ratio, not stretched),
+  72px at 375px mobile width, link correctly resolves to the home URL
+  at both, no horizontal overflow, zero console errors.
+  Theme version bumped 1.20.0 → 1.20.1.
+  Approved by: Farhad, in this session (2026-09-14).

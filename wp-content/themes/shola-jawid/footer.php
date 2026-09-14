@@ -17,37 +17,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div>
 				<?php
 				/*
-				 * Logo in the footer (2026-09-14, Farhad's explicit ask):
-				 * replaces the plain text site name with the same logo set
-				 * at Appearance → Customize → Site Identity — the same
+				 * Logo in the footer (2026-09-14, Farhad's explicit ask;
+				 * enlarged and made clickable same day after his live look
+				 * called the first pass too small): replaces the plain text
+				 * site name with the same logo set at Appearance →
+				 * Customize → Site Identity — the same
 				 * `get_theme_mod( 'custom_logo' )` header.php's `logo`/
 				 * `logo-light`/`logo-radial` masthead layouts read, so
-				 * there's still exactly one place to manage it. Independent
-				 * of which masthead layout is active (including `default`,
-				 * the plain text one) — the footer always prefers the logo
+				 * there's still exactly one place to manage it (satisfies
+				 * Farhad's "changeable from the Customizer" ask — it
+				 * already was, no new field needed). Independent of which
+				 * masthead layout is active (including `default`, the
+				 * plain text one) — the footer always prefers the logo
 				 * once one is set. Falls back to the plain text nameplate
-				 * if no logo has been uploaded yet, same fallback pattern
-				 * as the header, so an empty Customizer field never leaves
-				 * the footer looking broken.
+				 * (also linked home, for the same reason) if no logo has
+				 * been uploaded yet, same fallback pattern as the header,
+				 * so an empty Customizer field never leaves the footer
+				 * looking broken.
+				 * Wrapped in a home link — Farhad's explicit ask ("it
+				 * should be clickable... redirecting to the home page"),
+				 * which the first pass (a bare `<img>`) didn't have.
 				 */
 				$shola_footer_logo_id = get_theme_mod( 'custom_logo' );
-				if ( $shola_footer_logo_id ) {
-					echo wp_get_attachment_image(
-						$shola_footer_logo_id,
-						'full',
-						false,
-						array(
-							'class'   => 'footer-logo',
-							'loading' => 'lazy',
-							'alt'     => get_bloginfo( 'name' ),
-						)
-					);
-				} else {
-					?>
-					<p class="footer-name"><?php bloginfo( 'name' ); ?></p>
-					<?php
-				}
 				?>
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer-logo-link" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>">
+					<?php
+					if ( $shola_footer_logo_id ) {
+						echo wp_get_attachment_image(
+							$shola_footer_logo_id,
+							'full',
+							false,
+							array(
+								'class'   => 'footer-logo',
+								'loading' => 'lazy',
+								'alt'     => get_bloginfo( 'name' ),
+							)
+						);
+					} else {
+						?>
+						<span class="footer-name"><?php bloginfo( 'name' ); ?></span>
+						<?php
+					}
+					?>
+				</a>
 				<p class="footer-tagline">
 					<?php esc_html_e( 'پلتفرم نشر دوزبانه برای مقالات، یادداشت‌ها و اسناد؛ با آرشیو کامل نشرات «شعله جاوید» و «جهان برای فتح».', 'shola-jawid' ); ?>
 				</p>

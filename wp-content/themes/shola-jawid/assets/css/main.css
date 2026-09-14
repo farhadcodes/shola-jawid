@@ -2797,27 +2797,42 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   color: var(--winston-red); font-size: 1.75rem; line-height: 1;
 }
 /*
- * .footer-logo (2026-09-14, Farhad's explicit ask): replaces
- * .footer-name's text in the same spot once a logo is set (footer.php
- * — same get_theme_mod('custom_logo') the header's logo-based layouts
- * read). Height-based sizing, not fixed-width, same reasoning as the
- * header's .mast-logo: the flag graphic is closer to square than a
- * wide wordmark, so letting width follow height avoids stretching.
- * 44px chosen to read at roughly the same visual weight as the
- * .footer-name text it replaces (1.75rem/28px cap-height, but a logo
- * mark reads smaller than its bounding box compared to text of the
- * same box height, so a slightly taller value here still lands
- * similar in perceived size) — comfortably smaller than the masthead
- * logo (81-92px) so it doesn't compete with the header for attention,
- * per Farhad's "reasonable size... not getting out of shape" ask.
- * display:block (not inline-block): this replaces a block-level <p>
- * as the first, standalone child of its column, no sibling text is on
- * the same line, so no baseline-alignment gap to correct for like
- * .mast-logo needed in the masthead.
+ * .footer-logo-link / .footer-logo (2026-09-14, revised same day):
+ * Farhad's first live look at the 44px version called it too small —
+ * "at least 2.5x", clickable to home, still Customizer-managed (already
+ * true, no change needed there). Revised:
+ * — Height bumped from a fixed 44px to `clamp(72px, 16vw, 128px)`: the
+ *   128px ceiling is ~2.9x the old 44px (comfortably past the 2.5x
+ *   floor Farhad asked for) at typical desktop/tablet widths, while
+ *   the 72px floor keeps it proportionate on narrow phones instead of
+ *   scaling the same huge value down awkwardly — still ~1.6x the old
+ *   size there, and the single-column mobile footer has the vertical
+ *   room a wide desktop column doesn't.
+ * — Still height-based, not fixed-width, same reasoning as the
+ *   header's .mast-logo: the flag graphic is closer to square than a
+ *   wide wordmark, so letting width follow height avoids stretching
+ *   regardless of how big the height gets.
+ * — Now wrapped in `.footer-logo-link` (footer.php's new `<a
+ *   href="home_url()">`) — Farhad's "clickable, redirecting to the
+ *   home page" ask; the first pass was a bare, unlinked `<img>`.
+ *   `display: inline-block` on the link (not left as a default inline
+ *   `<a>`) so it sizes to exactly wrap the now much taller image
+ *   without leaving a baseline-alignment gap below it — the same
+ *   class of bug `.mast-logo` hit in the masthead, avoided here by
+ *   giving the wrapping element its own block-formatting context
+ *   instead of needing a `vertical-align` fix after the fact.
+ * — `margin-bottom` added so the much bigger logo doesn't crowd
+ *   `.footer-tagline` directly below it (that has its own `margin-top:
+ *   .75rem`; the two stack rather than collapsing, since one is on an
+ *   inline-block element).
  */
+.footer-logo-link {
+  display: inline-block;
+  margin-bottom: .5rem;
+}
 .footer-logo {
   display: block;
-  height: 44px;
+  height: clamp(72px, 16vw, 128px);
   width: auto;
 }
 .footer-tagline {
