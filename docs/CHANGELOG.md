@@ -8806,3 +8806,55 @@ trail of *why* the build deviated from — or newly applied — a rule in
   untouched — the mobile-only rules don't leak upward.
   Theme version bumped 1.20.1 → 1.20.2.
   Approved by: Farhad, in this session (2026-09-14).
+
+## 2026-09-15
+
+- **Changed — "شمارهٔ جاری" removed site-wide (client request via
+  Farhad); overlay hero's floating publication card narrowed with a
+  full-width cover.** Farhad's live screenshot (with a hand-drawn red
+  line) on the `overlay` hero layout ("مقالهٔ سرخط با کارت شناور روی
+  تصویر"):
+  1. Remove the "شمارهٔ جاری" text everywhere it's visible on the site.
+  2. Narrow the floating publication card to roughly where the line
+     was drawn, and make the cover image fill the card's full width in
+     its upper section instead of leaving empty space beside it.
+  Confirmed scope with Farhad first: only the two *visible* instances
+  of the text were in scope — `inc/template-tags.php`'s
+  `shola_render_hero_publication_card()` (a shared helper used by both
+  the `overlay` and `lead_rail` hero layouts, so removing the `<p
+  class="hero-pub-card-kicker">` there removes it from both) and a
+  "شمارهٔ جاری" button on `page-publications.php` linking to the latest
+  issue. The several `aria-label="شمارهٔ جاری"` attributes elsewhere
+  are screen-reader-only (not visible text), left untouched — removing
+  them would be a pure accessibility regression with no visible
+  effect, and wasn't what was flagged.
+  `page-publications.php`: removing the button also left its
+  `$latest_args`/`$latest_issue` query dead (no longer used anywhere
+  else on the page) — removed with it rather than left as unused code.
+  `main.css`: the `overlay` layout's `.hero-pub-card` had its own width
+  independently set to match تازه‌ترین مقالات's 3-column grid below
+  (~363px, a 2026-09-10 fix for a different problem — lining up the
+  card's outer edge with that grid), while its cover image inside
+  stayed capped at a fixed 160px — the gap between those two numbers
+  was the empty strip Farhad's line marked. Split the previously
+  shared `@media (min-width:901px) { .hero-rail .hero-pub-card-cover,
+  .hero-pub-card .hero-pub-card-cover { width:160px } }` rule so only
+  `.hero-rail` (the *other*, unrelated layout using this same cover
+  class — a full-width side rail, untouched by this request) keeps
+  the 160px cap; `.hero-pub-card`'s own cover is now `width: 100%`,
+  filling whatever width the card ends up being. `.hero-pub-card`'s
+  own width changed from the grid-matching formula to a fixed 260px —
+  no longer tied to that other grid (which was never actually
+  load-bearing for this card, just a coincidence of both being some
+  fraction of the page width), close to where Farhad's line landed
+  while leaving room for the title/dek text below to read comfortably.
+  Verified live at 1200px via `getBoundingClientRect()`: card 260px
+  wide, cover 196px (exactly the card's content-box width after
+  padding), kicker element confirmed absent from the DOM. Re-checked
+  `/publications/` — "شمارهٔ جاری" button gone, "آرشیو شماره‌ها" button
+  unaffected. Re-checked 800px and 375px widths: `.hero-pub-card`
+  still correctly doesn't render at all below 901px (unchanged,
+  pre-existing behavior, not part of this change), so nothing to
+  regress there. Zero console errors at any width.
+  Theme version bumped 1.20.2 → 1.20.3.
+  Approved by: Farhad, in this session (2026-09-15).

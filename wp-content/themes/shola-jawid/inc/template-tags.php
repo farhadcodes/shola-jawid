@@ -919,8 +919,16 @@ function shola_render_hero_body( $hero ) {
  */
 function shola_render_hero_publication_card( $issue, $pub_term ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	/*
+	 * .hero-pub-card-kicker ("شمارهٔ جاری") removed site-wide, 2026-09-15,
+	 * per the client's explicit ask (relayed by Farhad) — this was the
+	 * one visible instance shared by both hero layouts that use this
+	 * function (`lead_rail`'s rail, `overlay`'s floating card). The
+	 * class's CSS rule is left in place (main.css) rather than deleted,
+	 * in case a future layout wants the same kicker treatment — it
+	 * simply has no markup to apply to here anymore.
+	 */
 	?>
-	<p class="hero-pub-card-kicker"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></p>
 	<a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="hero-pub-card-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>

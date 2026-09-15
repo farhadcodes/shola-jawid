@@ -38,22 +38,8 @@ get_header();
 				if ( ! $term ) {
 					continue;
 				}
-				$is_current   = 'shola-jawid' === $slug;
-				$meta_line    = shola_get_publication_meta_line( $term );
-				$latest_args  = array(
-					'post_type'      => 'issue',
-					'posts_per_page' => 1,
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-						array(
-							'taxonomy' => 'publication',
-							'field'    => 'term_id',
-							'terms'    => $term->term_id,
-						),
-					),
-				);
-				$latest_issue = get_posts( $latest_args );
+				$is_current = 'shola-jawid' === $slug;
+				$meta_line  = shola_get_publication_meta_line( $term );
 				?>
 				<article class="publication-item<?php echo $is_current ? '' : ' publication-item--archived'; ?>">
 					<div>
@@ -70,9 +56,15 @@ get_header();
 							<a class="btn <?php echo $is_current ? 'btn-primary' : 'btn-ghost'; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 								<?php echo $is_current ? esc_html__( 'آرشیو شماره‌ها', 'shola-jawid' ) : esc_html__( 'آرشیو کامل', 'shola-jawid' ); ?>
 							</a>
-							<?php if ( $is_current && $latest_issue ) : ?>
-								<a class="btn btn-ghost" href="<?php echo esc_url( get_permalink( $latest_issue[0] ) ); ?>"><?php esc_html_e( 'شمارهٔ جاری', 'shola-jawid' ); ?></a>
-							<?php endif; ?>
+							<?php
+							/*
+							 * "شمارهٔ جاری" button removed site-wide, 2026-09-15,
+							 * per the client's explicit ask (relayed by Farhad) —
+							 * this was the second of two visible instances of that
+							 * text on the site. The $latest_issue query that only
+							 * existed to link this button removed with it, above.
+							 */
+							?>
 						</div>
 					</div>
 				</article>

@@ -1741,8 +1741,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-pub-card-cover { display: block; aspect-ratio: 3 / 4; overflow: hidden; margin-bottom: 1rem; width: min(220px, 100%); }
 .hero-pub-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (min-width: 901px) {
-  .hero-rail .hero-pub-card-cover,
-  .hero-pub-card .hero-pub-card-cover { width: 160px; margin-inline: 0; }
+  .hero-rail .hero-pub-card-cover { width: 160px; margin-inline: 0; }
+  /*
+   * `.hero-pub-card`'s own cover split out from the shared 160px rule
+   * above, 2026-09-15: Farhad's live screenshot (a red line drawn on
+   * the card) flagged the floating `overlay` card as having a wide
+   * empty strip beside the cover — the card's own width was set
+   * independently (to line up with the 3-column grid below, see
+   * `.hero-pub-card`'s width rule further down) while the cover inside
+   * stayed capped at this shared 160px, leaving whatever width the
+   * card had left over as dead space (the card is a flex column, and
+   * a fixed-width child doesn't stretch to fill it). `.hero-rail`
+   * (the *other* layout sharing this class, a full-width side panel)
+   * never had this problem — its own width was already sized to fit a
+   * 160px cover on purpose (see the comment above `.hero-pub-card-
+   * cover`'s base rule) — so only `.hero-pub-card` needed to change.
+   * `width: 100%` makes the cover fill whatever width the card ends
+   * up being (see the matching narrower width set on `.hero-pub-card`
+   * itself below) instead of a fixed px value independent of it.
+   */
+  .hero-pub-card .hero-pub-card-cover { width: 100%; margin-inline: 0; }
 }
 /* Compact title/dek sizing shared by both card contexts — bug caught
    live while testing the `overlay` layout, 2026-09-10: only .hero-rail
@@ -1852,22 +1870,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     bottom: 2.5rem;
     inset-inline-end: calc(max(0px, (100% - var(--wrap-wide)) / 2) + var(--gap-pad-x));
     /*
-     * Width matched to one full track of تازه‌ترین مقالات's own
-     * 3-column grid below, 2026-09-10 — Farhad flagged from a live
-     * screenshot that the card's fixed 320px width didn't line up
-     * with that grid, even though its outer (left) edge already did:
-     * ( wrap-wide − 2×gap-pad-x − 2×grid-column-gap ) ÷ 3 columns is
-     * exactly how .grid-cards' own `repeat(3, 1fr)` computes each
-     * column's width inside the same capped/centered content area
-     * (see .grid-cards, main.css §09) — reusing that formula here
-     * (rather than a second hardcoded pixel guess) means both edges
-     * of this card land exactly on that grid's real column
-     * boundaries, not just approximately, and stay correct if
-     * --wrap-wide/--gap-pad-x/the grid's gap are ever retuned
-     * together. Verified live via getBoundingClientRect() against the
-     * actual rendered grid, not just computed by hand.
+     * Narrowed from the 3-column-grid-track formula (~363px) to a
+     * fixed 260px, 2026-09-15 — Farhad's live screenshot (a red line
+     * drawn down the card) flagged that grid-matched width as leaving
+     * a wide empty strip beside the cover once the cover itself is a
+     * fixed size (160px, see above): lining the card's outer edge up
+     * with تازه‌ترین مقالات's grid was never actually load-bearing for
+     * this card's own content, just a coincidence of the two numbers
+     * both being "some fraction of the page width" — the client's ask
+     * was for the cover to fill the card, not for the card to match
+     * that other grid, so once the cover became `width: 100%` (see
+     * above) the card's own width just needed to be small enough to
+     * read as a compact corner card again. 260px chosen to closely
+     * match where Farhad's line landed while leaving enough room for
+     * the title/dek text below to read comfortably, not as a formula
+     * tied to anything else on the page — happy to tune further from
+     * a live screenshot if it's not quite on his mark.
      */
-    width: calc((var(--wrap-wide) - (var(--gap-pad-x) * 2) - (1.5rem * 2)) / 3);
+    width: 260px;
     max-width: calc(100% - 2 * var(--gap-pad-x));
     border-radius: 4px;
     overflow: hidden;
