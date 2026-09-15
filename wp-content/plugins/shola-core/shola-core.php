@@ -3,7 +3,7 @@
  * Plugin Name: Shola Core
  * Plugin URI: https://github.com/farhadcodes/shola-jawid
  * Description: Content model for شعله جاوید (Shola Jawid) — custom post types, taxonomies, and meta fields. Companion plugin to the shola-jawid theme; content survives a theme switch.
- * Version: 1.12.0
+ * Version: 1.13.0
  * Requires at least: 6.4
  * Requires PHP: 8.1
  * Author: Farhad Farhaad
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SHCORE_VERSION', '1.12.0' );
+define( 'SHCORE_VERSION', '1.13.0' );
 define( 'SHCORE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SHCORE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -55,6 +55,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Social_Links_Settings::init();
 \SholaCore\Label_Settings::init();
 \SholaCore\Video_Guide::init();
+\SholaCore\Loader_Settings::init();
 \SholaCore\View_Counter::init();
 \SholaCore\Roles::init();
 \SholaCore\SEO::init();

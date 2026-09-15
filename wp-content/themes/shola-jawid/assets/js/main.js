@@ -3,6 +3,95 @@
 (function () {
   "use strict";
 
+  /* ---------- صفحه بارگذاری — نمایش هنگام پیمایش (2026-09-15) ----------
+     header.php's inline script already handles showing the loader on
+     first page load and hiding it once that load finishes (a no-JS-safe,
+     main.js-independent core, by design). This block is the enhancement
+     layered on top: re-showing the same loader element right before an
+     internal navigation, so the transition reads as continuous instead
+     of only ever appearing on a fresh page load.
+     Absent entirely, not just inert, when the loader is disabled via
+     shola-core's settings — header.php doesn't render #page-loader at
+     all in that case, so `loaderEl` is null and this whole block no-ops
+     via the early return below.
+     preventDefault() + double requestAnimationFrame() before actually
+     navigating, rather than just letting the click proceed: a classic
+     multi-page site's navigation begins tearing down the current page
+     almost immediately once the browser processes the click, often
+     before the newly-added `.is-visible` class has actually been
+     painted — the double rAF guarantees at least one full paint cycle
+     has happened first, so the loader is reliably visible for that
+     instant rather than a coin-flip depending on browser/timing. */
+  var loaderEl = document.getElementById("page-loader");
+  if (loaderEl) {
+    var showLoaderThenNavigate = function (navigate) {
+      loaderEl.classList.add("is-visible");
+      requestAnimationFrame(function () {
+        requestAnimationFrame(navigate);
+      });
+    };
+
+    /* Internal <a> clicks — articles, nav links, "read more", pagination,
+       everything that's a normal same-site link. Deliberately skips:
+       new-tab/new-window links (target != _self), modifier-clicked or
+       middle-clicked links (people use these specifically to open
+       something in the background without leaving the current page),
+       download links, mailto:/tel:, same-page anchor jumps, external
+       origins, and anything inside #wpadminbar (admin-bar links go to
+       wp-admin, a different, unstyled area this loader has no business
+       fronting for). */
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var link = e.target.closest("a[href]");
+      if (!link) return;
+      if (link.closest("#wpadminbar")) return;
+      if (link.target && link.target !== "_self") return;
+      if (link.hasAttribute("download")) return;
+      var href = link.getAttribute("href");
+      if (!href || href.charAt(0) === "#") return;
+      if (/^(mailto|tel):/i.test(href)) return;
+      var url;
+      try {
+        url = new URL(href, window.location.href);
+      } catch (err) {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      if (
+        url.href === window.location.href ||
+        (url.pathname === window.location.pathname &&
+          url.search === window.location.search &&
+          url.hash)
+      ) {
+        return; // same page, or just a same-page hash change
+      }
+      e.preventDefault();
+      showLoaderThenNavigate(function () {
+        window.location.href = url.href;
+      });
+    });
+
+    /* GET form submissions — this theme's search form specifically.
+       Scoped to method="get" only (the default when unspecified, hence
+       the fallback below): a GET submission is itself a page navigation,
+       exactly like a link click, so it belongs here. POST forms (Contact
+       Form 7) are left alone on purpose — CF7 submits via its own AJAX
+       and never navigates the page at all, so intercepting it here would
+       show a loader that then has nothing to hide it (no navigation, no
+       `load` event coming). */
+    document.addEventListener("submit", function (e) {
+      var form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      var method = (form.getAttribute("method") || "get").toLowerCase();
+      if (method !== "get") return;
+      e.preventDefault();
+      showLoaderThenNavigate(function () {
+        form.submit();
+      });
+    });
+  }
+
   /* ---------- ارتفاع واقعی هدر برای هیرو (main.css §10) ----------
      .hero-media's height subtracts a hardcoded masthead-height constant
      — found (2026-08-08) to drift from the masthead's *actual* rendered

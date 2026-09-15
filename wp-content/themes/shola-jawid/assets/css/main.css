@@ -3162,3 +3162,111 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .error-404 .h-display { margin-top: .5rem; }
 .error-404 .dek { margin-top: 1rem; max-width: 480px; margin-inline: auto; }
 .error-404-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+
+/* -------------------------------------------------------------------------
+   ۳۰ · Page loader (header.php, 2026-09-15) — client-requested via
+   Farhad, an Al Jazeera screenshot as the reference: a pale watermark
+   logo with a subtle "still working" pulse, shown on first load and
+   every internal navigation (main.js handles the show/hide lifecycle;
+   see header.php's inline script for the no-JS-safe default state).
+   Hidden by default (opacity/visibility, not display:none — display
+   can't be transitioned, and this needs to fade rather than snap) —
+   .is-visible is the only thing that ever shows it; a site with the
+   feature turned off in shola-core's settings never renders this
+   markup at all, so there's nothing here to hide in that case anyway.
+   ------------------------------------------------------------------------- */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100000; /* above WP's own admin-bar (99999) for logged-in editors */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .4s var(--ease), visibility 0s linear .4s;
+}
+.page-loader.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .4s var(--ease), visibility 0s linear 0s;
+}
+.page-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+/*
+ * clamp(120px, 16vw, 200px): Farhad's explicit ask was "standard...
+ * not oversized or smaller... should not look tiny" — sized to read
+ * clearly as the page's own brand mark (comparable to a hero logo),
+ * not a small favicon-style spinner, at every viewport from phone to
+ * desktop. width, not height — the bundled logo's own viewBox
+ * (625×589) is close to square but not exact, and letting height
+ * follow width avoids stretching regardless of which image a site
+ * owner uploads to replace it.
+ */
+.page-loader-logo {
+  width: clamp(120px, 16vw, 200px);
+  height: auto;
+  animation: page-loader-pulse 1.6s ease-in-out infinite;
+}
+.page-loader-dots {
+  display: flex;
+  gap: .55rem;
+}
+/*
+ * var(--stone), not the logo's own pale fill: that pale tone is
+ * chosen specifically to read as a faint watermark sitting behind
+ * other content — against the loader's plain white background with
+ * nothing else competing, the same tone would be nearly invisible
+ * (contrast-checked: ~1.05:1 against --paper). --stone is this site's
+ * existing "secondary, not decorative" neutral (dates, captions
+ * elsewhere) — visible enough to read as a deliberate loading cue
+ * without competing with the logo above it or reaching for the red
+ * accent, which would misread as a call-to-action rather than a
+ * status indicator.
+ */
+.page-loader-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--stone);
+  animation: page-loader-pulse 1.6s ease-in-out infinite;
+}
+.page-loader-dots span:nth-child(2) { animation-delay: .18s; }
+.page-loader-dots span:nth-child(3) { animation-delay: .36s; }
+/*
+ * A gentle scale+opacity breathe, not the classic bouncing-dot
+ * loader — Farhad's explicit ask was "a very subtle heart pumping
+ * movement so that it feels that something is working beneath it",
+ * not a busy/playful animation. ease-in-out (not a bouncy/spring
+ * easing) on both the logo and the dots keeps the whole thing reading
+ * as one calm, synchronized pulse rather than separate competing
+ * motions.
+ */
+@keyframes page-loader-pulse {
+  0%, 100% { transform: scale(1); opacity: .5; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+/*
+ * Animation speed, CMS-configurable (shola-core's loader settings
+ * page, "سرعت انیمیشن") — data-speed on the outer .page-loader
+ * element (header.php) rather than a separate stylesheet or inline
+ * style per element, so one admin choice retunes the logo and all
+ * three dots together without them drifting out of sync with each
+ * other.
+ */
+.page-loader[data-speed="slow"] .page-loader-logo,
+.page-loader[data-speed="slow"] .page-loader-dots span { animation-duration: 2.6s; }
+.page-loader[data-speed="fast"] .page-loader-logo,
+.page-loader[data-speed="fast"] .page-loader-dots span { animation-duration: 1s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loader-logo, .page-loader-dots span {
+    animation: none;
+    opacity: .85;
+  }
+}

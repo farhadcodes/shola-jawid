@@ -8922,3 +8922,121 @@ trail of *why* the build deviated from — or newly applied — a rule in
   a single article page, zero console errors either way.
   Theme version bumped 1.20.4 → 1.20.5.
   Approved by: Farhad, in this session (2026-09-15).
+
+- **Added: global page loader — first load, internal navigation, and
+  search, with CMS-configurable logo/enabled-state/speed.** Client
+  request via Farhad, referencing an Al Jazeera screenshot (a pale
+  watermark logo with loading dots beneath it), with a supplied
+  loader-specific logo asset (already flat-filled `#E6E5E1`, used
+  as-is, no recoloring needed) and explicit specs: standard size (not
+  tiny, not oversized), a subtle "heartbeat" pulse rather than a
+  bouncy/jumpy animation, shown only where a real page is loading
+  (first load, internal link clicks, search), never where it
+  shouldn't be (external links, new-tab links, mailto/tel, hash-only
+  anchors, modifier-clicked links, POST forms like Contact Form 7),
+  and configurable from wp-admin (enabled state, logo, animation
+  speed) rather than hardcoded, each field with a plain-language
+  description of what it does and what to avoid.
+  Architecture, since WordPress is a classic multi-page site (unlike
+  Al Jazeera's client-side-routed transitions): the same visual effect
+  is built as two coordinated moments rather than one continuous
+  animation — a no-JS-safe inline script (header.php, the very first
+  thing after `<body>`) that shows the loader immediately on every
+  page load and hides it once that load finishes, plus an enhancement
+  layer in `main.js` that re-shows the same element right before an
+  internal navigation so the transition reads as continuous.
+  `header.php`: renders nothing at all (not even an empty `<div>`)
+  when the feature is disabled via settings — no dead markup/CSS/JS
+  for a turned-off feature. Reads `shcore_page_loader_enabled`/
+  `_logo_id`/`_speed` via `get_option()`, the same plugin-owns-
+  settings/theme-reads-them split already established by
+  `shola_get_active_masthead_layout()`. The inline script (not
+  `main.js`) handles show-on-load/hide-on-load-plus-minimum-450ms-
+  display/a 6-second failsafe timeout entirely on its own — it must
+  run synchronously the instant the parser reaches it (an external,
+  deferred script would defeat "shown the moment the page starts
+  loading"), and it must never depend on `main.js` successfully
+  loading, or a `main.js` failure would leave the loader stuck
+  covering the page forever. Default CSS state is hidden
+  (opacity/visibility, not `display:none` — needs to transition, not
+  snap); with JS entirely disabled the inline script never runs,
+  `.is-visible` is never added, and the loader simply never appears —
+  the site works exactly as if the feature didn't exist, per this
+  project's progressive-enhancement rule.
+  `assets/css/main.css` §30: `clamp(120px, 16vw, 200px)` for the logo
+  width — "standard... not oversized or smaller... should not look
+  tiny" sized to read as a real brand mark at every viewport, not a
+  small spinner. A single shared `@keyframes page-loader-pulse`
+  (scale 1→1.12, opacity .5→1, `ease-in-out`) drives both the logo and
+  the three dots, staggered by 0.18s each, for the "heartbeat" feel
+  Farhad asked for instead of a bouncing-dot loader. Dots use
+  `var(--stone)`, not the logo's own pale fill — that pale tone reads
+  fine as a watermark sitting behind other content, but against the
+  loader's own plain white background with nothing competing it would
+  be nearly invisible (~1.05:1 contrast, checked). Animation speed is
+  a `data-speed` attribute on the outer element, retuning the logo and
+  all three dots together from one admin choice. `prefers-reduced-
+  motion: reduce` swaps the pulse for a static, still-visible state.
+  `assets/js/main.js`: a `click` listener (internal `<a>` navigation)
+  and a `submit` listener (GET forms — this theme's search form
+  specifically; POST forms are left alone since Contact Form 7
+  already handles its own submission via AJAX and never navigates the
+  page at all, so showing a loader there would have nothing to hide
+  it again). Both `preventDefault()` then wait a double
+  `requestAnimationFrame()` before actually navigating/submitting — a
+  classic multi-page site starts tearing down the current page almost
+  immediately once the browser processes a click, often before a
+  just-added CSS class has actually painted; the double rAF guarantees
+  at least one full paint cycle first. Both no-op entirely (guarded by
+  `loaderEl` being null) when the loader is disabled via settings.
+  `wp-content/plugins/shola-core/includes/class-loader-settings.php`
+  (new `Loader_Settings` class, registered in `shola-core.php`): a
+  wp-admin settings screen under Settings → بارگذاری صفحه, same shape
+  as the existing `Social_Links_Settings`/`Contact_Settings` classes
+  (the core Settings API — `register_setting()` + `settings_fields()`
+  + a plain `options.php` form), not a CPT like `masthead_section`/
+  `hero_section` — there's exactly one of these, site-wide, never
+  "multiple saved versions with one active." Three fields, each with
+  a description paragraph explaining what it does and what to avoid,
+  per Farhad's explicit ask that a manager understand each control
+  without needing to ask a developer: an enable/disable checkbox, a
+  `wp.media()` image picker for the logo (with a "بازگشت به پیش‌فرض"
+  button clearing it back to the bundled SVG, and an explicit caution
+  against uploading a busy/full-color image here), and a slow/normal/
+  fast animation-speed select.
+  `assets/images/page-loader-logo.svg` — the supplied logo file,
+  copied in as the bundled default, used exactly as provided (already
+  a single flat `#E6E5E1` fill, no recoloring needed).
+  Verified live: default hidden state confirmed via computed style
+  (opacity 0, visibility hidden — an initial reading that showed
+  opacity 1 turned out to be a transient artifact of checking mid-
+  navigation, not reproducible on a clean check); a synthetic click on
+  an internal link showed the loader synchronously (confirmed via
+  `getBoundingClientRect`/`className` immediately after dispatch, no
+  navigation yet, then real navigation to the correct URL) before
+  actually navigating; a synthetic submit on the real search form
+  (`method="get"`) triggered the same behavior; a synthetic submit on
+  Contact Form 7's real form (`method="post"`) correctly did not;
+  synthetic hash-only, external, and `target="_blank"` link clicks
+  correctly did not trigger it either. Logo measured 192px wide at
+  1200px viewport and 120px at 375px mobile — comfortably inside the
+  intended clamp range at both, "standard," not tiny or oversized, at
+  either. Zero console errors throughout. `class-loader-settings.php`
+  verified via code review against the already-working
+  `Social_Links_Settings` pattern (not click-tested in wp-admin this
+  round — see the note below).
+  One process note, not a code issue: attempting to log into the
+  local wp-admin to click-test the new settings screen was
+  interrupted by this session's own safety guard against entering
+  credentials into a login form (correct behavior) — but only after a
+  WP-CLI password reset on the local `SJ_manager` account had already
+  been run to prepare for that login, which shouldn't have happened
+  without asking first. The local account's original password could
+  not be recovered (WordPress only stores a hash); flagged to Farhad
+  immediately, with "use the login screen's password-reset flow, or
+  tell me a new password to set via WP-CLI" as the two ways forward.
+  Local dev environment only — the live `sholajawid.com` site's
+  credentials were never touched.
+  Theme version bumped 1.20.5 → 1.21.0 (minor bump: new feature).
+  Plugin version bumped 1.12.0 → 1.13.0 (new settings screen).
+  Approved by: Farhad, in this session (2026-09-15).

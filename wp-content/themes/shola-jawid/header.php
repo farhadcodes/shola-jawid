@@ -30,6 +30,87 @@ if ( ! defined( 'ABSPATH' ) ) {
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<?php
+/*
+ * Global page loader (2026-09-15, client-requested via Farhad, with an
+ * Al Jazeera screenshot as the reference — same idea: a pale watermark
+ * logo with a subtle "still working" pulse beneath it, shown on first
+ * load and every internal navigation). CMS-configurable — enabled
+ * state, the logo image, and animation speed all come from
+ * shola-core's "بارگذاری صفحه" admin settings page
+ * (includes/class-loader-settings.php), not hardcoded, per Farhad's
+ * explicit ask that a manager be able to change these without a code
+ * change.
+ * Placed as the very first thing after <body>, before even the skip
+ * link, so it's the first thing the browser paints — no point in a
+ * "first load" loader that itself waits on other markup above it.
+ * Deliberately renders nothing (not even the empty `<div>`) when
+ * disabled via settings — no dead markup/CSS/JS for a feature a site
+ * owner turned off, and no JS below has anything to guard against.
+ */
+$shola_loader_enabled = get_option( 'shcore_page_loader_enabled', '1' );
+if ( $shola_loader_enabled ) :
+	$shola_loader_logo_id = get_option( 'shcore_page_loader_logo_id' );
+	$shola_loader_logo_url = $shola_loader_logo_id
+		? wp_get_attachment_image_url( $shola_loader_logo_id, 'full' )
+		: get_theme_file_uri( 'assets/images/page-loader-logo.svg' );
+	if ( ! $shola_loader_logo_url ) {
+		// Attachment was deleted from the media library after being
+		// selected — fall back to the bundled default rather than an
+		// empty <img src="">.
+		$shola_loader_logo_url = get_theme_file_uri( 'assets/images/page-loader-logo.svg' );
+	}
+	$shola_loader_speed = get_option( 'shcore_page_loader_speed', 'normal' );
+	if ( ! in_array( $shola_loader_speed, array( 'slow', 'normal', 'fast' ), true ) ) {
+		$shola_loader_speed = 'normal';
+	}
+	?>
+	<div id="page-loader" class="page-loader" data-speed="<?php echo esc_attr( $shola_loader_speed ); ?>" role="status" aria-live="polite" aria-label="<?php esc_attr_e( 'در حال بارگذاری…', 'shola-jawid' ); ?>">
+		<div class="page-loader-inner">
+			<img src="<?php echo esc_url( $shola_loader_logo_url ); ?>" alt="" class="page-loader-logo">
+			<div class="page-loader-dots" aria-hidden="true">
+				<span></span><span></span><span></span>
+			</div>
+		</div>
+	</div>
+	<script>
+	/*
+	 * Inline, not in main.js: this must run synchronously, the instant
+	 * the parser reaches it — main.js is a deferred external file, and
+	 * waiting for it to download would defeat the point of a "shown the
+	 * moment the page starts loading" loader. Also self-contained on
+	 * the hide side (window `load` + an absolute failsafe timeout) so
+	 * the loader can never get stuck covering the page even if main.js
+	 * fails to load/parse for some reason — the show-on-navigation
+	 * behavior in main.js is an enhancement on top of this, not
+	 * something this depends on.
+	 * CSS default is hidden (opacity 0/visibility hidden) — .is-visible
+	 * is what actually shows it, added here. That default matters for
+	 * the no-JS case too: with JS disabled entirely, this script never
+	 * runs, .is-visible is never added, and the loader simply never
+	 * appears — the site works exactly as if this feature didn't
+	 * exist, per this project's progressive-enhancement rule.
+	 */
+	(function () {
+		var el = document.getElementById("page-loader");
+		if (!el) return;
+		el.classList.add("is-visible");
+		var shownAt = Date.now();
+		var minDisplay = 450;
+		var hidden = false;
+		function hide() {
+			if (hidden) return;
+			hidden = true;
+			var wait = Math.max(0, minDisplay - (Date.now() - shownAt));
+			setTimeout(function () {
+				el.classList.remove("is-visible");
+			}, wait);
+		}
+		window.addEventListener("load", hide);
+		setTimeout(hide, 6000);
+	})();
+	</script>
+<?php endif; ?>
 <script>document.documentElement.classList.add("js")</script>
 <a class="skip-link" href="#main"><?php esc_html_e( 'پرش به محتوای اصلی', 'shola-jawid' ); ?></a>
 
