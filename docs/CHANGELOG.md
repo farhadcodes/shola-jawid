@@ -9123,3 +9123,45 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.21.0 → 1.22.0 (minor bump: new feature).
   Plugin version bumped 1.13.0 → 1.14.0 (View_Counter scope change).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-15 (later same session) — پربازدیدترین visual redesign
+- **Changed:** Reworked the پربازدیدترین (Most Viewed) panel's visuals after
+  Farhad reviewed the shipped version live against his aawsat.com reference
+  screenshot side-by-side and flagged it as reading nothing like the
+  reference: the original solid `--winston-red` tile with a white
+  type-label badge and a bordered `.card-spotlight-index` number badge
+  looked busy next to the reference's plain, clean list. Four explicit
+  corrections, all applied:
+  1. Numbers are now large (2.25rem, `--font-display`, weight 800) and
+     completely frameless — no border, no background box — matching
+     Farhad's "practically looking great without any frames."
+  2. Each row shows only the title, nothing else (already true structurally
+     for items #2-5; the type-label icon/badge above the list was also
+     removed so item #1 carries no extra chrome either).
+  3. Panel background changed to `--stone-tint`, a new derived token: a
+     light mix of the brand's own `--stone` (#6E6E6A, the exact hex Farhad
+     supplied) with `--paper`, computed the same way `--winston-red-tint`
+     was derived from `--winston-red` (see the token comment in main.css
+     §01) — Farhad's instruction was to use that brand color as the
+     background, and the raw mid-gray hex itself was too dark to hold body
+     text; the derived pale tint keeps it recognizably that color family
+     while matching the reference's plain light-gray card.
+  4. Number color changed to `var(--winston-red)` (the brand's dominant
+     red) against the now-light background, per Farhad's explicit fourth
+     point.
+  Also removed the desktop-only side-by-side (image-beside-text) layout
+  for item #1 that the first version had — the reference shows the
+  featured image full-width above the number+title at every width, so
+  the panel now uses one single-column layout across all breakpoints
+  instead of a separate ≥1000px arrangement.
+  `template-parts/cards/most-viewed-panel.php` simplified to match: the
+  type-label badge markup removed, `.card-spotlight-index` reuse replaced
+  with a new plain `.mv-num` class scoped to this panel only.
+  Verified live at http://shola-jawid.local: desktop (1400px), tablet
+  (~800px), and mobile (375px) all show the pale `--stone-tint` card,
+  large frameless red Persian-digit numbers, and bold dark titles with
+  thin dividers — matching the reference's structure and tone. Zero
+  console errors at any width.
+  Theme version bumped 1.22.0 → 1.22.1 (patch: visual revision, no
+  structural/feature change).
+  Approved by: Farhad, in this session (2026-09-15).
