@@ -2662,8 +2662,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 
 .current-issues .h-page { font-size: 1.5rem; line-height: 1.3; }
-.current-issues .dek {
-  font-size: 1rem;
+/*
+ * font-size 15px — brought down from 1rem (16px) 2026-09-15, same
+ * request/reasoning as .card-dek's 17px -> 15px change just above:
+ * Farhad asked for one consistent excerpt size "anywhere excerpt is
+ * shown on a card" sitewide, confirmed to include this issue-showcase
+ * card (and its twin at .publication-current .dek below, same
+ * .issue-hero markup reused on taxonomy-publication.php) once asked
+ * directly whether it should match or stay distinct.
+ */
+.current-issues .dek,
+.publication-current .dek {
+  font-size: 0.9375rem;
   line-height: 1.6;
   -webkit-line-clamp: 3;
   line-clamp: 3;

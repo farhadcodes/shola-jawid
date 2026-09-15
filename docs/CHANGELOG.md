@@ -9194,3 +9194,39 @@ trail of *why* the build deviated from — or newly applied — a rule in
   console errors.
   Theme version bumped 1.22.1 → 1.22.2 (patch: two visual fixes).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-15 (later same session) — excerpt size consistency sitewide
+- **Changed:** Farhad asked for the 15px excerpt size to apply "anywhere
+  that excerpt is shown on a card," sitewide. Audited every
+  `wp_trim_words( get_the_excerpt(...) )` call in the theme first rather
+  than guessing scope:
+  - `.card-dek` (card.php, announcement-spotlight.php,
+    template-parts/search/result.php) was already the single shared class
+    for the actual reusable "card" component (CLAUDE.md's repo-structure
+    doc calls out `template-parts/cards/` as "ONE shared card partial") —
+    already 15px from the prior fix, so the homepage article grid, topic/
+    report archives, single-post related articles, the announcement
+    spotlight tile, and search results were already covered with no
+    further change needed.
+  - Two other spots use a visually similar but structurally distinct
+    "current issue" showcase component (`.issue-hero.issue-hero--embedded`,
+    not the `template-parts/cards/` partial): the homepage نشریات section
+    (`.current-issues .dek`) and the current-issue block at the top of an
+    active publication's own archive page (`.publication-current .dek`,
+    taxonomy-publication.php). These were a different size by original
+    design (16px and an unset ~18-21px fallback respectively) — asked
+    Farhad directly whether these should match too rather than silently
+    expanding scope; confirmed yes.
+  - Left untouched, as genuinely distinct components rather than "a card":
+    the homepage hero's own excerpt (`.hero-body .dek`), page-header
+    intro text, the 404 page, and every single-post template's own
+    `.article-dek` (single.php, single-issue.php, single-document.php,
+    single-party_publication.php, single-party_document.php) — none of
+    these are a repeating card, and changing them wasn't asked for.
+  `.current-issues .dek` and the new `.publication-current .dek` rule
+  both set to 0.9375rem (15px), same line-height/3-line-clamp as before.
+  Verified live at http://shola-jawid.local: homepage نشریات section
+  cards render at the smaller size, matching تازه‌ترین مقالات's article
+  cards above them. Zero console errors.
+  Theme version bumped 1.22.2 → 1.22.3 (patch: excerpt-size consistency).
+  Approved by: Farhad, in this session (2026-09-15).
