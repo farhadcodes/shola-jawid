@@ -1205,11 +1205,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    into wp_trim_words() in card.php (24 -> 48), the excerpt now
    reliably fills its existing 3-line clamp instead of sometimes
    running out of words before reaching it — that gap, not the font
-   size alone, was most of why it read as "short". */
+   size alone, was most of why it read as "short".
+   Reversed partway 2026-09-15: Farhad reviewed it live again and asked
+   for 17px brought back down to 15px (a plain px value here, not
+   --t-body/--t-small — neither of that pair's existing steps is 15px,
+   and both tokens are shared by unrelated elements — menu links,
+   footer columns, .card-mini titles — this is scoped to .card-dek
+   alone, not a token change). Word count raised 48 -> 56 in card.php
+   in the same request ("a little larger ... to the length of the
+   excerpt") so the smaller font still reliably fills the 3-line clamp
+   instead of running out of words early and leaving the same kind of
+   gap the 2026-09-10 change was originally fixing. */
 .card .h-card { font-size: calc(var(--t-h4) - 1px); }
 .card-dek {
   color: var(--ink-soft);
-  font-size: var(--t-body);
+  font-size: 0.9375rem; /* 15px */
   line-height: 1.75;
   /* Length safety net, same reasoning as .dek above — cards are the
      tightest layout context (grid columns), so a lower ceiling. */
@@ -1529,6 +1539,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * and nothing else."
  */
 .grid-cards--with-mostviewed { grid-auto-flow: dense; }
+
+/*
+ * align-self: start — added 2026-09-15, per Farhad flagging a live
+ * screenshot: with only 5 short titles, this panel's actual content is
+ * shorter than the 2-3 article-card rows its grid-row span sits beside,
+ * but a CSS Grid item defaults to align-self: stretch, so the panel's
+ * --stone-tint background was stretching down to fill that full row
+ * span regardless — a long empty-looking tinted box below the last
+ * item. `start` makes the panel size to its own content and sit at the
+ * top of its grid area instead, so its height is "variable ... by the
+ * size of the articles" (Farhad's words) with no dead space, whatever
+ * is left over in that grid area just shows the section's own
+ * background, not an oversized panel.
+ */
+.most-viewed-panel { align-self: start; }
 
 .most-viewed-panel {
   display: flex;

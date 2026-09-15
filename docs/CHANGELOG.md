@@ -9165,3 +9165,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.22.0 → 1.22.1 (patch: visual revision, no
   structural/feature change).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-15 (later same session) — Most Viewed empty space + card excerpt size
+- **Fixed:** Two issues Farhad flagged from live homepage screenshots:
+  1. The پربازدیدترین panel showed a long, empty-looking stretch of its
+     `--stone-tint` background below item #5. Root cause: a CSS Grid item
+     defaults to `align-self: stretch`, so the panel (explicitly spanning
+     2-3 grid rows to sit beside the taller article-card column) was
+     stretching to fill that full row-span height regardless of how much
+     actual content it had — 5 short titles rarely need that much room.
+     Fixed with `align-self: start` on `.most-viewed-panel`, so its height
+     now tracks its own content ("variable ... by the size of the
+     articles," Farhad's words) and whatever space is left over in that
+     grid area shows the section's own background instead of an
+     artificially tall tinted box.
+  2. `.card-dek` (the excerpt text under every article card sitewide —
+     card.php, announcement-spotlight.php, search/result.php) brought
+     down from 17px to 15px per Farhad's explicit measurement and target.
+     `wp_trim_words()`'s word count in card.php raised 48 → 56 in the same
+     change: the smaller font fits more characters per line, and without
+     raising the word count the excerpt would tend to run out of words
+     before filling its existing 3-line clamp — the exact "reads short"
+     problem the original 24 → 48 change (2026-09-10) fixed, which a
+     smaller font alone would have silently reopened.
+  Verified live at http://shola-jawid.local (1400px): Most Viewed panel
+  now ends cleanly right after item ۵ with no trailing empty block;
+  article excerpts visibly smaller and still filling 3 lines. Zero
+  console errors.
+  Theme version bumped 1.22.1 → 1.22.2 (patch: two visual fixes).
+  Approved by: Farhad, in this session (2026-09-15).

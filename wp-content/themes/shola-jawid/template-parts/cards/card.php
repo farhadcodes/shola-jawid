@@ -108,9 +108,14 @@ if ( 'document' === $card_type ) {
 		 * that the clamp (not the word count) is what stops the text in
 		 * the normal case, matching how .card-dek's larger font-size
 		 * change (main.css §09) was reasoned about at the same time.
+		 * 48 -> 56, 2026-09-15: .card-dek's font-size came back down
+		 * 17px -> 15px the same day, which fits more words per line —
+		 * raised here too, same reasoning as above, so the excerpt
+		 * still reliably fills the 3-line clamp at the smaller size
+		 * instead of reopening the same "ran out of words" gap.
 		 */
 		?>
-		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 48 ) ); ?></p>
+		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 56 ) ); ?></p>
 		<?php
 		/*
 		 * Byline (author/username) removed site-wide, 2026-09-02, per the
