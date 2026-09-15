@@ -9040,3 +9040,86 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.20.5 → 1.21.0 (minor bump: new feature).
   Plugin version bumped 1.12.0 → 1.13.0 (new settings screen).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-15 (later same session) — پربازدیدترین (Most Viewed) homepage panel
+- **Added:** A "Most Viewed" panel in front-page.php's تازه‌ترین مقالات grid,
+  client-requested via Farhad, design directly inspired by an aawsat.com
+  reference screenshot the client sent, placed in the exact cell the client
+  circled (the grid's third/visually-left column, directly beneath the
+  اطلاعیه spotlight tile).
+  Understanding/plan presented and approved before any code was written, per
+  Farhad's explicit instruction — two scope questions were resolved in that
+  approval step:
+  - **Ranking pool:** articles, گزارش/reports (both post type `post`,
+    distinguished only by the `report` taxonomy — deliberately not excluded
+    here, unlike تازه‌ترین مقالات's own query), and اطلاعیه/announcements.
+    Publications/documents/party content excluded — Farhad's own reasoning:
+    a PDF opened once isn't comparable to an article actually read, so
+    mixing them into one ranked list would misrepresent what's actually
+    popular. `SholaCore\View_Counter::POST_TYPES` extended from
+    `post, document, issue` to add `announcement` (class-view-counter.php)
+    — its own doc-comment previously said announcement was excluded "it has
+    no single view template," which was already stale by this point
+    (single-announcement.php exists); corrected in place rather than
+    deleted, so the reasoning trail stays visible. Since the class's main
+    one-time backfill is gated by a single option that had already run on
+    this site, a second, separately-gated `maybe_backfill_announcements()`
+    was added rather than trying to re-trigger or reset the existing gate.
+  - **No Day/Week toggle** (present in the aawsat reference): the counter
+    only tracks a lifetime total, not a timestamped per-view log — building
+    real day/week windows would need a new logging table, out of scope for
+    this round. Farhad confirmed dropping the toggle rather than shipping
+    one that doesn't actually change the ranking; panel is ranked by
+    all-time views only, heading reads "پربازدیدترین" with no control.
+  Visual structure: item #1 renders with a featured image
+  (`shola_get_featured_image()`, CLAUDE.md §5 — falls back to fallback.png
+  for an اطلاعیه, which has no featured image of its own per
+  Post_Types); items #2-5 are plain number + title rows with dividers, no
+  image — matching the reference exactly. All 5 numbers rendered via the
+  existing `shola_to_persian_digits()` helper, reusing the same
+  `.card-spotlight-index` badge visual language already established by the
+  اطلاعیه spotlight tile rather than inventing a new numbering style.
+  Background is `var(--winston-red)` — Farhad explicitly asked for "a
+  uniquely selected color that is very dominant in the website" so the
+  panel would "catch attention by itself"; `--winston-red` is this site's
+  one dominant accent color (already the exact color used by the spotlight
+  tile directly above this panel on desktop), so reusing it was the
+  correct choice, not a missed opportunity to differentiate.
+  Grid mechanics (assets/css/main.css, new `.most-viewed-panel` block):
+  `.grid-cards--with-mostviewed` reuses the existing `grid-auto-flow: dense`
+  approach `.grid-cards--with-spotlight` already established. Article count
+  in front-page.php's own query changed from a 5/6 split (based only on
+  whether the spotlight rendered) to a 6/5 split based on whether Most
+  Viewed renders (6 whenever it does, since it occupies the same column as
+  — and now most of the vertical space below — the spotlight tile), per
+  Farhad's explicit "the grid of articles should be six items" instruction.
+  At ≥1000px: spotlight at `grid-column: 3, row 1`; Most Viewed at
+  `grid-column: 3, grid-row: 2 / span 2` (or `1 / span 3` via
+  `.grid-cards--mv-only` on the rare day there's no اطلاعیه to show a
+  spotlight for) — the 6 articles auto-place into the remaining 2×3 cells
+  via the existing dense packing, no explicit placement needed for them.
+  Below 1000px, everything stacks in one/two columns; Most Viewed and the
+  spotlight both use `order: 1` at this width (spotlight's pre-existing
+  rule, matched here) so both accent-colored blocks land together after
+  the plain article cards, keeping the earlier mobile-ordering decision
+  from the spotlight tile's own 2026-09-07/09-10 changelog entries intact
+  rather than accidentally reshuffling it.
+  Deliberately used `flex-direction: row`, not `row-reverse`, for the
+  desktop featured-item layout (`.mv-item--featured`) — CLAUDE.md's
+  logical-properties discipline: `row` already starts at the RTL
+  inline-start under `dir="rtl"`, so it places the thumbnail first without
+  a reversed axis that would silently behave like an LTR layout regardless
+  of `dir`.
+  New files: `template-parts/cards/most-viewed-panel.php`.
+  Verified live at http://shola-jawid.local across three widths: desktop
+  (1400px) — spotlight/Most Viewed correctly stacked in the shared column,
+  6 articles filling a clean 2×3 grid beside them; tablet (~800px) — panel
+  renders full-width beneath the spotlight, badge and Persian digits (۱-۵)
+  render correctly, RTL text flows right-to-left; mobile (375px) — Most
+  Viewed appears first (before the article cards), spotlight last, matching
+  the intended `order` values; zero console errors at any width; no new
+  entries in `wp-content/debug.log` (all pre-existing entries in that file
+  predate this session's edits, unrelated to this change).
+  Theme version bumped 1.21.0 → 1.22.0 (minor bump: new feature).
+  Plugin version bumped 1.13.0 → 1.14.0 (View_Counter scope change).
+  Approved by: Farhad, in this session (2026-09-15).

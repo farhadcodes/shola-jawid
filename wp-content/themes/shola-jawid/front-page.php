@@ -372,10 +372,47 @@ $announcement_query = new WP_Query(
 );
 $has_spotlight = $announcement_query->have_posts();
 
+/*
+ * پربازدیدترین (Most Viewed) panel — added 2026-09-15, client-requested
+ * via Farhad, inspired by an aawsat.com reference design (see
+ * docs/CHANGELOG.md). Ranks real reader views (SholaCore\View_Counter,
+ * shcore_view_count postmeta) across `post` (covers both articles and
+ * گزارش/reports — both are post type `post`, distinguished only by the
+ * `report` taxonomy, deliberately NOT excluded here unlike the
+ * تازه‌ترین مقالات query below) and `announcement`. Publications/
+ * documents are deliberately out of scope — client confirmed 2026-09-15
+ * that "articles, reports, announcements" is the intended ranking pool,
+ * not the whole site. Same `orderby => meta_value_num` sort already
+ * proven by taxonomy-topic.php's پرخواننده‌ترین tab.
+ */
+$most_viewed_query = new WP_Query(
+	array(
+		'post_type'           => array( 'post', 'announcement' ),
+		'posts_per_page'      => 5,
+		'orderby'             => 'meta_value_num',
+		'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
+		'order'               => 'DESC',
+		'ignore_sticky_posts' => true,
+		'no_found_rows'       => true,
+	)
+);
+$has_mostviewed = $most_viewed_query->have_posts();
+
+/*
+ * Article count: this grid's third column (visually leftmost under
+ * dir="rtl", see .card-spotlight's grid-column: 3 in main.css) holds
+ * اطلاعیه spotlight + Most Viewed stacked, one row each on top of the
+ * other — so whenever Most Viewed renders, that whole column is spoken
+ * for and columns 1-2 need a full 3 rows (6 cards) to stay gap-free.
+ * Falls back to the pre-existing 5/6 split only in the (now rare)
+ * case Most Viewed itself has nothing to show.
+ */
+$articles_count = ( $has_spotlight && ! $has_mostviewed ) ? 5 : 6;
+
 $articles_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
-		'posts_per_page' => $has_spotlight ? 5 : 6,
+		'posts_per_page' => $articles_count,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
@@ -388,6 +425,17 @@ $articles_query = new WP_Query(
 		),
 	)
 );
+
+$grid_cards_classes = 'grid-cards';
+if ( $has_spotlight ) {
+	$grid_cards_classes .= ' grid-cards--with-spotlight';
+}
+if ( $has_mostviewed ) {
+	$grid_cards_classes .= ' grid-cards--with-mostviewed';
+	if ( ! $has_spotlight ) {
+		$grid_cards_classes .= ' grid-cards--mv-only';
+	}
+}
 ?>
 
 <?php if ( $articles_query->have_posts() ) : ?>
@@ -400,13 +448,20 @@ $articles_query = new WP_Query(
 				</div>
 				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
-			<div class="grid-cards<?php echo $has_spotlight ? ' grid-cards--with-spotlight' : ''; ?>">
+			<div class="<?php echo esc_attr( $grid_cards_classes ); ?>">
 				<?php
 				if ( $has_spotlight ) {
 					get_template_part(
 						'template-parts/cards/announcement-spotlight',
 						null,
 						array( 'posts' => $announcement_query->posts )
+					);
+				}
+				if ( $has_mostviewed ) {
+					get_template_part(
+						'template-parts/cards/most-viewed-panel',
+						null,
+						array( 'posts' => $most_viewed_query->posts )
 					);
 				}
 				while ( $articles_query->have_posts() ) :

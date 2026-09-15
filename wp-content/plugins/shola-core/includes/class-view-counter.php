@@ -25,10 +25,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 class View_Counter {
 
 	const META_KEY        = 'shcore_view_count';
-	const POST_TYPES      = array( 'post', 'document', 'issue' );
+	/*
+	 * `announcement` added 2026-09-15 for front-page.php's پربازدیدترین
+	 * (Most Viewed) panel — client-requested ranking across articles,
+	 * reports (both post type `post`, distinguished only by the `report`
+	 * taxonomy), and اطلاعیه‌ها. The class doc-comment below on
+	 * register_meta() calling `announcement` excluded is now stale (it
+	 * predates single-announcement.php existing) — left as an
+	 * intentionally-corrected historical note there, not deleted, so the
+	 * reasoning trail stays visible. maybe_backfill() runs once per site
+	 * gated by BACKFILL_OPTION, which already ran; adding a post type
+	 * here does NOT re-trigger it, so already-published announcements
+	 * need their own one-time seed — see maybe_backfill_announcements()
+	 * below.
+	 */
+	const POST_TYPES      = array( 'post', 'document', 'issue', 'announcement' );
 	const COOKIE_PREFIX   = 'shcore_viewed_';
 	const DEDUPE_WINDOW   = DAY_IN_SECONDS;
-	const BACKFILL_OPTION = 'shcore_view_counter_backfilled';
+	const BACKFILL_OPTION              = 'shcore_view_counter_backfilled';
+	const BACKFILL_OPTION_ANNOUNCEMENT = 'shcore_view_counter_backfilled_announcement';
 
 	/**
 	 * Hook registration.
@@ -38,18 +53,22 @@ class View_Counter {
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_meta' ) );
 		add_action( 'init', array( __CLASS__, 'maybe_backfill' ), 20 );
+		add_action( 'init', array( __CLASS__, 'maybe_backfill_announcements' ), 20 );
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_count_view' ) );
 		add_action( 'transition_post_status', array( __CLASS__, 'seed_on_publish' ), 10, 3 );
 		add_filter( 'query_vars', array( __CLASS__, 'register_sort_query_var' ) );
 	}
 
 	/**
-	 * Registers the meta key on all three post types it applies to.
-	 * `announcement` is excluded — it has no single view template. Not
-	 * exposed to REST/the block editor's Custom Fields panel and nobody
-	 * can write it via the meta API from outside this class
-	 * (`auth_callback` always denies) — this is a system counter, not an
-	 * editor-facing field.
+	 * Registers the meta key on every tracked post type (self::POST_TYPES).
+	 * Historical note: `announcement` was excluded here until 2026-09-15
+	 * on the belief it had no single view template — stale by the time
+	 * of this feature, since single-announcement.php already existed; it
+	 * was added to POST_TYPES for front-page.php's پربازدیدترین (Most
+	 * Viewed) panel. Not exposed to REST/the block editor's Custom Fields
+	 * panel and nobody can write it via the meta API from outside this
+	 * class (`auth_callback` always denies) — this is a system counter,
+	 * not an editor-facing field.
 	 *
 	 * @return void
 	 */
@@ -142,6 +161,44 @@ class View_Counter {
 		}
 
 		update_option( self::BACKFILL_OPTION, 1 );
+	}
+
+	/**
+	 * Second, separately-gated one-time backfill for `announcement`
+	 * specifically — added 2026-09-15 when `announcement` joined
+	 * POST_TYPES after BACKFILL_OPTION had already been set on this site
+	 * (it gates on a single flag, not per-post-type, so re-running
+	 * maybe_backfill() itself would no-op here). Same NOT EXISTS
+	 * meta_query / add_post_meta( ..., true ) idempotency as
+	 * maybe_backfill() above, scoped to just this one post type.
+	 *
+	 * @return void
+	 */
+	public static function maybe_backfill_announcements() {
+		if ( get_option( self::BACKFILL_OPTION_ANNOUNCEMENT ) ) {
+			return;
+		}
+
+		$post_ids = get_posts(
+			array(
+				'post_type'      => 'announcement',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time backfill, not a per-request query.
+					array(
+						'key'     => self::META_KEY,
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		foreach ( $post_ids as $post_id ) {
+			add_post_meta( $post_id, self::META_KEY, 0, true );
+		}
+
+		update_option( self::BACKFILL_OPTION_ANNOUNCEMENT, 1 );
 	}
 
 	/**
