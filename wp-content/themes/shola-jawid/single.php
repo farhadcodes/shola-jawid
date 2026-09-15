@@ -25,6 +25,37 @@ while ( have_posts() ) :
 	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
 	$thumb_id    = get_post_thumbnail_id();
 	$caption     = $thumb_id ? wp_get_attachment_caption( $thumb_id ) : '';
+
+	/*
+	 * پربازدیدترین (Most Viewed) — added 2026-09-15, per Farhad: the
+	 * article sidebar (.article-sidebar, below) is sticky on desktop but
+	 * only ever holds word-count + tags, leaving a large empty column
+	 * beneath them next to a long article — flagged live from a
+	 * screenshot with the empty area circled. Same ranking pool/query as
+	 * front-page.php's homepage panel (articles + گزارش/reports, both
+	 * post type `post`, plus اطلاعیه/announcements; publications excluded
+	 * — see front-page.php's own comment for the full reasoning), with
+	 * the current article itself excluded so it can't recommend itself.
+	 * Rendered twice below (not queried twice) — once inside
+	 * .article-sidebar for the desktop sticky column, once as its own
+	 * section after the article ends for mobile/tablet — see the CSS
+	 * comment on .article-most-viewed for why two DOM copies, toggled by
+	 * display:none per breakpoint, was the right call here instead of a
+	 * single reordered element.
+	 */
+	$most_viewed_query = new WP_Query(
+		array(
+			'post_type'           => array( 'post', 'announcement' ),
+			'posts_per_page'      => 5,
+			'post__not_in'        => array( get_the_ID() ),
+			'orderby'             => 'meta_value_num',
+			'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
+			'order'               => 'DESC',
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		)
+	);
+	$has_mostviewed = $most_viewed_query->have_posts();
 	?>
 
 	<div class="progress-track" aria-hidden="true"><div class="progress-bar"></div></div>
@@ -92,6 +123,12 @@ while ( have_posts() ) :
 							<li><a class="tag-outline" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></li>
 						<?php endforeach; ?>
 					</ul>
+				<?php endif; ?>
+
+				<?php if ( $has_mostviewed ) : ?>
+					<div class="article-most-viewed article-most-viewed--desktop">
+						<?php get_template_part( 'template-parts/cards/most-viewed-panel', null, array( 'posts' => $most_viewed_query->posts ) ); ?>
+					</div>
 				<?php endif; ?>
 			</aside>
 
@@ -169,6 +206,14 @@ while ( have_posts() ) :
 				</div>
 			</div>
 		</div>
+
+		<?php if ( $has_mostviewed ) : ?>
+			<div class="wrap">
+				<div class="article-most-viewed article-most-viewed--mobile">
+					<?php get_template_part( 'template-parts/cards/most-viewed-panel', null, array( 'posts' => $most_viewed_query->posts ) ); ?>
+				</div>
+			</div>
+		<?php endif; ?>
 
 		<?php
 		$related_query = false;

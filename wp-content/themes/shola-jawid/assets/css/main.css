@@ -2436,6 +2436,39 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .article-sidebar .word-count { color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .06em; }
 .article-sidebar .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
 
+/*
+ * پربازدیدترین (Most Viewed) on single.php — added 2026-09-15, per
+ * Farhad flagging a live screenshot: .article-sidebar is sticky on
+ * desktop (top: 2rem above) but only ever holds word-count + tags,
+ * leaving a large empty column next to a long article. Two separate DOM
+ * copies of the same panel (single.php renders template-parts/cards/
+ * most-viewed-panel.php twice from one query, not two), toggled by
+ * display:none per breakpoint, rather than one element reordered with
+ * CSS `order`: the two placements aren't just a reordering of the same
+ * flow — one sits inside .article-sidebar (a sticky column beside the
+ * prose), the other is its own top-level section after .article-footer,
+ * a different parent entirely, which `order` can't reach across.
+ * display:none removes the hidden copy from the accessibility tree, so
+ * this isn't a duplicate-content issue for screen readers, just a
+ * choice of which single copy is visible/announced at a given width —
+ * .article-most-viewed--desktop stays hidden until the same 940px
+ * breakpoint .article-sidebar itself switches to a sticky column at,
+ * .article-most-viewed--mobile is its exact inverse.
+ */
+.article-most-viewed--desktop { display: none; }
+.article-most-viewed--mobile { display: block; margin-top: 3rem; }
+@media (min-width: 940px) {
+  .article-most-viewed--desktop { display: block; margin-top: 2rem; }
+  .article-most-viewed--mobile { display: none; }
+  /* 250px is the sidebar's fixed column width (.article-body, above) —
+     narrower than the panel's usual homepage context, so the same
+     narrow-card treatment already proven at 260px for .hero-pub-card
+     (main.css §10.5) applies here too: less internal padding so the
+     number/title text isn't cramped against the panel's edges. */
+  .article-most-viewed--desktop .most-viewed-panel { padding: 1.25rem; }
+  .article-most-viewed--desktop .mv-num { font-size: 1.75rem; }
+}
+
 /* Long-form prose */
 .prose {
   color: var(--ink);

@@ -9230,3 +9230,51 @@ trail of *why* the build deviated from — or newly applied — a rule in
   cards above them. Zero console errors.
   Theme version bumped 1.22.2 → 1.22.3 (patch: excerpt-size consistency).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-15 (later same session) — پربازدیدترین on the single article page
+- **Added:** The homepage's پربازدیدترین (Most Viewed) panel now also
+  appears on single.php (the article/note single-post template), per
+  Farhad flagging a live screenshot: `.article-sidebar` is a sticky
+  column on desktop (≥940px, `position: sticky; top: 2rem`) that only
+  ever held word-count + tags, leaving a large empty column next to a
+  long article's prose — visibly circled in his screenshot as dead
+  space with no reason for a reader to stick around.
+  Query: same ranking pool as the homepage panel (post type `post` —
+  covering both articles and گزارش/reports, distinguished only by the
+  `report` taxonomy — plus `announcement`; publications/documents
+  excluded), with the current article itself added to `post__not_in` so
+  it can never recommend itself.
+  Placement was explicitly asked about rather than assumed, since the
+  sidebar stacks above the article body in the single-column mobile
+  layout: appending the panel there would have pushed it in front of
+  the article text on phones. Confirmed with Farhad: on mobile/tablet
+  (<940px) the panel instead renders as its own section immediately
+  after the article ends (after the share/tags footer, before "مطالب
+  دیگر"), not in the sidebar at all. Implemented as two DOM copies from
+  one query (not two queries) — `template-parts/cards/most-viewed-
+  panel.php` rendered once inside `.article-sidebar`
+  (`.article-most-viewed--desktop`) and once as a standalone `.wrap`
+  section after `.article-footer` (`.article-most-viewed--mobile`) —
+  toggled by plain `display: none` per breakpoint at the same 940px
+  point `.article-sidebar` itself switches at. `display: none` removes
+  the hidden copy from the accessibility tree, so this isn't a
+  duplicate-content concern for screen readers, just a choice of which
+  single copy is visible at a given width; a CSS `order` trick couldn't
+  reach across these two placements' entirely different parent elements
+  ( `.article-sidebar` vs. a top-level section), so two toggled copies
+  was the correct approach here, not a shortcut.
+  Desktop sidebar instance gets a narrower-padding treatment
+  (`.article-most-viewed--desktop .most-viewed-panel`, `padding:
+  1.25rem`, smaller `.mv-num`) matching the sidebar's fixed 250px
+  column — the same narrow-card adjustment already proven for
+  `.hero-pub-card` at a similar 260px width earlier this session.
+  Verified live at http://shola-jawid.local on an article page: desktop
+  (1400px) — panel fills the sidebar's empty space directly beneath the
+  tags and stays visible while scrolling (sticky), narrower padding
+  reads correctly at 250px; mobile (375px) — sidebar shows only word-
+  count + tags as before, panel appears cleanly after the article ends
+  and before "مطالب دیگر," not interrupting the article body. Zero
+  console errors at either width.
+  Theme version bumped 1.22.3 → 1.23.0 (minor bump: panel now used in a
+  second template, not just the homepage).
+  Approved by: Farhad, in this session (2026-09-15).
