@@ -9278,3 +9278,46 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.22.3 → 1.23.0 (minor bump: panel now used in a
   second template, not just the homepage).
   Approved by: Farhad, in this session (2026-09-15).
+
+## 2026-09-16 — article-page sidebar proportion fix
+- **Changed:** Farhad reviewed the new single-article پربازدیدترین panel
+  live and flagged the two-column proportion as unprofessional: the
+  sidebar was a fixed `250px` next to a `1fr` article column, so the
+  article absorbed all extra viewport width while the sidebar stayed a
+  rigid, disproportionately narrow strip — worse the wider the screen.
+  Presented an understanding of the fix before touching anything (per
+  his explicit request): convert the sidebar to a proportional share
+  instead of a fixed pixel width, and shrink the panel's title text to
+  match the (then-narrow) column, both approved before implementing.
+  `.article-body`'s `grid-template-columns` changed from `250px 1fr` to
+  `minmax(260px, 2fr) 3fr` (≥940px only — below that it's already a
+  single stacked column, so there was no proportion problem there to
+  fix). This is a ~2:3 (sidebar:article) split, roughly a 20% width
+  shift from the article to the sidebar per Farhad's explicit numbers,
+  and because it's fr-based rather than fixed-px it holds that ratio
+  across the whole ≥940px range rather than only looking right at one
+  width — verified live at both 1400px (35.7% sidebar share) and 1024px
+  (34.9%), consistent.
+  `.article-most-viewed--desktop`'s title text reduced ~25%
+  (`.mv-item--featured .mv-item-title` 1.125rem → 0.84375rem,
+  `.mv-list .mv-item-title` 1rem → 0.75rem), scoped to this
+  single-article sidebar instance only — the homepage panel keeps its
+  original sizes (verified: 36px number / 16px title there, unchanged).
+  One adjustment beyond what was explicitly asked, flagged rather than
+  silently done: after shrinking the titles, the number
+  (`.mv-num`, inherited at the homepage's 2.25rem/36px default) read as
+  badly out of proportion next to the now-much-smaller title text — not
+  a self-correcting side effect, a new mismatch the title change itself
+  created. Brought it down to 1.5rem/24px to restore roughly the same
+  number-to-title size ratio the homepage panel has, just at this
+  panel's smaller scale.
+  Verified live at http://shola-jawid.local on an article page across
+  all three sizes: desktop (1400px and 1024px) — wider, better-
+  proportioned sidebar, number and title sizes read as a coherent pair;
+  tablet (768px) — unaffected, still stacks full-width with the
+  original (non-shrunk) panel sizing after the article ends, exactly as
+  before; mobile (375px) — unaffected, same as tablet. Zero console
+  errors at any width.
+  Theme version bumped 1.23.0 → 1.23.1 (patch: proportion/sizing fix,
+  no new markup or feature).
+  Approved by: Farhad, in this session (2026-09-16).

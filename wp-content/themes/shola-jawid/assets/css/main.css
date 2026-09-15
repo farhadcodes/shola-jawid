@@ -2414,8 +2414,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   grid-template-columns: 1fr;
 }
 @media (min-width: 940px) {
+  /*
+   * grid-template-columns changed from a fixed `250px 1fr` to a
+   * proportional `minmax(260px, 2fr) 3fr` — 2026-09-15, per Farhad
+   * reviewing a live screenshot: a fixed-width sidebar next to a `1fr`
+   * article column meant the article absorbed 100% of any extra
+   * viewport width while the sidebar stayed rigid, so the two read as
+   * badly out of proportion on a wide screen (sidebar looked
+   * disproportionately narrow next to very long text lines). A ~2:3
+   * split (sidebar ≈40% / article ≈60% of the two-column area) shifts
+   * roughly 20% of the article's width over to the sidebar, per
+   * Farhad's explicit ask — and because it's fr-based rather than a
+   * fixed px value, that ~40/60 ratio holds steady across the whole
+   * ≥940px desktop/wide-desktop range instead of only looking right at
+   * one specific width. `minmax(260px, ...)` floors the sidebar so it
+   * never gets cramped right at the 940px breakpoint itself. Below
+   * 940px this is moot — .article-body is already a single stacked
+   * column there (sidebar full-width above the article), so there is
+   * no narrow-sidebar problem to fix at tablet/mobile widths.
+   */
   .article-body {
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: minmax(260px, 2fr) 3fr;
     gap: 4rem;
   }
 }
@@ -2460,13 +2479,31 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 @media (min-width: 940px) {
   .article-most-viewed--desktop { display: block; margin-top: 2rem; }
   .article-most-viewed--mobile { display: none; }
-  /* 250px is the sidebar's fixed column width (.article-body, above) —
-     narrower than the panel's usual homepage context, so the same
-     narrow-card treatment already proven at 260px for .hero-pub-card
-     (main.css §10.5) applies here too: less internal padding so the
-     number/title text isn't cramped against the panel's edges. */
+  /* Padding/number-size compensation from when the sidebar was a fixed
+     250px (narrower than the panel's usual homepage context) — the
+     column is now a proportional ~40% share (.article-body, above),
+     comfortably wider, so this padding still applies but the number no
+     longer needs a separate smaller size; see .mv-item-title below. */
   .article-most-viewed--desktop .most-viewed-panel { padding: 1.25rem; }
-  .article-most-viewed--desktop .mv-num { font-size: 1.75rem; }
+  /*
+   * Title font-size reduced ~25% — 2026-09-15, per Farhad reviewing the
+   * same live screenshot: at the (then-narrow, fixed 250px) sidebar
+   * width, the panel's normal homepage title sizes (1.125rem/1rem) read
+   * as oversized relative to the column, wrapping to multiple lines and
+   * dominating the small space. Scoped to this single-article sidebar
+   * instance only (.article-most-viewed--desktop) — the homepage panel
+   * keeps its original sizes, since that context doesn't have this
+   * problem.
+   */
+  .article-most-viewed--desktop .mv-item--featured .mv-item-title { font-size: 0.84375rem; }
+  .article-most-viewed--desktop .mv-list .mv-item-title { font-size: 0.75rem; }
+  /* Number scaled down to match the smaller titles above — checked live
+     after the title-size change: the homepage's default 2.25rem number
+     next to a 12px title read as badly out of proportion (the number
+     dominating), not just "still a bit big." 1.5rem keeps the same
+     roughly 2:1 number-to-title ratio the homepage panel has, just at
+     the smaller scale this narrower context needs. */
+  .article-most-viewed--desktop .mv-num { font-size: 1.5rem; }
 }
 
 /* Long-form prose */
