@@ -8875,3 +8875,50 @@ trail of *why* the build deviated from — or newly applied — a rule in
   legible, zero console errors.
   Theme version bumped 1.20.3 → 1.20.4.
   Approved by: Farhad, in this session (2026-09-15).
+
+- **Fixed — masthead date frozen a day stale on cached pages (now on
+  Hostinger, full-page cache).** Farhad reported the masthead date
+  correct on the homepage but showing yesterday on an article page,
+  right after moving the live site to Hostinger, and asked to confirm
+  it wasn't showing the article's publish date.
+  Confirmed live via the site's own response headers
+  (`x-litespeed-cache: hit`, `x-hcdn-cache-status: HIT`,
+  `platform: hostinger`) that this was never about the article at all
+  — `shola_get_masthead_runner()` has zero dependency on post data,
+  it's just `wp_date('l j F Y')`, recomputed fresh on every PHP
+  execution. The bug is one level up: Hostinger's LiteSpeed cache +
+  their own CDN serve full pre-rendered HTML pages, and a page cached
+  before the calendar day rolled over keeps shipping that frozen date
+  in its HTML for as long as it sits in cache, no matter how correct
+  the PHP that originally generated it was — "fresh on every request"
+  only helps requests that actually reach PHP.
+  Root fix (no more manual cache purging, per Farhad's ask): the
+  masthead date is now also fetched client-side and used to overwrite
+  the server-rendered value.
+  - `inc/template-tags.php`: new `shola_register_masthead_date_route()`
+    registers a public `GET /wp-json/shola/v1/masthead-date` endpoint
+    returning `{ date: shola_get_masthead_runner() }`, with
+    `nocache_headers()` on the response as a second guarantee in case
+    a host/plugin is ever configured to cache REST responses too — a
+    plain REST GET isn't full-page-cached the way the document itself
+    is, so it re-executes PHP and returns the real current date
+    regardless of how stale the page around it is.
+  - `inc/enqueue.php`: `wp_localize_script()` passes the endpoint URL
+    (via `rest_url()`, not hardcoded) to the front end as
+    `sholaMastheadDate`.
+  - `assets/js/main.js`: fetches that endpoint after load and replaces
+    every `.mast-runner` element's text with the response — progressive
+    enhancement (without JS, or if the fetch fails, the server-rendered
+    date is left exactly as WordPress rendered it; only a regression in
+    the specific case a page was already served stale, never worse than
+    before this existed).
+  Verified live (local dev environment — no page cache there to
+  reproduce the live symptom directly, so verified the fix mechanism
+  itself): the endpoint returns the correct current date; manually
+  forced a `.mast-runner` element to a wrong/stale value and confirmed
+  the same fetch-and-replace logic main.js runs corrects it in place,
+  reproducing exactly what will happen when a real visitor loads a
+  stale cached page on the live site. Checked on both the homepage and
+  a single article page, zero console errors either way.
+  Theme version bumped 1.20.4 → 1.20.5.
+  Approved by: Farhad, in this session (2026-09-15).

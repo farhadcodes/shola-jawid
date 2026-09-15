@@ -502,6 +502,51 @@ function shola_get_masthead_runner() {
 }
 
 /**
+ * REST endpoint returning `shola_get_masthead_runner()`'s current value
+ * as JSON — added 2026-09-15 after the live site (now on Hostinger,
+ * full-page cache via LiteSpeed + their CDN) was found serving a
+ * masthead date frozen at whatever moment a given page was last cached,
+ * a full calendar day stale on some pages while others (cached more
+ * recently) showed the correct one. `shola_get_masthead_runner()`
+ * itself was never the bug — it already computes "today" fresh on
+ * every PHP execution — but a cached page's HTML is static once
+ * written, so no amount of "fresh" server-side logic helps once the
+ * response itself is being replayed from cache instead of re-executed.
+ * `assets/js/main.js` fetches this endpoint client-side after page
+ * load and overwrites the server-rendered (and therefore potentially
+ * stale-if-cached) `.mast-runner`/`.mast-runner--inline` text with
+ * whatever this call returns — a plain REST GET response, which page-
+ * caching layers don't treat as a cacheable front-end page the way
+ * they do the HTML document itself, so it always re-executes PHP and
+ * returns the real current date regardless of how stale the page
+ * around it is. `nocache_headers()` on the response is extra insurance
+ * against that assumption specifically, not decorative: if a host or
+ * plugin were ever configured aggressively enough to cache `/wp-json/`
+ * responses too, this stops that from silently reintroducing the same
+ * bug for the one endpoint that must never be cached.
+ * Public and unauthenticated deliberately — this is today's date, not
+ * anything sensitive or user-specific, so no nonce/permission check
+ * adds real protection here, only friction.
+ *
+ * @return void
+ */
+function shola_register_masthead_date_route() {
+	register_rest_route(
+		'shola/v1',
+		'/masthead-date',
+		array(
+			'methods'             => 'GET',
+			'permission_callback' => '__return_true',
+			'callback'            => function () {
+				nocache_headers();
+				return array( 'date' => shola_get_masthead_runner() );
+			},
+		)
+	);
+}
+add_action( 'rest_api_init', 'shola_register_masthead_date_route' );
+
+/**
  * Which masthead_section layout header.php should render — same active-
  * flag lookup as front-page.php does for hero_section. Falls back to
  * 'default' (today's header) if no entry is active yet, or the CPT is

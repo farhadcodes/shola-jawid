@@ -19,6 +19,21 @@ function shola_enqueue_assets() {
 	wp_enqueue_style( 'shola-jawid-main', get_theme_file_uri( 'assets/css/main.css' ), array( 'shola-jawid-style' ), $version );
 
 	wp_enqueue_script( 'shola-jawid-main', get_theme_file_uri( 'assets/js/main.js' ), array(), $version, true );
+	/*
+	 * masthead date REST URL (2026-09-15) — see the endpoint's own
+	 * docblock (inc/template-tags.php, shola_register_masthead_date_route())
+	 * for why this exists: main.js fetches it client-side to replace the
+	 * server-rendered masthead date, which a full-page cache (the live
+	 * site's Hostinger/LiteSpeed setup) can otherwise serve stale for as
+	 * long as a page sits in cache. rest_url(), not a hardcoded
+	 * '/wp-json/' path — correct even if the site's permalink structure
+	 * or REST API prefix is ever non-default.
+	 */
+	wp_localize_script(
+		'shola-jawid-main',
+		'sholaMastheadDate',
+		array( 'endpoint' => esc_url_raw( rest_url( 'shola/v1/masthead-date' ) ) )
+	);
 }
 add_action( 'wp_enqueue_scripts', 'shola_enqueue_assets' );
 

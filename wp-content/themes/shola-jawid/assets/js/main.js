@@ -58,6 +58,50 @@
     }
   }
 
+  /* ---------- تاریخ ماستهد — همیشه امروز، حتی از کش (2026-09-15) ----------
+     The masthead date (.mast-runner/.mast-runner--inline, server-
+     rendered by shola_get_masthead_runner()) was found frozen a full
+     calendar day stale on some pages once the live site's host
+     (Hostinger — LiteSpeed cache + their own CDN) started full-page
+     caching: the PHP that renders it was always correct, but a cached
+     page's HTML is static once written, so "compute today fresh on
+     every request" only helps requests that actually reach PHP.
+     Fetches inc/template-tags.php's shola_register_masthead_date_route()
+     REST endpoint after load and overwrites whatever date the cached
+     HTML happened to ship with. A plain REST GET isn't full-page-cached
+     the way the document itself is, so this call re-executes PHP and
+     returns the real current date regardless of how stale the page
+     around it is — the endpoint also sends nocache_headers() itself as
+     a second layer of the same guarantee.
+     Progressive enhancement: without JS (or if the fetch fails —
+     offline, a network hiccup, an unreachable REST API), the server-
+     rendered date stays exactly as WordPress rendered it. That's a
+     correctness regression only in the specific case a page was served
+     from a stale cache entry to begin with — no worse than before this
+     existed, never worse than working normally. sholaMastheadDate is
+     localized in inc/enqueue.php, not hardcoded here, so this keeps
+     working if the site's REST prefix or permalink structure ever
+     changes. */
+  /* .mast-runner alone is enough — .mast-runner--inline elements
+     (header.php) always carry the base .mast-runner class too. */
+  var mastRunners = document.querySelectorAll(".mast-runner");
+  if (mastRunners.length && window.sholaMastheadDate && window.fetch) {
+    fetch(window.sholaMastheadDate.endpoint, { cache: "no-store" })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (data) {
+        if (data && data.date) {
+          mastRunners.forEach(function (el) {
+            el.textContent = data.date;
+          });
+        }
+      })
+      .catch(function () {
+        /* Network/API failure: leave the server-rendered date as-is. */
+      });
+  }
+
   /* ---------- منوی بازشو (پاپ‌آپ کل‌صفحه) ---------- */
   var menuOpen  = document.getElementById("menu-open");
   var menuClose = document.getElementById("menu-close");
