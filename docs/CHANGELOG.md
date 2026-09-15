@@ -8858,3 +8858,20 @@ trail of *why* the build deviated from — or newly applied — a rule in
   regress there. Zero console errors at any width.
   Theme version bumped 1.20.2 → 1.20.3.
   Approved by: Farhad, in this session (2026-09-15).
+
+- **Changed — footer background: `--paper` → `--cream`.** Farhad
+  asked for the footer to "pop a little" against the white body above
+  it. Recommended `--cream` over a `--stone`-based fill before making
+  the change: `--cream` is already this site's designated token for
+  soft section separation without a hard border (used elsewhere for
+  the same reason), so this keeps the footer's separation consistent
+  with that existing convention; `--stone` is a text color (mid-gray)
+  dark enough to need white type as a fill, which would read as a
+  bold inverted footer rather than the quiet editorial "pop" asked
+  for. No text-color changes needed — `--ink`/`--stone` both still
+  read fine on `--cream`.
+  Verified live on desktop and mobile: subtle warm separation from the
+  white section above, footer-logo/nav columns/social icons all still
+  legible, zero console errors.
+  Theme version bumped 1.20.3 → 1.20.4.
+  Approved by: Farhad, in this session (2026-09-15).

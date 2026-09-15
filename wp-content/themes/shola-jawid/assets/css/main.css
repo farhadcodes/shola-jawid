@@ -2818,9 +2818,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 /* -------------------------------------------------------------------------
    ۱۹ · Footer — quiet, thin, paper-based
    ------------------------------------------------------------------------- */
+/*
+ * background: var(--cream), not var(--paper) (2026-09-15, Farhad's
+ * design ask): --cream is already this site's designated token for
+ * "soft section separation without a hard border" (used elsewhere for
+ * the same reason) — using it here keeps the footer's separation from
+ * the page above consistent with that existing convention instead of
+ * introducing a new value just for this. Chosen over a --stone-based
+ * background specifically: --stone is a *text* color (mid-gray,
+ * #6E6E6A) dark enough to need white type if used as a fill, which
+ * would read as a bold inverted "app footer" rather than the quiet
+ * editorial close Farhad asked for — cream stays warm/paper-like,
+ * closer to the print identity, and needs no text-color changes below
+ * (--ink/--stone both still read fine on it).
+ */
 .footer {
   border-top: 1px solid var(--line);
-  background: var(--paper);
+  background: var(--cream);
   padding-block: 3.5rem 2rem;
   margin-top: 4rem;
 }
