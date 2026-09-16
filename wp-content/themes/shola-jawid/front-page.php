@@ -773,12 +773,13 @@ foreach ( $publication_terms as $pub_term ) {
  * publication-specific fields).
  *
  * Placed directly after نشریات, per Farhad's explicit instruction. Solid
- * `--stone` background (main.css §10.6, `.sect-selected`) is a deliberate
- * break from the cream/tint alternation the surrounding shelves use, so
- * this section reads as its own distinct block rather than one more shelf
- * in the same rhythm — see the updated note on انتشارات حزب's own
- * background comment just below, now that this section (not نشریات) is
- * its real neighbor above.
+ * `--winston-red` background (main.css §11, `.sect-selected`) — originally
+ * `--stone`, changed same day once Farhad asked for "brighter/vibrant"
+ * instead of the muted gray — is a deliberate break from the cream/tint
+ * alternation the surrounding shelves use, so this section reads as its
+ * own distinct block rather than one more shelf in the same rhythm — see
+ * the updated note on انتشارات حزب's own background comment just below,
+ * now that this section (not نشریات) is its real neighbor above.
  *
  * Capped at 6 on the homepage, this site's usual homepage-shelf limit
  * (see انتشارات حزب's own `posts_per_page` comment below); the full,
@@ -829,9 +830,10 @@ $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
  * (Phase A, client-approved) — see docs/CHANGELOG.md. .sect-tint
  * unchanged; still distinct from موضوعات's paper band directly below.
  * Immediate neighbor above was نشریات's cream/plain band until
- * 2026-09-16, when گزیده‌ها (solid `--stone`, see its own comment just
- * above) was inserted directly ahead of this section — .sect-tint still
- * reads as distinct from that solid stone band, so no change needed here.
+ * 2026-09-16, when گزیده‌ها (solid `--winston-red`, see its own comment
+ * just above) was inserted directly ahead of this section — .sect-tint's
+ * pale pink still reads as clearly distinct from that solid crimson band,
+ * so no change needed here.
  *
  * `posts_per_page` capped at 5, 2026-09-05 (Phase 5, Technical Scoping
  * Plan) — was 10, well past what a homepage shelf like this is meant to

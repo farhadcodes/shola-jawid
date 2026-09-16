@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   shola_issue_cover (3:4): Farhad's explicit spec for this layout's cover was
  *   "maybe two by three," a taller/narrower ratio than the 3:4 book-cover crop
  *   used everywhere else issue covers appear.
- * - shola_selected_square 1:1 — .selected-row-media (main.css §10.6, گزیده‌ها
+ * - shola_selected_square 1:1 — .selected-row-media (main.css §11, گزیده‌ها
  *   section) — a new square crop, added 2026-09-16, matching the reference
  *   design's square thumbnail; no other context on the site uses a 1:1 crop.
  *

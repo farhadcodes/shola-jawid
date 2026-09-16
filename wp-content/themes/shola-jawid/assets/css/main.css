@@ -2409,16 +2409,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * Farhad's explicit ask for "a unique background... one of the prominent
  * colors from the palette" so this section doesn't read as one more shelf
  * in the same cream/tint alternation every other homepage section uses.
- * Solid --stone, not a pale tint of it (unlike .sect-tint/.sect-cream
- * above) — a deliberately bolder, more "official" block, same idea
- * Farhad asked for on the Most Viewed panel's own redesign earlier this
- * project (also --stone). Text/link colors need their own overrides
- * below since every shared heading/link class on the site (.h-section,
- * .section-marker, .link-more) defaults to --winston-red text, which
- * fails contrast against a mid-gray background — this section is the
- * first --stone *background* used anywhere on the site.
+ * Originally solid --stone; changed same day, still 2026-09-16, once
+ * Farhad reviewed it live and asked for "some of the brighter or a
+ * vibrant color from the brand" instead — --stone is a muted warm gray,
+ * not actually vibrant. --winston-red is this brand's one genuinely
+ * saturated color (the 60/30/10 crimson-as-accent discipline's "10"),
+ * already proven as a full-bleed section background elsewhere on the
+ * site (.hero-rail, .card-spotlight, the masthead), so this reuses that
+ * same established treatment rather than introducing a new one. Every
+ * text/link/badge override below already assumed a saturated, non-paper
+ * background (built against --stone first, matching .card-spotlight's
+ * own red-background conventions) — those needed no changes for this
+ * swap, only the background declaration itself.
  */
-.sect-selected { background: var(--stone); color: var(--paper); }
+.sect-selected { background: var(--winston-red); color: var(--paper); }
 .sect-selected .section-marker,
 .sect-selected .h-section { color: var(--paper); }
 .sect-selected .section-marker::before { background: var(--paper); }
@@ -2432,24 +2436,56 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * گزیده‌ها (Selected) rows — shared by front-page.php's homepage tile
  * (inside .sect-selected above) and page-selected.php's full archive
  * (plain paper background, no .sect-selected wrapper — see
- * template-parts/cards/selected-row.php). Added 2026-09-16, inspired by
- * a client-supplied reference card, mirrored for RTL: the image is the
- * first flex child in the markup, so — with no hardcoded left/right —
- * it lands on the reading-start side (visual right in this RTL site),
- * same DOM-order technique already used by the hero_section rail
- * layouts (main.css §10.1/§10.4).
+ * template-parts/cards/selected-row.php). Added 2026-09-16, mirrored for
+ * RTL: the image is the first flex child in each row's own markup, so —
+ * with no hardcoded left/right — it lands on the reading-start side
+ * (visual right in this RTL site), same DOM-order technique already used
+ * by the hero_section rail layouts (main.css §10.1/§10.4).
+ *
+ * Reworked from a single-column stacked list to a two-column grid, same
+ * day, after Farhad compared the shipped single-column version against
+ * his reference screenshot (a compact 2-column editorial grid) and asked
+ * for that exact layout, mirrored for RTL. 720px breakpoint matches
+ * .grid-cards's own 1-col-mobile/2-col-tablet-up split (main.css §09) for
+ * sitewide consistency.
+ *
+ * Divider rhythm: `nth-child` rather than the simpler `+ *` adjacent-
+ * sibling selector, because with two columns "starts a new row" isn't
+ * "every item after the first" — it's every item from the 3rd onward
+ * (items 1-2 are row one). `+ *` would incorrectly put a divider above
+ * item 2 as well, since it's still every item's *immediately preceding
+ * sibling* that matters to that selector, not which row it visually
+ * falls in. Two separate `nth-child` rules — `(n+2)` for the single-
+ * column mobile layout, `(n+3)` for the two-column layout above 720px —
+ * given full values (not `+ *`'s relative one), so every item that
+ * starts a new row gets the identical divider treatment independently,
+ * which keeps the two cells of one visual row aligned (a margin/padding
+ * difference between them would otherwise misalign the pair).
  */
-.selected-list { display: flex; flex-direction: column; }
-.selected-row + .selected-row {
+.selected-list { display: grid; grid-template-columns: 1fr; }
+.selected-row:nth-child(n+2) {
   margin-top: 1.75rem;
   padding-top: 1.75rem;
   border-top: 1px solid var(--line);
 }
 /* Divider brightened for legibility against .sect-selected's solid
-   --stone background — var(--line) (a near-white hairline meant for
-   --paper backgrounds) would all but vanish there. */
-.sect-selected .selected-row + .selected-row { border-top-color: rgba(255, 255, 255, .2); }
-.selected-row { display: flex; align-items: flex-start; gap: 1.25rem; }
+   --winston-red background — var(--line) (a near-white hairline meant
+   for --paper backgrounds) would all but vanish there. */
+.sect-selected .selected-row:nth-child(n+2) { border-top-color: rgba(255, 255, 255, .3); }
+@media (min-width: 720px) {
+  .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 2.5rem; }
+  /* Reset the mobile single-column rule above, then reapply it only to
+     items 3+ (row two onward) — see this block's own comment above for
+     why `nth-child(n+3)`, not `+ *`, is required here. */
+  .selected-row:nth-child(n+2) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .selected-row:nth-child(n+3) {
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+  .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
+}
+.selected-row { display: flex; align-items: flex-start; gap: 1.25rem; min-width: 0; }
 /*
  * clamp(84px, 22vw, 140px): a generous 140px square on desktop, shrinking
  * fluidly down to a still-legible 84px floor at phone widths, so the text
@@ -2485,16 +2521,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .selected-row-media img { transition: none; }
 }
 /*
- * Inverted colors — only inside .sect-selected's solid --stone background
- * (the homepage tile); page-selected.php's archive uses these same row
- * classes on a plain paper background, so it keeps every class's normal
- * site-wide default styling untouched.
+ * Inverted colors — only inside .sect-selected's solid --winston-red
+ * background (the homepage tile); page-selected.php's archive uses these
+ * same row classes on a plain paper background, so it keeps every
+ * class's normal site-wide default styling untouched.
  *
  * .type-label becomes a solid white badge with crimson text, not plain
- * white text on stone — the same "flip polarity for a saturated
+ * crimson text directly on the section's own crimson background (which
+ * would be all but invisible) — the same "flip polarity for a saturated
  * background" solution already used by .card-spotlight's own eyebrow
- * badge above, for the same reason: plain-colored text on a mid-gray
- * background reads as buried, not confidently on-brand.
+ * badge above, for the identical reason.
  */
 .sect-selected .type-label {
   display: inline-flex;

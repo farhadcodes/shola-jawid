@@ -9643,3 +9643,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Plugin version bumped 1.16.0 → 1.16.1 (patch: moved one field's UI
   location, no new data or behavior).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها reworked to a 2-column grid, vibrant background
+- **Changed:** Farhad reviewed the shipped single-column گزیده‌ها section
+  live against his reference screenshot (a compact 2-column editorial
+  grid) and asked for that exact layout, mirrored for RTL — plus a
+  brighter/more vibrant background, having found the initial solid
+  `--stone` (a muted warm gray) not actually vibrant.
+  Layout: `.selected-list` (main.css §11) changed from a flex column to
+  a CSS Grid — 1 column below 720px, 2 columns above it (matching
+  `.grid-cards`'s own breakpoint, main.css §09, for sitewide
+  consistency). Row dividers switched from the simple `+ *`
+  adjacent-sibling selector to `nth-child(n+2)`/`nth-child(n+3)` (mobile/
+  desktop respectively) — with two columns, "starts a new row" isn't
+  "every item after the first," and the two cells of one visual row need
+  the identical divider treatment independently or they'd misalign; see
+  the CSS's own comment for the full reasoning. `min-width: 0` added to
+  `.selected-row` itself (a grid item now, same long-content overflow
+  fix already documented at `.card-spotlight`).
+  Background: `.sect-selected` changed from solid `--stone` to solid
+  `--winston-red` — this brand's one genuinely saturated color, already
+  proven as a full-bleed section background elsewhere (`.hero-rail`,
+  `.card-spotlight`, the masthead). Every text/link/badge color override
+  under `.sect-selected` had already been built against a saturated,
+  non-paper background in the first place (matching `.card-spotlight`'s
+  own conventions) — none needed changing for this swap, only the one
+  background declaration.
+  Theme version bumped 1.27.0 → 1.27.1 (patch: layout/color rework of an
+  already-shipped, unreleased section — no new markup, fields, or
+  behavior).
+  Approved by: Farhad, in this session (2026-09-16).
