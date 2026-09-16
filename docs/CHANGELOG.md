@@ -9473,3 +9473,36 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.24.1 → 1.25.0 (minor bump: new metadata
   component + two new icons).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — search-results count/term prominence
+- **Changed:** Farhad shared an aawsat.com screenshot ("Search Results
+  For **Afghanistan**" / "145 Results", both clearly visible) next to
+  his own site's search page, where the equivalent line ("۲۰ نتیجه برای
+  «افغانستان»") rendered via `.meta-mono` alone — 13px, muted `--stone`,
+  letterspaced — easy to miss. Asked specifically for the count and
+  search term to become prominent, and explicitly to touch nothing else
+  on the page.
+  Scoped narrowly to match: search.php's h1 ("جست‌وجو"), the dek, the
+  search form, and the filter tabs are all untouched — only the single
+  results-count line changed. That line's markup (search.php) now wraps
+  the count and the term in their own spans
+  (`.search-results-count-num`, `.search-results-count-term`) instead
+  of one plain translated string, so each can be styled independently;
+  "نتیجه برای" stays the one translatable fragment (CLAUDE.md §1), the
+  same as before — only the wrapping `<span>`s and the already-literal
+  «» guillemets are structural markup, not new hardcoded copy.
+  CSS: `.search-results-count` bumped from `.meta-mono`'s 13px to
+  1.0625rem (17px) `--ink-soft`; `.search-results-count-num` bold
+  `--ink`; `.search-results-count-term` bold `--winston-red` (the same
+  accent red used for emphasis elsewhere on the site). Deliberately
+  kept as one supporting line under the existing "جست‌وجو" heading, not
+  a second competing headline — matching the reference's *intent*
+  (count and term clearly visible) without restructuring the page to
+  literally copy its layout, which wasn't asked for.
+  Verified live at http://shola-jawid.local/?s=اقتصاد on desktop and
+  mobile (375px): "۱۱ نتیجه برای «**اقتصاد**»" renders with the number
+  bold black and the term bold red, both clearly legible; confirmed via
+  `getComputedStyle` (`font-weight: 800` on both spans, term color
+  `rgb(204, 0, 0)` = `--winston-red`). Nothing else on the page changed.
+  Theme version bumped 1.25.0 → 1.25.1 (patch: one line's styling only).
+  Approved by: Farhad, in this session (2026-09-16).

@@ -88,12 +88,30 @@ $filters = array(
 				 * mistake.
 				 */
 				?>
-				<p class="meta-mono search-results-count">
+				<p class="search-results-count">
 					<?php
+					/*
+					 * Reworked 2026-09-16, per Farhad comparing against an
+					 * aawsat.com screenshot: the result count and search
+					 * term used to render as one plain `.meta-mono` line
+					 * (13px, muted stone) — easy to miss entirely. Scoped
+					 * deliberately narrow, per his explicit "don't touch
+					 * anything else": only this line's own markup/styling
+					 * changed (search.php's h1/dek, the form, and the
+					 * filter tabs are all untouched). The two dynamic
+					 * pieces are now individually wrapped so CSS can give
+					 * each its own emphasis (.search-results-count-num
+					 * bold, .search-results-count-term bold + accent red)
+					 * — "نتیجه برای" stays the one translatable fragment,
+					 * same as the rest of the theme's copy; the wrapping
+					 * `<span>`s and guillemets are structural markup, not
+					 * translated text, no different from the literal «»
+					 * the original single string already hardcoded.
+					 */
 					printf(
-						/* translators: 1: number of results (Persian digits), 2: the search query. */
-						esc_html__( '%1$s نتیجه برای «%2$s»', 'shola-jawid' ),
+						'<span class="search-results-count-num">%1$s</span> %2$s «<span class="search-results-count-term">%3$s</span>»',
 						esc_html( shola_to_persian_digits( $GLOBALS['wp_query']->found_posts ) ),
+						esc_html__( 'نتیجه برای', 'shola-jawid' ),
 						esc_html( $search_query )
 					);
 					?>

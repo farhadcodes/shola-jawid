@@ -3395,7 +3395,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    found this way: confirmed via live DOM inspection that <body> itself
    had computed width: 820px, matching this rule's max-width exactly. */
 .search-results-wrap { max-width: 820px; margin-inline: auto; }
-.search-results-count { margin-bottom: 1.5rem; }
+/*
+ * .search-results-count — reworked 2026-09-16, per Farhad comparing
+ * against an aawsat.com reference screenshot: previously rendered via
+ * `.meta-mono` alone (13px, muted --stone, letterspaced) — easy to
+ * overlook. Bumped up to a legible body size and given its own two
+ * emphasized spans (search.php) rather than inventing a new bigger
+ * heading here: this stays a single supporting line under the page's
+ * existing "جست‌وجو" title, not a second, competing headline — a
+ * deliberately narrow fix, not a redesign of the search page.
+ */
+.search-results-count {
+  margin-bottom: 1.5rem;
+  font-family: var(--font-nav);
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+}
+.search-results-count-num { font-weight: 800; color: var(--ink); }
+.search-results-count-term { font-weight: 800; color: var(--winston-red); }
 .search-no-results { text-align: center; }
 .card-dek mark,
 .h-card-lg mark { background: var(--winston-red-tint); color: var(--winston-red); padding: 0 .2em; }
