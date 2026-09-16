@@ -9506,3 +9506,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `rgb(204, 0, 0)` = `--winston-red`). Nothing else on the page changed.
   Theme version bumped 1.25.0 → 1.25.1 (patch: one line's styling only).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — sixth hero_section layout: minimal cover
+- **Added:** Farhad relayed the client finding the `overlay` layout's
+  floating publication card (kicker, cover, dek, "دریافت شماره" button
+  — shola_render_hero_publication_card()) too cluttered, with an
+  annotated screenshot marking the description and button for removal,
+  and a plain image+title reference card as inspiration. Explicit
+  instruction: "do not remove this one, just build a new one" — a
+  sixth, separately selectable hero_section layout, `overlay`
+  untouched.
+  Extended sanitize_hero_layout()'s whitelist (class-meta-fields.php)
+  and its admin `<select>` with `minimal_cover`; front-page.php gained
+  a new dispatch branch reusing `.hero-lead--overlay`'s full-bleed
+  photo/headline markup as-is (identical to `overlay` structurally),
+  differing only in which function fills the floating card. New
+  `shola_render_hero_publication_card_minimal()` (inc/template-tags.php)
+  and matching `.hero-pub-card-minimal-*` CSS (main.css §10.3b) built
+  as a genuinely separate function/ruleset rather than an options flag
+  on the existing helper, since Farhad's spec diverged enough (2:3
+  cover ratio vs. the existing 3:4, no kicker) that branching inside
+  one function would have added more conditionals than it saved. New
+  `shola_hero_minimal_cover` image size (640×960, 2:3) registered
+  specifically for this layout's cover — Farhad's own spec was "maybe
+  two by three," narrower than every other issue-cover context on the
+  site (3:4). Cover sits edge-to-edge (no inline padding/margin) with
+  the title in a separate block below it, never overlapping — a
+  structural change from `shola_render_hero_publication_card()`'s
+  layered card, not just a smaller version of it.
+  First pass shipped cover + title only, no dek/button/kicker, per the
+  original ask. Farhad reviewed it live and found it "too minimal...
+  no feeling, no professionalism," and shared two further reference
+  cards. Reworked same session per his explicit picks from those
+  references: no "جدید" badge, no description text; the issue's
+  publish date (calendar icon, reusing the existing shola_date_icon()/
+  `.card-byline` convention) in place of one reference's tag/category
+  chip, since an issue has no per-item category field to show there
+  without inventing one; and a red "مشاهده و دانلود نشریه" download
+  button reusing the site's existing `.btn`/`.btn-primary` (already
+  sharp-cornered site-wide, main.css §04) — not the rounded pill shape
+  shown in that reference, per Farhad's explicit instruction (given
+  separately, same session) that this whole component must have sharp
+  corners like the rest of the site's design language. The reference
+  cards' decorative background circle and layered/stacked-paper photo
+  treatment were not replicated — that read as stock-photography
+  styling for the mockup, not a structural request, and isn't
+  achievable with this site's real, arbitrary-aspect uploaded cover
+  images without fabricating a decorative element with no brand-guide
+  basis.
+  Theme version bumped 1.25.1 → 1.26.0 (minor: new hero layout +
+  template + image size + CSS section). Plugin version bumped 1.14.0 →
+  1.15.0 (minor: new whitelisted layout value + admin UI option).
+  Not yet verified live in-browser as of packaging — the local dev
+  site's wp-admin session was logged out and Farhad had not yet logged
+  back in when the zip files were requested; verify on first live edit.
+  Approved by: Farhad, in this session (2026-09-16).

@@ -20,6 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - shola_hero_wide         — .hero-media (main.css §10): viewport-height-based,
  *   no fixed CSS aspect-ratio; registered oversized landscape so object-fit:
  *   cover has enough source to crop against at any viewport.
+ * - shola_hero_minimal_cover 2:3 — .hero-pub-card-minimal-cover (main.css §10.3b,
+ *   hero_section: minimal_cover) — deliberately its own size rather than reusing
+ *   shola_issue_cover (3:4): Farhad's explicit spec for this layout's cover was
+ *   "maybe two by three," a taller/narrower ratio than the 3:4 book-cover crop
+ *   used everywhere else issue covers appear.
  *
  * .card-mini .card-media (16:10) exists in the CSS but is not used by any of
  * the 23 v6 pages (confirmed by grep in Phase 1.1) — not registered until a
@@ -97,6 +102,7 @@ function shola_setup() {
 	add_image_size( 'shola_issue_cover', 600, 800, true );
 	add_image_size( 'shola_issue_card', 375, 500, true );
 	add_image_size( 'shola_hero_wide', 1920, 1080, true );
+	add_image_size( 'shola_hero_minimal_cover', 640, 960, true );
 }
 add_action( 'after_setup_theme', 'shola_setup' );
 

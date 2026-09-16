@@ -2063,6 +2063,113 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   }
 }
 
+/* --- ۱۰.۳b · Hero "کاور مینیمال روی تصویر" layout (hero_section:
+   minimal_cover) -----------------------------------------------------
+   Added 2026-09-16 — sixth layout, per the client (relayed by Farhad,
+   with an annotated screenshot marking `overlay`'s description and
+   "دریافت شماره" button for removal) asking for a minimal card,
+   inspired by two reference cards (see shola_render_hero_publication_
+   card_minimal()'s docblock for exactly which pieces of each were
+   kept). Shares §10.3's full-bleed hero and floating-corner position/
+   breakpoint entirely (same .hero-lead--overlay markup) — only the
+   floating card itself is new: a cover, then a paper-backed info panel
+   below it with the title, issue date, and a download button.
+
+   Sharp corners throughout, no exceptions: unlike `overlay`'s cover
+   (border-radius: 4px, §10.3 above), this card uses border-radius: 0
+   on every element — Farhad's explicit instruction that this site's
+   whole visual language uses sharp corners, called out specifically
+   for this new component. */
+.hero-pub-card-minimal { display: none; }
+@media (min-width: 901px) {
+  .hero-pub-card-minimal {
+    display: block;
+    position: absolute;
+    z-index: 4;
+    bottom: 2.5rem;
+    inset-inline-end: calc(max(0px, (100% - var(--wrap-wide)) / 2) + var(--gap-pad-x));
+    width: 220px;
+    max-width: calc(100% - 2 * var(--gap-pad-x));
+  }
+}
+/* aspect-ratio 2/3, not the 3/4 book-cover ratio used everywhere else
+   issue covers appear (.hero-pub-card-cover, .issue-cover) — Farhad's
+   own spec for this layout was "maybe two by three," a taller,
+   narrower silhouette specific to this minimal card. Edge-to-edge: no
+   inline padding/margin on the cover itself, so the image fills the
+   card's full width with nothing framing its sides. */
+.hero-pub-card-minimal-cover {
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 0;
+  box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
+}
+.hero-pub-card-minimal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Same hover-tint transition as the site's regular post-card images
+     (.card-media img / .card:hover img, main.css §09) — Farhad's
+     explicit ask to reuse that exact effect here. */
+  transition: transform .6s var(--ease), filter .45s var(--ease);
+}
+.hero-pub-card-minimal-cover:hover img {
+  transform: scale(1.04);
+  filter: grayscale(.9) brightness(1.02);
+}
+/* Info panel (title, date, button) sits below the cover, never
+   overlapping it — a separate block in normal flow, not an
+   absolutely-positioned overlay. A solid paper backing (not
+   transparent over the photo) keeps it legible wherever the floating
+   card happens to land on the photo beneath it. Reworked from a
+   title-only block to this fuller panel, still 2026-09-16, after
+   Farhad reviewed the first pass live and found it too bare — rebuilt
+   against two reference cards he shared, keeping only what he
+   confirmed: the issue date and the download button, no "جدید" badge
+   and no description text. */
+.hero-pub-card-minimal-info {
+  margin-block-start: .65rem;
+  background: var(--paper);
+  border-radius: 0;
+  padding: .85rem .9rem;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+.hero-pub-card-minimal-title {
+  margin: 0;
+  font-size: .95rem;
+  line-height: 1.4;
+}
+.hero-pub-card-minimal-title a { color: var(--ink); }
+/* Date row — same stroke-icon convention as postcards site-wide
+   (shola_date_icon(), .card-byline), reused here rather than
+   reference #1's tag/category chip: an issue has no per-item category
+   field to show there without inventing one, and the date is real
+   data already available. */
+.hero-pub-card-minimal-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 0;
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: var(--t-micro);
+}
+.hero-pub-card-minimal-meta .glyph { width: 13px; height: 13px; flex-shrink: 0; }
+/* .btn/.btn-primary reused as-is (main.css §04) — already sharp-
+   cornered site-wide, no override needed. align-self: flex-start
+   keeps it sized to its own text instead of stretching to the panel's
+   full width, same fix already applied to .hero-rail/.hero-pub-card's
+   own button above. */
+.hero-pub-card-minimal-btn { align-self: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-pub-card-minimal-cover img { transition: none; }
+}
+
 /* --- ۱۰.۴ · Hero "لید + ستون نشریهٔ تمام‌عرض" layout (hero_section:
    rail_full) --------------------------------------------------------
    Added 2026-09-10, Phase 17 continued — fourth layout per a client

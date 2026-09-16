@@ -1052,6 +1052,49 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
 }
 
 /**
+ * Renders the "minimal cover" hero_section layout's floating publication
+ * card (front-page.php, `minimal_cover`) — added 2026-09-16, per the client
+ * (relayed by Farhad) finding the `overlay` layout's full card (kicker,
+ * cover, dek, "دریافت شماره" button — shola_render_hero_publication_card())
+ * too busy. Deliberately a separate, much smaller function rather than an
+ * options flag on shola_render_hero_publication_card(): the two versions
+ * share no markup beyond the cover link/title heading, and forking here
+ * keeps that older function's docblock/behavior untouched for the three
+ * layouts that still use it.
+ *
+ * Revised same day after Farhad reviewed the first pass live and found it
+ * "too minimal... no feeling, no professionalism" — reworked against two
+ * reference cards he shared, per his own explicit picks: no "جدید" badge,
+ * no description text (both from reference #1); the issue date (calendar
+ * icon, reusing shola_date_icon() — same convention as postcards site-wide)
+ * instead of reference #1's tag/category chip, since this card has no real
+ * per-issue category field to show there without inventing one; and the
+ * red "مشاهده و دانلود نشریه" button from reference #2 (sharp corners, not
+ * that reference's pill shape — Farhad's explicit sharp-corners call),
+ * reusing the site's existing .btn/.btn-primary exactly as the other three
+ * publication-card layouts already do, in place of reference #1's small
+ * circular arrow icon so the card has one clear call to action, not two.
+ *
+ * @param WP_Post $issue The issue post to feature.
+ * @param WP_Term $pub_term The issue's publication term.
+ * @return void
+ */
+function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
+	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	$permalink    = get_permalink( $issue );
+	?>
+	<a href="<?php echo esc_url( $permalink ); ?>" class="hero-pub-card-minimal-cover reveal">
+		<?php echo shola_get_featured_image( $issue, 'shola_hero_minimal_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+	</a>
+	<div class="hero-pub-card-minimal-info">
+		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+		<p class="hero-pub-card-minimal-meta"><?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_date_icon() returns a static trusted SVG. ?><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $issue ) ); ?>"><?php echo esc_html( get_the_date( '', $issue ) ); ?></time></p>
+		<a class="btn btn-primary hero-pub-card-minimal-btn" href="<?php echo esc_url( $permalink ); ?>"><?php esc_html_e( 'مشاهده و دانلود نشریه', 'shola-jawid' ); ?></a>
+	</div>
+	<?php
+}
+
+/**
  * Renders the "filmstrip" hero layout's horizontal recent-articles strip
  * (front-page.php) — a scrollable row of template-parts/cards/hero-strip-
  * card.php thumbnails plus the two prev/next arrow buttons. The strip

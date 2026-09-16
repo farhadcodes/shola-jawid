@@ -94,7 +94,7 @@ $hero_layout        = $hero_layout ? $hero_layout : 'single';
 $hero_rail_issue    = null;
 $hero_rail_pub_term = null;
 
-if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full' ), true ) ) {
+if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full', 'minimal_cover' ), true ) ) {
 	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
 	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
@@ -238,6 +238,38 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 		</div>
 		<div class="hero-pub-card" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
 			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term ); ?>
+		</div>
+	</section>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero && 'minimal_cover' === $hero_layout ) : ?>
+	<?php
+	/*
+	 * کاور مینیمال روی تصویر (Added 2026-09-16, sixth layout): the client
+	 * found `overlay`'s floating card above too busy (relayed by Farhad,
+	 * with an annotated screenshot marking the description and "دریافت
+	 * شماره" button for removal) and asked for a minimal cover-only
+	 * card, inspired by a plain image+title card reference. Structurally
+	 * identical to `overlay` (same full-bleed .hero-media/.wrap/.hero-
+	 * body, same floating-corner card position/breakpoint — see main.css
+	 * §10.3b) — the only difference is which function fills the floating
+	 * card: shola_render_hero_publication_card_minimal() (cover + title
+	 * only) instead of shola_render_hero_publication_card() (kicker/
+	 * cover/title/dek/button). `overlay` itself is untouched; this is an
+	 * additional, separately selectable layout, not a replacement.
+	 */
+	?>
+	<section class="hero-lead hero-lead--overlay" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+			<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+		</a>
+		<div class="wrap">
+			<div class="hero-body">
+				<?php shola_render_hero_body( $hero ); ?>
+			</div>
+		</div>
+		<div class="hero-pub-card-minimal" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term ); ?>
 		</div>
 	</section>
 
