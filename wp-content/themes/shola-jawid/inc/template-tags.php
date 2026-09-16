@@ -219,6 +219,36 @@ function shola_get_iso_datetime( $post = null ) {
 }
 
 /**
+ * Small calendar glyph shown before the bare date on a card's byline —
+ * added 2026-09-16 per Farhad's explicit ask for "a beautiful and
+ * professional date icon" wherever a plain date appears beneath a card,
+ * site-wide. Scoped deliberately narrow: only the shared `.card-byline`
+ * pattern's actual `<time>` date (template-parts/cards/card.php,
+ * template-parts/cards/announcement-spotlight.php's featured item, and
+ * template-parts/search/result.php's article/note branch) — NOT the
+ * already-labeled دت/dd "تاریخ نشر" rows on single-issue.php/single-
+ * document.php/etc. (a different, already-explained UI pattern, not a
+ * bare floating date), the compact secondary list rows
+ * (.card-spotlight-more, .announce-list), or single-post pages' own
+ * header byline — none of those are "a card."
+ *
+ * Stroke-based, 24x24 viewBox — matches the existing bell/share icon
+ * style already used elsewhere in this theme (announcement-
+ * spotlight.php's اطلاعیه type-label icon, the share-menu icons), not
+ * card.php's own filled 16x16 type-label icons; a calendar reads more
+ * as a clean, precise line-icon than a filled shape. Uses
+ * `color: currentColor` (set via CSS on `.card-byline .glyph`, main.css)
+ * so it automatically matches whichever text color `.card-byline` has
+ * in each context (muted stone by default, white on the red spotlight
+ * tile) with no per-context override needed.
+ *
+ * @return string Trusted, static inline SVG markup.
+ */
+function shola_date_icon() {
+	return '<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>';
+}
+
+/**
  * Rewrites Jalali month names from the Iranian variant (فروردین,
  * اردیبهشت, ...) that the Persian Calendar plugin hardcodes, to the
  * Afghan Dari variant (حمل, ثور, ...) this site actually needs — found by

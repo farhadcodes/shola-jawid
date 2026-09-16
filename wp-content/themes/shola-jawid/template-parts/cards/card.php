@@ -123,6 +123,9 @@ if ( 'document' === $card_type ) {
 		 * stays, .card-byline just no longer prefixes it with a name.
 		 */
 		?>
-		<p class="card-byline"><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time></p>
+		<p class="card-byline">
+			<?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+			<time datetime="<?php echo esc_attr( shola_get_iso_datetime( $card_post ) ); ?>"><?php echo esc_html( get_the_date( '', $card_post ) ); ?></time>
+		</p>
 	</div>
 </article>

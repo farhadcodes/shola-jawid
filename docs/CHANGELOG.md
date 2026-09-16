@@ -9355,3 +9355,51 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.23.1 → 1.23.2 (patch: proportion/sizing
   revision).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — calendar icon on card dates
+- **Added:** A small SVG calendar glyph before the bare date shown
+  beneath a card site-wide, per Farhad's explicit ask for "a beautiful
+  and professional date icon" wherever a date appears under a card —
+  "subtle but great with the proper detail."
+  New `shola_date_icon()` helper (inc/template-tags.php) returns a
+  trusted, static, stroke-based inline SVG (24x24 viewBox, matching the
+  weight/style of the theme's other stroke icons — the اطلاعیه bell and
+  the share-menu icons — rather than card.php's own filled 16x16 type-
+  label icons, which read as a bolder shape than suits a quiet date
+  caption). Deliberately not exposed as a filter/option — it's a single,
+  static, brand-consistent glyph, not editor-configurable content.
+  Scope was kept narrow and specific on purpose: added only to the
+  three places an actual repeating *card* shows a bare, unlabeled date
+  — template-parts/cards/card.php (the shared article card used
+  homepage/topic-archive/reports/related-articles), template-parts/
+  cards/announcement-spotlight.php's featured item, and template-parts/
+  search/result.php's article/note branch. Deliberately left untouched:
+  the homepage hero's own byline (a singular featured story, not a
+  repeating card), single-announcement.php's own page-header byline (a
+  single-post header, not a card), the compact secondary list rows
+  (`.card-spotlight-more`, `.announce-list`, already a tight one-line
+  layout with title + date sharing space), and every already-labeled
+  تاریخ‌نشر dt/dd row on single-issue.php/single-document.php/single-
+  party_publication.php/single-party_document.php/front-page.php's
+  current-issues block (a different, already-explained UI pattern with
+  its own label — not a bare floating date).
+  CSS: `.card-byline` changed to `display: inline-flex; align-items:
+  center; gap: .35rem` (same alignment technique `.type-label` already
+  uses for its own leading icon, just above in main.css) and a new
+  `.card-byline .glyph { width: 13px; height: 13px; }` — deliberately
+  no explicit color set on the glyph itself: `stroke="currentColor"` in
+  the SVG means it automatically inherits whatever `.card-byline`'s own
+  text color already is in each context (muted `--stone` by default,
+  white on `.card-spotlight`'s red tile) with zero extra override
+  rules needed — verified live: `getComputedStyle` confirmed the glyph
+  reports `rgba(255,255,255,.9)` on the spotlight tile, matching its
+  text, automatically.
+  Verified live at http://shola-jawid.local: homepage (article grid
+  cards + اطلاعیه spotlight tile, icon color correctly inherited on the
+  red background), search results page (`?s=اقتصاد`), and mobile
+  (375px) — icon renders at a consistent small size, well-aligned with
+  the date text, clearly subtle rather than attention-grabbing. Zero
+  console errors at any width.
+  Theme version bumped 1.23.2 → 1.24.0 (minor bump: new shared icon
+  used across multiple templates).
+  Approved by: Farhad, in this session (2026-09-16).

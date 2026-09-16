@@ -107,6 +107,7 @@ $dek       = shola_highlight_search_term( esc_html( wp_trim_words( get_the_excer
 			 * and a month/year respectively, never a CMS username.
 			 */
 			?>
+			<?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
 			<time datetime="<?php echo esc_attr( shola_get_iso_datetime( $result ) ); ?>"><?php echo esc_html( get_the_date( '', $result ) ); ?></time>
 		<?php endif; ?>
 	</p>

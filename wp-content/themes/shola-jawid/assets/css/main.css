@@ -1229,7 +1229,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   line-clamp: 3;
   overflow: hidden;
 }
-.card-byline { color: var(--stone); font-family: var(--font-nav); font-size: 0.875rem; margin-top: .25rem; }
+.card-byline {
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: 0.875rem;
+  margin-top: .25rem;
+  /* display:inline-flex + gap, added 2026-09-16 alongside the date
+     glyph (shola_date_icon(), inc/template-tags.php) — same alignment
+     technique already used by .type-label just above for its own
+     leading icon, applied here so the calendar icon and the date text
+     sit on one baseline-centered line instead of stacking or
+     misaligning. .card-byline stays block-level in the document flow
+     (this only changes how its own inline content is laid out), so it
+     still occupies its own full line under the excerpt as before. */
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+/*
+ * Date glyph — subtle by design, per Farhad's explicit ask ("should
+ * look subtle but great with the proper detail"): sized small and set
+ * to `currentColor` rather than the brand's red accent, so it quietly
+ * matches whatever color .card-byline's own text already is in each
+ * context (muted --stone by default; automatically flips to white via
+ * the existing .card-spotlight .card-byline / .hero-body .card-byline
+ * color overrides below, with no extra rule needed here).
+ */
+.card-byline .glyph { width: 13px; height: 13px; flex-shrink: 0; }
 
 /* Compact card variant — for "popular" rails */
 .card-mini { gap: .6rem; }
