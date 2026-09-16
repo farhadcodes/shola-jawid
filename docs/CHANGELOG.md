@@ -9673,3 +9673,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   already-shipped, unreleased section — no new markup, fields, or
   behavior).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها changed from 2 to 3 columns, compacted
+- **Changed:** Farhad reviewed the 2-column grid live and found the
+  6-item shelf reading too tall/narrow for its width ("shallow"), and
+  asked for 3 columns / 2 rows instead, more compact overall.
+  `.selected-list` (main.css §11) grid breakpoints changed to 1 column
+  below 720px, 2 columns 720-999px, 3 columns at 1000px+ — the same
+  three breakpoints `.grid-cards` already uses (main.css §09), for
+  sitewide consistency, rather than jumping straight from 1 to 3.
+  Divider `nth-child` selectors extended with a third rule for the new
+  3-column breakpoint (row two now starts at item 4, not item 3) — see
+  the CSS block's own updated comment for the full reasoning, unchanged
+  from the 2-column version.
+  Compacting: column/row gaps tightened (2.5rem → 2rem column gap, 2rem
+  → 1.5rem row spacing), cover image `clamp()` reduced from
+  84-140px to 72-112px (a narrower 3-column cell has less room for both
+  cover and text), and the excerpt clamp tightened from 3 to 2 lines
+  (`.card-dek`, scoped to this component only) with its word-trim count
+  lowered 32 → 20 (selected-row.php) so the shorter excerpt still
+  reliably fills, rather than overruns, the tighter 2-line clamp — same
+  word-count-tuned-to-clamp reasoning already used for `.card-dek`
+  elsewhere on the site.
+  Verified live at 1024px (3 columns, 293.6px each, confirmed via
+  `getComputedStyle`, `document.body.scrollWidth` === `clientWidth`, no
+  horizontal overflow) and at 375px (drops to 1 column, same overflow
+  check passed).
+  Theme version bumped 1.27.1 → 1.27.2 (patch: layout/color-rework of an
+  already-shipped, unreleased section).
+  Approved by: Farhad, in this session (2026-09-16).

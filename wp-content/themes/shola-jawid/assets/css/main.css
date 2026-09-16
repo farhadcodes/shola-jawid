@@ -2442,30 +2442,30 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * (visual right in this RTL site), same DOM-order technique already used
  * by the hero_section rail layouts (main.css §10.1/§10.4).
  *
- * Reworked from a single-column stacked list to a two-column grid, same
- * day, after Farhad compared the shipped single-column version against
- * his reference screenshot (a compact 2-column editorial grid) and asked
- * for that exact layout, mirrored for RTL. 720px breakpoint matches
- * .grid-cards's own 1-col-mobile/2-col-tablet-up split (main.css §09) for
- * sitewide consistency.
+ * Grid breakpoints: 1 column below 720px, 2 columns 720-999px, 3 columns
+ * at 1000px+ — the exact same three breakpoints as `.grid-cards` (main
+ * .css §09), for sitewide consistency. Went through two rounds of live
+ * feedback the same day: first a straight 2-column grid (Farhad's
+ * reference screenshot), then changed to 3 columns / 2 rows once he saw
+ * the 2-column version live and found the 6-item shelf reading too tall/
+ * narrow ("shallow") for its width — 3 columns keeps the same 6-item cap
+ * but spreads it across fewer, denser rows.
  *
- * Divider rhythm: `nth-child` rather than the simpler `+ *` adjacent-
- * sibling selector, because with two columns "starts a new row" isn't
- * "every item after the first" — it's every item from the 3rd onward
- * (items 1-2 are row one). `+ *` would incorrectly put a divider above
- * item 2 as well, since it's still every item's *immediately preceding
- * sibling* that matters to that selector, not which row it visually
- * falls in. Two separate `nth-child` rules — `(n+2)` for the single-
- * column mobile layout, `(n+3)` for the two-column layout above 720px —
- * given full values (not `+ *`'s relative one), so every item that
- * starts a new row gets the identical divider treatment independently,
- * which keeps the two cells of one visual row aligned (a margin/padding
- * difference between them would otherwise misalign the pair).
+ * Divider rhythm: `nth-child`, not the simpler `+ *` adjacent-sibling
+ * selector — with N columns, "starts a new row" isn't "every item after
+ * the first," it's every item from position N+1 onward (e.g. at 3
+ * columns, items 1-3 are row one, so the divider starts at item 4).
+ * `+ *` would incorrectly divider every item after the first regardless
+ * of row. Each breakpoint gets its own `nth-child(n+N+1)` rule, reset
+ * from the previous breakpoint's rule first, so every item that starts a
+ * new row gets identical spacing independently — required so every cell
+ * in one visual row aligns (a per-item margin/padding difference would
+ * misalign the row).
  */
 .selected-list { display: grid; grid-template-columns: 1fr; }
 .selected-row:nth-child(n+2) {
-  margin-top: 1.75rem;
-  padding-top: 1.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--line);
 }
 /* Divider brightened for legibility against .sect-selected's solid
@@ -2473,30 +2473,38 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    for --paper backgrounds) would all but vanish there. */
 .sect-selected .selected-row:nth-child(n+2) { border-top-color: rgba(255, 255, 255, .3); }
 @media (min-width: 720px) {
-  .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 2.5rem; }
-  /* Reset the mobile single-column rule above, then reapply it only to
-     items 3+ (row two onward) — see this block's own comment above for
-     why `nth-child(n+3)`, not `+ *`, is required here. */
+  .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 2rem; }
   .selected-row:nth-child(n+2) { margin-top: 0; padding-top: 0; border-top: 0; }
   .selected-row:nth-child(n+3) {
-    margin-top: 2rem;
-    padding-top: 1.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--line);
   }
   .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
 }
-.selected-row { display: flex; align-items: flex-start; gap: 1.25rem; min-width: 0; }
+@media (min-width: 1000px) {
+  .selected-list { grid-template-columns: repeat(3, 1fr); }
+  .selected-row:nth-child(n+3) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .selected-row:nth-child(n+4) {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .sect-selected .selected-row:nth-child(n+4) { border-top-color: rgba(255, 255, 255, .3); }
+}
+.selected-row { display: flex; align-items: flex-start; gap: 1rem; min-width: 0; }
 /*
- * clamp(84px, 22vw, 140px): a generous 140px square on desktop, shrinking
- * fluidly down to a still-legible 84px floor at phone widths, so the text
- * column beside it always keeps enough room for the title/excerpt/date to
- * read comfortably rather than the row needing a separate mobile-stacked
- * layout.
+ * clamp(72px, 16vw, 112px) — sized down from an earlier 84-140px range,
+ * same day, once the grid went from 2 to 3 columns: a narrower column
+ * has less room for both the cover and the text beside it, and a smaller,
+ * denser thumbnail is also just what "compact" (Farhad's own word) calls
+ * for here specifically, vs. the more generous single/two-column reading
+ * this component started from.
  */
 .selected-row-media {
   display: block;
   flex-shrink: 0;
-  width: clamp(84px, 22vw, 140px);
+  width: clamp(72px, 16vw, 112px);
   aspect-ratio: 1 / 1;
   overflow: hidden;
 }
@@ -2515,8 +2523,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    title/excerpt can force this flex item wider than its fair share,
    pushing the fixed-width cover image out of proportion. */
 .selected-row-body { flex: 1; min-width: 0; }
-.selected-row-body .type-label { margin-bottom: .35rem; }
-.selected-row-body .card-byline { margin-top: .5rem; }
+.selected-row-body .type-label { margin-bottom: .3rem; }
+/* 3-line default clamp (.card-dek, main.css §09) tightened to 2 — a
+   narrower 3-column cell has less width for the excerpt to wrap into,
+   and a shorter excerpt reads as more compact/dense, matching Farhad's
+   explicit ask, rather than the taller card a 3-line clamp would need
+   here. */
+.selected-row-body .card-dek { -webkit-line-clamp: 2; line-clamp: 2; }
+.selected-row-body .card-byline { margin-top: .4rem; }
 @media (prefers-reduced-motion: reduce) {
   .selected-row-media img { transition: none; }
 }
