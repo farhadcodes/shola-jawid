@@ -9855,3 +9855,19 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `clientWidth`) at mobile (375px).
   Theme version bumped 1.28.0 → 1.28.1 (patch).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها row/column spacing tightened
+- **Changed:** Farhad's live screenshot (annotated, marking both the
+  column gutter and the row divider gap) flagged the spacing between
+  rows and columns as reading too wide/"very white" now that the cover
+  is a compact 180×120px landscape box — the 2rem values in both places
+  were tuned for the previous round's much taller, text-height-tracking
+  covers and were never revisited once that height dropped back down.
+  `.selected-row:nth-child(n+2)`/`(n+3)` divider margin/padding
+  (main.css §11): 2rem → 1.25rem, at both the mobile and 720px+ tiers.
+  `.selected-list`'s `column-gap` (720px+): 2rem → 1.5rem.
+  Verified no horizontal overflow at any breakpoint after tightening
+  (`document.body.scrollWidth` === `clientWidth` at 375px mobile, 820px
+  tablet, and desktop).
+  Theme version bumped 1.28.1 → 1.28.2 (patch).
+  Approved by: Farhad, in this session (2026-09-16).

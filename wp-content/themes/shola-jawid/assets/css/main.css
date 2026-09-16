@@ -2464,26 +2464,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .selected-list { display: grid; grid-template-columns: 1fr; }
 /*
- * Divider spacing bumped 1.5rem -> 2rem across both rules below, as part
- * of the design pass alongside the bigger cover rework: rows are now
- * substantially taller than the original 64-96px thumbnails, and the
- * old tighter spacing started to look cramped next to that much larger
- * content.
- *
- * Back to a 2-tier (1-column mobile / 2-column tablet-up) breakpoint
- * scheme, 2026-09-16 — the 1000px 3-column tier tried right after the
- * previous round was dropped the same day: Farhad flagged that the
- * portrait-leaning cover shape read as this site's *publication* cover
- * convention (issue/party-publication covers, all portrait) rather than
- * its *article* convention (.card-media, 3:2 landscape, main.css §09) —
- * see .selected-row-media's own comment below for the full reasoning.
- * A landscape cover sized big enough to not look thin genuinely needs
- * more width than a 3-column ~294px row leaves once text is accounted
- * for, so 2 columns is required here now, not just a style preference.
+ * Divider/column spacing tightened again, 2026-09-16, per Farhad's live
+ * screenshot marking both the row-divider gap and the column gutter as
+ * reading too wide/"very white" once the cover shrank back down to a
+ * compact 180x120px landscape box — the 2rem spacing was tuned for the
+ * previous round's much taller, text-height-tracking covers and was
+ * never revisited when that height dropped. 2rem -> 1.25rem for the row
+ * divider (all breakpoints), 2rem -> 1.5rem for the column gutter.
  */
 .selected-row:nth-child(n+2) {
-  margin-top: 2rem;
-  padding-top: 2rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--line);
 }
 /* Divider brightened for legibility against .sect-selected's solid
@@ -2491,11 +2482,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    for --paper backgrounds) would all but vanish there. */
 .sect-selected .selected-row:nth-child(n+2) { border-top-color: rgba(255, 255, 255, .3); }
 @media (min-width: 720px) {
-  .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 2rem; }
+  .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 1.5rem; }
   .selected-row:nth-child(n+2) { margin-top: 0; padding-top: 0; border-top: 0; }
   .selected-row:nth-child(n+3) {
-    margin-top: 2rem;
-    padding-top: 2rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--line);
   }
   .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
