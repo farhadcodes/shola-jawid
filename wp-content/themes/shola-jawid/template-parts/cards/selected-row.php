@@ -29,7 +29,17 @@ $term      = shola_get_primary_topic( $row_post );
 ?>
 <article class="selected-row reveal">
 	<a href="<?php echo esc_url( $permalink ); ?>" class="selected-row-media" aria-hidden="true" tabindex="-1">
-		<?php echo shola_get_featured_image( $row_post, 'shola_selected_square', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+		<?php
+		/*
+		 * shola_card (3:2), not a dedicated square/portrait size — see
+		 * inc/setup.php's image-size docblock: a portrait/square cover
+		 * here read as this site's *publication*-cover convention
+		 * instead of its *article*-cover one, which this section
+		 * exclusively curates. Reuses the same size the regular
+		 * homepage/archive article cards already use (card.php).
+		 */
+		?>
+		<?php echo shola_get_featured_image( $row_post, 'shola_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
 	<div class="selected-row-body">
 		<?php if ( $term ) : ?>

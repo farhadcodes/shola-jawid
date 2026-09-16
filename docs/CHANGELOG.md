@@ -9814,3 +9814,44 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.27.4 → 1.28.0 (minor: layout-mechanism change,
   not just a value tweak).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها cover switched to landscape (article, not publication)
+- **Changed:** Farhad asked, as a design question first, whether
+  switching to 2 columns / 3 rows would fix an ambiguity he'd noticed:
+  the previous round's tall, narrow cover shape matched this site's own
+  established *publication*-cover convention (shola_issue_cover,
+  shola_hero_minimal_cover — both portrait) rather than its *article*-
+  cover convention (.card-media, 3:2 landscape) — confusing for a
+  section that exclusively curates articles/reports, never
+  publications. Answered as a design consult before touching anything
+  (per this session's established workflow): column count alone doesn't
+  fix the ratio (the row's height is driven by text content regardless
+  of column count) — the real fix is the aspect ratio itself, but a
+  *landscape* cover sized big enough not to look thin does need more
+  width than the 3-column ~294px row leaves once text is accounted for,
+  so 2 columns turned out to be genuinely necessary here, not just
+  preference. Farhad confirmed: landscape, matching the regular article
+  cards, not the publication-cover look.
+  `.selected-row-media` (main.css §11) reworked from a fixed-width/
+  text-height-tracking box (last round's mechanism, built specifically
+  to bookend the text column's full height) to a fixed `180px` width ×
+  `aspect-ratio: 3/2` box — the same ratio `.card-media` already uses
+  site-wide for articles. This is mechanically incompatible with last
+  round's "grows to match the text" behavior, so that's gone; matching
+  this site's own article-image language was the explicit priority this
+  round. `.selected-row` dropped the 1000px 3-column breakpoint (back to
+  1-column mobile / 2-column tablet-up, matching the layout's second
+  round) and `align-items: stretch` → `start` (the cover no longer needs
+  to track the text column's height).
+  Image size: `shola_selected_square` (1:1, added specifically for this
+  component two rounds ago) removed from inc/setup.php and
+  selected-row.php switched to reuse the existing `shola_card` (3:2) —
+  the same size the regular homepage/archive article cards already use,
+  rather than maintaining a second, now-pointless near-duplicate size
+  registration.
+  Verified live: `getComputedStyle`/`getBoundingClientRect` confirmed
+  180×120px (3:2) covers and 2 real grid columns (456.4px each) at
+  desktop, and no horizontal overflow (`document.body.scrollWidth` ===
+  `clientWidth`) at mobile (375px).
+  Theme version bumped 1.28.0 → 1.28.1 (patch).
+  Approved by: Farhad, in this session (2026-09-16).

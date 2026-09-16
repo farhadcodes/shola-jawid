@@ -2464,11 +2464,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .selected-list { display: grid; grid-template-columns: 1fr; }
 /*
- * Divider spacing bumped 1.5rem -> 2rem across all three rules below,
- * as part of the design pass alongside the bigger cover rework: rows
- * are now substantially taller (180px+ covers, vs. the original 64-96px
- * thumbnails), and the old tighter spacing started to look cramped next
- * to that much larger content.
+ * Divider spacing bumped 1.5rem -> 2rem across both rules below, as part
+ * of the design pass alongside the bigger cover rework: rows are now
+ * substantially taller than the original 64-96px thumbnails, and the
+ * old tighter spacing started to look cramped next to that much larger
+ * content.
+ *
+ * Back to a 2-tier (1-column mobile / 2-column tablet-up) breakpoint
+ * scheme, 2026-09-16 — the 1000px 3-column tier tried right after the
+ * previous round was dropped the same day: Farhad flagged that the
+ * portrait-leaning cover shape read as this site's *publication* cover
+ * convention (issue/party-publication covers, all portrait) rather than
+ * its *article* convention (.card-media, 3:2 landscape, main.css §09) —
+ * see .selected-row-media's own comment below for the full reasoning.
+ * A landscape cover sized big enough to not look thin genuinely needs
+ * more width than a 3-column ~294px row leaves once text is accounted
+ * for, so 2 columns is required here now, not just a style preference.
  */
 .selected-row:nth-child(n+2) {
   margin-top: 2rem;
@@ -2489,69 +2500,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   }
   .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
 }
-@media (min-width: 1000px) {
-  .selected-list { grid-template-columns: repeat(3, 1fr); }
-  .selected-row:nth-child(n+3) { margin-top: 0; padding-top: 0; border-top: 0; }
-  .selected-row:nth-child(n+4) {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--line);
-  }
-  .sect-selected .selected-row:nth-child(n+4) { border-top-color: rgba(255, 255, 255, .3); }
-}
 /*
- * .selected-row switched from flex to a 2-column CSS Grid, 2026-09-16,
- * per Farhad comparing against his reference image: there, the cover
- * spans the *entire* height of its row — top-aligned with the category
- * label, bottom-aligned with the byline/date — not a small fixed-size
- * thumbnail sitting at the top of a taller text column. Grid (not flex)
- * is required to make that work without a circular sizing dependency:
- * a CSS Grid row's auto height is computed from each cell's *intrinsic*
- * content size, but a percentage-height grid item (`.selected-row-media`
- * below, `height: 100%`) is explicitly excluded from that calculation
- * per spec and resolves against the row's final height in a later pass
- * — so the row's height is driven purely by the text column's natural
- * content height, and the image cell then stretches to match it with no
- * ambiguity. The same setup under `display: flex; align-items: stretch`
- * does not have this guarantee (a stretched flex item with an
- * aspect-ratio can feed back into the very cross-size it's stretching
- * to fill), which is why this isn't just an `align-items` swap on the
- * previous flex rule.
- *
- * First pass gave the image column `auto` width with `aspect-ratio: 1/1`
- * (width following the stretched height) — caught live immediately:
- * in the 3-column desktop grid, each row is only ~294px wide, so once a
- * row got tall enough (a full 2-line title + 2-line excerpt), a square
- * image at that height was ~274px wide — nearly the entire row, leaving
- * text squeezed into a ~20px sliver. Fixed by giving the image column a
- * literal fixed width (130px) instead of letting it float with height —
- * this is also a more literal match for Farhad's explicit "it should be
- * fixed" than a square ratio ever was: the box's width never changes,
- * only its height (still tracking the text column, still with the same
- * 180px floor below), and `object-fit: cover` on the `<img>` still fills
- * whatever resulting rectangle completely regardless of the source
- * photo's own dimensions.
+ * .selected-row: back to top-aligned (not the previous round's
+ * `align-items: stretch`), since the cover no longer tracks the text
+ * column's height — see .selected-row-media below. Still a CSS Grid
+ * (not flex) purely so the `min-width: 0` long-content fix on
+ * .selected-row-body keeps working the same way as every other
+ * grid-based fix already documented on this site (.card-spotlight,
+ * main.css §09).
  */
-.selected-row { display: grid; grid-template-columns: 130px 1fr; align-items: stretch; gap: 1.25rem; min-width: 0; }
+.selected-row { display: grid; grid-template-columns: 180px 1fr; align-items: start; gap: 1.25rem; min-width: 0; }
 /*
- * height: 100% — the cover's height still scales to whatever height the
- * row's text column naturally reaches (a longer excerpt makes a taller
- * row, which makes a taller image, exactly like the reference), while
- * width stays the fixed 130px above.
+ * Reworked from a fixed-width/text-height-tracking box to a fixed
+ * *landscape* aspect-ratio, 2026-09-16, per Farhad: the previous
+ * (portrait-leaning, height-tracks-text) cover shape matched this site's
+ * own established *publication* cover convention (.hero-pub-card-cover,
+ * .issue-cover — all portrait) rather than its *article* convention
+ * (.card-media, 3:2 landscape) — a real ambiguity for a section that
+ * exclusively curates articles/reports, not publications. `aspect-ratio:
+ * 3/2` reuses that exact article-card ratio; 180px width is wide enough
+ * for the resulting 120px-tall image to read as a genuine article
+ * thumbnail rather than a thin strip, while still leaving reasonable
+ * room for the text column at this component's narrowest real-world
+ * 2-column width (tablet, ~720px).
  *
- * min-height: 180px is a deliberate floor, not part of the reference
- * behavior itself — Farhad's explicit ask was that the cover must never
- * look small even when a row's text is short; without this, a row with
- * a one-line title and a short excerpt would produce a noticeably small
- * image again. When this floor is the binding constraint (a short-text
- * row), the image ends up slightly taller than its own row's text block
- * — a deliberate trade-off in favor of "never small" over "always
- * perfectly bookended," per Farhad's explicit priority.
+ * No longer bookends the text column's full height (that was last
+ * round's explicit goal) — a fixed landscape ratio and "grows to match
+ * a variable-height text block" are mechanically incompatible, and
+ * matching this site's own article-image language was the priority
+ * Farhad set this round.
  */
 .selected-row-media {
   display: block;
-  height: 100%;
-  min-height: 180px;
+  width: 180px;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
 }
 .selected-row-media img {

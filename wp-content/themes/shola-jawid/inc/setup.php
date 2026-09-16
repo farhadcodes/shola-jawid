@@ -25,9 +25,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   shola_issue_cover (3:4): Farhad's explicit spec for this layout's cover was
  *   "maybe two by three," a taller/narrower ratio than the 3:4 book-cover crop
  *   used everywhere else issue covers appear.
- * - shola_selected_square 1:1 — .selected-row-media (main.css §11, گزیده‌ها
- *   section) — a new square crop, added 2026-09-16, matching the reference
- *   design's square thumbnail; no other context on the site uses a 1:1 crop.
+ * - .selected-row-media (main.css §11, گزیده‌ها section) deliberately reuses
+ *   shola_card above rather than its own size — added 2026-09-16 as a new
+ *   shola_selected_square (1:1) crop, then switched to shola_card the same
+ *   day once Farhad flagged that a portrait/square cover there matched this
+ *   site's *publication*-cover convention (shola_issue_cover, shola_
+ *   hero_minimal_cover — both portrait) rather than its *article*-cover
+ *   convention, for a section that exclusively curates articles/reports.
+ *   Reusing the existing 3:2 size keeps that consistent rather than
+ *   maintaining a second, now-pointless near-duplicate registration.
  *
  * .card-mini .card-media (16:10) exists in the CSS but is not used by any of
  * the 23 v6 pages (confirmed by grep in Phase 1.1) — not registered until a
@@ -106,7 +112,6 @@ function shola_setup() {
 	add_image_size( 'shola_issue_card', 375, 500, true );
 	add_image_size( 'shola_hero_wide', 1920, 1080, true );
 	add_image_size( 'shola_hero_minimal_cover', 640, 960, true );
-	add_image_size( 'shola_selected_square', 600, 600, true );
 }
 add_action( 'after_setup_theme', 'shola_setup' );
 
