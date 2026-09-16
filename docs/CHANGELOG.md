@@ -9702,3 +9702,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.27.1 → 1.27.2 (patch: layout/color-rework of an
   already-shipped, unreleased section).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها type scale, spacing, and category label
+- **Changed:** Farhad asked for three more refinements after reviewing
+  the 3-column grid live: smaller title (20px → 16px) and excerpt
+  (15px → 12px, using the existing `--t-caption` token rather than a new
+  magic number), tighter/cleaner spacing throughout, and the category
+  label's white badge removed entirely — plain text only, matching his
+  reference image, recolored for contrast since plain crimson text
+  directly on the section's own crimson background would be invisible.
+  `.selected-row-body .h-card`/`.card-dek` (main.css §11) now carry their
+  own scoped font-size overrides — every other `.h-card`/`.card-dek` on
+  the site is untouched. Cover thumbnail reduced again (72-112px →
+  64-96px) to stay visually balanced against the now-smaller text block.
+  Spacing tightened: row gap 1rem → .85rem, explicit small margins added
+  between title/excerpt/date (none existed before — this component
+  relied on default flow spacing, which read as uneven/"hashed" once the
+  type got smaller).
+  Category label recolored to `--cream` (not `--paper`, the title's own
+  color) — still one of this site's eleven brand tokens, contrast
+  against `--winston-red` calculated at ~5.9:1 (comfortably AA, same
+  ballpark as the title's own ~6.3:1 in white), but warm enough to read
+  as a deliberately distinct label color rather than a dimmer echo of
+  the title above it.
+  Verified live: `getComputedStyle` confirmed 16px/12px sizes, cream
+  label color with a fully transparent background, on both desktop
+  (3-column) and mobile (375px, single column, no overflow).
+  Theme version bumped 1.27.2 → 1.27.3 (patch).
+  Approved by: Farhad, in this session (2026-09-16).
