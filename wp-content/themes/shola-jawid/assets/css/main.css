@@ -2463,9 +2463,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * misalign the row).
  */
 .selected-list { display: grid; grid-template-columns: 1fr; }
+/*
+ * Divider spacing bumped 1.5rem -> 2rem across all three rules below,
+ * as part of the design pass alongside the bigger cover rework: rows
+ * are now substantially taller (180px+ covers, vs. the original 64-96px
+ * thumbnails), and the old tighter spacing started to look cramped next
+ * to that much larger content.
+ */
 .selected-row:nth-child(n+2) {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--line);
 }
 /* Divider brightened for legibility against .sect-selected's solid
@@ -2476,8 +2483,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 2rem; }
   .selected-row:nth-child(n+2) { margin-top: 0; padding-top: 0; border-top: 0; }
   .selected-row:nth-child(n+3) {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
     border-top: 1px solid var(--line);
   }
   .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
@@ -2486,25 +2493,65 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .selected-list { grid-template-columns: repeat(3, 1fr); }
   .selected-row:nth-child(n+3) { margin-top: 0; padding-top: 0; border-top: 0; }
   .selected-row:nth-child(n+4) {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
     border-top: 1px solid var(--line);
   }
   .sect-selected .selected-row:nth-child(n+4) { border-top-color: rgba(255, 255, 255, .3); }
 }
-.selected-row { display: flex; align-items: flex-start; gap: .85rem; min-width: 0; }
 /*
- * clamp(64px, 14vw, 96px) — sized down again, same day, alongside the
- * title/excerpt font-size reduction just below: a smaller type scale
- * next to the previous 72-112px cover left the cover looking oversized
- * relative to the now-shorter text block, so it's scaled down to match
- * and keep the two halves of the card visually balanced.
+ * .selected-row switched from flex to a 2-column CSS Grid, 2026-09-16,
+ * per Farhad comparing against his reference image: there, the cover
+ * spans the *entire* height of its row — top-aligned with the category
+ * label, bottom-aligned with the byline/date — not a small fixed-size
+ * thumbnail sitting at the top of a taller text column. Grid (not flex)
+ * is required to make that work without a circular sizing dependency:
+ * a CSS Grid row's auto height is computed from each cell's *intrinsic*
+ * content size, but a percentage-height grid item (`.selected-row-media`
+ * below, `height: 100%`) is explicitly excluded from that calculation
+ * per spec and resolves against the row's final height in a later pass
+ * — so the row's height is driven purely by the text column's natural
+ * content height, and the image cell then stretches to match it with no
+ * ambiguity. The same setup under `display: flex; align-items: stretch`
+ * does not have this guarantee (a stretched flex item with an
+ * aspect-ratio can feed back into the very cross-size it's stretching
+ * to fill), which is why this isn't just an `align-items` swap on the
+ * previous flex rule.
+ *
+ * First pass gave the image column `auto` width with `aspect-ratio: 1/1`
+ * (width following the stretched height) — caught live immediately:
+ * in the 3-column desktop grid, each row is only ~294px wide, so once a
+ * row got tall enough (a full 2-line title + 2-line excerpt), a square
+ * image at that height was ~274px wide — nearly the entire row, leaving
+ * text squeezed into a ~20px sliver. Fixed by giving the image column a
+ * literal fixed width (130px) instead of letting it float with height —
+ * this is also a more literal match for Farhad's explicit "it should be
+ * fixed" than a square ratio ever was: the box's width never changes,
+ * only its height (still tracking the text column, still with the same
+ * 180px floor below), and `object-fit: cover` on the `<img>` still fills
+ * whatever resulting rectangle completely regardless of the source
+ * photo's own dimensions.
+ */
+.selected-row { display: grid; grid-template-columns: 130px 1fr; align-items: stretch; gap: 1.25rem; min-width: 0; }
+/*
+ * height: 100% — the cover's height still scales to whatever height the
+ * row's text column naturally reaches (a longer excerpt makes a taller
+ * row, which makes a taller image, exactly like the reference), while
+ * width stays the fixed 130px above.
+ *
+ * min-height: 180px is a deliberate floor, not part of the reference
+ * behavior itself — Farhad's explicit ask was that the cover must never
+ * look small even when a row's text is short; without this, a row with
+ * a one-line title and a short excerpt would produce a noticeably small
+ * image again. When this floor is the binding constraint (a short-text
+ * row), the image ends up slightly taller than its own row's text block
+ * — a deliberate trade-off in favor of "never small" over "always
+ * perfectly bookended," per Farhad's explicit priority.
  */
 .selected-row-media {
   display: block;
-  flex-shrink: 0;
-  width: clamp(64px, 14vw, 96px);
-  aspect-ratio: 1 / 1;
+  height: 100%;
+  min-height: 180px;
   overflow: hidden;
 }
 .selected-row-media img {
@@ -2517,11 +2564,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   transition: transform .6s var(--ease), filter .45s var(--ease);
 }
 .selected-row-media:hover img { transform: scale(1.04); filter: grayscale(.9) brightness(1.02); }
-/* min-width: 0 — same CSS Grid/flex long-content fix already documented
-   at .card-spotlight above (main.css §09): without it, a long unbroken
-   title/excerpt can force this flex item wider than its fair share,
-   pushing the fixed-width cover image out of proportion. */
-.selected-row-body { flex: 1; min-width: 0; }
+/* min-width: 0 — same CSS Grid long-content fix already documented at
+   .card-spotlight above (main.css §09): without it, a long unbroken
+   title/excerpt can force this grid cell wider than its `1fr` share,
+   pushing the cover image out of proportion. */
+.selected-row-body { min-width: 0; }
 .selected-row-body .type-label { margin-bottom: .25rem; }
 /*
  * Title/excerpt sizes tightened, same day, per Farhad's explicit
@@ -2531,7 +2578,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * Both scoped to this component only; every other .h-card/.card-dek on
  * the site is untouched.
  */
-.selected-row-body .h-card { font-size: 1rem; line-height: 1.4; }
+/*
+ * Title capped at 2 lines, added alongside the grid rework above (same
+ * reasoning already documented at .card-spotlight-item--featured .h-card,
+ * main.css §09): every .selected-row in one grid row is stretched to
+ * match the tallest of them, and now that the cover's own height tracks
+ * that row height, an uncapped title could make one unusually long
+ * headline balloon both the whole row *and* every cover image sharing
+ * that row. A ceiling here keeps row (and cover) heights predictable.
+ */
+.selected-row-body .h-card {
+  font-size: 1rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 /* 3-line default clamp (.card-dek, main.css §09) tightened to 2 — a
    narrower 3-column cell has less width for the excerpt to wrap into,
    and a shorter excerpt reads as more compact/dense, matching Farhad's
@@ -2544,7 +2608,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
-.selected-row-body .card-byline { margin-top: .35rem; }
+/* Byline/date matched to the category label's own 10px (below) rather
+   than .card-byline's site-wide 14px default, per Farhad's explicit ask
+   for the two small "meta" elements (category tag, date) to share one
+   consistent small-text treatment instead of the date reading as a
+   separate, larger-scale element next to a now much smaller title. */
+.selected-row-body .card-byline { margin-top: .5rem; font-size: 0.625rem; }
 @media (prefers-reduced-motion: reduce) {
   .selected-row-media img { transition: none; }
 }

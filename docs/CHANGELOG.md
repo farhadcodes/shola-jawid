@@ -9760,3 +9760,57 @@ trail of *why* the build deviated from — or newly applied — a rule in
   the icon report `rgb(250, 248, 243)` (--cream), label still 10px.
   Theme version bumped 1.27.3 → 1.27.4 (patch).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها cover reworked to fill its full row height
+- **Changed:** Farhad compared the shipped row layout against his
+  reference image again and asked for the cover to span the *entire*
+  height of its row — top-aligned with the category label, bottom-
+  aligned with the byline/date, as one visually bonded unit with the
+  text beside it — rather than a small fixed-size thumbnail sitting at
+  the top of a taller text column. Presented understanding first per
+  this session's established workflow; approved with three explicit
+  additions: it must never look small even on short-text rows, its box
+  size must never depend on the uploaded photo's own dimensions (only on
+  the layout), and to do a fuller design pass on the rest of the
+  component while at it.
+  `.selected-row` (main.css §11) switched from `display: flex` to a
+  2-column CSS Grid (`grid-template-columns`, `align-items: stretch`) —
+  required, not just an `align-items` swap, because a CSS Grid row's
+  auto-height calculation explicitly excludes percentage-sized grid
+  items, so the image's `height: 100%` cleanly resolves against the
+  text column's own natural content height with no circular dependency;
+  the flex equivalent doesn't have that guarantee once an aspect-ratio
+  is involved. `min-height: 180px` added as a floor so short-text rows
+  still get a substantial cover, at the cost of exact bottom-alignment
+  on exactly those rows (accepted trade-off, per Farhad's explicit
+  "never small" priority).
+  First pass gave the image column `auto` width with `aspect-ratio: 1/1`
+  (width following the stretched height) — caught live immediately:
+  in the 3-column desktop grid each row is only ~294px wide, so a tall
+  row (a full 2-line title + 2-line excerpt) produced a ~274px-wide
+  square image, squeezing the text into a ~20px sliver. Fixed with a
+  literal fixed 130px image column instead — width never changes
+  (satisfying Farhad's "it should be fixed" literally, more so than a
+  square ratio ever did), only height grows with the text; `object-fit:
+  cover` on the `<img>` still fills that box completely regardless of
+  the source photo's own proportions.
+  Design pass (Farhad's explicit ask to review "spacing, sizing, color
+  contrast, any fundamental design concept that doesn't fit"): title
+  capped at 2 lines (`-webkit-line-clamp`, same protective reasoning
+  already documented at `.card-spotlight-item--featured .h-card` — one
+  long headline could otherwise inflate every cover sharing its grid
+  row); byline/date font-size matched to the category label's 10px
+  (was 14px) so the two small "meta" elements read as one consistent
+  scale; row-divider spacing widened 1.5rem → 2rem to stay proportionate
+  next to the now much taller (180px+) rows.
+  Verified live via `getBoundingClientRect()`: image and text report
+  identical top/bottom coordinates on every row checked, at desktop
+  (3-column, 130px fixed image width, no overflow), tablet (820px,
+  2-column, confirmed via `document.body.scrollWidth`/`clientWidth`
+  parity), and mobile (375px, 1-column, same parity check) — and
+  visually confirmed on page-selected.php's archive (plain background,
+  same component, unaffected by the `.sect-selected`-scoped color
+  rules).
+  Theme version bumped 1.27.4 → 1.28.0 (minor: layout-mechanism change,
+  not just a value tweak).
+  Approved by: Farhad, in this session (2026-09-16).
