@@ -9561,3 +9561,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   site's wp-admin session was logged out and Farhad had not yet logged
   back in when the zip files were requested; verify on first live edit.
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — new homepage section: گزیده‌ها (Selected)
+- **Added:** Farhad relayed a client request (with an aawsat.com-style
+  reference screenshot: square-thumbnail article rows, a category label,
+  title, excerpt, date, divided by horizontal rules, with an "ALL BOOKS"
+  archive link) for a curated homepage section, placed directly after
+  نشریات. Plan presented and approved before implementation, per the
+  established workflow this session.
+  New `.sect-selected` section (front-page.php, between نشریات and
+  انتشارات حزب) — solid `--stone` background (main.css §11), a deliberate
+  break from the cream/tint alternation the surrounding shelves use, per
+  Farhad's explicit ask for "a unique background... one of the prominent
+  colors from the palette." New shared template part
+  template-parts/cards/selected-row.php (square image first in the DOM,
+  so it lands on the reading-start/visual-right side in this RTL site
+  with no hardcoded left/right — same technique as the hero_section rail
+  layouts), reused by both the homepage tile (capped at 6, this site's
+  usual homepage-shelf limit) and a new paginated archive at /selected/
+  (page-selected.php, auto-provisioned as a real WP Page by
+  shola_maybe_seed_selected_page(), inc/setup.php — same one-time-seed
+  pattern already used for the nav menus). New `shola_selected_square`
+  image size (600×600, 1:1) — the first square crop anywhere on the
+  site. Plural "گزیده‌ها," not singular "گزیده," per Farhad's explicit
+  correction when approving the plan.
+  **Mechanism pivot, same session:** first built on WordPress's native
+  Sticky Post flag (zero new admin UI). Farhad tested it live and found
+  the "Stick to the front page" checkbox missing entirely, in both the
+  block editor and Quick Edit. Root cause confirmed by auditing the
+  whole codebase (grepped both theme and plugin for any capability
+  filtering — none found): that checkbox is stock WordPress core
+  behavior, gated behind `edit_others_posts`, a capability WP only
+  grants Editor/Administrator by default — not a bug introduced by this
+  project. Farhad explicitly asked for the feature to not be
+  role-restricted, so switched to a dedicated `shcore_is_selected`
+  postmeta checkbox instead (class-meta-fields.php, added to the
+  existing "اطلاعات مقاله" box rather than a new one, since that's
+  already the article-specific settings box editors use) — registered
+  and gated only by `edit_post` via the same `$auth_callback` every
+  other field on this post type already uses, so any role that can edit
+  a given article (down to نویسنده/Author on their own posts) can mark
+  it. `shola_get_selected_query()` (inc/template-tags.php) updated from
+  a `post__in`/sticky_posts lookup to a plain `meta_key`/`meta_value`
+  query — same meta-query shape already proven by the Most Viewed
+  panel's own query.
+  Verified: homepage loads with zero PHP errors with the new query in
+  place (PHP-linted every changed/new file with a local PHP 8.1 binary);
+  گزیده‌ها section correctly stays hidden when no post has the flag set
+  yet, same have_posts()-guard pattern as every other homepage shelf.
+  Full visual verification (colors, RTL mirroring, mobile responsiveness)
+  still pending a live test post with the flag checked — in progress
+  with Farhad.
+  Theme version bumped 1.26.0 → 1.27.0 (minor: new homepage section +
+  archive page template + image size). Plugin version bumped 1.15.0 →
+  1.16.0 (minor: new postmeta field + admin UI checkbox).
+  Approved by: Farhad, in this session (2026-09-16).

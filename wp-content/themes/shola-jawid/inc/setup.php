@@ -25,6 +25,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   shola_issue_cover (3:4): Farhad's explicit spec for this layout's cover was
  *   "maybe two by three," a taller/narrower ratio than the 3:4 book-cover crop
  *   used everywhere else issue covers appear.
+ * - shola_selected_square 1:1 — .selected-row-media (main.css §10.6, گزیده‌ها
+ *   section) — a new square crop, added 2026-09-16, matching the reference
+ *   design's square thumbnail; no other context on the site uses a 1:1 crop.
  *
  * .card-mini .card-media (16:10) exists in the CSS but is not used by any of
  * the 23 v6 pages (confirmed by grep in Phase 1.1) — not registered until a
@@ -103,6 +106,7 @@ function shola_setup() {
 	add_image_size( 'shola_issue_card', 375, 500, true );
 	add_image_size( 'shola_hero_wide', 1920, 1080, true );
 	add_image_size( 'shola_hero_minimal_cover', 640, 960, true );
+	add_image_size( 'shola_selected_square', 600, 600, true );
 }
 add_action( 'after_setup_theme', 'shola_setup' );
 
@@ -265,6 +269,53 @@ function shola_maybe_seed_nav_menus() {
 	}
 }
 add_action( 'admin_init', 'shola_maybe_seed_nav_menus' );
+
+/**
+ * One-time seed for the گزیده‌ها (Selected) archive page — added 2026-09-16,
+ * per Farhad relaying the client's request for a homepage "Selected" section
+ * (sticky articles/reports, see front-page.php) with a link to its own
+ * paginated archive. Same reasoning as shola_maybe_seed_nav_menus() above:
+ * auto-create the real WP Page and assign it `page-selected.php` so the
+ * archive exists and is reachable from day one, instead of relying on Farhad
+ * to manually create a page and pick the right template in wp-admin.
+ *
+ * Guarded by a persisted flag (`shola_seeded_selected_page` option), same
+ * once-only/retry-on-failure behavior as the nav-menu seed above. Slug is
+ * ASCII (`selected`) with a Persian title/on-page label, matching this
+ * theme's existing convention (e.g. `party-documents`) of ASCII URLs with
+ * Persian-facing content.
+ *
+ * @return void
+ */
+function shola_maybe_seed_selected_page() {
+	if ( get_option( 'shola_seeded_selected_page' ) ) {
+		return;
+	}
+
+	$existing = get_page_by_path( 'selected' );
+	if ( $existing ) {
+		update_option( 'shola_seeded_selected_page', true );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_title'   => __( 'گزیده‌ها', 'shola-jawid' ),
+			'post_name'    => 'selected',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => '',
+		)
+	);
+
+	if ( is_wp_error( $page_id ) || ! $page_id ) {
+		return;
+	}
+
+	update_post_meta( $page_id, '_wp_page_template', 'page-selected.php' );
+	update_option( 'shola_seeded_selected_page', true );
+}
+add_action( 'admin_init', 'shola_maybe_seed_selected_page' );
 
 /**
  * Adds an اسناد حزب item to the already-seeded «بخش‌ها» (menu_sections)

@@ -356,6 +356,36 @@ class Meta_Fields {
 			)
 		);
 		/*
+		 * گزیده‌ها (Selected) flag — added 2026-09-16, per Farhad relaying
+		 * the client's request for a curated homepage section. First built
+		 * on top of WordPress's native Sticky Post flag (no new admin UI at
+		 * all), but Farhad found live that the "Stick to the front page"
+		 * checkbox never appeared for his test account, in either the block
+		 * editor or Quick Edit — traced to a genuine WordPress core
+		 * restriction, not a bug in this codebase: that checkbox only
+		 * renders for a user who can edit *other* users' posts
+		 * (`edit_others_posts`, i.e. سردبیر/Editor or مدیر/Administrator —
+		 * confirmed nothing in this plugin or theme touches that capability;
+		 * grep found zero matches). Farhad then explicitly asked for the
+		 * feature to not be role-restricted, so this is a dedicated postmeta
+		 * checkbox instead, gated only by `edit_post` via $auth_callback —
+		 * the exact same, already-established pattern as every other field
+		 * on this post type above — so any role that can edit a given
+		 * article (down to نویسنده/Author on their own posts) can mark it.
+		 */
+		register_post_meta(
+			'post',
+			'shcore_is_selected',
+			array(
+				'type'              => 'boolean',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		/*
 		 * Primary topic (2026-09-02): a post can carry several `topic`
 		 * terms, but the breadcrumb/card display needs exactly one. This
 		 * stores which of the assigned terms the editor picked as primary
@@ -687,7 +717,15 @@ class Meta_Fields {
 		$author_note    = get_post_meta( $post->ID, 'shcore_author_note', true );
 		$language       = get_post_meta( $post->ID, 'shcore_language', true );
 		$translation_id = get_post_meta( $post->ID, 'shcore_translation_id', true );
+		$is_selected    = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
 		?>
+		<p>
+			<label>
+				<input type="checkbox" id="shcore_is_selected" name="shcore_is_selected" value="1" <?php checked( $is_selected ); ?>>
+				<strong><?php esc_html_e( 'نمایش در گزیده‌ها', 'shola-core' ); ?></strong>
+			</label>
+		</p>
+		<p class="description"><?php esc_html_e( 'این نوشته را در بخش «گزیده‌ها»ی صفحهٔ اصلی و آرشیو آن نمایش می‌دهد. محدودیتی بر اساس نقش کاربری ندارد — هر کسی که اجازهٔ ویرایش این نوشته را داشته باشد می‌تواند آن را فعال کند.', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_byline"><strong><?php esc_html_e( 'نام مستعار نویسنده', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_byline" name="shcore_byline" class="regular-text" value="<?php echo esc_attr( $byline ); ?>">
@@ -881,7 +919,7 @@ class Meta_Fields {
 			'document'          => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
-			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id' ),
+			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
 		);
@@ -911,6 +949,13 @@ class Meta_Fields {
 				if ( $is_active ) {
 					self::deactivate_other_masthead_sections( $post_id );
 				}
+				continue;
+			}
+			if ( 'shcore_is_selected' === $field ) {
+				// Same "absent means false" reasoning as shcore_hero_active
+				// above — no singleton constraint here, unlike hero/masthead,
+				// since a site can have any number of گزیده‌ها articles.
+				update_post_meta( $post_id, 'shcore_is_selected', isset( $_POST['shcore_is_selected'] ) );
 				continue;
 			}
 			if ( 'shcore_contents' === $field ) {

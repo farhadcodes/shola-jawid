@@ -2404,9 +2404,111 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .sect-lg { padding-block: 5.5rem; }
 .sect-tint { background: var(--winston-red-tint); }
 .sect-cream { background: var(--cream); }
+/*
+ * .sect-selected (گزیده‌ها, front-page.php) — added 2026-09-16, per
+ * Farhad's explicit ask for "a unique background... one of the prominent
+ * colors from the palette" so this section doesn't read as one more shelf
+ * in the same cream/tint alternation every other homepage section uses.
+ * Solid --stone, not a pale tint of it (unlike .sect-tint/.sect-cream
+ * above) — a deliberately bolder, more "official" block, same idea
+ * Farhad asked for on the Most Viewed panel's own redesign earlier this
+ * project (also --stone). Text/link colors need their own overrides
+ * below since every shared heading/link class on the site (.h-section,
+ * .section-marker, .link-more) defaults to --winston-red text, which
+ * fails contrast against a mid-gray background — this section is the
+ * first --stone *background* used anywhere on the site.
+ */
+.sect-selected { background: var(--stone); color: var(--paper); }
+.sect-selected .section-marker,
+.sect-selected .h-section { color: var(--paper); }
+.sect-selected .section-marker::before { background: var(--paper); }
+.sect-selected .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+.sect-selected .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
 .rule       { height: 1px; background: var(--line); border: 0; }
 .rule-crimson { height: 2px; background: var(--winston-red); border: 0; }
+
+/*
+ * گزیده‌ها (Selected) rows — shared by front-page.php's homepage tile
+ * (inside .sect-selected above) and page-selected.php's full archive
+ * (plain paper background, no .sect-selected wrapper — see
+ * template-parts/cards/selected-row.php). Added 2026-09-16, inspired by
+ * a client-supplied reference card, mirrored for RTL: the image is the
+ * first flex child in the markup, so — with no hardcoded left/right —
+ * it lands on the reading-start side (visual right in this RTL site),
+ * same DOM-order technique already used by the hero_section rail
+ * layouts (main.css §10.1/§10.4).
+ */
+.selected-list { display: flex; flex-direction: column; }
+.selected-row + .selected-row {
+  margin-top: 1.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+}
+/* Divider brightened for legibility against .sect-selected's solid
+   --stone background — var(--line) (a near-white hairline meant for
+   --paper backgrounds) would all but vanish there. */
+.sect-selected .selected-row + .selected-row { border-top-color: rgba(255, 255, 255, .2); }
+.selected-row { display: flex; align-items: flex-start; gap: 1.25rem; }
+/*
+ * clamp(84px, 22vw, 140px): a generous 140px square on desktop, shrinking
+ * fluidly down to a still-legible 84px floor at phone widths, so the text
+ * column beside it always keeps enough room for the title/excerpt/date to
+ * read comfortably rather than the row needing a separate mobile-stacked
+ * layout.
+ */
+.selected-row-media {
+  display: block;
+  flex-shrink: 0;
+  width: clamp(84px, 22vw, 140px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+.selected-row-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Same hover-tint effect already used on every other card image on the
+     site (.card-media img / .card:hover img, main.css §09). */
+  transition: transform .6s var(--ease), filter .45s var(--ease);
+}
+.selected-row-media:hover img { transform: scale(1.04); filter: grayscale(.9) brightness(1.02); }
+/* min-width: 0 — same CSS Grid/flex long-content fix already documented
+   at .card-spotlight above (main.css §09): without it, a long unbroken
+   title/excerpt can force this flex item wider than its fair share,
+   pushing the fixed-width cover image out of proportion. */
+.selected-row-body { flex: 1; min-width: 0; }
+.selected-row-body .type-label { margin-bottom: .35rem; }
+.selected-row-body .card-byline { margin-top: .5rem; }
+@media (prefers-reduced-motion: reduce) {
+  .selected-row-media img { transition: none; }
+}
+/*
+ * Inverted colors — only inside .sect-selected's solid --stone background
+ * (the homepage tile); page-selected.php's archive uses these same row
+ * classes on a plain paper background, so it keeps every class's normal
+ * site-wide default styling untouched.
+ *
+ * .type-label becomes a solid white badge with crimson text, not plain
+ * white text on stone — the same "flip polarity for a saturated
+ * background" solution already used by .card-spotlight's own eyebrow
+ * badge above, for the same reason: plain-colored text on a mid-gray
+ * background reads as buried, not confidently on-brand.
+ */
+.sect-selected .type-label {
+  display: inline-flex;
+  background: var(--paper);
+  color: var(--winston-red);
+  font-weight: 800;
+  padding: .3rem .6rem;
+}
+.sect-selected .type-label a { color: var(--winston-red); }
+.sect-selected .h-card a { color: var(--paper); }
+.sect-selected a:hover .h-card,
+.sect-selected .h-card a:hover { color: rgba(255, 255, 255, .8); }
+.sect-selected .card-dek { color: rgba(255, 255, 255, .9); }
+.sect-selected .card-byline { color: rgba(255, 255, 255, .9); }
 
 /* -------------------------------------------------------------------------
    ۱۲ · Article page — Aeon-style split

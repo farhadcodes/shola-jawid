@@ -968,6 +968,41 @@ function shola_get_primary_topic( $post ) {
 }
 
 /**
+ * Shared query for گزیده‌ها (Selected) — added 2026-09-16, used by both
+ * front-page.php's homepage tile and page-selected.php's full archive, so
+ * the two can't drift apart on what counts as "selected."
+ *
+ * Originally built on WordPress's native Sticky Post flag (no new admin UI
+ * at all), but Farhad found live that the "Stick to the front page"
+ * checkbox never rendered for his test account — in either the block
+ * editor or Quick Edit. Traced to a genuine WordPress core restriction:
+ * that checkbox only ever appears for a user who can edit *other* users'
+ * posts (`edit_others_posts`), not to نویسنده/Author or below. Confirmed
+ * nothing in this codebase touches that capability (grepped both the theme
+ * and plugin) — this is stock WordPress behavior, not a bug introduced
+ * here. Farhad then explicitly asked for the feature to not be
+ * role-restricted, so this switched same-session to the dedicated
+ * `shcore_is_selected` postmeta checkbox (class-meta-fields.php,
+ * "اطلاعات مقاله" box) — gated only by `edit_post`, same as every other
+ * field on that post type, so any role that can edit a given article can
+ * mark it.
+ *
+ * @param array $extra_args Additional/overriding WP_Query args (e.g. `posts_per_page`, `paged`).
+ * @return WP_Query
+ */
+function shola_get_selected_query( $extra_args = array() ) {
+	$args = array(
+		'post_type'  => 'post',
+		'meta_key'   => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern as the Most Viewed panel's own meta-based query.
+		'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		'orderby'    => 'date',
+		'order'      => 'DESC',
+	);
+
+	return new WP_Query( array_merge( $args, $extra_args ) );
+}
+
+/**
  * Renders the homepage hero's kicker/title/dek/date block — identical
  * markup between the `single` and `lead_rail` hero_section layouts
  * (front-page.php), only what wraps around it differs. Pulled into one

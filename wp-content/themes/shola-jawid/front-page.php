@@ -759,6 +759,58 @@ foreach ( $publication_terms as $pub_term ) {
 
 <?php
 /*
+ * گزیده‌ها (Selected) — added 2026-09-16, per Farhad relaying the client's
+ * request for a curated homepage section (the client's own word,
+ * "گزیده‌ها"). Flag is `shcore_is_selected`, a dedicated postmeta checkbox
+ * on the article edit screen ("اطلاعات مقاله" box, class-meta-fields.php)
+ * — see shola_get_selected_query() (inc/template-tags.php) for the full
+ * history: this originally reused WordPress's native Sticky Post flag,
+ * switched to a custom field same-session once Farhad found live that
+ * Sticky's checkbox is gated behind a WordPress core capability
+ * (`edit_others_posts`) his test account didn't have, and asked for the
+ * feature to not be role-restricted. Scoped to `post` only (articles +
+ * reports), matching the reference design (plain article cards, no
+ * publication-specific fields).
+ *
+ * Placed directly after نشریات, per Farhad's explicit instruction. Solid
+ * `--stone` background (main.css §10.6, `.sect-selected`) is a deliberate
+ * break from the cream/tint alternation the surrounding shelves use, so
+ * this section reads as its own distinct block rather than one more shelf
+ * in the same rhythm — see the updated note on انتشارات حزب's own
+ * background comment just below, now that this section (not نشریات) is
+ * its real neighbor above.
+ *
+ * Capped at 6 on the homepage, this site's usual homepage-shelf limit
+ * (see انتشارات حزب's own `posts_per_page` comment below); the full,
+ * paginated list lives at /selected/ (page-selected.php).
+ */
+$selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
+?>
+<?php if ( $selected_query->have_posts() ) : ?>
+	<section class="sect-selected sect" aria-label="<?php esc_attr_e( 'گزیده‌ها', 'shola-jawid' ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></h2>
+				</div>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'همهٔ گزیده‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+			<div class="selected-list">
+				<?php
+				while ( $selected_query->have_posts() ) :
+					$selected_query->the_post();
+					get_template_part( 'template-parts/cards/selected-row', null, array( 'post' => get_post() ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
+/*
  * انتشارات حزب (Party Publications) — the party's own books/booklets.
  * Corrected 2026-09-02 (Farhad relaying a client correction): this
  * section carried the right Persian heading from the start, but was
@@ -775,9 +827,11 @@ foreach ( $publication_terms as $pub_term ) {
  *
  * Reordered to appear after شمارهٔ جاری (was before it), 2026-08-24
  * (Phase A, client-approved) — see docs/CHANGELOG.md. .sect-tint
- * unchanged; still distinct from شمارهٔ جاری's cream band directly
- * above and موضوعات's paper band directly below, so background-band
- * alternation still holds with no adjacent repeats.
+ * unchanged; still distinct from موضوعات's paper band directly below.
+ * Immediate neighbor above was نشریات's cream/plain band until
+ * 2026-09-16, when گزیده‌ها (solid `--stone`, see its own comment just
+ * above) was inserted directly ahead of this section — .sect-tint still
+ * reads as distinct from that solid stone band, so no change needed here.
  *
  * `posts_per_page` capped at 5, 2026-09-05 (Phase 5, Technical Scoping
  * Plan) — was 10, well past what a homepage shelf like this is meant to
