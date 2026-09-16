@@ -799,9 +799,24 @@ $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
 			</div>
 			<div class="selected-list">
 				<?php
-				while ( $selected_query->have_posts() ) :
+				/*
+				 * Hard cap enforced again here with an explicit counter, on
+				 * top of the query's own `posts_per_page => 6` above —
+				 * added 2026-09-16 after Farhad confirmed live that
+				 * flagging a 7th article rendered all 7 on the homepage
+				 * despite that arg. Root cause not reproducible locally
+				 * (this query is a plain WP_Query with a SQL LIMIT, which
+				 * has no code path that returns more rows than
+				 * `posts_per_page`), so this loop no longer trusts the
+				 * query's own result count and instead stops rendering
+				 * after the 6th row unconditionally, whatever the live
+				 * environment's actual behavior turns out to be.
+				 */
+				$selected_shown = 0;
+				while ( $selected_query->have_posts() && $selected_shown < 6 ) :
 					$selected_query->the_post();
 					get_template_part( 'template-parts/cards/selected-row', null, array( 'post' => get_post() ) );
+					++$selected_shown;
 				endwhile;
 				wp_reset_postdata();
 				?>

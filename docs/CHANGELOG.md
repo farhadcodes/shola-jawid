@@ -9871,3 +9871,23 @@ trail of *why* the build deviated from — or newly applied — a rule in
   tablet, and desktop).
   Theme version bumped 1.28.1 → 1.28.2 (patch).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها hard-capped at 6 in the render loop
+- **Fixed:** Farhad confirmed live that flagging a 7th article as
+  گزیده‌ها rendered all 7 on the homepage, despite
+  `shola_get_selected_query( array( 'posts_per_page' => 6 ) )`
+  (front-page.php) already passing a hard `posts_per_page` limit to
+  WP_Query. Root cause not reproducible in this session's local dev
+  environment — a plain WP_Query with `posts_per_page` applies a SQL
+  `LIMIT` server-side, which has no code path that returns more rows
+  than that limit, and the only `pre_get_posts` hook in this codebase
+  (`Post_Types::include_cpts_in_search()`) is guarded to the main
+  search query only, confirmed not touching this secondary query.
+  Rather than leave the homepage dependent on diagnosing an
+  unreproducible environment-specific cause (a hosting-level cache or
+  similar), added a second, independent enforcement layer directly in
+  the render loop: an explicit counter that stops rendering after the
+  6th row regardless of how many the query itself returns — the display
+  cap no longer trusts WP_Query's result count alone.
+  Theme version bumped 1.28.2 → 1.28.3 (patch).
+  Approved by: Farhad, in this session (2026-09-16).
