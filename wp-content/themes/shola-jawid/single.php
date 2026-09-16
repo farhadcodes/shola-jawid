@@ -107,16 +107,38 @@ while ( have_posts() ) :
 				 * rendered, in case this is ever reversed.
 				 */
 				?>
-				<p class="word-count">
-					<?php
-					printf(
-						/* translators: 1: word count, 2: reading time in minutes. */
-						esc_html__( '%1$s واژه · %2$s دقیقه خواندن', 'shola-jawid' ),
-						esc_html( shola_to_persian_digits( $stats['words'] ) ),
-						esc_html( shola_to_persian_digits( $stats['minutes'] ) )
-					);
-					?>
-				</p>
+				<?php
+				/*
+				 * Redesigned 2026-09-16, per Farhad flagging a live
+				 * screenshot: the old single "۱۱۵۸ واژه · ۵ دقیقه خواندن"
+				 * line crammed word count and reading time together with
+				 * no publication date anywhere in the sidebar at all. Now
+				 * three separate, icon-labeled rows — date (with weekday,
+				 * `get_the_date('l j F Y')` — the same "l j F Y" format
+				 * shola_get_masthead_runner() uses for today's date,
+				 * applied here to the post's own date instead), word
+				 * count, and reading time — each clearly on its own line.
+				 * `.article-meta-box`'s border-block treatment (main.css)
+				 * deliberately reuses the same quiet, no-fill, top/bottom-
+				 * rule pattern .issue-meta already established elsewhere
+				 * on the site for boxed metadata, rather than inventing a
+				 * new filled/bordered box style.
+				 */
+				?>
+				<div class="article-meta-box">
+					<p class="article-meta-row">
+						<?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+						<span><?php echo esc_html( get_the_date( 'l j F Y' ) ); ?></span>
+					</p>
+					<p class="article-meta-row">
+						<?php echo shola_word_count_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+						<span><?php echo esc_html( sprintf( /* translators: %s: word count. */ __( '%s واژه', 'shola-jawid' ), shola_to_persian_digits( $stats['words'] ) ) ); ?></span>
+					</p>
+					<p class="article-meta-row">
+						<?php echo shola_clock_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+						<span><?php echo esc_html( sprintf( /* translators: %s: reading time in minutes. */ __( '%s دقیقه خواندن', 'shola-jawid' ), shola_to_persian_digits( $stats['minutes'] ) ) ); ?></span>
+					</p>
+				</div>
 				<?php if ( $terms ) : ?>
 					<ul class="tag-list">
 						<?php foreach ( $terms as $term ) : ?>

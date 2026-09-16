@@ -9434,3 +9434,42 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.24.0 → 1.24.1 (patch: sizing fix, reverting to
   existing defaults).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — redesigned article-page metadata box
+- **Changed:** Farhad flagged (live screenshot, red-circled) that
+  single.php's sidebar metadata — a single crammed line, "۱۱۵۸ واژه · ۵
+  دقیقه خواندن" — read as cluttered, and that the publication date
+  wasn't shown there at all. Asked for three clearly separated,
+  professionally boxed lines: date published (with weekday name — "Name
+  of the day - Day, Month, Year"), word count, and reading time.
+  Replaced the old `.word-count` paragraph with a new `.article-meta-
+  box` containing three `.article-meta-row`s, each an icon + one line
+  of text:
+  - Date: `get_the_date( 'l j F Y' )` — the same "l j F Y" format
+    `shola_get_masthead_runner()` already uses for the site-wide
+    masthead's *today* date, applied here to the post's own publish
+    date instead, so the weekday name comes through the same
+    already-working Persian Calendar plugin conversion, not a new date
+    pipeline. Reuses `shola_date_icon()` (added earlier this session)
+    rather than a second calendar icon.
+  - Word count: new `shola_word_count_icon()` (inc/template-tags.php),
+    a simple three-text-lines glyph, same stroke/24x24/currentColor
+    convention as the other icons this session.
+  - Reading time: new `shola_clock_icon()`, same convention.
+  `.article-meta-box` CSS deliberately reuses `.issue-meta`'s existing
+  `border-block` (top+bottom rule, no fill, no side borders) pattern —
+  the site's own established "boxed metadata" language (main.css §24)
+  — rather than inventing a new filled/bordered box style, keeping this
+  consistent with the "no borders, whitespace only" card discipline
+  already documented elsewhere in main.css.
+  Verified live on an article page: `.article-meta-box`'s rendered
+  markup confirmed via DOM inspection and `get_page_text` — "چهارشنبه
+  ۱۴ اسد ۱۴۰۵" / "۱۱۵۸ واژه" / "۵ دقیقه خواندن", each its own line;
+  screenshot-confirmed at 768px (tablet/mobile stacked layout) showing
+  the bordered box with all three icon rows clearly separated above the
+  topic tags. Network-request inspection confirmed all of this page's
+  own resources loaded 200 OK; one stale 404 in the console traced to
+  an unrelated mistyped test URL earlier in the same browser tab.
+  Theme version bumped 1.24.1 → 1.25.0 (minor bump: new metadata
+  component + two new icons).
+  Approved by: Farhad, in this session (2026-09-16).

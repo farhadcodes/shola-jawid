@@ -2472,12 +2472,42 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 /* .author/.editor rules removed 2026-09-02 — the byline and managing-
    editor lines they styled were removed from single.php's markup
    site-wide (docs/CHANGELOG.md), per the client's explicit instruction
-   that no author/username be publicly displayed. .word-count is now
-   .article-sidebar's first child, so its margin-top (which used to
-   create space below .editor) is dropped rather than left as a stray
-   gap at the top of the sidebar. */
-.article-sidebar .word-count { color: var(--stone); font-family: var(--font-nav); font-size: 0.8125rem; letter-spacing: .06em; }
+   that no author/username be publicly displayed. .article-meta-box (see
+   below) is now .article-sidebar's first child. */
 .article-sidebar .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+
+/*
+ * .article-meta-box — replaces the old single-line ".word-count"
+ * byline ("۱۱۵۸ واژه · ۵ دقیقه خواندن"), 2026-09-16, per Farhad flagging
+ * a live screenshot: the old line crammed word count and reading time
+ * together with no publication date shown anywhere in the sidebar at
+ * all, and read as cluttered. Redesigned as three separate, icon-
+ * labeled rows (date, word count, reading time), each clearly on its
+ * own line. `border-block` (top + bottom rule, no fill, no side
+ * borders) deliberately reuses the exact same quiet boxed-metadata
+ * pattern `.issue-meta` already established elsewhere on the site
+ * (main.css §24), rather than inventing a new filled/bordered box
+ * style — this site's cards are "no borders, whitespace only" by
+ * design (see .card-spotlight-index's own comment on this), and a
+ * heavier filled box here would have broken that consistency.
+ */
+.article-meta-box {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--line);
+  margin-bottom: 1.25rem;
+}
+.article-meta-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+}
+.article-meta-row .glyph { width: 15px; height: 15px; flex-shrink: 0; }
 
 /*
  * پربازدیدترین (Most Viewed) on single.php — added 2026-09-15, per

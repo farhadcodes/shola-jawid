@@ -249,6 +249,32 @@ function shola_date_icon() {
 }
 
 /**
+ * Word-count glyph (three text lines) — added 2026-09-16 alongside
+ * shola_date_icon()/shola_clock_icon() for single.php's redesigned
+ * article-meta box (see .article-meta-box, main.css): Farhad flagged
+ * the old single-line "۱۱۵۸ واژه · ۵ دقیقه خواندن" byline as cramped
+ * and asked for word count, reading time, and the publication date
+ * each on their own clearly-labeled line. Same stroke/24x24 convention
+ * as shola_date_icon(), `currentColor` so it inherits `.article-meta-
+ * row`'s own text color with no override needed.
+ *
+ * @return string Trusted, static inline SVG markup.
+ */
+function shola_word_count_icon() {
+	return '<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';
+}
+
+/**
+ * Clock glyph for reading time — see shola_word_count_icon() above for
+ * the shared context/reasoning; same convention.
+ *
+ * @return string Trusted, static inline SVG markup.
+ */
+function shola_clock_icon() {
+	return '<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
+}
+
+/**
  * Rewrites Jalali month names from the Iranian variant (فروردین,
  * اردیبهشت, ...) that the Persian Calendar plugin hardcodes, to the
  * Afghan Dari variant (حمل, ثور, ...) this site actually needs — found by
