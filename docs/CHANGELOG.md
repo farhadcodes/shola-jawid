@@ -9321,3 +9321,37 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.23.0 → 1.23.1 (patch: proportion/sizing fix,
   no new markup or feature).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — sidebar down to 30%, number/title scaled together
+- **Changed:** Farhad reviewed the 40%-sidebar version live (screenshot
+  with the panel circled) and said it was now too much visual weight —
+  competing with the article instead of reading as a clearly secondary
+  "read more if you want" panel. Presented understanding before
+  implementing, per his request, then applied on approval:
+  - `.article-body`'s `grid-template-columns` changed from
+    `minmax(260px, 2fr) 3fr` (~40/60) to `minmax(260px, 3fr) 7fr`
+    (~30/70) — 10 percentage points back to the article, per Farhad's
+    explicit number. Still fr-based, so the ~30/70 ratio holds across
+    the ≥940px range rather than only at one width — verified live at
+    1400px (26.8% of the full column+gap width, ~28% of the columns
+    alone) and 1024px (26.2%, close to the 260px floor at that
+    narrower desktop width, as expected).
+  - Fixed a real inconsistency Farhad caught, not just a number
+    request: the previous pass shrunk the title by a clean 25% but
+    picked the number's size independently (a ~33% cut), so the two
+    weren't scaling together as a matched pair. Recalculated the number
+    using the *same* 25% factor from its original 2.25rem homepage
+    baseline (2.25 × 0.75 = 1.6875rem) instead of a separately-eyeballed
+    value — verified live: number/title ratio is now exactly 2.25
+    (27px/12px), identically matching the homepage panel's own
+    36px/16px ratio, just scaled down.
+  Verified live across all three sizes again: desktop (1400px, 1024px)
+  — narrower, clearly secondary-looking sidebar, number and title read
+  as one coherent, correctly-scaled pair; tablet (768px) — confirmed
+  still a single-column grid (`grid-template-columns` computed as one
+  688.8px track), completely unaffected by the desktop-only ratio
+  change; mobile — unaffected, same as tablet. Zero console errors at
+  any width.
+  Theme version bumped 1.23.1 → 1.23.2 (patch: proportion/sizing
+  revision).
+  Approved by: Farhad, in this session (2026-09-16).

@@ -2415,26 +2415,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 @media (min-width: 940px) {
   /*
-   * grid-template-columns changed from a fixed `250px 1fr` to a
-   * proportional `minmax(260px, 2fr) 3fr` — 2026-09-15, per Farhad
-   * reviewing a live screenshot: a fixed-width sidebar next to a `1fr`
-   * article column meant the article absorbed 100% of any extra
-   * viewport width while the sidebar stayed rigid, so the two read as
-   * badly out of proportion on a wide screen (sidebar looked
-   * disproportionately narrow next to very long text lines). A ~2:3
-   * split (sidebar ≈40% / article ≈60% of the two-column area) shifts
-   * roughly 20% of the article's width over to the sidebar, per
-   * Farhad's explicit ask — and because it's fr-based rather than a
-   * fixed px value, that ~40/60 ratio holds steady across the whole
-   * ≥940px desktop/wide-desktop range instead of only looking right at
-   * one specific width. `minmax(260px, ...)` floors the sidebar so it
-   * never gets cramped right at the 940px breakpoint itself. Below
-   * 940px this is moot — .article-body is already a single stacked
-   * column there (sidebar full-width above the article), so there is
-   * no narrow-sidebar problem to fix at tablet/mobile widths.
+   * grid-template-columns — originally a fixed `250px 1fr` (article
+   * absorbed all extra viewport width, sidebar stayed rigid and looked
+   * disproportionately narrow); changed 2026-09-15 to a proportional
+   * `minmax(260px, 2fr) 3fr` (~40%/60%) to fix that. Revised again
+   * 2026-09-16: Farhad reviewed the 40% sidebar live and called it too
+   * much visual weight for what should read as a clearly secondary,
+   * "read more if you want" panel — it was pulling attention away from
+   * the article itself. Reduced to a 3:7 split (sidebar ≈30% / article
+   * ≈70%), 10 percentage points back to the article from the previous
+   * pass. Still fr-based (not fixed px), so this ~30/70 ratio holds
+   * steady across the whole ≥940px range rather than only being correct
+   * at one width — verified live at 1400px and 1024px. `minmax(260px,
+   * ...)` still floors the sidebar so it doesn't get cramped right at
+   * the 940px breakpoint. Below 940px this is moot — .article-body is
+   * already a single stacked column there.
    */
   .article-body {
-    grid-template-columns: minmax(260px, 2fr) 3fr;
+    grid-template-columns: minmax(260px, 3fr) 7fr;
     gap: 4rem;
   }
 }
@@ -2497,13 +2495,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    */
   .article-most-viewed--desktop .mv-item--featured .mv-item-title { font-size: 0.84375rem; }
   .article-most-viewed--desktop .mv-list .mv-item-title { font-size: 0.75rem; }
-  /* Number scaled down to match the smaller titles above — checked live
-     after the title-size change: the homepage's default 2.25rem number
-     next to a 12px title read as badly out of proportion (the number
-     dominating), not just "still a bit big." 1.5rem keeps the same
-     roughly 2:1 number-to-title ratio the homepage panel has, just at
-     the smaller scale this narrower context needs. */
-  .article-most-viewed--desktop .mv-num { font-size: 1.5rem; }
+  /*
+   * Number size — revised 2026-09-16: the previous pass shrunk the
+   * title by a clean 25% (1rem -> 0.75rem) but picked the number's new
+   * size independently (1.5rem, a ~33% cut from the homepage's 2.25rem)
+   * rather than applying the same scaling factor — Farhad caught this
+   * exact inconsistency live and asked for title and number to shrink
+   * "proportionally," as a matched pair, not by separate eyeballed
+   * amounts. Fixed by applying the identical 25% reduction to the
+   * number too: 2.25rem × 0.75 = 1.6875rem — now both elements scale
+   * down from their homepage baseline by the same factor, preserving
+   * the homepage panel's own number-to-title ratio exactly, just at
+   * this sidebar's smaller size instead of a different one.
+   */
+  .article-most-viewed--desktop .mv-num { font-size: 1.6875rem; }
 }
 
 /* Long-form prose */
