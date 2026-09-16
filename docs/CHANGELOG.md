@@ -9616,3 +9616,30 @@ trail of *why* the build deviated from — or newly applied — a rule in
   archive page template + image size). Plugin version bumped 1.15.0 →
   1.16.0 (minor: new postmeta field + admin UI checkbox).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها checkbox moved to its own sidebar box
+- **Fixed:** Farhad tested the new `shcore_is_selected` checkbox (added
+  in the entry just above) and couldn't find it anywhere on the article
+  edit screen, even after scrolling the full settings sidebar — because
+  it wasn't there. It lived inside `shcore_article_fields`
+  (class-meta-fields.php), which `add_meta_boxes()` registers with
+  `'normal'` context; WordPress's block editor renders `'normal'`/
+  `'advanced'` context meta boxes *below* the main content editor, not
+  in the settings sidebar — Farhad was (reasonably) only looking in the
+  sidebar, the same place WordPress's own "Stick to the front page"
+  checkbox would live.
+  Fix: pulled just this one checkbox out into its own new box,
+  `shcore_selected_field`, registered with `'side'` context — which
+  WordPress *does* render inside the settings sidebar. Deliberately a
+  separate box rather than just changing `shcore_article_fields`'s own
+  context: that box's other fields (نام مستعار نویسنده, توضیح همکاری,
+  زبان, شناسهٔ نوشتهٔ ترجمه) have always rendered below the content and
+  moving them wasn't asked for or needed — this fix is scoped to
+  exactly the one field that was actually hard to find. The new box
+  prints its own nonce field (harmless duplicate of the one
+  `shcore_article_fields` already prints — see the method's own
+  docblock) so it keeps saving correctly even if an editor hides the
+  other box via Screen Options.
+  Plugin version bumped 1.16.0 → 1.16.1 (patch: moved one field's UI
+  location, no new data or behavior).
+  Approved by: Farhad, in this session (2026-09-16).

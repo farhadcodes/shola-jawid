@@ -539,6 +539,19 @@ class Meta_Fields {
 		add_meta_box( 'shcore_party_publication_fields', __( 'اطلاعات اثر', 'shola-core' ), array( __CLASS__, 'render_party_publication_metabox' ), 'party_publication', 'normal', 'high' );
 		add_meta_box( 'shcore_party_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_party_document_metabox' ), 'party_document', 'normal', 'high' );
 		add_meta_box( 'shcore_article_fields', __( 'اطلاعات مقاله', 'shola-core' ), array( __CLASS__, 'render_article_metabox' ), 'post', 'normal', 'high' );
+		/*
+		 * Separate 'side'-context box, added 2026-09-16, for
+		 * shcore_is_selected only — deliberately not folded into
+		 * shcore_article_fields above (which stays 'normal' context,
+		 * rendering below the content editor, unchanged). Farhad found
+		 * live that a checkbox living in that 'normal' box wasn't visible
+		 * without scrolling past the article content, and asked for it in
+		 * the settings sidebar instead — the same place WordPress's own
+		 * "Stick to the front page" checkbox would normally live. A new,
+		 * minimal box keeps that existing box's position/behavior
+		 * completely unchanged for every other field it holds.
+		 */
+		add_meta_box( 'shcore_selected_field', __( 'گزیده‌ها', 'shola-core' ), array( __CLASS__, 'render_selected_metabox' ), 'post', 'side', 'high' );
 		add_meta_box( 'shcore_hero_fields', __( 'تنظیمات هدر', 'shola-core' ), array( __CLASS__, 'render_hero_metabox' ), 'hero_section', 'normal', 'high' );
 		add_meta_box( 'shcore_masthead_fields', __( 'تنظیمات هدر سایت', 'shola-core' ), array( __CLASS__, 'render_masthead_metabox' ), 'masthead_section', 'normal', 'high' );
 	}
@@ -717,15 +730,7 @@ class Meta_Fields {
 		$author_note    = get_post_meta( $post->ID, 'shcore_author_note', true );
 		$language       = get_post_meta( $post->ID, 'shcore_language', true );
 		$translation_id = get_post_meta( $post->ID, 'shcore_translation_id', true );
-		$is_selected    = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
 		?>
-		<p>
-			<label>
-				<input type="checkbox" id="shcore_is_selected" name="shcore_is_selected" value="1" <?php checked( $is_selected ); ?>>
-				<strong><?php esc_html_e( 'نمایش در گزیده‌ها', 'shola-core' ); ?></strong>
-			</label>
-		</p>
-		<p class="description"><?php esc_html_e( 'این نوشته را در بخش «گزیده‌ها»ی صفحهٔ اصلی و آرشیو آن نمایش می‌دهد. محدودیتی بر اساس نقش کاربری ندارد — هر کسی که اجازهٔ ویرایش این نوشته را داشته باشد می‌تواند آن را فعال کند.', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_byline"><strong><?php esc_html_e( 'نام مستعار نویسنده', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_byline" name="shcore_byline" class="regular-text" value="<?php echo esc_attr( $byline ); ?>">
@@ -742,6 +747,33 @@ class Meta_Fields {
 			<input type="number" id="shcore_translation_id" name="shcore_translation_id" class="small-text" value="<?php echo esc_attr( $translation_id ); ?>">
 		</p>
 		<p class="description"><?php esc_html_e( 'این فیلد هنوز فعال نیست و در حال حاضر نیازی به تکمیل آن نیست.', 'shola-core' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Render the گزیده‌ها (Selected) checkbox — a small, standalone
+	 * 'side'-context box (see add_meta_boxes() above for why it's separate
+	 * from shcore_article_fields). Prints its own nonce field even though
+	 * shcore_article_fields already prints an identical one on the same
+	 * page — deliberately not shared, so this box keeps saving correctly
+	 * even if an editor hides the other box via Screen Options. Two
+	 * identical hidden inputs sharing one `name` is harmless (the browser
+	 * submits whichever renders, both are the same valid nonce).
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_selected_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$is_selected = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
+		?>
+		<p>
+			<label>
+				<input type="checkbox" id="shcore_is_selected" name="shcore_is_selected" value="1" <?php checked( $is_selected ); ?>>
+				<strong><?php esc_html_e( 'نمایش در گزیده‌ها', 'shola-core' ); ?></strong>
+			</label>
+		</p>
+		<p class="description"><?php esc_html_e( 'این نوشته را در بخش «گزیده‌ها»ی صفحهٔ اصلی و آرشیو آن نمایش می‌دهد. محدودیتی بر اساس نقش کاربری ندارد — هر کسی که اجازهٔ ویرایش این نوشته را داشته باشد می‌تواند آن را فعال کند.', 'shola-core' ); ?></p>
 		<?php
 	}
 
