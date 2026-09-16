@@ -2503,38 +2503,29 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 @media (min-width: 940px) {
   .article-most-viewed--desktop { display: block; margin-top: 2rem; }
   .article-most-viewed--mobile { display: none; }
-  /* Padding/number-size compensation from when the sidebar was a fixed
-     250px (narrower than the panel's usual homepage context) — the
-     column is now a proportional ~40% share (.article-body, above),
-     comfortably wider, so this padding still applies but the number no
-     longer needs a separate smaller size; see .mv-item-title below. */
+  /* Padding compensation kept from when the sidebar was a fixed 250px —
+     the column is now a proportional ~30% share (.article-body, above)
+     but still narrower than the homepage panel's own grid column, so a
+     slightly tighter padding than the homepage's 1.75rem still applies. */
   .article-most-viewed--desktop .most-viewed-panel { padding: 1.25rem; }
   /*
-   * Title font-size reduced ~25% — 2026-09-15, per Farhad reviewing the
-   * same live screenshot: at the (then-narrow, fixed 250px) sidebar
-   * width, the panel's normal homepage title sizes (1.125rem/1rem) read
-   * as oversized relative to the column, wrapping to multiple lines and
-   * dominating the small space. Scoped to this single-article sidebar
-   * instance only (.article-most-viewed--desktop) — the homepage panel
-   * keeps its original sizes, since that context doesn't have this
-   * problem.
+   * Title/number sizing — reverted to the homepage panel's own defaults
+   * 2026-09-16 (removing the smaller 0.75rem/0.84375rem/1.6875rem
+   * overrides this rule used to set): Farhad reviewed the shrunk
+   * version live and called the list-item titles too small to
+   * comfortably read ("I have seen it is fourteen px... bump to
+   * sixteen px"), also checking whether the homepage version needed the
+   * same fix — it didn't, since it was already at the homepage's own
+   * 1rem/16px default the whole time; only this narrower sidebar
+   * instance had ever been scaled down. Since the sidebar column is now
+   * a comfortable ~30% share (not the original fixed 250px this scaling
+   * was tuned for), there's no longer a real space constraint forcing a
+   * smaller size — simplest correct fix is removing the override
+   * entirely rather than picking a new intermediate value, so title AND
+   * number both inherit the homepage panel's exact sizes (1.125rem/1rem
+   * title, 2.25rem number) with no risk of the two ever drifting out of
+   * proportion again.
    */
-  .article-most-viewed--desktop .mv-item--featured .mv-item-title { font-size: 0.84375rem; }
-  .article-most-viewed--desktop .mv-list .mv-item-title { font-size: 0.75rem; }
-  /*
-   * Number size — revised 2026-09-16: the previous pass shrunk the
-   * title by a clean 25% (1rem -> 0.75rem) but picked the number's new
-   * size independently (1.5rem, a ~33% cut from the homepage's 2.25rem)
-   * rather than applying the same scaling factor — Farhad caught this
-   * exact inconsistency live and asked for title and number to shrink
-   * "proportionally," as a matched pair, not by separate eyeballed
-   * amounts. Fixed by applying the identical 25% reduction to the
-   * number too: 2.25rem × 0.75 = 1.6875rem — now both elements scale
-   * down from their homepage baseline by the same factor, preserving
-   * the homepage panel's own number-to-title ratio exactly, just at
-   * this sidebar's smaller size instead of a different one.
-   */
-  .article-most-viewed--desktop .mv-num { font-size: 1.6875rem; }
 }
 
 /* Long-form prose */

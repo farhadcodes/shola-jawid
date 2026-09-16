@@ -9403,3 +9403,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.23.2 → 1.24.0 (minor bump: new shared icon
   used across multiple templates).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — article-page Most Viewed titles too small
+- **Fixed:** Farhad flagged (live screenshot) that the پربازدیدترین
+  panel's title text in the article-page sidebar measured ~14px and
+  asked for 16px there, also asking whether the homepage version needed
+  the same fix. Checked rather than assumed: the homepage panel was
+  already at its own 1rem/16px default the whole session — only this
+  narrower sidebar instance had ever been scaled down (0.75rem/12px
+  list, 0.84375rem/13.5px featured, from the two earlier proportion-
+  tuning passes), so no homepage change was needed.
+  Removed the `.article-most-viewed--desktop` title and number
+  font-size overrides entirely rather than picking a new intermediate
+  value: the sidebar column is now a comfortable ~30% share (not the
+  original fixed 250px those overrides were tuned for), so there's no
+  remaining space constraint forcing a smaller size. Title and number
+  now inherit the homepage panel's own defaults directly (1.125rem
+  featured / 1rem list title, 2.25rem number) — verified live via
+  `getComputedStyle`: 18px / 16px / 36px, exactly matching the homepage
+  panel, so the two can never drift out of proportion again (the
+  underlying issue behind two earlier fixes this session). The narrower
+  padding (1.25rem vs. the homepage's 1.75rem) was kept, since the
+  column is still narrower than the homepage panel's own grid column.
+  Verified live on an article page (1024px, 900px): title reads at a
+  comfortable 16px/18px, image and number scale proportionally, no
+  awkward wrapping in the ~264px-plus column. One resource 404 seen in
+  the console traced via network-request inspection to an unrelated
+  earlier mistyped test URL in the same browser tab, not this change —
+  the actual page and all its own assets loaded 200 OK.
+  Theme version bumped 1.24.0 → 1.24.1 (patch: sizing fix, reverting to
+  existing defaults).
+  Approved by: Farhad, in this session (2026-09-16).
