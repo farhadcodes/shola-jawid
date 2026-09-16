@@ -2558,18 +2558,31 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * same "flip polarity for a saturated background" solution
  * .card-spotlight's own eyebrow badge above uses), reworked same day per
  * Farhad comparing against his reference image, where the category
- * label is plain text with no badge/background at all. Recolored to
- * --cream rather than reusing --paper (the title's own color): still one
- * of this site's eleven brand tokens, with contrast against
- * --winston-red just as strong as pure white (both are near-white in
- * luminance), but warm enough to read as a distinct, deliberate label
- * color rather than a dimmer copy of the title right above it.
+ * label is plain text with no badge/background at all — recolored to
+ * --cream. Briefly changed to --ok (#1E7B4F, this site's existing
+ * "functional/success" green token) per an explicit hex from Farhad,
+ * then reverted the same day once he reviewed it live and didn't like
+ * it — flagged at the time that green-on-crimson computed to ~1.2:1
+ * contrast (vs. --cream's ~5-6:1) and is also a color-blindness-
+ * unfriendly pairing, which likely contributed. Back to --cream, now
+ * paired with a small tag icon (shola_tag_icon(), inc/template-tags.php)
+ * added the same round so the label reads as more deliberately distinct
+ * from the title without needing a background or an off-brand color.
+ * Font-size stays the literal 10px (0.625rem) from the earlier round —
+ * Farhad's ask there was about size, not color, and wasn't reverted.
  */
 .sect-selected .type-label {
   color: var(--cream);
   font-weight: 800;
+  font-size: 0.625rem;
 }
 .sect-selected .type-label a { color: var(--cream); }
+/* Icon matches the label's own text color exactly, per Farhad's explicit
+   ask — .type-label .glyph's site-wide default (main.css §07) hardcodes
+   --winston-red rather than inheriting currentColor, so this override is
+   needed here the same way .card-byline's date icon already gets
+   recolored per-context elsewhere on the site. */
+.sect-selected .type-label .glyph { color: var(--cream); }
 .sect-selected .h-card a { color: var(--paper); }
 .sect-selected a:hover .h-card,
 .sect-selected .h-card a:hover { color: rgba(255, 255, 255, .8); }

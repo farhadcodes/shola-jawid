@@ -275,6 +275,26 @@ function shola_clock_icon() {
 }
 
 /**
+ * Category/tag glyph for template-parts/cards/selected-row.php's گزیده‌ها
+ * label — added 2026-09-16, per Farhad asking for a small icon next to
+ * that label so it reads as more distinct/deliberate, not a size/color
+ * request. `fill="currentColor"`, 16×16 viewBox — matches `.type-label`'s
+ * own existing icon family (card.php's `$type_icon`, filled solid
+ * shapes), not the stroke-based 24×24 family (shola_date_icon() and
+ * friends above) used for byline/meta contexts — this icon sits inside
+ * a `.type-label`, the same class card.php's icons already target.
+ * `currentColor` fill means it automatically matches `.type-label`'s own
+ * text color in every context (this component's --cream on the crimson
+ * background included) with no separate color rule needed beyond what
+ * already targets the text.
+ *
+ * @return string Trusted, static inline SVG markup.
+ */
+function shola_tag_icon() {
+	return '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.4 1.6 14 7.2a1.4 1.4 0 0 1 0 2l-4.8 4.8a1.4 1.4 0 0 1-2 0L1.6 8.4V2A.4.4 0 0 1 2 1.6h6.4Zm-3.9 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>';
+}
+
+/**
  * Rewrites Jalali month names from the Iranian variant (فروردین,
  * اردیبهشت, ...) that the Persian Calendar plugin hardcodes, to the
  * Afghan Dari variant (حمل, ثور, ...) this site actually needs — found by

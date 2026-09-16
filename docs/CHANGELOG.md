@@ -9730,3 +9730,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   (3-column) and mobile (375px, single column, no overflow).
   Theme version bumped 1.27.2 → 1.27.3 (patch).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-16 (later same session) — گزیده‌ها category label reverted to cream + tag icon
+- **Changed:** The `--ok` green label from the previous round (this
+  session's own contrast concern — ~1.2:1 against the crimson
+  background) was tried live by Farhad and, as flagged, didn't read
+  well; he asked to revert to the earlier --cream color and add a small
+  icon instead so the label still reads as distinct from the title,
+  without an off-brand/low-contrast color. That intermediate green
+  change was never committed, so this entry replaces it outright rather
+  than reading as two separate color changes in history.
+  New `shola_tag_icon()` (inc/template-tags.php) — a filled 16×16
+  `currentColor` glyph matching `.type-label`'s own existing icon family
+  (card.php's `$type_icon`), not the stroke-based 24×24 family used for
+  date/word-count/clock elsewhere, since this icon lives inside a
+  `.type-label`, the same class those filled icons already target.
+  Rendered in template-parts/cards/selected-row.php, before the term
+  link, inside the existing `.type-label` (already `inline-flex` with a
+  gap — no layout changes needed to fit it in).
+  `.sect-selected .type-label`/`.type-label a` back to `color: var(--cream)`
+  (font-size stays the literal 10px from two rounds ago — that was a
+  separate, unretracted ask). New `.sect-selected .type-label .glyph`
+  rule recolors the icon to match — `.type-label .glyph`'s site-wide
+  default (main.css §07) hardcodes `--winston-red` rather than
+  inheriting `currentColor`, so an explicit override was needed, same as
+  every other per-context icon recolor already on this site
+  (`.card-byline .glyph`, etc.).
+  Verified live: `getComputedStyle` confirmed both the label text and
+  the icon report `rgb(250, 248, 243)` (--cream), label still 10px.
+  Theme version bumped 1.27.3 → 1.27.4 (patch).
+  Approved by: Farhad, in this session (2026-09-16).

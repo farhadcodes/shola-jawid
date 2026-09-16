@@ -33,7 +33,10 @@ $term      = shola_get_primary_topic( $row_post );
 	</a>
 	<div class="selected-row-body">
 		<?php if ( $term ) : ?>
-			<p class="type-label"><a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></p>
+			<p class="type-label">
+				<?php echo shola_tag_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+				<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+			</p>
 		<?php endif; ?>
 		<h3 class="h-card"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $row_post ) ); ?></a></h3>
 		<?php
