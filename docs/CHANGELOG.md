@@ -10144,3 +10144,40 @@ trail of *why* the build deviated from — or newly applied — a rule in
   §32).
   Theme version bumped for this feature — see style.css.
   Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-17 (same session) — fix: homepage teaser lightbox no-op prev/next controls
+- **Fixed:** Farhad caught that the homepage teaser's lightbox — spec'd
+  in the original plan as single-image, close-only, no prev/next —
+  still rendered prev/next buttons; clicking them silently redisplayed
+  the same image. Root cause: `main.js`'s `leafletSetNavVisible()`
+  toggled the `hidden` attribute on both buttons, which only hides them
+  visually — they were still real, tabbable DOM elements with nothing
+  to do, the same "hidden-but-present" gap the conditional-caption fix
+  was built to avoid, just missed for these controls.
+  Fixed server-side, matching that same principle: `lightbox.php` now
+  takes a `$args['nav']` flag and only outputs the prev/next `<button>`
+  markup at all when true — not rendered, not hidden. `front-page.php`
+  passes `false` (its lightbox is always exactly one image);
+  `page-leaflets.php` passes `count( $leaflet_lightbox_data ) > 1` —
+  computed from the real, final item count on that page's own batch,
+  not hardcoded `true` just because it's the archive template, so even
+  a page that happens to load exactly one leaflet gets the same
+  no-controls treatment rather than being assumed "the multi-item case"
+  by virtue of which template it is.
+  `main.js`'s keyboard-arrow and touch-swipe handlers now gate on a new
+  `leafletHasNav` flag (whether the buttons actually exist in the DOM,
+  checked once at script init) instead of `leafletIsSingle` — the
+  latter only decides which dataset to render and doesn't by itself
+  guarantee nav controls exist, so gating on it alone would have missed
+  the same rare single-item-archive-page edge case the server-side fix
+  above accounts for.
+  Verified live: homepage teaser now has exactly one button (close) in
+  the entire dialog at 375px, 820px, and desktop — confirmed via direct
+  DOM query, not visual inspection alone. Arrow keys and Escape/focus-
+  return all checked in that single-item dialog: ArrowLeft/ArrowRight
+  correctly produce no image change, Escape still closes it, overflow
+  still resets, focus still returns to the exact trigger. Archive page
+  (currently 2 real test entries) reconfirmed unaffected: both buttons
+  exist, `next` still advances to the second item correctly.
+  Theme version bumped 1.30.0 → 1.30.1 (patch).
+  Approved by: Farhad, in this session (2026-09-17).

@@ -105,7 +105,23 @@ $leaflets_query = shola_get_leaflets_query(
 			<?php endif; ?>
 
 			<script type="application/json" id="leaflet-lightbox-data"><?php echo wp_json_encode( $leaflet_lightbox_data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() output inside a script/application-json tag is not HTML context; every string value within it was already escaped for its own purpose (URLs via wp_get_attachment_image_url(), text via WordPress's own title/date functions) and JSON-encoding itself escapes special characters safely for this context. ?></script>
-			<?php get_template_part( 'template-parts/leaflets/lightbox' ); ?>
+			<?php
+			/*
+			 * nav => count > 1 — computed from the real, final item count
+			 * on *this* page's batch, not hardcoded true just because this
+			 * is the archive template. Fixed 2026-09-17: a page that
+			 * happens to load exactly one leaflet (the very first one ever
+			 * published, or the tail end of pagination) has nothing for
+			 * prev/next to do either, and gets the same no-controls
+			 * treatment as the homepage teaser rather than being assumed
+			 * "the multi-item case" by virtue of which template this is.
+			 */
+			get_template_part(
+				'template-parts/leaflets/lightbox',
+				null,
+				array( 'nav' => count( $leaflet_lightbox_data ) > 1 )
+			);
+			?>
 		<?php else : ?>
 			<p class="dek"><?php esc_html_e( 'هنوز تراکتی منتشر نشده است.', 'shola-jawid' ); ?></p>
 		<?php endif; ?>

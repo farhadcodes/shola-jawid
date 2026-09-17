@@ -482,6 +482,22 @@
     var leafletIsSingle = false;
     var leafletReturnFocusEl = null;
 
+    /*
+     * Whether the prev/next controls exist in the DOM at all, decided
+     * once here from what the server actually rendered — not toggled
+     * per open() call. Fixed 2026-09-17: an earlier version always
+     * rendered both buttons and hid the unused pair with the `hidden`
+     * attribute, which left non-functional (but still real, still
+     * tabbable) controls behind whenever a dialog only ever shows one
+     * item — see lightbox.php's own docblock for the server-side half of
+     * this fix. Keyboard arrows and swipe below both gate on this,
+     * rather than solely on leafletIsSingle, so the same "no dead
+     * affordance" guarantee also covers an archive page that happens to
+     * load exactly one leaflet — leafletIsSingle only decides which
+     * dataset to render, not whether nav controls exist.
+     */
+    var leafletHasNav = !!(leafletPrevBtn && leafletNextBtn);
+
     var leafletIsRtl = function () {
       return getComputedStyle(document.documentElement).direction === "rtl";
     };
@@ -490,13 +506,6 @@
       if (!url) return;
       var img = new Image();
       img.src = url;
-    };
-
-    var leafletSetNavVisible = function (visible) {
-      // el.hidden, not style.display — same convention as this whole
-      // artifact/theme's other JS-toggled visibility.
-      if (leafletPrevBtn) leafletPrevBtn.hidden = !visible;
-      if (leafletNextBtn) leafletNextBtn.hidden = !visible;
     };
 
     var leafletRender = function (index) {
@@ -550,12 +559,10 @@
       if (singleItem) {
         leafletIsSingle = true;
         leafletActiveData = [singleItem];
-        leafletSetNavVisible(false);
         leafletRender(0);
       } else {
         leafletIsSingle = false;
         leafletActiveData = leafletFullData;
-        leafletSetNavVisible(true);
         leafletRender(index);
       }
       leafletDialog.showModal();
@@ -633,8 +640,11 @@
          direction at runtime rather than hardcoded — confirmed against
          this site's own default dir="rtl": "next" (older) sits visually
          left, "previous" (newer) visually right; reversed under
-         dir="ltr". */
-      if (leafletIsSingle) return;
+         dir="ltr". Gated on leafletHasNav (whether the controls actually
+         exist), not leafletIsSingle — a dead arrow-key response is the
+         same "affordance with nothing to do" problem as a dead click,
+         and this covers the rare exactly-one-item archive case too. */
+      if (!leafletHasNav) return;
       if (e.key === "ArrowLeft") {
         leafletIsRtl() ? leafletGoNext() : leafletGoPrev();
       } else if (e.key === "ArrowRight") {
@@ -643,12 +653,15 @@
     });
 
     /* Touch/swipe — real drag-distance tracking (touchstart -> touchend
-       delta), not a swipe-triggers-click hack. */
+       delta), not a swipe-triggers-click hack. Gated on leafletHasNav,
+       same reasoning as the keyboard handler above: no swipe should
+       attempt to navigate (or produce any flicker/reset) when there is
+       nothing to navigate to. */
     var leafletTouchStartX = null;
     leafletDialog.addEventListener(
       "touchstart",
       function (e) {
-        if (leafletIsSingle || e.touches.length !== 1) return;
+        if (!leafletHasNav || e.touches.length !== 1) return;
         leafletTouchStartX = e.touches[0].clientX;
       },
       { passive: true }
@@ -656,7 +669,7 @@
     leafletDialog.addEventListener(
       "touchend",
       function (e) {
-        if (leafletIsSingle || leafletTouchStartX === null) return;
+        if (!leafletHasNav || leafletTouchStartX === null) return;
         var touch = e.changedTouches && e.changedTouches[0];
         var startX = leafletTouchStartX;
         leafletTouchStartX = null;

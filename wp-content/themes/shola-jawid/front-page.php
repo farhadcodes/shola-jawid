@@ -578,7 +578,16 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 			</div>
 		</div>
 	</section>
-	<?php get_template_part( 'template-parts/leaflets/lightbox' ); ?>
+	<?php
+	/*
+	 * nav => false — this lightbox is always exactly one image (the
+	 * single latest تراکت, per Part 1's own homepage spec), so prev/next
+	 * controls have nothing to do here and must not exist in the DOM at
+	 * all, not just be hidden. Fixed 2026-09-17 — see lightbox.php's own
+	 * docblock for the full reasoning.
+	 */
+	get_template_part( 'template-parts/leaflets/lightbox', null, array( 'nav' => false ) );
+	?>
 <?php endif; ?>
 <?php wp_reset_postdata(); ?>
 
