@@ -3958,7 +3958,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .sect-leaflet-teaser { background: var(--ink); color: var(--paper); }
 .sect-leaflet-teaser .h-section { color: var(--paper); }
-.sect-leaflet-teaser .dek { color: rgba(255, 255, 255, .85); }
 .sect-leaflet-teaser .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
 .sect-leaflet-teaser .link-more:hover { color: var(--paper); border-color: var(--paper); }
 .leaflet-teaser {
@@ -3971,7 +3970,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .leaflet-teaser-body { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
 .leaflet-teaser-body .kicker-row { justify-content: center; }
 .leaflet-teaser-body .h-section { margin-top: 0; }
-.leaflet-teaser-body .dek { max-width: 560px; }
 /*
  * Image capped to a centered 560px max-width (not the full `.wrap`) so
  * this stays a compact spotlight and doesn't out-scale گزیده‌ها's own

@@ -566,9 +566,6 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین تراکت', 'shola-jawid' ); ?></h2>
 				</div>
-				<?php if ( $leaflet_teaser_caption ) : ?>
-					<p class="dek"><?php echo esc_html( $leaflet_teaser_caption ); ?></p>
-				<?php endif; ?>
 			</div>
 			<?php
 			/*

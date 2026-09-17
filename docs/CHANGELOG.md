@@ -10289,3 +10289,29 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.30.2 → 1.31.0 (minor: layout redesign, not a
   patch-level fix).
   Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-17 (same session) — fix: remove per-entry caption line from homepage تراکت spotlight
+- **Changed:** Farhad asked for the per-entry caption/`.dek` line (e.g.
+  "اعتراض به اعدام") between the "تازه‌ترین تراکت" heading and the image
+  to be removed from the homepage spotlight section specifically, so the
+  flow reads kicker → heading → image → CTA, with no per-entry title
+  text in between. `front-page.php`'s `$leaflet_teaser_caption` variable
+  is kept — it still feeds the lightbox trigger's `data-leaflet-caption`
+  attribute and the image's alt-text fallback — only the `.dek`
+  paragraph and its `if ( $leaflet_teaser_caption )` block were removed.
+  Also removed the two CSS rules that existed solely for that line
+  (`.leaflet-teaser-body .dek { max-width: 560px }` and
+  `.sect-leaflet-teaser .dek { color: rgba(255,255,255,.85) }`) rather
+  than leaving them as dead rules.
+  Confirmed unaffected, as requested: the lightbox's own conditional
+  caption/title display (both the homepage teaser's and the archive
+  page's lightbox) still renders the entry's title when one exists —
+  verified live, `.leaflet-lightbox-title` still shows "اعتراض به اعدام"
+  after this change. The archive page's own per-entry
+  `.leaflet-item-caption` under each image in the stream is a separate
+  template (`leaflet-item.php`) and was never touched — verified live,
+  still present and unchanged.
+  Verified with a screenshot: homepage section now reads heading → image
+  → CTA with nothing in between.
+  Theme version bumped 1.31.0 → 1.31.1 (patch).
+  Approved by: Farhad, in this session (2026-09-17).
