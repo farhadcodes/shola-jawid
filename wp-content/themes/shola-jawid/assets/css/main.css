@@ -4004,54 +4004,101 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   align-items: center;
   justify-content: center;
 }
-.leaflet-lightbox-stage {
-  position: relative;
+/*
+ * .leaflet-lightbox-body — flex container for the image + caption panel.
+ * Replaces the original absolutely-positioned caption-over-image overlay
+ * (2026-09-17 build): live screenshots showed that overlay's bottom
+ * gradient reads as having no visible scrim at all against busy/dark
+ * leaflet imagery — `linear-gradient(to top, A, B)` puts its opaque stop
+ * at the box's bottom edge and fades to fully transparent at the top,
+ * exactly where the title text sat under that layout's top-heavy
+ * padding (measured live at ~0.2-0.3 effective opacity behind the title,
+ * not the nominal 0.85). The caption is now a genuinely separate,
+ * solid-background region beside/below the image, never on top of it.
+ *
+ * Column under 720px (image on top, caption panel below, full width —
+ * this project's own leaflet-stream breakpoint, reused rather than
+ * inventing a new one); row at >=720px (caption panel beside the image).
+ * DOM order is unchanged (image, then caption — matches reading order
+ * for screen readers). The row layout uses `row-reverse`, not a
+ * hardcoded left/right: `row-reverse` places the *second* child
+ * (caption) at the inline-start edge — the reading-start side, i.e.
+ * visual right under this site's dir="rtl", mirroring automatically to
+ * the left under dir="ltr" — with no per-direction CSS. Verified by
+ * forcing dir="ltr" (this project's standard RTL-check method).
+ */
+.leaflet-lightbox-body {
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   max-height: 100%;
-  display: flex;
+}
+@media (min-width: 720px) {
+  .leaflet-lightbox-body {
+    flex-direction: row-reverse;
+    align-items: stretch;
+  }
 }
 /*
  * object-fit: contain, not cover — this is the same real-content-at-its-
  * own-proportions principle already established for the archive stream
  * (main.css §31): the lightbox must show the leaflet "at as high a
  * quality as the optimized file allows," uncropped, whatever its shape.
+ * max-height is capped tighter under 720px to leave room for the
+ * caption panel stacked below it in the column layout.
  */
 .leaflet-lightbox-image {
   display: block;
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 60vh;
   object-fit: contain;
   margin-inline: auto;
 }
+@media (min-width: 720px) {
+  .leaflet-lightbox-image {
+    max-width: calc(100vw - 300px);
+    max-height: 90vh;
+    margin-inline: 0;
+  }
+}
 /*
- * Bottom-anchored caption bar — one unified treatment scaled per
- * breakpoint (Farhad's explicit choice over a separate desktop side-
- * panel layout), not overlapping enough of the image to hide meaningful
- * content: a slim gradient strip at the very bottom edge only. The
- * container itself always has at least the date paragraph (native
- * post_date is never empty, main.js), so it is never an empty box —
+ * Solid --paper background — deliberately the opposite tone of the
+ * dialog's own --ink backdrop (main.css, above), so the panel reads as a
+ * genuinely distinct region ("a photo in a frame with a caption printed
+ * on the mat," per Farhad) rather than blending into the same dark
+ * surface it sits beside. Text flips to --ink/--ink-soft accordingly.
+ * The container itself always has at least the date paragraph (native
+ * post_date is never empty, main.js), so it is never an empty panel —
  * the title/caption paragraph inside it is the only conditional part
  * (created only when that entry has real caption text, main.js).
  */
 .leaflet-lightbox-caption {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  padding: 1.5rem 1.25rem 1rem;
-  background: linear-gradient(to top, rgba(15, 15, 15, .85), rgba(15, 15, 15, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: .35rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--paper);
   text-align: center;
+}
+@media (min-width: 720px) {
+  .leaflet-lightbox-caption {
+    flex: 0 0 300px;
+    max-width: 300px;
+    text-align: start;
+  }
 }
 .leaflet-lightbox-title {
   font-family: var(--font-fa);
   font-weight: 700;
   font-size: var(--t-small);
-  color: var(--paper);
-  margin: 0 0 .25rem;
+  color: var(--ink);
+  margin: 0;
 }
 .leaflet-lightbox-date {
   font-family: var(--font-nav);
   font-size: var(--t-caption);
-  color: rgba(255, 255, 255, .75);
+  color: var(--ink-soft);
   margin: 0;
 }
 /*

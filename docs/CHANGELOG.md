@@ -10181,3 +10181,58 @@ trail of *why* the build deviated from — or newly applied — a rule in
   exist, `next` still advances to the second item correctly.
   Theme version bumped 1.30.0 → 1.30.1 (patch).
   Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-17 (same session) — fix: تراکت lightbox caption overlaid the image instead of sitting beside it
+- **Fixed:** Farhad reported (with screenshots) that the lightbox caption
+  was still rendering as text floating directly on the leaflet image with
+  no visible background at all — worse than the original bottom-gradient
+  overlay it was supposed to be, not better. Investigation found that the
+  originally-proposed non-overlaying redesign had only ever been
+  *described* in the previous round, never actually implemented — the
+  live code was still the unmodified Round-1 overlay
+  (`.leaflet-lightbox-caption { position: absolute; bottom: 0; background:
+  linear-gradient(to top, rgba(15,15,15,.85), rgba(15,15,15,0)); }`).
+  Measured live via `getBoundingClientRect()`/`getComputedStyle()` on the
+  actual reported poster: the title paragraph sat in the top ~25-54% of
+  the caption box, where `linear-gradient(to top, A, B)` (opaque stop at
+  the box's bottom, transparent at the top) works out to only ~0.2-0.3
+  effective opacity — visually indistinguishable from "no scrim" against
+  a dark/busy image, explaining the screenshot exactly without assuming a
+  regression had occurred.
+  Corrected implementation: `template-parts/leaflets/lightbox.php`'s
+  image+caption wrapper renamed `.leaflet-lightbox-stage` →
+  `.leaflet-lightbox-body` and rebuilt as a flex container (main.css §32)
+  — column under 720px (image on top, solid caption panel below, full
+  width, this project's own leaflet-stream breakpoint reused rather than
+  inventing a new one); `row-reverse` at >=720px (caption panel beside the
+  image, fixed 300px width). DOM order is unchanged (image, then caption)
+  — `row-reverse` places the caption (the *second* child) at the
+  inline-start edge, i.e. the reading-start side per Farhad's explicit
+  instruction: visual right under this site's `dir="rtl"`, mirroring
+  automatically to the left under `dir="ltr"` with zero per-direction CSS.
+  Caption background is solid `--paper` (white) with `--ink`/`--ink-soft`
+  text — the opposite tone of the dialog's own `--ink` backdrop, so the
+  panel reads as a genuinely separate region ("a photo in a frame with a
+  caption printed on the mat," Farhad's framing) rather than blending
+  into the same dark surface it sits beside. No new color token
+  introduced.
+  Verified live: real `getBoundingClientRect()` checks confirmed the
+  panel sits at x 980-1280 of a 1280px-wide RTL viewport (the right
+  edge) and flips to x 0-300 (the left edge) after forcing `dir="ltr"`
+  on the same page — zero code change needed for the mirror. Screenshots
+  taken at 375px (column layout, panel below image), 820px (row layout,
+  panel on the right), and 1280px desktop (row layout). Conditional-
+  caption logic reconfirmed under the new markup by removing the title
+  paragraph and observing the panel shrink cleanly to fit the date line
+  alone, with no orphaned space. Multi-item archive prev/next
+  reconfirmed working (image and title both update on click). Single-
+  item homepage teaser reconfirmed with zero nav buttons in the DOM.
+  Escape (real, trusted keypress) and the Tab-cycle focus trap
+  (real, trusted Tab keypress landing on the prev button) both
+  reconfirmed still working — neither depends on the caption markup.
+  `main.js` required no changes: it already queried `.leaflet-lightbox-
+  image`/`.leaflet-lightbox-caption` directly rather than through the
+  now-renamed stage wrapper.
+  Approved by: Farhad, in this session (2026-09-17), including the
+  explicit reading-start caption-placement instruction and pre-
+  implementation diagnosis review.

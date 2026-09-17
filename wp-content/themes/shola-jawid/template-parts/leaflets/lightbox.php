@@ -30,12 +30,23 @@
  *
  * Markup structure is deliberate for the "click outside the image closes
  * it" requirement: the close/prev/next buttons and the image/caption
- * `.leaflet-lightbox-stage` are direct children of the <dialog>. A click
+ * `.leaflet-lightbox-body` are direct children of the <dialog>. A click
  * landing on the <dialog> element itself (not one of those children) is
  * "outside the image" — main.js checks `event.target === dialog`, which
  * only works because those children fully account for the visible
  * control surface, leaving the rest of the (viewport-filling) dialog box
  * as genuine "outside" space.
+ *
+ * Caption is a solid `--paper` panel beside/below the image (main.css),
+ * not an overlay on top of it — corrected 2026-09-17 after live
+ * screenshots showed the original absolutely-positioned gradient-bar
+ * caption reads as having no visible scrim at all against busy/dark
+ * leaflet imagery. `.leaflet-lightbox-body` is a flex container: column
+ * under 720px (image on top, caption below), row-reverse at >=720px so
+ * the caption panel — the *second* DOM child — lands at the inline-start
+ * edge (visual right under this site's dir="rtl", mirroring to the left
+ * under dir="ltr" with no per-direction CSS). DOM order itself is
+ * unchanged (image, then caption), so this is a pure CSS fix.
  *
  * The caption container always exists (the date always has content —
  * native post_date is never empty) but the title/caption paragraph
@@ -76,7 +87,7 @@ $leaflet_lightbox_nav = ! isset( $args['nav'] ) || (bool) $args['nav'];
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
 		</button>
 	<?php endif; ?>
-	<div class="leaflet-lightbox-stage">
+	<div class="leaflet-lightbox-body">
 		<img class="leaflet-lightbox-image" src="" alt="">
 		<div class="leaflet-lightbox-caption"></div>
 	</div>
