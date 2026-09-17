@@ -10236,3 +10236,56 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Approved by: Farhad, in this session (2026-09-17), including the
   explicit reading-start caption-placement instruction and pre-
   implementation diagnosis review.
+
+## 2026-09-17 (same session) — redesign: homepage تراکت teaser as a centered spotlight
+- **Changed:** Farhad flagged the homepage تراکت teaser (front-page.php)
+  as reading unfinished — an empty outlined box above the heading, and
+  a left-aligned text block beside a right-aligned image with no shared
+  center line. Diagnosed the "stray empty box" before redesigning:
+  it was `<p class="section-marker"></p>`, this theme's standard kicker
+  dash used before every other homepage section heading (تازه‌ترین
+  مقالات, گزارش, نشریات, گزیده‌ها, انتشارات حزب, کتابخانه, اسناد) — but
+  this was the one instance never wrapped in `.kicker-row` (main.css),
+  the flex wrapper that lays the dash inline with its `<h2>` everywhere
+  else. Sitting alone with no flex row, the thin dash read as a stray
+  disconnected mark. Fixed by adding the missing `.kicker-row` wrapper
+  to match the sitewide pattern exactly, rather than introducing a new
+  numbered-kicker system for this one section (checked: no such pattern
+  exists anywhere in the live CSS/templates, despite appearing in an
+  older design-reference doc).
+  Restructured `front-page.php` into a single centered, stacked
+  composition — kicker row, `h-section` title, conditional `.dek`
+  caption (unchanged `if ( $leaflet_teaser_caption )` logic, just
+  reordered in the markup), image, `.link-more` CTA — at every
+  breakpoint. Removed the `@media (min-width: 1000px)` rule that
+  previously forced a side-by-side layout at desktop; confirmed no
+  side-by-side variant remains at any width.
+  `--ink` section background stays full-bleed (unchanged, matches
+  گزیده‌ها directly above it); the image itself is capped to a centered
+  `max-width: 560px` within the standard `.wrap` rather than stretching
+  full-width, so the section stays a compact spotlight rather than
+  out-scaling گزیده‌ها's own grid. Added a `border: 1px solid var(--line)`
+  hairline frame directly on the image — reads clearly against `--ink`
+  without a card background or shadow, giving it a "presented" feel
+  consistent with this project's Aeon-influenced restraint. Kicker dash
+  switched from this section's old `--paper` override back to the
+  sitewide default `--winston-red` — legible here specifically because
+  this section's background is `--ink`, not `--winston-red` like
+  گزیده‌ها, so it can carry a small accent without spending a second
+  solid-crimson section background. No new color tokens introduced.
+  Verified live: 375px (column, image edge-to-edge within side padding),
+  820px (column, larger scale), and 1400px desktop (column, no
+  side-by-side) via real screenshots. Confirmed via `getBoundingClientRect()`
+  that the section's total height (598.6px at 1400px viewport) stays
+  visibly smaller than گزیده‌ها's own grid section (705.25px) directly
+  above it. RTL correctness confirmed by forcing `dir="ltr"`: the
+  centered composition and hairline frame stayed symmetric with no
+  layout break (this design has no reading-direction-dependent
+  placement, unlike the earlier side-by-side version). Re-verified the
+  single-image lightbox still opens correctly with zero nav controls
+  after the markup reorder, and the conditional caption line still
+  renders/hides correctly — neither depends on the trigger link's
+  position relative to the heading block.
+  Theme version bumped 1.30.2 → 1.31.0 (minor: layout redesign, not a
+  patch-level fix).
+  Approved by: Farhad, in this session (2026-09-17).

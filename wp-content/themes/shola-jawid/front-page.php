@@ -532,6 +532,22 @@ if ( $has_mostviewed ) {
  * page. `--ink` (near-black, one of the same eleven locked tokens) gives
  * this section its own strong, distinct weight without competing with
  * گزیده‌ها for the same visual signal.
+ *
+ * Redesigned 2026-09-17 (same day) into a single centered, stacked
+ * "spotlight" composition (kicker, title, conditional caption, image,
+ * CTA — all on one center line) at every breakpoint, no side-by-side
+ * variant at desktop, after Farhad flagged the original side-by-side
+ * layout as reading unfinished. The `.kicker-row` wrapper around
+ * `.section-marker` was missing here (present in every other homepage
+ * section) — that was the actual cause of the "stray empty box" Farhad
+ * saw above the heading, not a missing design element. Image capped to
+ * a centered 560px max-width (main.css) rather than the full `.wrap`,
+ * so it stays a compact spotlight and doesn't out-scale گزیده‌ها's own
+ * grid directly above it. Kicker dash switched from this section's old
+ * `--paper` override back to the sitewide default `--winston-red` —
+ * legible here because this section's background is `--ink`, not
+ * `--winston-red` like گزیده‌ها, so it can carry the "sparing accent"
+ * without a second solid-crimson background.
  */
 $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 ) );
 ?>
@@ -545,6 +561,15 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 	?>
 	<section class="sect-leaflet-teaser sect" aria-label="<?php esc_attr_e( 'تراکت', 'shola-jawid' ); ?>">
 		<div class="wrap leaflet-teaser">
+			<div class="leaflet-teaser-body">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین تراکت', 'shola-jawid' ); ?></h2>
+				</div>
+				<?php if ( $leaflet_teaser_caption ) : ?>
+					<p class="dek"><?php echo esc_html( $leaflet_teaser_caption ); ?></p>
+				<?php endif; ?>
+			</div>
 			<?php
 			/*
 			 * Single-image lightbox mode — added 2026-09-17. Same
@@ -568,14 +593,7 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 				echo shola_get_featured_image( get_post(), 'full', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally.
 				?>
 			</a>
-			<div class="leaflet-teaser-body">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین تراکت', 'shola-jawid' ); ?></h2>
-				<?php if ( $leaflet_teaser_caption ) : ?>
-					<p class="dek"><?php echo esc_html( $leaflet_teaser_caption ); ?></p>
-				<?php endif; ?>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/leaflets/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو تراکت‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-			</div>
+			<a class="link-more" href="<?php echo esc_url( home_url( '/leaflets/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو تراکت‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 		</div>
 	</section>
 	<?php
