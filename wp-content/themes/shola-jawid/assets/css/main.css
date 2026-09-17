@@ -2120,52 +2120,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   transform: scale(1.04);
   filter: grayscale(.9) brightness(1.02);
 }
-/* Info panel (title, date, button) sits below the cover, never
-   overlapping it — a separate block in normal flow, not an
-   absolutely-positioned overlay. A solid paper backing (not
-   transparent over the photo) keeps it legible wherever the floating
-   card happens to land on the photo beneath it. Reworked from a
-   title-only block to this fuller panel, still 2026-09-16, after
-   Farhad reviewed the first pass live and found it too bare — rebuilt
-   against two reference cards he shared, keeping only what he
-   confirmed: the issue date and the download button, no "جدید" badge
-   and no description text. */
-.hero-pub-card-minimal-info {
-  margin-block-start: .65rem;
-  background: var(--paper);
-  border-radius: 0;
-  padding: .85rem .9rem;
-  display: flex;
-  flex-direction: column;
-  gap: .55rem;
-}
+/* Title sits above the cover, its solid paper background flush against
+   the cover's top edge (margin-block-end: 0 — no gap) — simplified
+   2026-09-18 from the earlier below-cover info panel (title + date +
+   button) per the client's explicit ask (relayed by Farhad, annotated
+   screenshot) to drop the date and download button entirely and keep
+   only the title, repositioned above the image. */
 .hero-pub-card-minimal-title {
   margin: 0;
+  background: var(--paper);
+  padding: .85rem .9rem;
   font-size: .95rem;
   line-height: 1.4;
 }
 .hero-pub-card-minimal-title a { color: var(--ink); }
-/* Date row — same stroke-icon convention as postcards site-wide
-   (shola_date_icon(), .card-byline), reused here rather than
-   reference #1's tag/category chip: an issue has no per-item category
-   field to show there without inventing one, and the date is real
-   data already available. */
-.hero-pub-card-minimal-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  margin: 0;
-  color: var(--stone);
-  font-family: var(--font-nav);
-  font-size: var(--t-micro);
-}
-.hero-pub-card-minimal-meta .glyph { width: 13px; height: 13px; flex-shrink: 0; }
-/* .btn/.btn-primary reused as-is (main.css §04) — already sharp-
-   cornered site-wide, no override needed. align-self: flex-start
-   keeps it sized to its own text instead of stretching to the panel's
-   full width, same fix already applied to .hero-rail/.hero-pub-card's
-   own button above. */
-.hero-pub-card-minimal-btn { align-self: flex-start; }
 @media (prefers-reduced-motion: reduce) {
   .hero-pub-card-minimal-cover img { transition: none; }
 }

@@ -10315,3 +10315,36 @@ trail of *why* the build deviated from — or newly applied — a rule in
   → CTA with nothing in between.
   Theme version bumped 1.31.0 → 1.31.1 (patch).
   Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-18 — fix: simplify `minimal_cover` hero publication card, title moved above cover
+- **Changed:** the client (relayed by Farhad, with an annotated
+  screenshot circling the title/date box and the red "مشاهده و دانلود
+  نشریه" download button for removal) asked to drop the date and the
+  button entirely from the `minimal_cover` hero layout's floating
+  publication card, keep only the title, and move it above the cover
+  image with its solid background flush against the cover's top edge
+  (no gap).
+  `shola_render_hero_publication_card_minimal()`
+  (inc/template-tags.php) no longer renders the `.hero-pub-card-minimal-
+  info` wrapper, the issue-date row (`shola_date_icon()`/
+  `shola_get_iso_datetime()` — both still used by every other card on
+  the site, only this one call site was removed), or the download
+  button. The title `<h2>` now renders before the cover link in the
+  markup, not after.
+  main.css §10.3b: removed the now-unused `.hero-pub-card-minimal-info`,
+  `-meta`, and `-btn` rules; `.hero-pub-card-minimal-title` gained the
+  solid `--paper` background and padding the old info panel used to
+  carry, with `margin: 0` so the title box sits with zero gap directly
+  above the cover.
+  The cover image and the title link both still point to the issue's
+  own permalink (confirmed live, identical `href`), so the card keeps
+  exactly one real click target — it just no longer has a separate
+  button element for it.
+  Verified live at desktop (this card only renders ≥901px, unchanged
+  media query): measured `getBoundingClientRect()` gap between the
+  title box and the cover is 0, title background is `--paper`, and
+  `.hero-pub-card-minimal-info`/`-meta`/`-btn` no longer exist in the
+  DOM.
+  Theme version bumped 1.31.1 → 1.31.2 (patch).
+  Approved by: Farhad (client instruction relayed), in this session
+  (2026-09-18).

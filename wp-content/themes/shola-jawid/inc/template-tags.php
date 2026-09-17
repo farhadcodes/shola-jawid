@@ -1162,6 +1162,15 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  * publication-card layouts already do, in place of reference #1's small
  * circular arrow icon so the card has one clear call to action, not two.
  *
+ * Simplified again 2026-09-18, per the client (relayed by Farhad, with an
+ * annotated screenshot circling the date + button for removal): the date
+ * row and download button are gone, and the title moves above the cover
+ * (was below) with its solid `--paper` background flush against the
+ * cover's top edge — no gap, per the client's explicit "attached to the
+ * top of the cover" instruction. The cover and title link both still
+ * point to the issue's permalink, so the card keeps exactly one real
+ * click target, just without a dedicated button element for it.
+ *
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
  * @return void
@@ -1170,14 +1179,10 @@ function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 	$permalink    = get_permalink( $issue );
 	?>
+	<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
 	<a href="<?php echo esc_url( $permalink ); ?>" class="hero-pub-card-minimal-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_hero_minimal_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
-	<div class="hero-pub-card-minimal-info">
-		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
-		<p class="hero-pub-card-minimal-meta"><?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_date_icon() returns a static trusted SVG. ?><time datetime="<?php echo esc_attr( shola_get_iso_datetime( $issue ) ); ?>"><?php echo esc_html( get_the_date( '', $issue ) ); ?></time></p>
-		<a class="btn btn-primary hero-pub-card-minimal-btn" href="<?php echo esc_url( $permalink ); ?>"><?php esc_html_e( 'مشاهده و دانلود نشریه', 'shola-jawid' ); ?></a>
-	</div>
 	<?php
 }
 
