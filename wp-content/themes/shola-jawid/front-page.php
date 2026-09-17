@@ -516,6 +516,74 @@ if ( $has_mostviewed ) {
 
 <?php
 /*
+ * تراکت (Leaflet) homepage teaser — added 2026-09-17, per Farhad relaying
+ * the client's request to surface the single latest leaflet/banner/poster
+ * upload directly below پرخواننده‌ترین (Most Viewed, embedded in the
+ * تازه‌ترین مقالات section just above — not a separate top-level section
+ * of its own, confirmed by re-reading that section's actual markup before
+ * picking this insertion point rather than assuming). Not a grid, not
+ * multiple thumbnails — exactly one image, matching the client's spec.
+ *
+ * Solid `--ink`, not `--winston-red` — Farhad's explicit call (2026-09-17):
+ * گزیده‌ها (just above این‌طرف‌تر in the homepage, main.css §11) already
+ * spends this site's one deliberately-rationed crimson accent on a solid
+ * background; stacking a second solid-crimson section directly beneath it
+ * would spend that same "loud, meaningful accent" budget twice on one
+ * page. `--ink` (near-black, one of the same eleven locked tokens) gives
+ * this section its own strong, distinct weight without competing with
+ * گزیده‌ها for the same visual signal.
+ */
+$leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 ) );
+?>
+<?php if ( $leaflet_teaser_query->have_posts() ) : ?>
+	<?php
+	$leaflet_teaser_query->the_post();
+	$leaflet_teaser_thumb_id = get_post_thumbnail_id();
+	$leaflet_teaser_full     = wp_get_attachment_image_url( $leaflet_teaser_thumb_id, 'full' );
+	$leaflet_teaser_caption  = get_the_title();
+	$leaflet_teaser_alt      = get_post_meta( $leaflet_teaser_thumb_id, '_wp_attachment_image_alt', true ) ?: $leaflet_teaser_caption;
+	?>
+	<section class="sect-leaflet-teaser sect" aria-label="<?php esc_attr_e( 'تراکت', 'shola-jawid' ); ?>">
+		<div class="wrap leaflet-teaser">
+			<?php
+			/*
+			 * Single-image lightbox mode — added 2026-09-17. Same
+			 * `data-leaflet-trigger` main.js hooks onto for the archive
+			 * page, but with no `data-leaflet-index`: main.js reads this
+			 * link's own `data-leaflet-*` attributes instead of looking up
+			 * a page-wide JSON dataset, and hides the prev/next controls,
+			 * since there is only ever this one image in this context —
+			 * Farhad's explicit call, matching Part 1's own "single latest
+			 * entry, not a mini-gallery" homepage spec. href is still the
+			 * full-size image file — the same no-JS fallback as the
+			 * archive page.
+			 */
+			?>
+			<a href="<?php echo esc_url( $leaflet_teaser_full ); ?>" class="leaflet-teaser-media" data-leaflet-trigger data-leaflet-image="<?php echo esc_url( $leaflet_teaser_full ); ?>" data-leaflet-date="<?php echo esc_attr( get_the_date() ); ?>" data-leaflet-caption="<?php echo esc_attr( $leaflet_teaser_caption ); ?>" data-leaflet-alt="<?php echo esc_attr( $leaflet_teaser_alt ); ?>">
+				<?php
+				// See template-parts/leaflets/leaflet-item.php's own comment:
+				// shola_get_leaflets_query() already excludes leaflets with no
+				// featured image, so shola_get_featured_image()'s generic
+				// fallback path is unreachable here.
+				echo shola_get_featured_image( get_post(), 'full', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally.
+				?>
+			</a>
+			<div class="leaflet-teaser-body">
+				<p class="section-marker"></p>
+				<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین تراکت', 'shola-jawid' ); ?></h2>
+				<?php if ( $leaflet_teaser_caption ) : ?>
+					<p class="dek"><?php echo esc_html( $leaflet_teaser_caption ); ?></p>
+				<?php endif; ?>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/leaflets/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو تراکت‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			</div>
+		</div>
+	</section>
+	<?php get_template_part( 'template-parts/leaflets/lightbox' ); ?>
+<?php endif; ?>
+<?php wp_reset_postdata(); ?>
+
+<?php
+/*
  * گزارش (Reports) — a dedicated `report` taxonomy (Phase B, 2026-08-25,
  * originally a `post_tag`; converted 2026-09-05 after Farhad found the
  * client couldn't discover the free-text tag field as a way to mark a

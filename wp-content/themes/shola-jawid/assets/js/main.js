@@ -48,6 +48,17 @@
       if (link.closest("#wpadminbar")) return;
       if (link.target && link.target !== "_self") return;
       if (link.hasAttribute("download")) return;
+      /* تراکت lightbox triggers (2026-09-17) — without this exclusion,
+         this handler treats the trigger's <a href="{full-size image}">
+         as an ordinary internal link, calls its own preventDefault(),
+         and schedules its own manual `window.location.href` navigation
+         via showLoaderThenNavigate() before the lightbox's own (later-
+         registered) click handler ever runs — a real bug caught live:
+         the lightbox opened correctly for an instant, then the page
+         navigated to the raw image anyway once that scheduled
+         navigation fired. Bailing out here leaves the click for the
+         lightbox handler to handle entirely on its own. */
+      if (link.hasAttribute("data-leaflet-trigger")) return;
       var href = link.getAttribute("href");
       if (!href || href.charAt(0) === "#") return;
       if (/^(mailto|tel):/i.test(href)) return;
@@ -427,5 +438,258 @@
       };
       window.requestAnimationFrame(tick);
     }
+  }
+
+  /* ---------- گالری تمام‌صفحهٔ تراکت (page-leaflets.php, front-page.php,
+     2026-09-17) ----------
+     A native <dialog>, not a hand-built overlay: .showModal() natively
+     traps focus inside it and Escape natively closes it (fires a
+     "cancel" event), so neither needs custom code here. Two modes share
+     one <dialog> markup (template-parts/leaflets/lightbox.php):
+       - Archive page: trigger has data-leaflet-index; prev/next cycle
+         through the JSON array page-leaflets.php embeds
+         (#leaflet-lightbox-data) — capped to that page's own loaded
+         batch, never reaching across a "بارگذاری بیشتر" page boundary
+         (confirmed with Farhad).
+       - Homepage teaser: trigger has no data-leaflet-index; its own
+         data-leaflet-* attributes are read directly instead, prev/next
+         controls are hidden, since there is only ever this one image in
+         that context.
+     No-JS fallback: every trigger is a real <a href="{full-size image
+     URL}">; this block only ever runs if JS is enabled at all, and only
+     intercepts (preventDefault) the click once it has actually found a
+     dialog + a valid item to show. */
+  var leafletDialog = document.getElementById("leaflet-lightbox");
+  if (leafletDialog && typeof leafletDialog.showModal === "function") {
+    var leafletImage   = leafletDialog.querySelector(".leaflet-lightbox-image");
+    var leafletCaption = leafletDialog.querySelector(".leaflet-lightbox-caption");
+    var leafletPrevBtn = leafletDialog.querySelector(".leaflet-lightbox-prev");
+    var leafletNextBtn = leafletDialog.querySelector(".leaflet-lightbox-next");
+    var leafletCloseBtn = leafletDialog.querySelector(".leaflet-lightbox-close");
+
+    var leafletFullData = [];
+    var leafletDataEl = document.getElementById("leaflet-lightbox-data");
+    if (leafletDataEl) {
+      try {
+        leafletFullData = JSON.parse(leafletDataEl.textContent) || [];
+      } catch (err) {
+        leafletFullData = [];
+      }
+    }
+
+    var leafletActiveData = [];  // whichever set is showing right now (the full page batch, or a single-item array)
+    var leafletCurrentIndex = -1;
+    var leafletIsSingle = false;
+    var leafletReturnFocusEl = null;
+
+    var leafletIsRtl = function () {
+      return getComputedStyle(document.documentElement).direction === "rtl";
+    };
+
+    var leafletPreload = function (url) {
+      if (!url) return;
+      var img = new Image();
+      img.src = url;
+    };
+
+    var leafletSetNavVisible = function (visible) {
+      // el.hidden, not style.display — same convention as this whole
+      // artifact/theme's other JS-toggled visibility.
+      if (leafletPrevBtn) leafletPrevBtn.hidden = !visible;
+      if (leafletNextBtn) leafletNextBtn.hidden = !visible;
+    };
+
+    var leafletRender = function (index) {
+      var item = leafletActiveData[index];
+      if (!item) return;
+      leafletCurrentIndex = index;
+      leafletImage.setAttribute("src", item.image || "");
+      leafletImage.setAttribute("alt", item.alt || "");
+
+      /* Caption rebuilt fresh on every render — the title/caption
+         paragraph is only ever created via createElement when this
+         specific entry actually has one; it is never created-then-
+         hidden. The container itself always ends up with at least the
+         date paragraph, since native post_date is never empty, so the
+         container is never left empty. */
+      while (leafletCaption.firstChild) {
+        leafletCaption.removeChild(leafletCaption.firstChild);
+      }
+      if (item.caption) {
+        var titleEl = document.createElement("p");
+        titleEl.className = "leaflet-lightbox-title";
+        titleEl.textContent = item.caption;
+        leafletCaption.appendChild(titleEl);
+      }
+      var dateEl = document.createElement("p");
+      dateEl.className = "leaflet-lightbox-date";
+      dateEl.textContent = item.date || "";
+      leafletCaption.appendChild(dateEl);
+
+      if (!leafletIsSingle) {
+        if (leafletActiveData[index + 1]) leafletPreload(leafletActiveData[index + 1].image);
+        if (leafletActiveData[index - 1]) leafletPreload(leafletActiveData[index - 1].image);
+      }
+    };
+
+    var leafletGoNext = function () {
+      // "next" = chronologically older = the following item in this
+      // newest-first array.
+      if (leafletCurrentIndex + 1 < leafletActiveData.length) {
+        leafletRender(leafletCurrentIndex + 1);
+      }
+    };
+    var leafletGoPrev = function () {
+      if (leafletCurrentIndex - 1 >= 0) {
+        leafletRender(leafletCurrentIndex - 1);
+      }
+    };
+
+    var leafletOpen = function (triggerEl, index, singleItem) {
+      leafletReturnFocusEl = triggerEl;
+      if (singleItem) {
+        leafletIsSingle = true;
+        leafletActiveData = [singleItem];
+        leafletSetNavVisible(false);
+        leafletRender(0);
+      } else {
+        leafletIsSingle = false;
+        leafletActiveData = leafletFullData;
+        leafletSetNavVisible(true);
+        leafletRender(index);
+      }
+      leafletDialog.showModal();
+      if (leafletCloseBtn) leafletCloseBtn.focus();
+      document.documentElement.style.overflow = "hidden";
+    };
+
+    /*
+     * Close handling is entirely explicit — not built on <dialog>'s
+     * native "close" event. Verified live during implementation that
+     * this event does not fire in the browser used to test this
+     * feature, even from a direct, real dialog.close() method call
+     * (confirmed with a synchronous check plus a 100ms wait, ruling out
+     * a timing issue) — so nothing here depends on it. leafletClose()
+     * is the one function every close path calls; it runs cleanup
+     * itself immediately rather than waiting on an event that may not
+     * arrive.
+     */
+    var leafletClose = function () {
+      leafletDialog.close();
+      document.documentElement.style.overflow = "";
+      leafletImage.setAttribute("src", "");
+      if (leafletReturnFocusEl) leafletReturnFocusEl.focus();
+    };
+
+    if (leafletNextBtn) leafletNextBtn.addEventListener("click", leafletGoNext);
+    if (leafletPrevBtn) leafletPrevBtn.addEventListener("click", leafletGoPrev);
+    if (leafletCloseBtn) leafletCloseBtn.addEventListener("click", leafletClose);
+
+    /* Click landing on the <dialog> element itself (not one of its
+       button/stage children) is "outside the image" — see
+       lightbox.php's own comment on why the markup structure makes this
+       check work. */
+    leafletDialog.addEventListener("click", function (e) {
+      if (e.target === leafletDialog) {
+        leafletClose();
+      }
+    });
+
+    /*
+     * Escape and the Tab focus trap are both explicit here for the same
+     * reason as leafletClose() above — verified live that a real,
+     * trusted Escape keypress did not close the dialog natively in the
+     * browser used to test this (confirmed with the automation tool's
+     * genuine OS-level key-press action, not a synthetic KeyboardEvent,
+     * which would not be a fair test of native browser default actions
+     * either way). Rather than trust each browser's own level of
+     * <dialog> support, both behaviors are implemented directly so they
+     * work identically everywhere.
+     */
+    leafletDialog.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        leafletClose();
+        return;
+      }
+      if (e.key === "Tab") {
+        var focusable = leafletDialog.querySelectorAll(
+          'button:not([hidden]), a[href]'
+        );
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+      /* Physical Left/Right arrow keys mapped to whichever control is
+         visually on that side, read from the page's actual computed
+         direction at runtime rather than hardcoded — confirmed against
+         this site's own default dir="rtl": "next" (older) sits visually
+         left, "previous" (newer) visually right; reversed under
+         dir="ltr". */
+      if (leafletIsSingle) return;
+      if (e.key === "ArrowLeft") {
+        leafletIsRtl() ? leafletGoNext() : leafletGoPrev();
+      } else if (e.key === "ArrowRight") {
+        leafletIsRtl() ? leafletGoPrev() : leafletGoNext();
+      }
+    });
+
+    /* Touch/swipe — real drag-distance tracking (touchstart -> touchend
+       delta), not a swipe-triggers-click hack. */
+    var leafletTouchStartX = null;
+    leafletDialog.addEventListener(
+      "touchstart",
+      function (e) {
+        if (leafletIsSingle || e.touches.length !== 1) return;
+        leafletTouchStartX = e.touches[0].clientX;
+      },
+      { passive: true }
+    );
+    leafletDialog.addEventListener(
+      "touchend",
+      function (e) {
+        if (leafletIsSingle || leafletTouchStartX === null) return;
+        var touch = e.changedTouches && e.changedTouches[0];
+        var startX = leafletTouchStartX;
+        leafletTouchStartX = null;
+        if (!touch) return;
+        var deltaX = touch.clientX - startX;
+        var threshold = 40;
+        if (Math.abs(deltaX) < threshold) return;
+        // Swiping toward reading-start (right-to-left drag, deltaX < 0)
+        // moves forward in an RTL reading order -> older/next; the
+        // opposite drag -> newer/previous. Reversed under dir="ltr".
+        if (deltaX < 0) {
+          leafletIsRtl() ? leafletGoNext() : leafletGoPrev();
+        } else {
+          leafletIsRtl() ? leafletGoPrev() : leafletGoNext();
+        }
+      },
+      { passive: true }
+    );
+
+    document.addEventListener("click", function (e) {
+      var trigger = e.target.closest("[data-leaflet-trigger]");
+      if (!trigger) return;
+      e.preventDefault();
+      if (trigger.hasAttribute("data-leaflet-index")) {
+        leafletOpen(trigger, parseInt(trigger.getAttribute("data-leaflet-index"), 10) || 0, null);
+      } else {
+        leafletOpen(trigger, 0, {
+          image: trigger.getAttribute("data-leaflet-image") || "",
+          caption: trigger.getAttribute("data-leaflet-caption") || "",
+          date: trigger.getAttribute("data-leaflet-date") || "",
+          alt: trigger.getAttribute("data-leaflet-alt") || ""
+        });
+      }
+    });
   }
 })();

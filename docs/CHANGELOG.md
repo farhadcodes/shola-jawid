@@ -9891,3 +9891,256 @@ trail of *why* the build deviated from — or newly applied — a rule in
   cap no longer trusts WP_Query's result count alone.
   Theme version bumped 1.28.2 → 1.28.3 (patch).
   Approved by: Farhad, in this session (2026-09-16).
+
+## 2026-09-17 — New feature: تراکت (Leaflets) — Part 1, CPT/archive/homepage teaser
+- **Added:** Farhad relayed a client request to track propaganda/campaign
+  visual materials (leaflets, banners, posters for demonstrations/
+  protests) as a new dedicated, flat, reverse-chronological section —
+  non-technical staff upload directly through wp-admin. Full written
+  plan (CPT fields, file list, visual treatment, pagination mechanism,
+  RTL approach, breakpoint test plan, open questions) presented and
+  approved before any code was written, per this project's standing
+  discipline.
+  New `leaflet` CPT (`class-post-types.php`) — modeled directly on
+  `party_publication` (no taxonomy, `has_archive => false`, flat
+  rewrite slug `/leaflets/%postname%/`) — audited this project's other
+  flat, uncategorized CPTs rather than inventing a new pattern.
+  `supports => array( 'title', 'thumbnail' )` only — no excerpt, no
+  editor; the featured image is the content, the optional title is a
+  short caption, and this keeps the wp-admin edit screen down to just a
+  title field + featured-image box for non-technical uploaders, with no
+  custom meta box needed. Ordering is purely native `post_date`
+  descending — no counter/numbering field; staff can backdate an
+  entry's `post_date` via the standard Publish box for a leaflet
+  uploaded well after the protest it was made for (confirmed with
+  Farhad).
+  New `shola_get_leaflets_query()` (inc/template-tags.php), shared by
+  the archive and the homepage teaser so they can't drift on what counts
+  as a real, displayable entry — excludes any leaflet with no featured
+  image via a `_thumbnail_id EXISTS` meta_query (Farhad's explicit
+  call: an entry with no image isn't a real leaflet yet, so it's
+  excluded outright rather than falling back to
+  shola_get_featured_image()'s generic placeholder).
+  New `page-leaflets.php` (modeled on `page-library.php`'s static-Page-
+  + WP_Query pattern) and `template-parts/leaflets/leaflet-item.php` —
+  deliberately outside `template-parts/cards/`, since this isn't a card
+  anatomy: no boxed container, no dek/byline block, just an image at its
+  own real aspect ratio (no fixed crop — leaflets/banners/posters vary
+  too widely in shape to force into one box) plus a caption below, per
+  the Aeon "whitespace and typography, not containers" principle. The
+  page's one distinguishing rhythm: captions alternate reading-start/
+  reading-end position via CSS `:nth-child`, ≥1000px only (main.css §31)
+  — built entirely with logical properties (`margin-inline-start/-end`),
+  verified by temporarily forcing `dir="ltr"` on the page to confirm the
+  alternation still mirrors correctly.
+  Pagination: a single "بارگذاری بیشتر" next-page link (reusing the
+  existing `.btn-ghost` component), not a numbered pager and not true
+  fetch-based infinite scroll — a plain server-rendered next-page link
+  works with JavaScript fully disabled, matching this site's existing
+  progressive-enhancement floor, and avoids introducing this project's
+  first AJAX-pagination pattern for a single-feature archive. Auto-
+  provisioned as a real WP Page via `shola_maybe_seed_leaflets_page()`
+  (inc/setup.php), same one-time-seed pattern as `/selected/`.
+  Deliberately **not** added to any nav menu location yet — Farhad's
+  explicit instruction: reachable only via the homepage teaser link for
+  now, pending a separate confirmation with the client about whether it
+  belongs in the main navigation; the page has no dependency on being in
+  a menu, so one can be added later with zero rework.
+  Homepage teaser (front-page.php): single latest leaflet only (`posts_
+  per_page => 1`), placed directly after the تازه‌ترین مقالات section
+  (which پرخواننده‌ترین/Most Viewed is embedded inside, not a separate
+  top-level section — confirmed by reading the actual markup before
+  picking this insertion point). Solid `--ink` background, not
+  `--winston-red` — Farhad's explicit call: گزیده‌ها, immediately above
+  this section on the homepage, already spends this site's one
+  deliberately-rationed crimson accent on a solid background; a second
+  one here would spend that same "loud, meaningful accent" signal twice
+  on one page. `--ink` (one of the same eleven locked tokens) gives this
+  section its own strong, distinct weight without competing with
+  گزیده‌ها.
+  Audit findings surfaced during planning, not assumed: `docs/
+  decisions-and-learnings.md` (referenced in the task brief) does not
+  exist anywhere in this repo — the `has_archive => false` pattern was
+  instead verified directly against the real `issue`/`document`/
+  `party_publication`/`party_document` registrations. `render_grid()`
+  exists in this codebase but is a private method on the unrelated
+  `Video_Guide` class, not a general homepage-module helper — every
+  actual homepage module (Most Viewed, اطلاعیه spotlight) is a plain
+  inline `WP_Query` + `get_template_part()` in front-page.php, which is
+  the real pattern this feature follows instead.
+  Verified: homepage and the archive page load with zero PHP errors
+  (checked via network request status and rendered output) with no
+  leaflets yet published — the teaser correctly stays hidden via the
+  same `have_posts()` guard every other homepage section already uses.
+  Full breakpoint/alternating-caption/RTL-mirroring verification is
+  pending at least one real تراکت entry with a featured image — noted as
+  outstanding rather than assumed passing from code review alone.
+  Theme version bumped 1.28.3 → 1.29.0 (minor: new CPT-backed page +
+  homepage section). Plugin version bumped alongside it (new `leaflet`
+  CPT registration) — see the Part 2 entry just below for the combined
+  plugin version number, since both parts landed in the same review
+  pass.
+  Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-17 (same session) — تراکت Part 2: upload-time image optimization
+- **Added:** Per the same approved plan, automatic server-side
+  optimization for تراکت featured-image uploads, scoped to the `leaflet`
+  CPT only (Farhad's explicit scope decision — other content types'
+  uploads, with their own already-tuned image sizes and more experienced
+  uploaders, are untouched). New `\SholaCore\Image_Optimizer`
+  (`includes/class-image-optimizer.php`), built entirely on
+  `WP_Image_Editor` — WordPress's own image-library abstraction, which
+  auto-selects Imagick when available and falls back to GD transparently
+  — so this code never needs to know or check which library is actually
+  active on the host.
+  **Hook point refined during implementation, not as originally
+  written in the plan:** the plan's candidate hooks were
+  `wp_handle_upload` and/or `intermediate_image_sizes_advanced`/
+  `image_editor_output_format`. Building it surfaced a real problem with
+  both: `wp_generate_attachment_metadata`-family filters fire *after*
+  WordPress has already generated every intermediate size from the
+  original file, too late to influence subsize generation; and
+  `add_attachment` (fires early enough, with a reliable `post_parent` in
+  *some* upload flows) turned out not to reliably carry `post_parent` in
+  the one flow non-technical staff actually use — the block editor's
+  "Set featured image" panel typically uploads as an unattached
+  attachment first, then links it via `set_post_thumbnail()` as a
+  separate step. Hooking `added_post_meta`/`updated_post_meta` on
+  `_thumbnail_id` instead triggers off "this is now the leaflet's
+  image," not off upload timing, so it covers every upload flow
+  uniformly. If the file needs changing, `wp_generate_attachment_
+  metadata()` is explicitly re-run afterward so any subsizes already
+  generated from the pre-optimization original are correctly
+  regenerated from the optimized file (same deterministic filenames —
+  nothing left orphaned on disk).
+  Values, all as proposed and confirmed: max long edge 2000px (checked
+  against this theme's own `--wrap-wide`, 1200px, and the existing
+  `shola_hero_wide` full-bleed precedent, 1920px — 2000px covers a
+  full-bleed leaflet image at ~1.67x pixel density without keeping a
+  phone-camera original at its full size); JPEG quality 82 (matches
+  WordPress core's own default since 5.3 — not a deviation, just made
+  explicit and documented rather than relying on an undocumented
+  default); skip-if-under 300KB; PNG→JPEG conversion for non-alpha PNGs
+  only.
+  PNG alpha-channel detection reads the PNG file's IHDR color-type byte
+  directly from the file header — a format-level check, not a library-
+  specific API, so it behaves identically under Imagick or GD.
+  Deliberately conservative: only color types 0 (grayscale) and 2
+  (truecolor) — the two types that can never carry transparency — are
+  converted; palette PNGs (type 3, which *can* carry a `tRNS`
+  transparency chunk) are left alone rather than risk silently
+  flattening a genuinely-transparent image to an opaque JPEG.
+  Retroactive-safety: this hook only ever fires when a `leaflet` post's
+  featured image is actually set, which only happens going forward —
+  structurally incapable of touching already-uploaded media, not just
+  by intention.
+  Risks checked per the approved plan: no existing image-related filter
+  anywhere in this codebase (confirmed via repo-wide grep) — no
+  collision risk; `shola_get_featured_image()` calls `get_the_post_
+  thumbnail()` unchanged, which already transparently serves whichever
+  intermediate sizes exist — nothing about its contract changes.
+  Site Health → Info → Media Handling's "Active editor" value (Imagick
+  vs. GD) was not confirmed directly this session — Farhad to report it
+  separately; the implementation above does not depend on the answer
+  either way.
+  Plugin version bumped 1.16.1 → 1.18.0 (minor: covers both this
+  session's plugin-side additions — the `leaflet` CPT registration from
+  the entry above, and this new class + hook registration).
+  Approved by: Farhad, in this session (2026-09-17).
+
+## 2026-09-17 (same session) — تراکت fullscreen lightbox
+- **Added:** Farhad flagged that clicking a تراکت on the archive page
+  opened the raw image file with no site chrome — traced to the
+  homepage teaser's link falling through WordPress's template hierarchy
+  to `single.php` (built for articles, expecting content/excerpt a
+  leaflet doesn't have), since no `single-leaflet.php` exists; the
+  archive item's own `<img>` had no link at all. Full written plan
+  (technical approach, RTL arrow-direction audit, color tokens, caption
+  layout per breakpoint, conditional-caption mechanism, lazy-loading
+  approach, accessibility specifics) presented and approved before any
+  code was written.
+  Built on a native `<dialog>` (not a hand-built overlay `<div>` or a
+  third-party library) for the real modal top-layer element and
+  implicit dialog role it provides for free. Every thumbnail (archive +
+  homepage teaser) now wraps in `<a href="{full-size image URL}">` —
+  the complete no-JS fallback: with JavaScript disabled this is just a
+  plain link to the image file; `main.js` intercepts it when JS is
+  available.
+  Two real bugs found and fixed live during implementation, not just
+  assumed working from the written plan:
+  1. **Navigation race with the existing page-loader click handler**
+     (main.js): that handler treats any same-origin `<a href>` as an
+     ordinary internal link, calls its own `preventDefault()`, and
+     schedules its own `window.location.href` navigation — running
+     *before* the lightbox's own (later-registered) click handler ever
+     got a chance to intercept the click. The lightbox opened for an
+     instant, then the page navigated to the raw image anyway once that
+     scheduled navigation fired. Fixed by adding one exclusion line to
+     that handler's existing skip-list (`data-leaflet-trigger`), the
+     same pattern it already uses for wpadminbar/download/mailto links.
+  2. **`<dialog>`'s native "close" event and native Escape-to-close did
+     not fire/work** in the browser used to test this feature — verified
+     directly, not assumed: a real, trusted Escape keypress (via the
+     browser automation tool's genuine OS-level key action, not a
+     synthetic `KeyboardEvent`, which wouldn't be a fair test of a
+     native default action) left the dialog open; a direct
+     `dialog.close()` method call didn't fire a `close` event even after
+     a 100ms wait. Rather than trust each browser's own level of
+     `<dialog>` support, both Escape-to-close and the Tab focus trap are
+     now implemented explicitly in `main.js` (a single `leafletClose()`
+     function every close path calls directly, and a manual
+     first/last-focusable-element wrap on Tab/Shift+Tab), so the feature
+     works identically regardless of native support quality.
+   RTL arrow-direction confirmed against `page-selected.php`'s own real
+  pagination (`'prev_text' => '→', 'next_text' => '←'`) rather than
+  assumed: "next" (chronologically older) is left-pointing at the
+  reading-end side, "previous" (newer) is right-pointing at the
+  reading-start side — `inset-inline-start/-end`, mirrors correctly
+  under `dir="ltr"` with zero changes (verified live by forcing it).
+  Keyboard arrows and swipe direction both read the page's actual
+  computed `direction` at runtime rather than hardcoding RTL, and were
+  verified under both directions: ArrowRight under forced `dir="ltr"`
+  correctly moved to the older item, ArrowLeft correctly no-opped at
+  the boundary (already at the newest item).
+  Conditional caption: `page-leaflets.php` builds one JSON array from
+  the already-fetched query results (no duplicate query); the `caption`
+  key is only ever added when `trim( get_the_title() )` is non-empty.
+  In `main.js`, the title/caption `<p>` is only ever created via
+  `document.createElement` when `item.caption` is truthy — never
+  created-then-hidden. Verified with an isolated test harness running
+  the exact same rendering code against a with-caption and a
+  without-caption item (both real test تراکت entries happened to have
+  titles, so this validated the empty-caption path directly rather than
+  leaving it unverified): confirmed 1 title element created for the
+  with-caption case, 0 for the without-caption case — not hidden, not
+  present in the DOM at all. The caption container itself always has at
+  least the date paragraph (native `post_date` is never empty), so it's
+  never left as an empty box either way.
+  Homepage teaser: single-image mode confirmed live — its trigger link
+  carries no `data-leaflet-index`, so `main.js` reads its own
+  `data-leaflet-*` attributes directly and hides both nav arrows,
+  matching Part 1's "single latest entry, not a mini-gallery" spec.
+  Prev/next in the archive lightbox is capped to the current page's own
+  loaded batch, never reaching across a "بارگذاری بیشتر" page boundary,
+  per Farhad's explicit confirmation.
+  Design: sharp corners throughout (no circular buttons — this site's
+  own locked "no rounded/pill elements anywhere" discipline, corrected
+  from a rounded-button idea floated in the plan draft before
+  implementation); overlay scrim and caption gradient built from
+  `--ink`/`--paper` only, no new colors; 44×44px touch targets for
+  close/prev/next at every breakpoint, not just mobile. No open/close/
+  transition animation was added — a plain instant show/hide already
+  trivially satisfies `prefers-reduced-motion` (nothing to reduce),
+  consistent with this project's general restraint on decorative motion.
+  Verified: no horizontal overflow at 375px (mobile), 820px (tablet),
+  and 1400px (desktop) — `document.body.scrollWidth` === `clientWidth`
+  at each; focus moves to the close button on open and returns to the
+  exact triggering link on close; Tab/Shift+Tab cycling stays within the
+  dialog's three controls (confirmed via real Tab keypresses, not
+  synthetic events).
+  New files: `template-parts/leaflets/lightbox.php`. Modified:
+  `template-parts/leaflets/leaflet-item.php`, `front-page.php`,
+  `page-leaflets.php`, `assets/js/main.js`, `assets/css/main.css` (new
+  §32).
+  Theme version bumped for this feature — see style.css.
+  Approved by: Farhad, in this session (2026-09-17).

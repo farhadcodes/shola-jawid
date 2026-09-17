@@ -1,7 +1,7 @@
 <?php
 /**
- * Registers the issue, document, party_publication, party_document, and
- * announcement custom post types.
+ * Registers the issue, document, party_publication, party_document,
+ * leaflet, and announcement custom post types.
  *
  * Regular articles/notes (مقاله/یادداشت) use WP's native `post` type per
  * the IA doc's content model — no CPT needed there, only the `topic`
@@ -314,6 +314,67 @@ class Post_Types {
 				'taxonomies'   => array( 'party_document_category' ),
 				'rewrite'      => array(
 					'slug'       => 'party-documents',
+					'with_front' => false,
+				),
+			)
+		);
+
+		/*
+		 * تراکت (leaflet) — added 2026-09-17, per Farhad relaying a client
+		 * request to track propaganda/campaign visual materials (leaflets,
+		 * banners, posters for demonstrations/protests) as their own flat,
+		 * reverse-chronological stream — not a categorized archive like
+		 * `document`/کتابخانه. Modeled directly on `party_publication`
+		 * above (no taxonomy, `has_archive => false`, flat rewrite slug) —
+		 * the closest existing precedent for "a simple content type with
+		 * no sub-categorization." Deliberately no taxonomy: audited this
+		 * project's other flat streams before assuming one wasn't needed,
+		 * and confirmed nothing in the client's brief implies grouping —
+		 * add one later if that changes rather than guessing at categories
+		 * now (same reasoning `party_publication`'s own comment already
+		 * gives for its own lack of a taxonomy).
+		 *
+		 * `supports => array( 'title', 'thumbnail' )` only — no excerpt, no
+		 * editor. The featured image *is* the content (the leaflet/banner/
+		 * poster itself); the optional title field alone serves as a short
+		 * caption, per the client's spec. This also keeps the admin
+		 * edit-screen down to just a title field + featured-image box —
+		 * the simplest possible screen for non-technical uploaders, with
+		 * no custom meta box needed to achieve that (WordPress's own
+		 * default screen already reduces to this once those two supports
+		 * are the only ones declared).
+		 *
+		 * Ordering is purely chronological by native `post_date`,
+		 * descending — no custom numbering/counter meta field exists or is
+		 * needed, and staff can backdate an entry's `post_date` via the
+		 * standard Publish box if a leaflet is uploaded well after the
+		 * protest/demonstration it was made for (confirmed with Farhad,
+		 * 2026-09-17 — no new field required for this either).
+		 */
+		register_post_type(
+			'leaflet',
+			array(
+				'labels'       => array(
+					'name'               => __( 'تراکت‌ها', 'shola-core' ),
+					'singular_name'      => __( 'تراکت', 'shola-core' ),
+					'add_new'            => __( 'افزودن تراکت', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن تراکت جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش تراکت', 'shola-core' ),
+					'new_item'           => __( 'تراکت جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ تراکت', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی تراکت‌ها', 'shola-core' ),
+					'not_found'          => __( 'تراکتی یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'تراکتی در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ تراکت‌ها', 'shola-core' ),
+					'menu_name'          => __( 'تراکت‌ها', 'shola-core' ),
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'has_archive'  => false,
+				'menu_icon'    => 'dashicons-media-default',
+				'supports'     => array( 'title', 'thumbnail' ),
+				'rewrite'      => array(
+					'slug'       => 'leaflets',
 					'with_front' => false,
 				),
 			)

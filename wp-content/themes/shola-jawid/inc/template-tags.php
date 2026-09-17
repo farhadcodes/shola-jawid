@@ -1023,6 +1023,38 @@ function shola_get_selected_query( $extra_args = array() ) {
 }
 
 /**
+ * Shared query for تراکت (leaflet) — added 2026-09-17, used by both
+ * front-page.php's single-latest homepage teaser and page-leaflets.php's
+ * full "بارگذاری بیشتر" archive, so the two can't drift on what counts as
+ * a real, displayable تراکت entry.
+ *
+ * Excludes any leaflet with no featured image via a `_thumbnail_id EXISTS`
+ * meta_query — confirmed with Farhad (2026-09-17) rather than falling back
+ * to shola_get_featured_image()'s generic placeholder: for this content
+ * type the featured image *is* the content, so an entry with none isn't a
+ * real leaflet yet (most likely mid-upload by a non-technical staff
+ * member), not something to show with a placeholder image standing in.
+ *
+ * @param array $extra_args Additional/overriding WP_Query args (e.g. `posts_per_page`, `paged`).
+ * @return WP_Query
+ */
+function shola_get_leaflets_query( $extra_args = array() ) {
+	$args = array(
+		'post_type'  => 'leaflet',
+		'orderby'    => 'date',
+		'order'      => 'DESC',
+		'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- single EXISTS clause on a native, indexed postmeta key.
+			array(
+				'key'     => '_thumbnail_id',
+				'compare' => 'EXISTS',
+			),
+		),
+	);
+
+	return new WP_Query( array_merge( $args, $extra_args ) );
+}
+
+/**
  * Renders the homepage hero's kicker/title/dek/date block — identical
  * markup between the `single` and `lead_rail` hero_section layouts
  * (front-page.php), only what wraps around it differs. Pulled into one

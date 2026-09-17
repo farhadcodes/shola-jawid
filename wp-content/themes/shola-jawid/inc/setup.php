@@ -323,6 +323,51 @@ function shola_maybe_seed_selected_page() {
 add_action( 'admin_init', 'shola_maybe_seed_selected_page' );
 
 /**
+ * One-time seed for the تراکت‌ها (Leaflets) archive page — added
+ * 2026-09-17, same reasoning/pattern as shola_maybe_seed_selected_page()
+ * above: auto-create the real WP Page and assign it `page-leaflets.php` so
+ * the archive exists and is reachable from day one.
+ *
+ * Deliberately not added to any nav menu location here — Farhad's
+ * explicit instruction (2026-09-17) was to leave this reachable only via
+ * the homepage teaser's link for now, pending a separate confirmation with
+ * the client about whether it belongs in the main navigation. The page
+ * itself has no dependency on being in a menu, so it can be added to one
+ * later with zero rework.
+ *
+ * @return void
+ */
+function shola_maybe_seed_leaflets_page() {
+	if ( get_option( 'shola_seeded_leaflets_page' ) ) {
+		return;
+	}
+
+	$existing = get_page_by_path( 'leaflets' );
+	if ( $existing ) {
+		update_option( 'shola_seeded_leaflets_page', true );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_title'   => __( 'تراکت‌ها', 'shola-jawid' ),
+			'post_name'    => 'leaflets',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => '',
+		)
+	);
+
+	if ( is_wp_error( $page_id ) || ! $page_id ) {
+		return;
+	}
+
+	update_post_meta( $page_id, '_wp_page_template', 'page-leaflets.php' );
+	update_option( 'shola_seeded_leaflets_page', true );
+}
+add_action( 'admin_init', 'shola_maybe_seed_leaflets_page' );
+
+/**
  * Adds an اسناد حزب item to the already-seeded «بخش‌ها» (menu_sections)
  * popup-menu location — added 2026-09-04 alongside the new
  * `party_document` CPT. shola_maybe_seed_nav_menus() above only ever

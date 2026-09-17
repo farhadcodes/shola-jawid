@@ -3891,3 +3891,205 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     opacity: .85;
   }
 }
+
+/* -------------------------------------------------------------------------
+   ۳۱ · تراکت (Leaflets) — archive stream + homepage teaser
+   (page-leaflets.php, front-page.php; added 2026-09-17)
+   -------------------------------------------------------------------------
+   Aeon "no boxed cards, no shadows, no icon clutter" principle applied
+   deliberately here: structure comes from whitespace/image scale/type,
+   not containers — same discipline already documented at .card (§09)
+   taken one step further (not even a shared top border between entries).
+   Every image renders at its own real aspect ratio (no fixed box, no
+   object-fit crop) since leaflets/banners/posters vary widely in shape
+   and the image *is* the content, not a thumbnail beside text. */
+.leaflet-stream { display: flex; flex-direction: column; gap: 4rem; }
+.leaflet-item { display: flex; flex-direction: column; }
+.leaflet-item-image { width: 100%; height: auto; display: block; }
+.leaflet-item-meta {
+  margin-block-start: 1rem;
+  max-width: 28rem;
+}
+.leaflet-item-caption {
+  color: var(--ink-soft);
+  font-size: var(--t-small);
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+.leaflet-item .card-byline { color: var(--stone); }
+/*
+ * Alternating caption position, ≥1000px only (this project's laptop/
+ * desktop breakpoint, main.css §09) — the one distinguishing rhythm this
+ * page's design brief asked for: odd entries' caption stays at the
+ * reading-start margin (the default, set above); even entries push to
+ * the reading-end side instead. margin-inline-start (not a physical
+ * left/right value) so this mirrors correctly under dir="ltr" with zero
+ * changes — verified by temporarily forcing dir="ltr" on this page.
+ * Below 1000px every entry stays reading-start-aligned; there isn't
+ * enough column width for the alternation to read as a deliberate
+ * rhythm rather than a distracting jitter at narrower widths.
+ */
+@media (min-width: 1000px) {
+  .leaflet-item:nth-child(even) .leaflet-item-meta {
+    margin-inline-start: auto;
+    margin-inline-end: 0;
+  }
+}
+.leaflet-load-more { display: flex; justify-content: center; margin-block-start: 3rem; }
+
+/*
+ * Homepage teaser — solid --ink (not --winston-red): گزیده‌ها (main.css
+ * §11), immediately above this section on the homepage, already spends
+ * this site's one deliberately-rationed crimson accent on a solid
+ * background; stacking a second one here would spend that same "loud,
+ * meaningful accent" signal twice on one page. --ink gives this section
+ * its own strong, distinct weight without competing with گزیده‌ها.
+ */
+.sect-leaflet-teaser { background: var(--ink); color: var(--paper); }
+.sect-leaflet-teaser .section-marker,
+.sect-leaflet-teaser .h-section { color: var(--paper); }
+.sect-leaflet-teaser .section-marker::before { background: var(--paper); }
+.sect-leaflet-teaser .dek { color: rgba(255, 255, 255, .85); }
+.sect-leaflet-teaser .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+.sect-leaflet-teaser .link-more:hover { color: var(--paper); border-color: var(--paper); }
+.leaflet-teaser { display: flex; flex-direction: column; gap: 1.5rem; }
+.leaflet-teaser-media { display: block; }
+.leaflet-teaser-media img { width: 100%; height: auto; display: block; }
+.leaflet-teaser-body { display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; }
+.leaflet-teaser-body .h-section { margin-top: .5rem; }
+@media (min-width: 1000px) {
+  /* Side-by-side at desktop, same DOM-order-not-physical-property
+     technique already used site-wide for RTL: the media link comes
+     first in the markup, so it lands on the reading-start side (visual
+     right in this RTL site) with no hardcoded left/right. */
+  .leaflet-teaser { flex-direction: row; align-items: center; gap: 3rem; }
+  .leaflet-teaser-media { flex: 0 0 42%; }
+  .leaflet-teaser-body { flex: 1; }
+}
+
+/* -------------------------------------------------------------------------
+   ۳۲ · گالری تمام‌صفحهٔ تراکت (fullscreen leaflet lightbox)
+   (template-parts/leaflets/lightbox.php, main.js; added 2026-09-17)
+   -------------------------------------------------------------------------
+   Sharp corners throughout, no exceptions — every control below is a
+   plain square, not the circular button this feature's own plan draft
+   first floated: this site's whole visual language has no rounded/pill
+   elements anywhere (main.css §07's own comment on this), and nothing
+   about this feature was ever an explicitly-approved exception to that.
+   No open/close/transition animation is added anywhere in this section —
+   a plain instant show/hide already trivially satisfies prefers-reduced-
+   motion (there's nothing to reduce), consistent with this project's own
+   general restraint on decorative motion; the one exception (the
+   filmstrip's auto-drift, main.css §10.5) was a specific client request,
+   not the default here. */
+.leaflet-lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+/* Only visible as a fallback in the unlikely case a browser paints the
+   native ::backdrop before/without the dialog's own full-viewport
+   background — same --ink either way, so there is never a visible seam. */
+.leaflet-lightbox::backdrop { background: var(--ink); }
+.leaflet-lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.leaflet-lightbox-stage {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+}
+/*
+ * object-fit: contain, not cover — this is the same real-content-at-its-
+ * own-proportions principle already established for the archive stream
+ * (main.css §31): the lightbox must show the leaflet "at as high a
+ * quality as the optimized file allows," uncropped, whatever its shape.
+ */
+.leaflet-lightbox-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100vh;
+  object-fit: contain;
+  margin-inline: auto;
+}
+/*
+ * Bottom-anchored caption bar — one unified treatment scaled per
+ * breakpoint (Farhad's explicit choice over a separate desktop side-
+ * panel layout), not overlapping enough of the image to hide meaningful
+ * content: a slim gradient strip at the very bottom edge only. The
+ * container itself always has at least the date paragraph (native
+ * post_date is never empty, main.js), so it is never an empty box —
+ * the title/caption paragraph inside it is the only conditional part
+ * (created only when that entry has real caption text, main.js).
+ */
+.leaflet-lightbox-caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 1.5rem 1.25rem 1rem;
+  background: linear-gradient(to top, rgba(15, 15, 15, .85), rgba(15, 15, 15, 0));
+  text-align: center;
+}
+.leaflet-lightbox-title {
+  font-family: var(--font-fa);
+  font-weight: 700;
+  font-size: var(--t-small);
+  color: var(--paper);
+  margin: 0 0 .25rem;
+}
+.leaflet-lightbox-date {
+  font-family: var(--font-nav);
+  font-size: var(--t-caption);
+  color: rgba(255, 255, 255, .75);
+  margin: 0;
+}
+/*
+ * 44x44px — this project's own cited minimum comfortable touch-target
+ * size, applied uniformly at every breakpoint (not just mobile) so the
+ * same controls work identically as click targets on desktop and tap
+ * targets on tablet/mobile, per the design brief's explicit "visible
+ * controls at every breakpoint, not swipe/keyboard-only" instruction.
+ */
+.leaflet-lightbox-close,
+.leaflet-lightbox-nav {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, .12);
+  color: var(--paper);
+  border: 0;
+  transition: background var(--dur) var(--ease);
+}
+.leaflet-lightbox-close:hover,
+.leaflet-lightbox-nav:hover { background: rgba(255, 255, 255, .22); }
+.leaflet-lightbox-close svg,
+.leaflet-lightbox-nav svg { width: 22px; height: 22px; }
+.leaflet-lightbox-close { top: 1rem; inset-inline-end: 1rem; }
+/*
+ * Arrow position confirmed against page-selected.php's own real
+ * pagination ('prev_text' => '→', 'next_text' => '←') — "previous"
+ * (newer) sits at the reading-start side (visual right in this RTL
+ * site), "next" (older) at the reading-end side (visual left).
+ * inset-inline-*, not left/right, so this mirrors correctly under
+ * dir="ltr" with zero changes — verified live by forcing dir="ltr".
+ */
+.leaflet-lightbox-nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.leaflet-lightbox-prev { inset-inline-start: 1rem; }
+.leaflet-lightbox-next { inset-inline-end: 1rem; }
