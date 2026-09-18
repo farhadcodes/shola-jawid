@@ -48,7 +48,7 @@ $rest     = array_slice( $announcements, 0, 2 );
 	<div class="card-spotlight-body">
 		<p class="type-label">
 			<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-			<span><?php esc_html_e( 'اطلاعیه و بیانیه', 'shola-jawid' ); ?></span>
+			<span><?php esc_html_e( 'اطلاعیه‌ها و بیانیه‌ها', 'shola-jawid' ); ?></span>
 		</p>
 		<div class="card-spotlight-item card-spotlight-item--featured">
 			<span class="card-spotlight-index" aria-hidden="true"><?php echo esc_html( shola_to_persian_digits( 1 ) ); ?></span>

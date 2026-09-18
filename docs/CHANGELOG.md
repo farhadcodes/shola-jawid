@@ -10463,3 +10463,11 @@ trail of *why* the build deviated from — or newly applied — a rule in
   specific post as its type, not a section heading. Verified live.
   Theme version bumped 1.32.2 -> 1.32.3 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: corrected homepage spotlight type-label to exact requested text
+- **Fixed:** the previous entry's "اطلاعیه و بیانیه" (singular, my own
+  guess at matching grammar) was corrected to "اطلاعیه‌ها و بیانیه‌ها"
+  (plural) -- Farhad gave the exact text directly, matching the archive
+  page's h1 exactly. Verified live.
+  Theme version bumped 1.32.3 -> 1.32.4 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
