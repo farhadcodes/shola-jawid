@@ -10552,3 +10552,21 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.33.0 -> 1.34.0 (minor: query + typography
   behavior change).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: bigger minimal_cover hero floating card, red title bar
+- **Changed:** `.hero-pub-card-minimal` (the floating publication card on
+  the `minimal_cover` hero layout, ≥901px only) -- per Farhad's
+  annotated screenshot: width raised 220px -> 250px (~14% larger, his
+  requested "10-15%"); cover keeps its existing 2/3 aspect-ratio so
+  height scales with it automatically, no other sizing needed changing.
+- **Changed:** `.hero-pub-card-minimal-title` (the title strip at the
+  top of that card) background changed from `--paper` (white) to
+  `--winston-red` (brand token), link text color changed from `--ink`
+  to `--paper` (white) to stay readable on the new red background.
+  Verified live at 1440px via computed styles: card width resolves to
+  250px, title background resolves to rgb(204,0,0) (--winston-red),
+  text color resolves to white -- matches the client's annotated
+  reference exactly. Scoped to this one hero layout/breakpoint only --
+  `overlay`'s own `.hero-pub-card` and the rail layouts are untouched.
+  Theme version bumped 1.34.0 -> 1.34.1 (patch: sizing + color change).
+  Approved by: Farhad, in this session (2026-09-18).
