@@ -10441,3 +10441,15 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `.card-spotlight { order: 1 }` rule untouched).
   Theme version bumped 1.32.0 -> 1.32.1 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: announcements archive page title updated
+- **Changed:** the h1 title on the اطلاعیه‌ها archive page
+  (archive-announcement.php) is now "اطلاعیه‌ها و بیانیه‌ها", Farhad's
+  explicit ask. Scoped to just that one h1 -- every nav/menu link
+  pointing at /announcements/ (header.php, the two-tier masthead, the
+  popup menu, single-announcement.php's tab) keeps the plain
+  "اطلاعیه‌ها" label, per Farhad's explicit "not in the menu, it is okay
+  there as is." Verified live: page h1 reads the new title, the utility
+  nav link text is unchanged.
+  Theme version bumped 1.32.1 -> 1.32.2 (patch).
+  Approved by: Farhad, in this session (2026-09-18).

@@ -35,7 +35,7 @@ $paged = max( 1, get_query_var( 'paged' ) );
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></h1>
+				<h1 class="h-page"><?php esc_html_e( 'اطلاعیه‌ها و بیانیه‌ها', 'shola-jawid' ); ?></h1>
 			</div>
 			<p class="dek"><?php esc_html_e( 'خبرهای نشریه، فراخوان‌های ارسال مقاله، و اعلان‌های عمومی.', 'shola-jawid' ); ?></p>
 		</header>
