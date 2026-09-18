@@ -3100,6 +3100,29 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   overflow: hidden;
 }
 
+/* .article-title--doc / .article-subtitle (2026-09-19) — scoped to the
+   three single-item templates that got a new optional subtitle field
+   (single-document.php/کتابخانه, single-party_publication.php,
+   single-party_document.php), per a client complaint relayed by Farhad:
+   long titles crammed into .article-title's clamp(2.1rem, 4.5vw, 3.25rem)
+   (up to 52px) looked oversized/ugly. Deliberately a separate modifier
+   class, not a change to .article-title itself — that shared class is
+   also used by single.php (articles), single-issue.php (نشریات), and
+   single-announcement.php, none of which this request touched. Plain
+   px values (35px / 25px) match Farhad's exact requested numbers, not a
+   clamp — this pair is meant to read as a fixed, deliberately smaller
+   size relative to the site's other single-item titles, not scale with
+   viewport the way the shared default does. */
+.article-title.article-title--doc { font-size: 2.1875rem; /* 35px */ }
+.article-subtitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink-soft);
+  font-size: 1.5625rem; /* 25px */
+  line-height: 1.4;
+  margin-top: .5rem;
+}
+
 .article-body {
   display: grid;
   gap: 3rem;

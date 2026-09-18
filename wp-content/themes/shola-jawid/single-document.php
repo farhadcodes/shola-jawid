@@ -20,6 +20,10 @@ while ( have_posts() ) :
 	$col_terms  = get_the_terms( get_the_ID(), 'collection' );
 	$collection = ( $col_terms && ! is_wp_error( $col_terms ) ) ? reset( $col_terms ) : false;
 	$author     = get_post_meta( get_the_ID(), 'shcore_author_source', true );
+	// Optional (2026-09-19) — see class-meta-fields.php's shcore_subtitle
+	// docblock: long titles split into title + subtitle so the large
+	// .article-title font-size doesn't have to carry the whole string.
+	$subtitle   = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
@@ -77,7 +81,10 @@ else :
 
 			<div>
 				<p class="badge-current"><?php esc_html_e( 'در کتابخانه', 'shola-jawid' ); ?></p>
-				<h1 class="article-title mt-sm"><?php the_title(); ?></h1>
+				<h1 class="article-title article-title--doc mt-sm"><?php the_title(); ?></h1>
+				<?php if ( $subtitle ) : ?>
+					<p class="article-subtitle"><?php echo esc_html( $subtitle ); ?></p>
+				<?php endif; ?>
 				<?php if ( has_excerpt() ) : ?>
 					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 				<?php endif; ?>

@@ -10615,3 +10615,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   exactly 6 article cards (plus spotlight/most-viewed) after the change.
   Theme version bumped 1.34.2 -> 1.34.3 (patch).
   Approved by: Farhad, in this session (2026-09-19).
+
+## 2026-09-19 -- feat: optional title/subtitle split for Library, Party Publications, Party Documents
+- **Added:** a new `shcore_subtitle` postmeta field (plugin, shola-core
+  1.19.0 -> 1.20.0) for exactly three content types: `document`
+  (کتابخانه), `party_publication` (انتشارات حزب), and `party_document`
+  (اسناد حزب) -- per a client complaint relayed by Farhad: some book/
+  document titles are long enough that the native Title field alone,
+  rendered at this page's large title font-size, looked oversized and
+  ugly. Deliberately not added to `issue` or `post` -- Farhad's explicit
+  scope was "just the library, publications, and documents sections."
+  New "زیرعنوان" (Subtitle) field added to each of those three post
+  types' existing metaboxes (class-meta-fields.php), directly under the
+  native Title box, optional, plain text.
+- **Changed:** `.article-title` (main.css) left untouched -- it's shared
+  by single.php (articles), single-issue.php (نشریات), and single-
+  announcement.php, none of which this request covers. Instead, a new
+  scoped modifier `.article-title--doc` (35px, Farhad's exact number,
+  down from the shared clamp's up-to-52px) and a new `.article-subtitle`
+  class (25px) were added and applied only in single-document.php,
+  single-party_publication.php, and single-party_document.php. Subtitle
+  renders directly under the title, conditionally -- only when an editor
+  actually filled in the new field, so existing items with no subtitle
+  are unaffected.
+  Verified live: the document single template resolves `.article-title`
+  to exactly 35px with the new `--doc` class; the regular article single
+  template (no `--doc` class) still resolves to its original clamped
+  size, confirming the two are correctly isolated.
+  Theme version bumped 1.34.3 -> 1.35.0 (minor: new field-driven display
+  behavior, not just a style tweak). Plugin version bumped 1.19.0 ->
+  1.20.0 (minor: new content-model field).
+  Approved by: Farhad, in this session (2026-09-19).

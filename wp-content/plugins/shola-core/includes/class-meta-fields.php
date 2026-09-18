@@ -125,7 +125,31 @@ class Meta_Fields {
 			)
 		);
 
+		/*
+		 * shcore_subtitle (2026-09-19) — added to `document`,
+		 * `party_publication`, and `party_document` only, per Farhad
+		 * relaying a client complaint: some book/document titles are long
+		 * enough that cramming the whole thing into the native Title field
+		 * rendered oversized and ugly on the single-item page (that page's
+		 * title font-size is large by design, meant for short titles).
+		 * Optional, plain text, no markup — admins now split a long title
+		 * into "main title" (native Title field, still required) and
+		 * "subtitle" (this field, optional) instead of one long string.
+		 * Not added to `issue` or `post` — Farhad's explicit scope was
+		 * "just the library, publications, and documents sections."
+		 */
 		// document.
+		register_post_meta(
+			'document',
+			'shcore_subtitle',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 		register_post_meta(
 			'document',
 			'shcore_author_source',
@@ -167,6 +191,17 @@ class Meta_Fields {
 		// theorist/author, so there's no one to attribute per-item.
 		register_post_meta(
 			'party_publication',
+			'shcore_subtitle',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_publication',
 			'shcore_pdf_id',
 			array(
 				'type'              => 'integer',
@@ -198,6 +233,17 @@ class Meta_Fields {
 		// that field. Date and title are likewise native (post_date,
 		// post_title). Only what has no native equivalent gets a meta key
 		// here: the serial number.
+		register_post_meta(
+			'party_document',
+			'shcore_subtitle',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 		register_post_meta(
 			'party_document',
 			'shcore_serial_number',
@@ -663,9 +709,11 @@ class Meta_Fields {
 	 */
 	public static function render_document_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$subtitle      = get_post_meta( $post->ID, 'shcore_subtitle', true );
 		$author_source = get_post_meta( $post->ID, 'shcore_author_source', true );
 		$language      = get_post_meta( $post->ID, 'shcore_language', true );
 		?>
+		<?php self::render_subtitle_field( $subtitle ); ?>
 		<p>
 			<label for="shcore_author_source"><strong><?php esc_html_e( 'نویسنده / منبع', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_author_source" name="shcore_author_source" class="regular-text" value="<?php echo esc_attr( $author_source ); ?>">
@@ -687,8 +735,10 @@ class Meta_Fields {
 	 */
 	public static function render_party_publication_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$subtitle = get_post_meta( $post->ID, 'shcore_subtitle', true );
 		$language = get_post_meta( $post->ID, 'shcore_language', true );
 		?>
+		<?php self::render_subtitle_field( $subtitle ); ?>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
 		<?php
@@ -706,9 +756,11 @@ class Meta_Fields {
 	 */
 	public static function render_party_document_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$subtitle      = get_post_meta( $post->ID, 'shcore_subtitle', true );
 		$serial_number = get_post_meta( $post->ID, 'shcore_serial_number', true );
 		$language      = get_post_meta( $post->ID, 'shcore_language', true );
 		?>
+		<?php self::render_subtitle_field( $subtitle ); ?>
 		<p>
 			<label for="shcore_serial_number"><strong><?php esc_html_e( 'شمارهٔ سریال', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_serial_number" name="shcore_serial_number" class="regular-text" value="<?php echo esc_attr( $serial_number ); ?>">
@@ -879,6 +931,26 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Shared subtitle field for `document`, `party_publication`, and
+	 * `party_document` (2026-09-19) — see register_meta()'s comment on
+	 * shcore_subtitle for the full reasoning. Placed first in each of
+	 * those three metaboxes, directly under the native Title box, so the
+	 * "main title here, long remainder here" split reads naturally.
+	 *
+	 * @param string $subtitle Current value.
+	 * @return void
+	 */
+	private static function render_subtitle_field( $subtitle ) {
+		?>
+		<p>
+			<label for="shcore_subtitle"><strong><?php esc_html_e( 'زیرعنوان', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_subtitle" name="shcore_subtitle" class="large-text" value="<?php echo esc_attr( $subtitle ); ?>">
+		</p>
+		<p class="description"><?php esc_html_e( 'اختیاری. برای عنوان‌های طولانی: بخش اصلی و کوتاه را در کادر «عنوان» بالا و باقی متن را اینجا به‌عنوان زیرعنوان بنویسید؛ در صفحهٔ نمایش، عنوان بزرگ‌تر و زیرعنوان کوچک‌تر زیر آن نشان داده می‌شود.', 'shola-core' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Shared fa/en select, since both post and document carry a language
 	 * field.
 	 *
@@ -950,9 +1022,9 @@ class Meta_Fields {
 
 		$fields_by_type = array(
 			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
-			'document'          => array( 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
-			'party_publication' => array( 'shcore_pdf_id', 'shcore_language' ),
-			'party_document'    => array( 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
+			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
+			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
+			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
 			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),

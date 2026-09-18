@@ -30,6 +30,10 @@ while ( have_posts() ) :
 	$pdf_size = shola_get_pdf_size( $pdf_id );
 
 	$serial_number = get_post_meta( get_the_ID(), 'shcore_serial_number', true );
+	// Optional (2026-09-19) — see class-meta-fields.php's shcore_subtitle
+	// docblock: long titles split into title + subtitle so the large
+	// .article-title font-size doesn't have to carry the whole string.
+	$subtitle      = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
 	$categories    = get_the_terms( get_the_ID(), 'party_document_category' );
 	$categories    = ( $categories && ! is_wp_error( $categories ) ) ? $categories : array();
 
@@ -71,7 +75,10 @@ else :
 
 			<div>
 				<p class="badge-current"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></p>
-				<h1 class="article-title mt-sm"><?php the_title(); ?></h1>
+				<h1 class="article-title article-title--doc mt-sm"><?php the_title(); ?></h1>
+				<?php if ( $subtitle ) : ?>
+					<p class="article-subtitle"><?php echo esc_html( $subtitle ); ?></p>
+				<?php endif; ?>
 				<?php if ( has_excerpt() ) : ?>
 					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 				<?php endif; ?>
