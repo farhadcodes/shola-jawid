@@ -942,17 +942,19 @@ $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
  * pale pink still reads as clearly distinct from that solid crimson band,
  * so no change needed here.
  *
- * `posts_per_page` capped at 5, 2026-09-05 (Phase 5, Technical Scoping
- * Plan) — was 10, well past what a homepage shelf like this is meant to
- * show; Farhad asked for a hard, deliberate limit here (and on every
- * homepage shelf) instead of one that just happened to be under control
- * by coincidence. The full archive at /party-publications/ is unaffected
- * — this only limits the homepage teaser.
+ * `posts_per_page` raised 5 -> 6, 2026-09-18: Farhad's explicit ask to
+ * match this section's new fixed 6-column desktop grid (main.css,
+ * .issue-grid, `min-width: 1000px`) — a hard cap, same as the previous
+ * 5, not a coincidental number: WP_Query's `posts_per_page` can never
+ * return more than this regardless of how much real content exists, so
+ * this row can never overflow past 6 cards. The full archive at
+ * /party-publications/ is unaffected — this only limits the homepage
+ * teaser.
  */
 $party_publications_query = new WP_Query(
 	array(
 		'post_type'      => 'party_publication',
-		'posts_per_page' => 5,
+		'posts_per_page' => 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
@@ -998,15 +1000,15 @@ $party_publications_query = new WP_Query(
  * (see this file's top docblock) — not موضوعات anymore; still no clash,
  * since اسناد حزب's own .sect-tint differs from this section's cream.
  *
- * `posts_per_page` set to 5, 2026-09-05 (Phase 5, Technical Scoping
- * Plan) — was 4, already under Farhad's stated 5-item limit for this
- * shelf, raised to exactly 5 rather than left as a coincidental number
- * under the cap, matching انتشارات حزب's identical treatment just above.
+ * `posts_per_page` raised 5 -> 6, 2026-09-18, matching انتشارات حزب's
+ * identical treatment above — see that section's own comment for the
+ * full reasoning (fixed 6-column desktop grid, hard query cap so this
+ * row can never overflow past 6 cards).
  */
 $library_documents_query = new WP_Query(
 	array(
 		'post_type'      => 'document',
-		'posts_per_page' => 5,
+		'posts_per_page' => 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
@@ -1051,11 +1053,16 @@ $library_documents_query = new WP_Query(
  * directly above and موضوعات's plain band directly below, so
  * background-band alternation holds in this new position exactly as it
  * did in the old one.
+ *
+ * `posts_per_page` raised 4 -> 6, 2026-09-18, matching انتشارات حزب's
+ * identical treatment above — see that section's own comment for the
+ * full reasoning (fixed 6-column desktop grid, hard query cap so this
+ * row can never overflow past 6 cards).
  */
 $party_documents_query = new WP_Query(
 	array(
 		'post_type'      => 'party_document',
-		'posts_per_page' => 4,
+		'posts_per_page' => 6,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)

@@ -10492,3 +10492,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   requested text. Verified live via the rendered h2.
   Theme version bumped 1.32.6 -> 1.32.7 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- feat: fixed 6-column desktop grid for the three homepage shelves
+- **Changed:** انتشارات حزب (Party Publications), کتابخانه (Library), and
+  اسناد حزب (Party Documents) -- all three share the same .issue-grid CSS
+  class and issue-card template -- now show exactly 6 cards in one row
+  on desktop (min-width: 1000px), Farhads explicit ask. Previously
+  desktop/tablet shared one adaptive `repeat(auto-fit, minmax(160px,
+  200px))` rule tuned to fit ~5 cards, not a fixed 6.
+  Each section's query `posts_per_page` raised to 6 to match (انتشارات
+  حزب 5->6, کتابخانه 5->6, اسناد حزب 4->6) -- a hard cap, same mechanism
+  as the previous limits: WP_Query can never return more than this
+  regardless of how much real content exists, so none of these three
+  rows can ever overflow past 6 cards by query or by layout. The full
+  archive page for each post type is unaffected -- only the homepage
+  teaser is capped.
+  Tablet (640-999px) keeps the existing adaptive auto-fit sizing
+  unchanged -- the new fixed-6 rule is scoped to `min-width: 1000px`
+  specifically so tablet-width screens are not squeezed into 6
+  too-narrow columns. Mobile (`repeat(3, 1fr)`) is completely untouched.
+  Verified live: grid-template-columns resolves to 6 equal columns at
+  1400px, confirmed the existing 200px auto-fit sizing still applies
+  unchanged at 820px, and confirmed 3 columns still apply unchanged at
+  375px. Also confirmed a partial row (only 2 real posts in two of the
+  three sections on this dev site) renders cleanly without breaking the
+  grid.
+  Theme version bumped 1.32.7 -> 1.33.0 (minor: layout + query behavior
+  change, not just a patch fix).
+  Approved by: Farhad, in this session (2026-09-18).

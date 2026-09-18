@@ -3529,6 +3529,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    */
   .issue-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 200px)); justify-content: start; }
 }
+/*
+ * Fixed 6-column row, desktop only — 2026-09-18, Farhad's explicit ask
+ * for انتشارات حزب/کتابخانه/اسناد حزب (all three share .issue-grid) to
+ * show exactly 6 cards in one row on desktop, matching the matching
+ * `posts_per_page => 6` hard cap now set on all three queries
+ * (front-page.php) — so this row can never overflow past 6 cards
+ * either by query or by layout.
+ * `min-width: 1000px`, not the 640px breakpoint just above: 640px is
+ * shared with tablet, where the existing adaptive auto-fit sizing is
+ * left untouched per Farhad's explicit "only on desktop" — this rule
+ * only replaces it once there's enough width for 1000px+ to be
+ * "desktop" by this project's own established breakpoint vocabulary
+ * (used elsewhere, e.g. the two-tier masthead's nav-collapse point).
+ */
+@media (min-width: 1000px) {
+  .issue-grid { grid-template-columns: repeat(6, 1fr); justify-content: initial; }
+}
 
 .issue-card { display: flex; flex-direction: column; gap: .75rem; }
 .issue-card-media {
