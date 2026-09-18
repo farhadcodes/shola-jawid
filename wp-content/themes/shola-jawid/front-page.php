@@ -632,11 +632,18 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
  * (further down this file) can pick cream vs. plain correctly for
  * whichever case is actually true, instead of a background hardcoded
  * for only one of the two.
+ *
+ * `posts_per_page` lowered 6 -> 4, 2026-09-18: Farhad's explicit ask —
+ * this section stays capped at 4, deliberately smaller than مقالات's
+ * and گزیده‌ها's 6, so it never grows past a hard maximum regardless of
+ * how many reports exist; anything beyond the cap is only reachable via
+ * «همهٔ گزارش‌ها» to the archive, same overflow pattern as every other
+ * capped homepage section.
  */
 $reports_query = new WP_Query(
 	array(
 		'post_type'      => 'post',
-		'posts_per_page' => 6,
+		'posts_per_page' => 4,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.

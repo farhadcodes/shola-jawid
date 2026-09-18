@@ -113,9 +113,14 @@ if ( 'document' === $card_type ) {
 		 * raised here too, same reasoning as above, so the excerpt
 		 * still reliably fills the 3-line clamp at the smaller size
 		 * instead of reopening the same "ran out of words" gap.
+		 * 56 -> 90, 2026-09-18: .card-dek's clamp went 3 -> 5 lines
+		 * (client-requested longer excerpt, main.css §09) — raised here
+		 * at roughly the same words-per-line rate as before so the
+		 * extra two lines actually fill with text instead of leaving
+		 * the block visibly shorter than its new 5-line ceiling.
 		 */
 		?>
-		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 56 ) ); ?></p>
+		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 90 ) ); ?></p>
 		<?php
 		/*
 		 * Byline (author/username) removed site-wide, 2026-09-02, per the

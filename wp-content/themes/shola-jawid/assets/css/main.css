@@ -1528,18 +1528,34 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    in the same request ("a little larger ... to the length of the
    excerpt") so the smaller font still reliably fills the 3-line clamp
    instead of running out of words early and leaving the same kind of
-   gap the 2026-09-10 change was originally fixing. */
+   gap the 2026-09-10 change was originally fixing.
+   2026-09-18: client (via Farhad) asked for a longer excerpt — line
+   clamp 3 -> 5 — paired with the font going one step smaller, 15px ->
+   14px, so five lines of text don't read as heavier/denser than the
+   old three-line block did. Line-height nudged 1.75 -> 1.7 to keep the
+   block's overall rhythm tight and even at the smaller size (1.75 at
+   14px measured visibly looser than the same ratio did at 15px); no
+   letter-spacing was set before and none is added now — the type-scale
+   already reads cleanly at 14px without it. wp_trim_words() in
+   card.php raised 56 -> 90 in the same change (roughly the same
+   words-per-line rate that made 56 reliably fill 3 lines, scaled to 5)
+   so the excerpt reliably fills the taller clamp instead of stopping
+   short and leaving empty lines. Applies to both تازه‌ترین مقاله‌ها and
+   گزارش (both render via this same card.php/.card-dek pair) — گزیده‌ها
+   keeps its own separate, deliberately more compact 2-line treatment
+   (.selected-row-body .card-dek below) untouched, per Farhad's
+   explicit confirmation this round. */
 .card .h-card { font-size: calc(var(--t-h4) - 1px); }
 .card-dek {
   color: var(--ink-soft);
-  font-size: 0.9375rem; /* 15px */
-  line-height: 1.75;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.7;
   /* Length safety net, same reasoning as .dek above — cards are the
      tightest layout context (grid columns), so a lower ceiling. */
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
   overflow: hidden;
 }
 .card-byline {

@@ -10520,3 +10520,35 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.32.7 -> 1.33.0 (minor: layout + query behavior
   change, not just a patch fix).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- feat: post caps + longer excerpt for Recent Articles, Selected, Reports
+- **Changed:** گزارش (Reports) homepage query `posts_per_page` lowered
+  6 -> 4, Farhad's explicit ask -- a hard cap, same WP_Query mechanism
+  as every other capped section (تازه‌ترین مقاله‌ها and گزیده‌ها were
+  already at Farhad's requested 6 each, confirmed unchanged). Overflow
+  in all three sections only reaches the visitor via each section's own
+  archive link, never by growing the homepage grid past its cap.
+- **Changed:** the shared `.card-dek` excerpt (main.css) -- used by both
+  تازه‌ترین مقاله‌ها and گزارش via template-parts/cards/card.php -- per
+  client feedback relayed by Farhad: line-clamp raised 3 -> 5 lines,
+  font-size brought down one step (15px -> 14px), line-height tightened
+  1.75 -> 1.7 to keep the taller block's rhythm even at the smaller
+  size. `wp_trim_words()` in card.php raised 56 -> 90 (same
+  words-per-line rate as the prior 56-for-3-lines tuning, scaled to 5
+  lines) so the excerpt reliably fills the new clamp instead of
+  stopping short. No letter-spacing/word-spacing changes needed --
+  verified via computed styles at 1440px that the block renders at a
+  clean 119px height (5 x 23.8px line-height, no partial/cut line) with
+  normal letter- and word-spacing.
+  گزیده‌ها's own separate excerpt rule (`.selected-row-body .card-dek`,
+  already a deliberately more compact 2-line/--t-caption treatment from
+  an earlier explicit decision) was left untouched -- Farhad confirmed
+  this round that only the شared تازه‌ترین مقاله‌ها/گزارش excerpt should
+  change.
+  Verified live at 375px (mobile) and 1440px (desktop): 5 lines render
+  cleanly in both the homepage grid and within the existing card-height
+  behavior (CSS grid rows stretch to the tallest card per row, same as
+  before -- no layout breakage from the taller excerpt).
+  Theme version bumped 1.33.0 -> 1.34.0 (minor: query + typography
+  behavior change).
+  Approved by: Farhad, in this session (2026-09-18).
