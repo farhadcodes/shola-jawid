@@ -1857,6 +1857,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 @media (min-width: 1000px) {
   .card-spotlight { grid-column: 3; order: 0; }
 }
+/*
+ * Mobile-only reorder (2026-09-18): below this grid's own 720px
+ * breakpoint, nothing set `order` on either embedded panel, so they
+ * just fell back to plain DOM order — اطلاعیه‌ها spotlight, then
+ * پربازدیدترین (Most Viewed), then the actual article cards, all
+ * stacked right under the section title. Farhad flagged this on a
+ * real device: article cards should read first, Most Viewed second,
+ * the spotlight last. `.most-viewed-panel` gets its own matching rule
+ * just below. Scoped to `max-width: 719px` specifically so it can
+ * never overlap the existing `min-width: 720px` rule above — tablet
+ * and desktop are untouched.
+ */
+@media (max-width: 719px) {
+  .card-spotlight { order: 2; }
+}
 
 /*
  * پربازدیدترین (Most Viewed) panel — added 2026-09-15, client-requested
@@ -1976,6 +1991,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 @media (min-width: 1000px) {
   .most-viewed-panel { grid-column: 3; grid-row: 2 / span 2; order: 0; }
   .grid-cards--mv-only .most-viewed-panel { grid-row: 1 / span 3; }
+}
+/*
+ * Mobile-only reorder — see .card-spotlight's matching comment above.
+ * order: 1, lower than .card-spotlight's order: 2 in this same
+ * max-width:719px block, so the final mobile stack is: article cards
+ * (default order: 0) -> Most Viewed -> اطلاعیه‌ها spotlight.
+ */
+@media (max-width: 719px) {
+  .most-viewed-panel { order: 1; }
 }
 
 .grid-cards-4 {

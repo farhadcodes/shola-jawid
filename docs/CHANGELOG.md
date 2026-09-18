@@ -10413,3 +10413,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Plugin version bumped 1.18.0 → 1.19.0 (minor: new whitelisted
   `shcore_masthead_layout` value).
   Approved by: Farhad, across this session (2026-09-18).
+
+## 2026-09-18 -- fix: mobile order of most-viewed/spotlight vs recent-article cards
+- **Fixed:** on the homepage, the پربازدیدترین (Most Viewed) panel and, when
+  present, the اطلاعیه‌ها spotlight tile are both embedded inside تازه‌ترین
+  مقالات own `.grid-cards` grid, alongside the article cards (DOM order:
+  spotlight, then most-viewed, then cards). Tablet/desktop already reorder
+  these via CSS `order` (existing rules at 720px/1000px); below 720px no
+  such rule existed, so mobile just fell back to plain DOM order --
+  Farhad caught this on a real device: Most Viewed rendered directly under
+  the section title, before any article cards.
+  Added a `max-width: 719px`-scoped pair of rules -- `.most-viewed-panel
+  { order: 1 }` and `.card-spotlight { order: 2 }` -- so the mobile stack
+  reads article cards (default order: 0) -> Most Viewed -> spotlight,
+  matching Farhads explicit requested order. Purely additive: the new
+  block sits beside the existing `min-width: 720px`/`min-width: 1000px`
+  rules for the same two elements and cannot overlap them.
+  Known tradeoff, flagged to Farhad before implementing: CSS `order`
+  changes visual order only -- screen readers and keyboard tab order still
+  follow DOM order (spotlight, then most-viewed, then cards) -- the same
+  tradeoff this grid already accepts at tablet/desktop via the same
+  mechanism, not a new one introduced here.
+  Verified live via `getBoundingClientRect()` on every grid item at 375px
+  (cards at y 1029-3437, Most Viewed at y 3870, spotlight at y 4633 --
+  correct order) and confirmed tablet (820px) and desktop (1400px) are
+  unaffected (existing order values unchanged, pre-existing base
+  `.card-spotlight { order: 1 }` rule untouched).
+  Theme version bumped 1.32.0 -> 1.32.1 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
