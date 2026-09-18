@@ -44,7 +44,7 @@ $featured = array_shift( $most_viewed );
 $rest     = array_slice( $most_viewed, 0, 4 );
 ?>
 <div class="most-viewed-panel reveal">
-	<p class="mv-title"><?php esc_html_e( 'پربازدیدترین', 'shola-jawid' ); ?></p>
+	<p class="mv-title"><?php esc_html_e( 'پربازدیدترین‌ها', 'shola-jawid' ); ?></p>
 
 	<a class="mv-item mv-item--featured" href="<?php echo esc_url( get_permalink( $featured ) ); ?>">
 		<span class="mv-thumb"><?php echo shola_get_featured_image( $featured, 'shola_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?></span>

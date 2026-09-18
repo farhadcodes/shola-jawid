@@ -10478,3 +10478,10 @@ trail of *why* the build deviated from — or newly applied — a rule in
   requested text. Verified live via the rendered h2.
   Theme version bumped 1.32.4 -> 1.32.5 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: homepage Most Viewed panel title text
+- **Changed:** the پربازدیدترین panel heading
+  (template-parts/cards/most-viewed-panel.php) is now "پربازدیدترین‌ها" --
+  Farhads exact requested text. Verified live via the rendered .mv-title.
+  Theme version bumped 1.32.5 -> 1.32.6 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
