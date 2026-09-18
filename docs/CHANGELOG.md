@@ -10586,3 +10586,32 @@ trail of *why* the build deviated from — or newly applied — a rule in
   disappear.
   Theme version bumped 1.34.1 -> 1.34.2 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-19 -- fix: تازه‌ترین مقاله‌ها rendered 9 cards instead of 6 on production
+- **Fixed:** Farhad reported live (production site, after confirming the
+  theme was correctly re-uploaded and cache cleared) that this section
+  showed 9 article cards instead of its `posts_per_page => $articles_count`
+  cap of 6. Not reproducible locally -- confirmed via computed DOM count
+  that the local dev site correctly renders 6. This is the same
+  unexplained behavior already hit once before and documented for
+  گزیده‌ها (2026-09-16): a plain WP_Query with a SQL LIMIT has no code
+  path to return more rows than `posts_per_page`, yet the live
+  environment did exactly that for that section too.
+  Applied the identical defensive fix used there: an explicit PHP
+  counter (`$articles_shown`) that stops the loop after
+  `$articles_count` posts regardless of how many rows the query itself
+  reports having. Pre-emptively applied the same counter to every other
+  homepage section using a plain `while ( $query->have_posts() )` loop
+  with no such guard -- گزارش (`$reports_shown`, cap 4), انتشارات حزب
+  (`$party_publications_shown`, cap 6), کتابخانه
+  (`$library_documents_shown`, cap 6), and اسناد حزب
+  (`$party_documents_shown`, cap 6) -- so the same bug can't resurface
+  in any of those sections once they have enough content to expose it.
+  Sections that build their card list from a plain PHP array
+  (`array_slice()`/`array_shift()` -- اطلاعیه spotlight, پربازدیدترین,
+  شمارهٔ جاری) were not touched: they're bounded by PHP array length, not
+  a SQL LIMIT, so they were never at risk from this specific issue.
+  Verified live on the local dev site: تازه‌ترین مقاله‌ها still renders
+  exactly 6 article cards (plus spotlight/most-viewed) after the change.
+  Theme version bumped 1.34.2 -> 1.34.3 (patch).
+  Approved by: Farhad, in this session (2026-09-19).

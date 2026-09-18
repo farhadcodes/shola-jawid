@@ -496,7 +496,21 @@ if ( $has_mostviewed ) {
 						array( 'posts' => $most_viewed_query->posts )
 					);
 				}
-				while ( $articles_query->have_posts() ) :
+				/*
+				 * Hard cap enforced again here with an explicit counter, on
+				 * top of the query's own `posts_per_page => $articles_count`
+				 * above — added 2026-09-19 after Farhad confirmed live (on
+				 * the production site, not reproducible locally) that this
+				 * grid rendered 9 article cards instead of 6. Same
+				 * unexplained live-environment behavior already documented
+				 * and worked around for گزیده‌ها below (its own
+				 * `$selected_shown` counter, 2026-09-16) — this query is
+				 * also a plain WP_Query with a SQL LIMIT that has no code
+				 * path to return more rows than `posts_per_page`, so this
+				 * loop no longer trusts the query's own result count either.
+				 */
+				$articles_shown = 0;
+				while ( $articles_query->have_posts() && $articles_shown < $articles_count ) :
 					$articles_query->the_post();
 					get_template_part(
 						'template-parts/cards/card',
@@ -506,6 +520,7 @@ if ( $has_mostviewed ) {
 							'type' => 'article',
 						)
 					);
+					++$articles_shown;
 				endwhile;
 				wp_reset_postdata();
 				?>
@@ -668,7 +683,17 @@ $has_reports = $reports_query->have_posts();
 		</div>
 		<div class="grid-cards">
 			<?php
-			while ( $reports_query->have_posts() ) :
+			/*
+			 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها's own
+			 * loop above (added 2026-09-19) and گزیده‌ها's `$selected_shown`
+			 * (2026-09-16) — this section shares the identical
+			 * WP_Query-with-a-SQL-LIMIT pattern that has twice now shown
+			 * more rows than `posts_per_page` on the live production site,
+			 * so it gets the same belt-and-suspenders fix pre-emptively
+			 * rather than waiting for Farhad to hit the same bug here too.
+			 */
+			$reports_shown = 0;
+			while ( $reports_query->have_posts() && $reports_shown < 4 ) :
 				$reports_query->the_post();
 				get_template_part(
 					'template-parts/cards/card',
@@ -678,6 +703,7 @@ $has_reports = $reports_query->have_posts();
 						'type' => 'article',
 					)
 				);
+				++$reports_shown;
 			endwhile;
 			wp_reset_postdata();
 			?>
@@ -979,9 +1005,18 @@ $party_publications_query = new WP_Query(
 			</div>
 			<div class="issue-grid">
 				<?php
-				while ( $party_publications_query->have_posts() ) :
+				/*
+				 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
+				 * گزارش/گزیده‌ها above (2026-09-19, 2026-09-16) — belt-and-
+				 * suspenders against the same unexplained live-production
+				 * behavior where a plain WP_Query with `posts_per_page`
+				 * rendered more rows than its own LIMIT.
+				 */
+				$party_publications_shown = 0;
+				while ( $party_publications_query->have_posts() && $party_publications_shown < 6 ) :
 					$party_publications_query->the_post();
 					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+					++$party_publications_shown;
 				endwhile;
 				wp_reset_postdata();
 				?>
@@ -1033,9 +1068,16 @@ $library_documents_query = new WP_Query(
 			</div>
 			<div class="issue-grid">
 				<?php
-				while ( $library_documents_query->have_posts() ) :
+				/*
+				 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
+				 * گزارش/گزیده‌ها/انتشارات حزب above — see انتشارات حزب's
+				 * own comment for the full reasoning.
+				 */
+				$library_documents_shown = 0;
+				while ( $library_documents_query->have_posts() && $library_documents_shown < 6 ) :
 					$library_documents_query->the_post();
 					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+					++$library_documents_shown;
 				endwhile;
 				wp_reset_postdata();
 				?>
@@ -1087,9 +1129,16 @@ $party_documents_query = new WP_Query(
 			</div>
 			<div class="issue-grid">
 				<?php
-				while ( $party_documents_query->have_posts() ) :
+				/*
+				 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
+				 * گزارش/گزیده‌ها/انتشارات حزب above — see انتشارات حزب's
+				 * own comment for the full reasoning.
+				 */
+				$party_documents_shown = 0;
+				while ( $party_documents_query->have_posts() && $party_documents_shown < 6 ) :
 					$party_documents_query->the_post();
 					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
+					++$party_documents_shown;
 				endwhile;
 				wp_reset_postdata();
 				?>
