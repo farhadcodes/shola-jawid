@@ -564,7 +564,7 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 			<div class="leaflet-teaser-body">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین تراکت', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php esc_html_e( 'تراکت', 'shola-jawid' ); ?></h2>
 				</div>
 			</div>
 			<?php

@@ -10485,3 +10485,10 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Farhads exact requested text. Verified live via the rendered .mv-title.
   Theme version bumped 1.32.5 -> 1.32.6 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: homepage تراکت spotlight section title text
+- **Changed:** the homepage تراکت spotlight heading (front-page.php) is
+  now just "تراکت" instead of "تازه‌ترین تراکت" -- Farhads exact
+  requested text. Verified live via the rendered h2.
+  Theme version bumped 1.32.6 -> 1.32.7 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
