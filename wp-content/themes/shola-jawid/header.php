@@ -156,14 +156,33 @@ if ( $shola_loader_enabled ) :
  */
 $shola_masthead_layout    = shola_get_active_masthead_layout();
 $shola_is_logo_layout     = in_array( $shola_masthead_layout, array( 'logo', 'logo-light', 'logo-radial' ), true );
+$shola_is_two_tier_layout = 'two-tier' === $shola_masthead_layout;
 $shola_masthead_modifier  = '';
 if ( 'logo-light' === $shola_masthead_layout ) {
 	$shola_masthead_modifier = 'masthead--logo-light';
 } elseif ( 'logo-radial' === $shola_masthead_layout ) {
 	$shola_masthead_modifier = 'masthead--logo-radial';
+} elseif ( $shola_is_two_tier_layout ) {
+	$shola_masthead_modifier = 'masthead--two-tier';
 }
 ?>
 <header class="masthead <?php echo $shola_is_logo_layout ? 'masthead--logo' : ''; ?> <?php echo esc_attr( $shola_masthead_modifier ); ?>">
+<?php if ( $shola_is_two_tier_layout ) : ?>
+	<?php
+	/*
+	 * `two-tier` layout (2026-09-18): a dark utility bar + red-gradient
+	 * identity bar, structurally different from every other layout's
+	 * shared single-row `.masthead-inner` grid below — pulled into its
+	 * own template part rather than branched inline here, unlike
+	 * `logo`/`logo-light`/`logo-radial` (which only swap small content
+	 * chunks within that same shared row). This keeps every other
+	 * layout's own markup in this file completely untouched — see
+	 * template-parts/masthead/two-tier.php's own docblock for what it
+	 * reuses and from where.
+	 */
+	get_template_part( 'template-parts/masthead/two-tier' );
+	?>
+<?php else : ?>
 	<div class="wrap masthead-inner">
 
 		<div class="masthead-left">
@@ -277,6 +296,7 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 		</div>
 
 	</div>
+<?php endif; ?>
 </header>
 
 <div id="menu-panel" class="menu-panel" data-open="false" aria-hidden="true" role="dialog" aria-label="<?php esc_attr_e( 'منوی اصلی', 'shola-jawid' ); ?>">

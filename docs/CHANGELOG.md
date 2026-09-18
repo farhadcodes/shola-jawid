@@ -10348,3 +10348,68 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.31.1 → 1.31.2 (patch).
   Approved by: Farhad (client instruction relayed), in this session
   (2026-09-18).
+
+## 2026-09-18 — feat: new `two-tier` masthead_section layout option
+- **Added:** a fifth masthead layout, per a client reference image
+  (relayed by Farhad) — a single continuous strip with one gradient: a
+  vertical identity stack (title, date beneath it, a large tilted flag
+  behind both) at the reading-start side (visual right under this
+  site's `dir="rtl"`), and the utility nav (menu icon, six links,
+  search) at the reading-end side. Additive only, per the safety net
+  agreed before starting: the existing `default`/`logo`/`logo-light`/
+  `logo-radial` layouts' own rendering paths in header.php are
+  completely untouched — this layout is rendered by a new template
+  part, `template-parts/masthead/two-tier.php`, included from one new
+  `if ( $shola_is_two_tier_layout )` branch. `'two-tier'` added to
+  `sanitize_masthead_layout()`'s whitelist and the metabox `<select>`
+  in `class-meta-fields.php` (plugin) — same additive pattern used for
+  every prior layout, no change to the picker mechanism itself. A new,
+  inactive `masthead_section` entry was created via wp-admin for this
+  layout, left inactive per Farhad's explicit instruction — the
+  previously active entry stayed live on the front end throughout this
+  work, confirmed at each stage.
+  This shipped through several corrected passes after live review
+  against the reference and, later, real-device testing (not a single
+  clean build) — the full history is preserved in git, but the
+  highlights Farhad specifically caught and had corrected:
+  - First pass (two full-height stacked bars) didn't match the
+    reference at all — rebuilt as one row.
+  - Right/left cluster assignment and the identity block's internal
+    shape (a vertical title→date→flag stack, not title-beside-flag)
+    were both wrong on the first single-row attempt — corrected after
+    explicit confirmation of the reference image's actual layout.
+  - The flag's "hard edge" was diagnosed as this project's own CSS (a
+    separate gradient wrapper box), not the source asset — confirmed
+    by reading the uploaded flag image's real pixel alpha via canvas
+    (all four corners genuinely transparent).
+  - A text-legibility scrim was built backwards (behind the text
+    instead of behind the flag) and corrected to a radial "pop" glow
+    matching the existing `logo-radial` layout's technique, recolored
+    to `--ink-soft` per Farhad's exact hex match.
+  - The utility nav's link order, the masthead-wide gradient
+    accidentally fading to `--ink` instead of staying `--winston-red`
+    throughout, the title's size/weight/shadow, the search icon's
+    shape/size/hover behavior, and the menu/nav hover treatment (text-
+    color only, not a background box) were each corrected once after
+    live review.
+  - Mobile needed three dedicated correction passes, all scoped to the
+    layout's own `≤640px` media query, none touching tablet/desktop:
+    (1) the flag/glow's desktop-tuned offset fully covered the search
+    and menu controls on a real ~430px device — root-caused to the
+    utility and identity boxes sitting only ~13px apart at that width;
+    fixed with a small positive `inset-inline-end` instead of a
+    negative one; (2) the glow, once visible, read as a small dot —
+    enlarged and given a wider transparent falloff; (3) the glow and
+    flag used two different offsets so the glow missed the flag
+    entirely instead of framing it, and the flag itself was too small
+    to read as "the same flag" as desktop — both now share one offset,
+    and the flag is sized to be cropped by the header's own
+    `overflow: hidden` rather than fully contained.
+  - Every correction was verified live (screenshots and/or direct
+    `getBoundingClientRect()`/computed-style checks) at desktop,
+    tablet, and mobile after the change that prompted it, and the four
+    pre-existing masthead entries were re-confirmed unaffected.
+  Theme version bumped 1.31.2 → 1.32.0 (minor: new layout option).
+  Plugin version bumped 1.18.0 → 1.19.0 (minor: new whitelisted
+  `shcore_masthead_layout` value).
+  Approved by: Farhad, across this session (2026-09-18).

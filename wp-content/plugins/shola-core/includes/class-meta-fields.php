@@ -465,12 +465,13 @@ class Meta_Fields {
 	 * Restrict to the sitewide-header layouts this feature ships with —
 	 * just `default` (today's existing header) for now. New layouts get
 	 * added here as they're built, same as sanitize_hero_layout() above.
+	 * `two-tier` added 2026-09-18 — see template-parts/masthead/two-tier.php.
 	 *
 	 * @param mixed $value Raw meta value.
 	 * @return string
 	 */
 	public static function sanitize_masthead_layout( $value ) {
-		return in_array( $value, array( 'default', 'logo', 'logo-light', 'logo-radial' ), true ) ? $value : 'default';
+		return in_array( $value, array( 'default', 'logo', 'logo-light', 'logo-radial', 'two-tier' ), true ) ? $value : 'default';
 	}
 
 	/**
@@ -870,9 +871,10 @@ class Meta_Fields {
 				<option value="logo" <?php selected( $layout, 'logo' ); ?>><?php esc_html_e( 'چیدمان با لوگو (پس‌زمینهٔ قرمز)', 'shola-core' ); ?></option>
 				<option value="logo-light" <?php selected( $layout, 'logo-light' ); ?>><?php esc_html_e( 'چیدمان با لوگو (پس‌زمینهٔ سفید)', 'shola-core' ); ?></option>
 				<option value="logo-radial" <?php selected( $layout, 'logo-radial' ); ?>><?php esc_html_e( 'چیدمان با لوگو (گرادیان شعاعی)', 'shola-core' ); ?></option>
+				<option value="two-tier" <?php selected( $layout, 'two-tier' ); ?>><?php esc_html_e( 'چیدمان دو ردیفه (نوار تیره + نوار قرمز)', 'shola-core' ); ?></option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'چیدمان فعلی: هدر کنونی سایت (نام‌بردهٔ متنی، پیوندهای ناوبری، جست‌وجو، منو). چیدمان با لوگو (پس‌زمینهٔ قرمز): همان هدر، با این تفاوت که به‌جای نام‌بردهٔ متنی، لوگوی سایت (از بخش نمایش ← شخصی‌سازی ← هویت سایت) نمایش داده می‌شود. چیدمان با لوگو (پس‌زمینهٔ سفید): دقیقاً همان چیدمانِ لوگو، با رنگ‌های معکوس — پس‌زمینه سفید و متن/آیکن‌ها قرمز؛ خودِ لوگو تغییر رنگ نمی‌کند. چیدمان با لوگو (گرادیان شعاعی): دقیقاً همان چیدمانِ لوگوی قرمز، با این تفاوت که پس‌زمینه از سفید در پشت لوگو به‌صورت شعاعی به همان قرمز می‌رسد؛ متن و آیکن‌ها همچنان سفید.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'چیدمان فعلی: هدر کنونی سایت (نام‌بردهٔ متنی، پیوندهای ناوبری، جست‌وجو، منو). چیدمان با لوگو (پس‌زمینهٔ قرمز): همان هدر، با این تفاوت که به‌جای نام‌بردهٔ متنی، لوگوی سایت (از بخش نمایش ← شخصی‌سازی ← هویت سایت) نمایش داده می‌شود. چیدمان با لوگو (پس‌زمینهٔ سفید): دقیقاً همان چیدمانِ لوگو، با رنگ‌های معکوس — پس‌زمینه سفید و متن/آیکن‌ها قرمز؛ خودِ لوگو تغییر رنگ نمی‌کند. چیدمان با لوگو (گرادیان شعاعی): دقیقاً همان چیدمانِ لوگوی قرمز، با این تفاوت که پس‌زمینه از سفید در پشت لوگو به‌صورت شعاعی به همان قرمز می‌رسد؛ متن و آیکن‌ها همچنان سفید. چیدمان دو ردیفه: یک نوار تیرهٔ بالایی (جست‌وجو، پیوندهای کمکی، تاریخ، دکمهٔ منو) روی یک نوار پایینی با گرادیان قرمز (لوگو/پرچم، نام سایت، تاریخ).', 'shola-core' ); ?></p>
 		<?php
 	}
 

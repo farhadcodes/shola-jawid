@@ -763,6 +763,255 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   }
 }
 
+/*
+ * `two-tier` layout — rebuilt a second time 2026-09-18: live review of
+ * the single-row pass found the identity cluster is a *vertical* stack
+ * (title, date beneath it, a small flag beneath both) on the right, not
+ * a horizontal title-beside-flag pair, and that the utility nav runs on
+ * the left (menu icon closest to the identity cluster, search at the
+ * far outer edge) — the reverse of the previous pass's side assignment.
+ * Confirmed explicitly with Farhad before rebuilding (both which side
+ * and the stack shape), rather than reinterpreted a third time.
+ * Rendered by template-parts/masthead/two-tier.php instead of the
+ * shared `.masthead-inner` grid every other layout above uses — see
+ * header.php's `$shola_is_two_tier_layout` branch. `.masthead`'s own
+ * base rules (position: sticky, border-bottom, --mast-scale, focus-
+ * visible) still apply unchanged, since the outer
+ * <header class="masthead ..."> is still emitted by header.php itself
+ * for every layout, this one included.
+ *
+ * Single linear-gradient, `--winston-red` at the reading-start side
+ * (visual right under this site's dir="rtl" — the identity stack lives
+ * here) to `--winston-red-deep` at the reading-end side (visual left —
+ * the utility nav lives here) — corrected 2026-09-18 after Farhad
+ * flagged the utility side rendering as black: an earlier pass faded
+ * that side to `--ink` instead of staying red throughout, which the
+ * reference image doesn't show at all. Both stops are this project's
+ * one red, no dark/black tone anywhere in this gradient now. CSS
+ * gradients have no logical direction keyword (`to inline-end` doesn't
+ * exist), so this is an explicit RTL default plus one `[dir="ltr"]`
+ * override with the mirrored physical direction — a deliberate, narrow
+ * exception to this project's logical-properties-only rule, justified
+ * by that real CSS limitation. `dir="ltr"` is this project's existing
+ * QA-only forced check (English isn't live this phase, CLAUDE.md §1),
+ * not a second production direction, so the override only ever matters
+ * for that manual check.
+ */
+.masthead--two-tier {
+  background-image: linear-gradient(to left, var(--winston-red) 0%, var(--winston-red-deep) 100%);
+  /*
+   * Clips the flag graphic to the header's own box (below) — it's
+   * deliberately larger than the bar is tall and rotated, and must
+   * read as "a large graphic behind the title, contained within this
+   * bar," never spilling onto the page content above/below it.
+   */
+  overflow: hidden;
+}
+[dir="ltr"] .masthead--two-tier {
+  background-image: linear-gradient(to right, var(--winston-red) 0%, var(--winston-red-deep) 100%);
+}
+.mast-two-tier-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(1.5rem * var(--mast-scale));
+  padding-block: calc(1.4rem * var(--mast-scale));
+  transition: padding-block var(--dur) var(--ease);
+}
+/*
+ * Identity cluster: title, then date beneath it, right-aligned, with
+ * the flag as a large tilted graphic behind both (position: absolute,
+ * below) rather than a third stacked line — corrected 2026-09-18
+ * (third pass) after Farhad's live review found the flag rendering as
+ * a small, barely-visible icon. `position: relative` here gives the
+ * flag its containing block. `flex-start` on a column flex container
+ * resolves to the inline-start edge of the cross axis — visual right
+ * under this site's dir="rtl", mirroring to the left under dir="ltr" —
+ * so the text stack needs no hardcoded side.
+ */
+.mast-two-tier-identity {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  gap: calc(.15rem * var(--mast-scale));
+}
+/*
+ * z-index: 1 — the brand text must paint above the flag sitting behind
+ * it (main.css .mast-two-tier-flag, below). flex-shrink:0 +
+ * white-space:nowrap on the nameplate (desktop/tablet only — relaxed
+ * again below 640px): this flex row's default shrink behavior
+ * otherwise compresses the site name below its natural single-line
+ * width and wraps it, found live in an earlier round.
+ */
+.mast-two-tier-brand { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
+/*
+ * Flag glow — corrected 2026-09-18: the first pass here was a dark
+ * scrim behind the *text*, which Farhad flagged as a misread — he
+ * asked for a radial gradient behind the *flag* instead, a "pop" halo
+ * matching the same technique the `logo-radial` masthead layout
+ * already uses behind its own centered flag (main.css, radial-gradient
+ * from a light tone to transparent). Same idea here, repositioned to
+ * this flag's own off-center, tilted placement instead of dead center.
+ * `--ink-soft` (this project's existing #2A2A2A token) rather than
+ * `logo-radial`'s `--paper` — Farhad's explicit color call once the
+ * white version was live. Sits behind the flag itself (z-index: -1,
+ * below the flag's own z-index: 0), not behind the text.
+ */
+.mast-two-tier-flag-glow {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: -12%;
+  width: calc(clamp(170px, 24vw, 260px) * var(--mast-scale));
+  height: calc(clamp(170px, 24vw, 260px) * var(--mast-scale));
+  transform: translateY(-50%);
+  background-image: radial-gradient(circle, var(--ink-soft) 0%, transparent 68%);
+  z-index: -1;
+  pointer-events: none;
+}
+/*
+ * font-size: -3px off the shared .mast-nameplate size, Farhad's
+ * explicit ask — scoped to this layout only, not a change to
+ * .mast-nameplate's own rule, which the `default`/`logo`/`logo-light`/
+ * `logo-radial` layouts all still use unmodified.
+ */
+/* text-shadow: a very subtle lift off the busy flag/glow behind it, Farhad's explicit ask — scoped to this layout only, .mast-nameplate's shared rule is untouched. */
+/* font-weight: 900 (Farhang2 Black, available — see @font-face list, main.css §01) instead of the shared .mast-nameplate's 700 (Bold), and the shadow pushed 2px further down (2px -> 4px) — both Farhad's explicit asks, scoped to this layout only. */
+.mast-two-tier-brand .mast-nameplate { text-align: start; white-space: nowrap; font-size: calc(clamp(1.44rem, 3.2vw, 1.92rem) * var(--mast-scale) - 5px); font-weight: 900; text-shadow: 0 4px 1px rgba(0, 0, 0, .75); }
+.mast-two-tier-brand .mast-runner { text-align: start; margin-top: 0; }
+/*
+ * Flag — corrected 2026-09-18 (third pass): Farhad's live review found
+ * the previous small stacked-icon treatment wrong entirely — the
+ * reference shows a large graphic tilted ~15-20deg, sitting behind the
+ * title/date, star clearly visible, contained within the bar (not
+ * overflowing the page). Sized well past the bar's own height and
+ * absolutely positioned; `.masthead--two-tier`'s `overflow: hidden`
+ * (above) clips it to the header's box instead of letting it spill
+ * onto the page. Renders first in the markup, before the brand link
+ * (template-parts/masthead/two-tier.php), so normal paint order alone
+ * puts the brand text on top — no stacking-context surprises from a
+ * z-index tug of war. `inset-inline-end`, not a physical side: sits at
+ * this site's visual right under dir="rtl" (behind the title, per the
+ * reference), mirroring to the left under dir="ltr" automatically. No
+ * background of any kind behind it — the source file is genuinely
+ * transparent (verified live via canvas pixel-alpha reads, all four
+ * corners alpha:0).
+ */
+.mast-two-tier-flag {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: -16%;
+  height: calc(clamp(120px, 16vw, 190px) * var(--mast-scale));
+  width: auto;
+  max-width: none;
+  transform: translateY(-50%) rotate(-16deg);
+  transform-origin: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.mast-two-tier-utility {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: calc(1rem * var(--mast-scale));
+}
+.mast-two-tier-util-nav {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: calc(.6rem * var(--mast-scale));
+  transition: gap var(--dur) var(--ease);
+}
+.mast-two-tier-util-nav .mast-btn { white-space: nowrap; }
+
+/*
+ * 1000px, not this masthead's other 720px breakpoint — found live in
+ * the previous pass: at tablet widths (e.g. 820px) the six-item nav
+ * plus the identity cluster genuinely don't fit side by side even with
+ * nothing else competing for space, unlike the `default`/`logo`
+ * layouts' own 720px cutoffs, which only ever have to fit two or three
+ * short links plus a much narrower brand column. 1000px is this
+ * project's own established breakpoint (main.css uses it elsewhere),
+ * not a new one invented for this layout.
+ */
+@media (max-width: 1000px) {
+  /*
+   * Same nav-collapse convention `.hide-mobile`/`.hide-desktop` already
+   * use elsewhere in this masthead (below): the full six-item utility
+   * nav is too wide to sit beside the identity cluster at this width,
+   * so it hides and the always-available popup menu (#menu-open)
+   * remains the one way to reach those links — same degrade-to-menu
+   * strategy the `default` layout's own .masthead-right links already
+   * follow via .hide-mobile.
+   */
+  .mast-two-tier-util-nav { display: none; }
+  .mast-two-tier-inner { gap: calc(.75rem * var(--mast-scale)); }
+}
+/*
+ * 640px — this masthead's own smallest established breakpoint: below
+ * it, the site name's single-line width (nowrap, set above for desktop/
+ * tablet single-line legibility) no longer fits — found live in the
+ * previous pass at 375px, the title ran off the edge. Letting it wrap
+ * back to two lines here is the same "shrink gracefully, don't
+ * overflow" floor every other masthead layout already has at its own
+ * narrowest width.
+ */
+@media (max-width: 640px) {
+  .mast-two-tier-identity { flex-shrink: 1; min-width: 0; }
+  .mast-two-tier-brand .mast-nameplate { white-space: normal; }
+  /*
+   * Flag repositioned + capped smaller below 640px — corrected
+   * 2026-09-18 (second mobile pass) after Farhad tested on a real
+   * device (iPhone 16 Pro Max, ~430px) and found the previous -28%
+   * offset pushed the flag so far left it fully covered the search
+   * icon and menu button. Measured live at 430px: the utility box's
+   * own right edge and the identity box's left edge are only ~13px
+   * apart at this width (the title's wrapped two-line block takes up
+   * nearly the whole row) — nowhere near enough room for the flag to
+   * extend past the identity column at all. A small *positive* offset
+   * (pulling the flag's edge inward, safely inside the title's own
+   * column) instead of a negative one is what actually keeps it clear
+   * of the utility box while still reading as "behind the title."
+   * Confirmed live: flag's own left edge now sits to the right of the
+   * utility box's right edge, not overlapping it.
+   */
+  /*
+   * Flag enlarged 2026-09-18 (third mobile pass): Farhad found the
+   * 64px version too small/"contained" — a tiny fully-visible sticker,
+   * nothing like the desktop version's presence. Sized much closer to
+   * desktop now; the header's own `overflow: hidden` (main.css,
+   * .masthead--two-tier) crops whatever exceeds the compact mobile bar
+   * height, which is the intended look here — a zoomed-in crop of a
+   * big flag, not a small complete icon. `inset-inline-end` is
+   * unchanged from the previous fix: for an absolutely positioned
+   * element with only `inset-inline-end` set, that value pins the
+   * element's inline-end (left, under dir="rtl") edge at a fixed
+   * distance from the container's own left edge, *independent of the
+   * element's width* — the element only grows further right (deeper
+   * behind the title) as it gets bigger, never further left toward the
+   * utility box. Confirmed live after this change: the flag's left
+   * edge sits at the same x-position as before, still clear of the
+   * menu/search box.
+   */
+  .mast-two-tier-flag { height: calc(140px * var(--mast-scale)); inset-inline-end: 8%; }
+  /*
+   * Glow corrected 2026-09-18 (third mobile pass): Farhad flagged that
+   * the glow and the flag used two *different* offsets (12% vs the
+   * flag's 8%), so instead of framing the flag it showed up as a
+   * separate dark smudge beside it — not serving the "pop the flag
+   * out" purpose at all. Now uses the exact same `inset-inline-end` as
+   * `.mast-two-tier-flag` above, so it's centered on the flag's real
+   * position, sized up to comfortably surround the now-bigger flag.
+   */
+  .mast-two-tier-flag-glow {
+    width: calc(240px * var(--mast-scale));
+    height: calc(240px * var(--mast-scale));
+    inset-inline-end: 8%;
+    background-image: radial-gradient(circle, var(--ink-soft) 0%, transparent 55%);
+  }
+}
+
 /* WP conversion (Phase 4.1): replaces inline style="" attributes that were
    on _header.html's menu/search separator, search icon link, and
    nameplate-link wrapper — same computed values, moved to classes per
@@ -839,6 +1088,70 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .masthead .mast-icon-link:not(.mast-icon-link--lg) svg,
   .masthead .mast-icon-link--lg svg {
     transition: none;
+  }
+}
+
+/*
+ * `two-tier` search icon — bigger (~30% over the shared 19px baseline
+ * above) and more prominent, Farhad's explicit ask. Matches the shared
+ * rule's own specificity (.masthead .mast-icon-link:not(...) svg) and
+ * is declared after it, so it wins on source order without needing
+ * !important; still driven by --mast-scale, so it shrinks correctly in
+ * the sticky-shrink state exactly like every other masthead icon —
+ * scoped to this layout only, the shared rule above is unchanged for
+ * default/logo/logo-light/logo-radial.
+ */
+.masthead--two-tier .mast-icon-link:not(.mast-icon-link--lg) svg {
+  width: calc(25px * var(--mast-scale));
+  height: calc(25px * var(--mast-scale));
+}
+/*
+ * Hover — corrected 2026-09-18: Farhad flagged the background-pill
+ * treatment above as wrong entirely — he wants hover feedback on the
+ * elements themselves, not a box appearing around them. Removed.
+ * .mast-btn's *shared* `:hover { color: var(--winston-red-tint) }`
+ * rule (main.css, this section's base rules) already gives the menu
+ * button and every nav link a text-brighten-on-hover with zero extra
+ * CSS needed here — this two-tier layout was never overriding `color`,
+ * only adding (now-removed) `background-color`.
+ */
+.masthead--two-tier .mast-icon-link { padding: .4rem; }
+/*
+ * Search icon hover — a line-draw reveal instead of a box: the stroke
+ * animates from fully undrawn to fully drawn on hover, a brief sweep
+ * rather than an instant color/box change. `pathLength="1"` on the
+ * circle/path (template-parts/masthead/two-tier.php) normalizes both
+ * shapes to the same 0-1 dash unit regardless of their actual
+ * geometric length, so `stroke-dasharray: 1` works for both without
+ * hand-computing pixel lengths.
+ *
+ * Default state is fully drawn (dashoffset: 0) — deliberately, not
+ * hidden-until-hover: this icon must stay visible and functional on
+ * touch (mobile/tablet, where `:hover` never fires) and for reduced-
+ * motion users, so the reveal is framed as a decorative flourish that
+ * *replays* on hover, never a gate on the icon's baseline visibility.
+ * The keyframe animation (not a plain transition) is what makes that
+ * "replay from hidden every time" possible — transitioning between two
+ * static states can't do this, since the resting state and the hover
+ * end-state are the same value (0).
+ */
+.masthead--two-tier .mast-icon-link svg circle,
+.masthead--two-tier .mast-icon-link svg path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.masthead--two-tier .mast-icon-link:hover svg circle,
+.masthead--two-tier .mast-icon-link:hover svg path {
+  animation: mastSearchDraw .5s ease;
+}
+@keyframes mastSearchDraw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .masthead--two-tier .mast-icon-link:hover svg circle,
+  .masthead--two-tier .mast-icon-link:hover svg path {
+    animation: none;
   }
 }
 
