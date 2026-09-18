@@ -471,12 +471,12 @@ if ( $has_mostviewed ) {
 ?>
 
 <?php if ( $articles_query->have_posts() ) : ?>
-	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?>">
+	<section class="sect-cream sect" aria-label="<?php esc_attr_e( 'تازه‌ترین مقاله‌ها', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between<?php echo $has_spotlight ? ' section-head--with-spotlight' : ''; ?>">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین مقالات', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php esc_html_e( 'تازه‌ترین مقاله‌ها', 'shola-jawid' ); ?></h2>
 				</div>
 				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>

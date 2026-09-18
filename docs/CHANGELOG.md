@@ -10471,3 +10471,10 @@ trail of *why* the build deviated from — or newly applied — a rule in
   page's h1 exactly. Verified live.
   Theme version bumped 1.32.3 -> 1.32.4 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: homepage Recent Articles section title text
+- **Changed:** the تازه‌ترین مقالات section heading (front-page.php) and
+  its matching aria-label are now "تازه‌ترین مقاله‌ها" -- Farhads exact
+  requested text. Verified live via the rendered h2.
+  Theme version bumped 1.32.4 -> 1.32.5 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
