@@ -2494,6 +2494,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   line-height: 1.4;
 }
 .hero-pub-card-minimal-title a { color: var(--paper); }
+/* Fix (2026-09-18): the title link is <a class="link-quiet"> —
+   .link-quiet:hover { color: var(--winston-red) } (main.css §04) made
+   the text turn red-on-red on hover and effectively vanish, same
+   "crimson-on-crimson" issue already documented and fixed the same way
+   for .mast-icon-link above. Higher specificity than .link-quiet:hover
+   so it always wins regardless of source order; stays white on hover
+   instead of disappearing. */
+.hero-pub-card-minimal-title a:hover { color: var(--paper); }
 @media (prefers-reduced-motion: reduce) {
   .hero-pub-card-minimal-cover img { transition: none; }
 }

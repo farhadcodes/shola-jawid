@@ -10570,3 +10570,19 @@ trail of *why* the build deviated from — or newly applied — a rule in
   `overlay`'s own `.hero-pub-card` and the rail layouts are untouched.
   Theme version bumped 1.34.0 -> 1.34.1 (patch: sizing + color change).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: minimal_cover hero title link vanished on hover
+- **Fixed:** `.hero-pub-card-minimal-title`'s link is `<a class="link-
+  quiet">`, and `.link-quiet:hover { color: var(--winston-red) }`
+  (main.css §04) turned the text red on the now-red title background,
+  making it disappear on hover -- same "crimson-on-crimson" issue
+  already documented and fixed the same way for `.mast-icon-link`
+  (main.css §04.x, 2026-08-08). Fixed with a scoped, higher-specificity
+  `.hero-pub-card-minimal-title a:hover { color: var(--paper) }` so it
+  always wins regardless of source order; text now stays white on
+  hover. Farhad caught this live via an annotated screenshot right
+  after the 1.34.1 red-title change shipped.
+  Verified live at 1440px: hovering the title no longer makes the text
+  disappear.
+  Theme version bumped 1.34.1 -> 1.34.2 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
