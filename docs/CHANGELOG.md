@@ -10453,3 +10453,13 @@ trail of *why* the build deviated from — or newly applied — a rule in
   nav link text is unchanged.
   Theme version bumped 1.32.1 -> 1.32.2 (patch).
   Approved by: Farhad, in this session (2026-09-18).
+
+## 2026-09-18 -- fix: homepage announcement spotlight type-label updated
+- **Changed:** the small "اطلاعیه" type-label badge on the homepage
+  اطلاعیه spotlight tile (template-parts/cards/announcement-spotlight.php,
+  embedded in تازه‌ترین مقالات's grid) now reads "اطلاعیه و بیانیه" --
+  Farhad's follow-up ask after the archive page's h1 title change.
+  Kept singular (not "اطلاعیه‌ها و بیانیه‌ها") since this badge tags one
+  specific post as its type, not a section heading. Verified live.
+  Theme version bumped 1.32.2 -> 1.32.3 (patch).
+  Approved by: Farhad, in this session (2026-09-18).
