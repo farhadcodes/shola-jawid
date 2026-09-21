@@ -397,7 +397,14 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 $announcement_query = new WP_Query(
 	array(
 		'post_type'      => 'announcement',
-		'posts_per_page' => 3,
+		/*
+		 * 3 -> 5, 2026-09-21: client feedback (relayed by Farhad,
+		 * annotated screenshot) that the tile looked "a little empty" —
+		 * visible leftover space below the 3rd item. announcement-
+		 * spotlight.php's own $rest slice raised 2 -> 4 to match (1
+		 * featured + 4 compact = 5 total).
+		 */
+		'posts_per_page' => 5,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)

@@ -7,11 +7,13 @@
  * grid row tall (matching a single article card) on desktop — see
  * .card-spotlight, assets/css/main.css.
  *
- * Shows up to 3 اطلاعیه‌ها, not just the latest one: the newest rendered
- * prominently (title + excerpt + date), the other 2 as a compact,
- * smaller list (title + date only) below it.
+ * Shows up to 5 اطلاعیه‌ها (raised from 3, 2026-09-21 — client feedback,
+ * relayed by Farhad with an annotated screenshot, that the tile looked
+ * "a little empty" below the 3rd item), not just the latest one: the
+ * newest rendered prominently (title + excerpt + date), the other 4 as
+ * a compact, smaller list (title + date only) below it.
  *
- * Each item carries a numbered badge (۱/۲/۳, `.card-spotlight-index`) —
+ * Each item carries a numbered badge (۱–۵, `.card-spotlight-index`) —
  * added 2026-09-07 (still Phase 11), after Farhad reviewed a live
  * screenshot and asked for the newest-to-oldest order to be
  * unambiguous "without being puzzled." The original version relied on
@@ -27,7 +29,7 @@
  * by design, not an oversight.
  *
  * @param array $args {
- *     @type WP_Post[] $posts 1-3 اطلاعیه posts, newest first.
+ *     @type WP_Post[] $posts 1-5 اطلاعیه posts, newest first.
  * }
  */
 
@@ -42,7 +44,7 @@ if ( ! $announcements ) {
 }
 
 $featured = array_shift( $announcements );
-$rest     = array_slice( $announcements, 0, 2 );
+$rest     = array_slice( $announcements, 0, 4 );
 ?>
 <article class="card-spotlight reveal">
 	<div class="card-spotlight-body">

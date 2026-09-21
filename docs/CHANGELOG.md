@@ -10786,3 +10786,28 @@ trail of *why* the build deviated from — or newly applied — a rule in
   image.
   Theme version bumped 1.35.4 -> 1.35.5 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: اطلاعیه spotlight tile shows 5 announcements instead of 3
+- **Changed:** front-page.php's `$announcement_query` `posts_per_page`
+  3 -> 5, and announcement-spotlight.php's `$rest` slice 2 -> 4 (1
+  featured + 4 compact = 5 total) — client feedback, relayed by Farhad
+  with an annotated screenshot, that the tile had visible empty space
+  below the 3rd item and looked unfinished. Docblock comments in both
+  files updated to match (1-3 -> 1-5, "۱/۲/۳" -> "۱–۵").
+  Verified live: with 5 seeded اطلاعیه posts, the tile renders the
+  featured item plus 4 compact rows (confirmed via DOM query,
+  `.card-spotlight-more li` count = 4).
+  Note for Farhad to check once live with real content: the tile's grid
+  row is shared with the article cards beside it (desktop, ≥1000px) —
+  with 5 items its natural height can now exceed a single article
+  card's height (it did with this local test data, whose seeded
+  اطلاعیه titles happen to be on the longer side), which would leave
+  extra blank space below the shorter article card(s) in that same row
+  rather than the tile overflowing or clipping. Not a bug — the row
+  simply grows to fit the tallest cell, standard CSS Grid behavior — but
+  worth a live look with the real 5 announcements, since actual title
+  lengths will decide how noticeable that gap is; can tighten
+  `.card-spotlight-more`'s row spacing afterward if it looks too tall.
+  Theme version bumped 1.35.5 -> 1.36.0 (minor: content-count change).
+  No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
