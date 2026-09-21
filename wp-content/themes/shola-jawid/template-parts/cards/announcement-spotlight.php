@@ -49,7 +49,19 @@ $rest     = array_slice( $announcements, 0, 4 );
 <article class="card-spotlight reveal">
 	<div class="card-spotlight-body">
 		<p class="type-label">
-			<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+			<?php
+			/*
+			 * Filled bell, not the outlined/stroke version this label used
+			 * until 2026-09-21 — Farhad's live follow-up: now that this tag
+			 * sits on its own white background (not the tile's solid red),
+			 * a thin outline glyph read as weak; a solid filled icon
+			 * matches the tag's bold, letterspaced text weight better.
+			 * fill="currentColor" so it still inherits --winston-red from
+			 * .type-label's own color, same as the outlined version did via
+			 * stroke="currentColor".
+			 */
+			?>
+			<svg class="glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
 			<span><?php esc_html_e( 'اطلاعیه‌ها و بیانیه‌ها', 'shola-jawid' ); ?></span>
 		</p>
 		<div class="card-spotlight-item card-spotlight-item--featured">

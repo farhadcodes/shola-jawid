@@ -1757,7 +1757,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .card-spotlight .type-label {
   position: absolute;
   top: 0;
-  inset-inline-start: 1.75rem;
+  /* 1.75rem -> 0, 2026-09-21: Farhad's live follow-up — the tag should
+     align flush with the card's own edge (this site's RTL, so
+     inset-inline-start is the visually-right side), not sit inset from
+     it with a gap. */
+  inset-inline-start: 0;
   transform: translateY(-100%);
   z-index: 1;
   background: var(--paper);

@@ -10859,3 +10859,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   overlap.
   Theme version bumped 1.36.1 -> 1.36.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: ribbon tag flush-aligned, bell icon now filled
+- **Changed:** `.card-spotlight .type-label`'s `inset-inline-start`
+  1.75rem -> 0 — Farhad's live follow-up: the tag should sit flush
+  against the card's own edge (this site's RTL, so inset-inline-start
+  is the visually-right side), not inset from it with a visible gap.
+- **Changed:** the bell icon in template-parts/cards/announcement-
+  spotlight.php's `.type-label` switched from an outlined/stroke SVG to
+  a solid filled one (`fill="currentColor"`, no stroke) — Farhad's
+  explicit ask, now that the tag sits on a white background rather than
+  the tile's own red, where a thin outline read as weak next to the
+  bold letterspaced text. Scoped to this one inline SVG only — the
+  unrelated `shola_bell_icon()` helper (used by the minimal_cover hero
+  card's description strip) was left untouched, since that's a
+  different component the client didn't ask to change.
+  Verified live at 1200px: `getBoundingClientRect()` confirms the tag's
+  right edge and the card's right edge are identical (0px gap), and the
+  rendered SVG's `fill` attribute is `currentColor` (inheriting
+  --winston-red) with no stroke.
+  Theme version bumped 1.36.2 -> 1.36.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
