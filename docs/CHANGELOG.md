@@ -11011,3 +11011,28 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   3-column grid with no overflow or misalignment.
   Theme version bumped 1.38.0 -> 1.38.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: گزیده‌ها rows rebalanced to a proportional 40/60 image/text split
+- **Changed:** `.selected-row`'s `grid-template-columns` `180px 1fr` ->
+  `2fr 3fr` (40/60). Root cause of the imbalance Farhad flagged (image
+  column reading too small next to the text): a *fixed* 180px image
+  column next to a `1fr` text column meant the image stayed pinned at a
+  constant width while text kept absorbing all remaining space —
+  worsening the imbalance the wider the row got, most visible at this
+  component's 2-column tablet width where the text column had the most
+  room to grow. Proposed a proportional `fr`-based split instead
+  (professional-practice recommendation, approved by Farhad after
+  discussion) so both columns scale together and keep the same relative
+  balance at every width, rather than picking new fixed numbers that
+  would drift again at some other width.
+- **Changed:** `.selected-row-media` `width: 180px` -> `100%`, to match
+  -- it now fills whatever width its new `2fr` column resolves to,
+  instead of floating at a constant 180px inside a now-wider column.
+  Aspect-ratio (5/4, from the previous round) unchanged, so height still
+  scales proportionally with the new variable width.
+  Verified live via `getBoundingClientRect()`: the image/text width
+  ratio measures exactly 40.0% at both the 2-column tablet width
+  (900px) and the 3-column desktop width (1400px) -- confirmed
+  consistent, not just correct at one breakpoint.
+  Theme version bumped 1.38.1 -> 1.38.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).

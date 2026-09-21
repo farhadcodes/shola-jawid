@@ -2986,7 +2986,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * grid-based fix already documented on this site (.card-spotlight,
  * main.css §09).
  */
-.selected-row { display: grid; grid-template-columns: 180px 1fr; align-items: start; gap: 1.25rem; min-width: 0; }
+/* grid-template-columns 180px 1fr -> 2fr 3fr, 2026-09-21, per Farhad's
+   explicit ask (professional-practice proposal he approved): a fixed
+   180px image column next to a `1fr` text column meant the image
+   stayed pinned at a constant width while text kept growing at wider
+   rows, worsening the imbalance the wider this row got (most visible at
+   this component's 2-column tablet width, where the text column had
+   the most room to grow). `2fr 3fr` (~40/60) keeps that same relative
+   balance at every width instead. */
+.selected-row { display: grid; grid-template-columns: 2fr 3fr; align-items: start; gap: 1.25rem; min-width: 0; }
 /*
  * Reworked from a fixed-width/text-height-tracking box to a fixed
  * *landscape* aspect-ratio, 2026-09-16, per Farhad: the previous
@@ -2995,11 +3003,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * .issue-cover — all portrait) rather than its *article* convention
  * (.card-media, 3:2 landscape) — a real ambiguity for a section that
  * exclusively curates articles/reports, not publications. `aspect-ratio:
- * 3/2` reuses that exact article-card ratio; 180px width is wide enough
- * for the resulting 120px-tall image to read as a genuine article
- * thumbnail rather than a thin strip, while still leaving reasonable
- * room for the text column at this component's narrowest real-world
- * 2-column width (tablet, ~720px).
+ * 3/2` (since 2026-09-21, 5/4 — see below) reuses that same article-card
+ * approach: a fixed ratio, not a fixed pixel size, so it reads as a
+ * genuine article thumbnail rather than a thin strip at any width this
+ * column resolves to.
  *
  * No longer bookends the text column's full height (that was last
  * round's explicit goal) — a fixed landscape ratio and "grows to match
@@ -3007,14 +3014,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * matching this site's own article-image language was the priority
  * Farhad set this round.
  */
-/* aspect-ratio 3/2 (120px tall at this 180px width) -> 5/4 (144px tall),
-   2026-09-21, per Farhad's explicit ask for a taller thumbnail. Width
-   left unchanged — only the height grows, via a taller ratio rather
-   than a fixed height, so it still scales cleanly if this component's
-   width ever changes. */
+/* aspect-ratio 3/2 (120px tall at this 180px width) -> 5/4, 2026-09-21,
+   per Farhad's explicit ask for a taller thumbnail — height still
+   scales off the ratio, not a fixed pixel value.
+   width: 180px -> 100%, same day, once .selected-row's own column
+   change (180px 1fr -> 2fr 3fr, just above) made the image column
+   itself proportional rather than a fixed 180px — this now simply
+   fills whatever width that 2fr column resolves to at each breakpoint,
+   instead of floating at a constant 180px inside a wider column. */
 .selected-row-media {
   display: block;
-  width: 180px;
+  width: 100%;
   aspect-ratio: 5 / 4;
   overflow: hidden;
 }
