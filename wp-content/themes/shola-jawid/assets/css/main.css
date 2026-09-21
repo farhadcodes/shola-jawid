@@ -3007,10 +3007,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * matching this site's own article-image language was the priority
  * Farhad set this round.
  */
+/* aspect-ratio 3/2 (120px tall at this 180px width) -> 5/4 (144px tall),
+   2026-09-21, per Farhad's explicit ask for a taller thumbnail. Width
+   left unchanged — only the height grows, via a taller ratio rather
+   than a fixed height, so it still scales cleanly if this component's
+   width ever changes. */
 .selected-row-media {
   display: block;
   width: 180px;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 5 / 4;
   overflow: hidden;
 }
 .selected-row-media img {
@@ -3030,12 +3035,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .selected-row-body { min-width: 0; }
 .selected-row-body .type-label { margin-bottom: .25rem; }
 /*
- * Title/excerpt sizes tightened, same day, per Farhad's explicit
- * numbers: title from .h-card's site-wide default (--t-h4, 20px) down
- * to 16px, excerpt from .card-dek's site-wide default (15px) down to
- * --t-caption (12px, an existing token — no new scale value needed).
- * Both scoped to this component only; every other .h-card/.card-dek on
- * the site is untouched.
+ * Title/excerpt sizes tightened 2026-09-16, per Farhad's explicit
+ * numbers at the time: title from .h-card's site-wide default (--t-h4,
+ * 20px) down to 16px, excerpt from .card-dek's site-wide default (15px)
+ * down to --t-caption (12px, an existing token — no new scale value
+ * needed). Title raised again 2026-09-21, 16px -> 18px (see the rule
+ * itself below) — a separate, later ask. Both still scoped to this
+ * component only; every other .h-card/.card-dek on the site is
+ * untouched.
  */
 /*
  * Title capped at 2 lines, added alongside the grid rework above (same
@@ -3046,8 +3053,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * headline balloon both the whole row *and* every cover image sharing
  * that row. A ceiling here keeps row (and cover) heights predictable.
  */
+/* font-size 16px -> 18px, 2026-09-21, per Farhad's explicit ask. */
 .selected-row-body .h-card {
-  font-size: 1rem;
+  font-size: 1.125rem;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;

@@ -10996,3 +10996,18 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   color-override removal, not just a single property tweak). No plugin
   change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: گزیده‌ها thumbnails taller, title font-size raised
+- **Changed:** `.selected-row-media`'s `aspect-ratio` 3/2 -> 5/4 — at
+  the existing fixed 180px width this raises the thumbnail from 120px
+  to 144px tall, per Farhad's explicit ask. Width left unchanged;
+  height grows via the ratio rather than a fixed pixel value, so it
+  keeps scaling cleanly if this component's width ever changes.
+- **Changed:** `.selected-row-body .h-card` font-size 16px -> 18px
+  (1rem -> 1.125rem), per Farhad's explicit ask.
+  Verified live: computed thumbnail box measures 180x144px, and the
+  title's computed font-size resolves to 18px; visually confirmed the
+  taller thumbnails and larger titles still fit cleanly in the existing
+  3-column grid with no overflow or misalignment.
+  Theme version bumped 1.38.0 -> 1.38.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
