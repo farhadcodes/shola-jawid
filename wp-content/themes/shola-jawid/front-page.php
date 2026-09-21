@@ -427,7 +427,13 @@ $has_spotlight = $announcement_query->have_posts();
 $most_viewed_query = new WP_Query(
 	array(
 		'post_type'           => array( 'post', 'announcement' ),
-		'posts_per_page'      => 5,
+		/*
+		 * 5 -> 6, 2026-09-21: Farhad's explicit ask — the panel had
+		 * visible empty space below its 5th item, one more row fills
+		 * it out. most-viewed-panel.php's own $rest slice raised
+		 * 4 -> 5 to match (1 featured + 5 list rows = 6 total).
+		 */
+		'posts_per_page'      => 6,
 		'orderby'             => 'meta_value_num',
 		'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
 		'order'               => 'DESC',

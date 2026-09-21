@@ -25,8 +25,11 @@
  * timestamped log, so a toggle that didn't actually change the ranking would
  * be worse than no toggle at all; Farhad confirmed dropping it, 2026-09-15.
  *
+ * Count raised 5 -> 6 (items #2-6, not #2-5), 2026-09-21, per Farhad's
+ * explicit ask: the panel had visible empty space below its 5th item.
+ *
  * @param array $args {
- *     @type WP_Post[] $posts Up to 5 posts, most-viewed first.
+ *     @type WP_Post[] $posts Up to 6 posts, most-viewed first.
  * }
  */
 
@@ -41,7 +44,7 @@ if ( ! $most_viewed ) {
 }
 
 $featured = array_shift( $most_viewed );
-$rest     = array_slice( $most_viewed, 0, 4 );
+$rest     = array_slice( $most_viewed, 0, 5 );
 ?>
 <div class="most-viewed-panel reveal">
 	<p class="mv-title"><?php esc_html_e( 'پربازدیدترین‌ها', 'shola-jawid' ); ?></p>

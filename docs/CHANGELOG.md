@@ -10959,3 +10959,15 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   floating above it).
   Theme version bumped 1.37.0 -> 1.37.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: پربازدیدترین‌ها heading smaller, panel shows 6 items
+- **Changed:** `.mv-title` (the "پربازدیدترین‌ها" panel heading)
+  font-size 22px -> 20px, per Farhad's explicit ask.
+- **Changed:** front-page.php's `$most_viewed_query` `posts_per_page`
+  5 -> 6, and most-viewed-panel.php's `$rest` slice 4 -> 5 (1 featured +
+  5 list rows = 6 total) — Farhad's explicit ask: the panel had visible
+  empty space below its 5th item.
+  Verified live: computed `.mv-title` font-size resolves to 20px, and
+  the panel renders 6 total items (1 featured + 5 list rows).
+  Theme version bumped 1.37.1 -> 1.37.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
