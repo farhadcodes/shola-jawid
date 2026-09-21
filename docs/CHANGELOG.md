@@ -10811,3 +10811,30 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.35.5 -> 1.36.0 (minor: content-count change).
   No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: اطلاعیه tile label turned into a floating ribbon tag
+- **Changed:** `.card-spotlight .type-label` ("اطلاعیه‌ها و بیانیه‌ها")
+  moved out of the tile's normal content flow and turned into a
+  floating tag straddling the tile's own top edge, per Farhad relaying
+  the client's explicit ask to take it "out of the frame" with a
+  "unique design." `position: absolute; top: 0; transform:
+  translateY(-50%)` on `.card-spotlight` (now `position: relative`)
+  puts half the tag above the frame (genuinely outside it) and half
+  overlapping the top edge — a deliberate anchor so it reads as
+  attached to the card, not an unrelated floating label.
+  Colors flipped back to solid `--winston-red` background / `--paper`
+  text (the inside version had these inverted, for a different reason —
+  standing out against the tile's own red background) — per the
+  client's explicit ask for "a very prominent color from the branding"
+  that still stays on-brand: this is the exact same red as the tile and
+  the masthead, so the tag reads as an intentional accent rather than
+  an arbitrary new color. Drop shadow added for a lifted, sitting-on-
+  top depth cue; sharp corners kept (no border-radius, same as every
+  other element on this site).
+  Verified live at desktop (1200px) and mobile (375px): computed styles
+  confirm `background-color: rgb(204, 0, 0)`, `color: rgb(255, 255,
+  255)`, and a `translateY` of roughly half the tag's own height:
+  visually the tag sits cleanly above/straddling the frame at both
+  widths with no clipping or overlap into the content above it.
+  Theme version bumped 1.36.0 -> 1.36.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).

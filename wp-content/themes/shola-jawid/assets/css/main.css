@@ -1656,6 +1656,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 
 .card-spotlight {
+  /* position: relative (2026-09-21) — containing block for the
+     .type-label "ribbon" tag below, which now sits half outside this
+     box's top edge. */
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1728,18 +1732,43 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * it reads instantly against --winston-red instead of blending into it.
  * Sized up (icon 12px -> 16px, bold weight added) since this badge is
  * now the tile's primary "this is official" signal, not a quiet detail.
+ *
+ * Turned into a floating "ribbon" tag, 2026-09-21, per Farhad relaying
+ * the client's ask to take the label out of the frame entirely rather
+ * than sitting inside it. `position: absolute; top: 0` plus
+ * `translateY(-50%)` straddles the tile's own top edge — half the tag
+ * sits above the frame (genuinely outside it, as asked), half overlaps
+ * the frame's top edge (a deliberate anchor so it doesn't read as a
+ * stray floating label with no visual connection to the card). Flipped
+ * back to solid --winston-red/--paper (from the inside version's
+ * inverted paper/red) — the client's explicit ask for "a very prominent
+ * color from the branding" that "should not go out of the brand": this
+ * is the exact same red as the tile itself and the masthead, so the tag
+ * reads as an intentional, on-brand accent sitting on top of the card,
+ * not a mismatched color. It no longer needs the inside version's
+ * "flip polarity to stand out against a red background" reasoning,
+ * since it now sits on the page's own cream/paper background instead —
+ * a solid red flag against that background already commands attention
+ * on its own. Drop shadow added for a lifted, "sitting on top of"
+ * depth cue; sharp corners kept (no border-radius), same as the rest of
+ * this site. `z-index: 1` ensures it renders above the card's own
+ * background layer at the point where the two overlap.
  */
 .card-spotlight .type-label {
-  align-self: flex-start;
-  background: var(--paper);
-  color: var(--winston-red);
+  position: absolute;
+  top: 0;
+  inset-inline-start: 1.75rem;
+  transform: translateY(-50%);
+  z-index: 1;
+  background: var(--winston-red);
+  color: var(--paper);
   font-weight: 800;
   font-size: 0.8125rem;
   letter-spacing: .1em;
-  padding: .4rem .75rem;
-  margin-bottom: .2rem;
+  padding: .5rem .9rem;
+  box-shadow: 0 8px 18px -6px rgba(15, 15, 15, .45);
 }
-.card-spotlight .type-label .glyph { width: 16px; height: 16px; color: var(--winston-red); }
+.card-spotlight .type-label .glyph { width: 16px; height: 16px; color: var(--paper); }
 .card-spotlight .h-card a { color: var(--paper); }
 .card-spotlight a:hover .h-card,
 .card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }
