@@ -10765,3 +10765,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   unchanged.
   Theme version bumped 1.35.3 -> 1.35.4 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: hover stroke now frames the whole card, not just the cover
+- **Moved:** the thin `--winston-red` hover stroke from
+  `.hero-pub-card-minimal-cover` to `.hero-pub-card-minimal` (the outer
+  card wrapper), per Farhad's explicit follow-up: "it should be on the
+  whole frame of everything from the title to the cover to the
+  description... currently it's just on the image." Title, description,
+  and cover all sit flush against each other with no gaps (margin: 0
+  throughout, an existing rule), so the wrapper's own bounding box
+  already traces the full card outline -- one box-shadow ring there
+  frames all three pieces together in a single continuous stroke.
+  The cover's own two-layer drop shadow (box-shadow) is untouched --
+  the hover ring is a separate box-shadow declaration on a different
+  element now, not layered into it.
+  Verified live at 1200px: hovering over the title (not the cover)
+  now sets `.hero-pub-card-minimal`'s computed box-shadow to `rgb(204,
+  0, 0) 0px 0px 0px 1.5px`, confirming the ring now responds to
+  hovering any part of the card and wraps the full frame, not just the
+  image.
+  Theme version bumped 1.35.4 -> 1.35.5 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).

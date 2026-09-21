@@ -2447,7 +2447,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
        layout needed adjusting. */
     width: 250px;
     max-width: calc(100% - 2 * var(--gap-pad-x));
+    transition: box-shadow .3s var(--ease);
   }
+}
+/* Thin --winston-red stroke on hover (2026-09-21, moved here from
+   .hero-pub-card-minimal-cover the same day) — Farhad's follow-up ask:
+   the stroke should frame the whole card (title + description + cover
+   together), not just the cover image. Title/desc/cover all sit flush
+   against each other with no gaps (margin: 0 throughout), so this
+   wrapper's own bounding box already traces the full card outline —
+   a single box-shadow ring here wraps all three in one continuous
+   frame. Kept as a standalone box-shadow (not added to the cover's own
+   two-layer drop shadow, which stays untouched) since this wrapper has
+   no other box-shadow to layer onto. */
+.hero-pub-card-minimal:hover {
+  box-shadow: 0 0 0 1.5px var(--winston-red);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-pub-card-minimal { transition: none; }
 }
 /* aspect-ratio 2/3, not the 3/4 book-cover ratio used everywhere else
    issue covers appear (.hero-pub-card-cover, .issue-cover) — Farhad's
@@ -2462,15 +2479,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   width: 100%;
   border-radius: 0;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
-  transition: box-shadow .3s var(--ease);
-}
-/* Thin --winston-red stroke on hover (2026-09-21), per Farhad's
-   explicit ask — added as a third box-shadow layer (0-blur, 1.5px
-   spread) rather than a border/outline, so the existing drop-shadow
-   pair above is fully preserved, not replaced, and the sharp corners
-   (border-radius: 0) stay exactly as-is with no extra layout shift. */
-.hero-pub-card-minimal-cover:hover {
-  box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25), 0 0 0 1.5px var(--winston-red);
 }
 .hero-pub-card-minimal-cover img {
   width: 100%;
@@ -2553,7 +2561,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-pub-card-minimal-cover img { transition: none; }
-  .hero-pub-card-minimal-cover { transition: none; }
 }
 
 /* --- ۱۰.۴ · Hero "لید + ستون نشریهٔ تمام‌عرض" layout (hero_section:
