@@ -1736,39 +1736,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * Turned into a floating "ribbon" tag, 2026-09-21, per Farhad relaying
  * the client's ask to take the label out of the frame entirely rather
  * than sitting inside it. `position: absolute; top: 0` plus
- * `translateY(-50%)` straddles the tile's own top edge — half the tag
- * sits above the frame (genuinely outside it, as asked), half overlaps
- * the frame's top edge (a deliberate anchor so it doesn't read as a
- * stray floating label with no visual connection to the card). Flipped
- * back to solid --winston-red/--paper (from the inside version's
- * inverted paper/red) — the client's explicit ask for "a very prominent
- * color from the branding" that "should not go out of the brand": this
- * is the exact same red as the tile itself and the masthead, so the tag
- * reads as an intentional, on-brand accent sitting on top of the card,
- * not a mismatched color. It no longer needs the inside version's
- * "flip polarity to stand out against a red background" reasoning,
- * since it now sits on the page's own cream/paper background instead —
- * a solid red flag against that background already commands attention
- * on its own. Drop shadow added for a lifted, "sitting on top of"
- * depth cue; sharp corners kept (no border-radius), same as the rest of
- * this site. `z-index: 1` ensures it renders above the card's own
- * background layer at the point where the two overlap.
+ * `translateY(-100%)` sits the whole tag above the frame, its own
+ * bottom edge flush against the tile's top edge — touching, not
+ * overlapping into it. (First pass used `translateY(-50%)`, straddling
+ * the edge with half overlapping the tile; Farhad's live follow-up
+ * called that change "not noticeable" and asked for the tag fully
+ * outside, just touching the top instead.)
+ * Colors reversed again the same follow-up, per Farhad's explicit
+ * design spec: white (`--paper`) background, `--winston-red` border and
+ * text/icon — the inverse of this pass's own first version (solid
+ * winston-red bg / white text). Border added specifically to carry the
+ * brand color now that the fill itself is white, so the tag still reads
+ * as "prominent, on-brand red" per the original ask, just via an
+ * outline instead of a solid fill. Drop shadow kept for the same
+ * lifted, sitting-on-top depth cue; sharp corners kept (no
+ * border-radius), same as the rest of this site. `z-index: 1` no longer
+ * strictly needed (nothing overlaps now that the tag sits fully above
+ * the tile), left in place as a harmless safeguard.
  */
 .card-spotlight .type-label {
   position: absolute;
   top: 0;
   inset-inline-start: 1.75rem;
-  transform: translateY(-50%);
+  transform: translateY(-100%);
   z-index: 1;
-  background: var(--winston-red);
-  color: var(--paper);
+  background: var(--paper);
+  color: var(--winston-red);
+  border: 1.5px solid var(--winston-red);
   font-weight: 800;
   font-size: 0.8125rem;
   letter-spacing: .1em;
   padding: .5rem .9rem;
   box-shadow: 0 8px 18px -6px rgba(15, 15, 15, .45);
 }
-.card-spotlight .type-label .glyph { width: 16px; height: 16px; color: var(--paper); }
+.card-spotlight .type-label .glyph { width: 16px; height: 16px; color: var(--winston-red); }
 .card-spotlight .h-card a { color: var(--paper); }
 .card-spotlight a:hover .h-card,
 .card-spotlight .h-card a:hover { color: rgba(255, 255, 255, .8); }

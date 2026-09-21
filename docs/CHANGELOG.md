@@ -10838,3 +10838,24 @@ trail of *why* the build deviated from — or newly applied — a rule in
   widths with no clipping or overlap into the content above it.
   Theme version bumped 1.36.0 -> 1.36.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: ribbon tag now touches the frame instead of overlapping, new white/red design
+- **Changed:** `.card-spotlight .type-label`'s `translateY(-50%)` ->
+  `translateY(-100%)` — Farhad's live follow-up called the previous
+  straddle-the-edge version "not noticeable"; the tag now sits fully
+  above the tile with its own bottom edge flush against the tile's top
+  edge (touching, not overlapping).
+- **Changed:** colors reversed per Farhad's explicit design spec: solid
+  `--winston-red` background/`--paper` text -> `--paper` background,
+  `1.5px solid var(--winston-red)` border, `--winston-red` text and
+  icon. The border is what now carries the brand-red "prominent, on-
+  brand" requirement, since the fill itself is white this time.
+  Verified live at 1200px: computed styles confirm
+  `background-color: rgb(255, 255, 255)`, `border: 1px solid rgb(204,
+  0, 0)` (`getComputedStyle` reports the browser's resolved 1px/1.5px
+  rounding, same red), `color: rgb(204, 0, 0)`, and a `translateY` of
+  the tag's own full height (~43px) -- confirmed visually that the tag
+  now sits entirely above the frame, touching its top edge with no
+  overlap.
+  Theme version bumped 1.36.1 -> 1.36.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
