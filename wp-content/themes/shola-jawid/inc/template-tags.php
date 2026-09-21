@@ -249,6 +249,24 @@ function shola_date_icon() {
 }
 
 /**
+ * Bell/notification glyph — added 2026-09-21 for the minimal_cover hero
+ * publication card's new description strip (shola_render_hero_
+ * publication_card_minimal(), .hero-pub-card-minimal-desc), per Farhad's
+ * explicit ask for "something like a notification" icon before the
+ * text, to give it a little personality and make its announcement-like
+ * purpose immediately readable. Same path already used site-wide for
+ * اطلاعیه‌ها (template-parts/cards/announcement-spotlight.php's
+ * .type-label icon) — reused here as its own shared function rather
+ * than duplicated inline, same convention as shola_date_icon()/
+ * shola_word_count_icon() above.
+ *
+ * @return string Trusted, static inline SVG markup.
+ */
+function shola_bell_icon() {
+	return '<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+}
+
+/**
  * Word-count glyph (three text lines) — added 2026-09-16 alongside
  * shola_date_icon()/shola_clock_icon() for single.php's redesigned
  * article-meta box (see .article-meta-box, main.css): Farhad flagged
@@ -1198,7 +1216,10 @@ function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
 	?>
 	<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
 	<?php if ( $description ) : ?>
-		<p class="hero-pub-card-minimal-desc"><?php echo esc_html( $description ); ?></p>
+		<p class="hero-pub-card-minimal-desc">
+			<?php echo shola_bell_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+			<span><?php echo esc_html( $description ); ?></span>
+		</p>
 	<?php endif; ?>
 	<a href="<?php echo esc_url( $permalink ); ?>" class="hero-pub-card-minimal-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_hero_minimal_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>

@@ -2504,19 +2504,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .hero-pub-card-minimal-title a:hover { color: var(--paper); }
 /* Optional description strip (2026-09-21) — sits flush between the
    title and the cover (margin: 0 on all three, no gap), same "sharp
-   corners throughout" rule as the rest of this card. `--cinder-red`,
-   not `--winston-red` again — the title strip directly above already
-   uses that exact red; a second identical block would read as one
-   oversized strip instead of two distinct ones. Small font size per
-   Farhad's explicit ask ("make sure the font size is not big") — this
-   is a short one-line announcement, not a second title. */
+   corners throughout" rule as the rest of this card. Small font size
+   per Farhad's explicit ask ("make sure the font size is not big") —
+   this is a short one-line announcement, not a second title.
+   Background switched --cinder-red -> --maroon same day, per Farhad's
+   live follow-up: --cinder-red (#330A0A) read as near-black rather than
+   a legible dark red; --maroon (#4A0E0E) is one of the original eleven
+   locked brand tokens and reads clearly as a distinct, deliberately
+   darker red beneath the bright --winston-red title strip above it —
+   the "two-tone red" look Farhad asked for, not a mismatched color.
+   Bell icon (shola_bell_icon(), inc/template-tags.php) added in front
+   of the text in the same follow-up, for the same "notification" read
+   Farhad asked for; flex layout replaces the plain text-only block so
+   icon and text align on one baseline-centered line, same pattern as
+   .card-byline/.type-label's own leading-icon layout elsewhere. */
 .hero-pub-card-minimal-desc {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
   margin: 0;
-  background: var(--cinder-red);
+  background: var(--maroon);
   color: var(--paper);
   padding: .6rem .9rem;
   font-size: .8rem;
   line-height: 1.5;
+}
+.hero-pub-card-minimal-desc .glyph {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-pub-card-minimal-cover img { transition: none; }

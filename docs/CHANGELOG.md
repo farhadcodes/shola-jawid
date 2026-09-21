@@ -10704,3 +10704,34 @@ trail of *why* the build deviated from — or newly applied — a rule in
   Theme version bumped 1.35.1 -> 1.35.2 (patch). Plugin version bumped
   1.20.0 -> 1.21.0 (minor: new content-model field).
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: hero card description strip color + added bell icon
+- **Changed:** `.hero-pub-card-minimal-desc` background `--cinder-red`
+  (#330A0A) -> `--maroon` (#4A0E0E), per Farhad's live follow-up:
+  --cinder-red read as near-black rather than a legible dark red.
+  --maroon is one of the original eleven locked brand tokens, and reads
+  clearly as a distinct, deliberately darker red beneath the bright
+  --winston-red title strip above it -- the "two-tone red, feels
+  unique" look Farhad asked for, still fully within the brand palette
+  (no new color invented).
+- **Added:** a bell/notification icon (new `shola_bell_icon()` helper,
+  inc/template-tags.php, same convention as shola_date_icon()/
+  shola_word_count_icon()) in front of the description text, per
+  Farhad's explicit ask for "something like a notification" icon to
+  make the strip's purpose immediately readable and give it "a little
+  personality." Reuses the exact SVG path already used site-wide for
+  اطلاعیه‌ها (announcement-spotlight.php's .type-label icon) as a shared
+  function rather than a new icon design or a duplicated inline SVG.
+  `.hero-pub-card-minimal-desc` changed from a plain text block to a
+  flex row (icon + text, baseline-centered, .4rem gap) to fit the icon
+  in cleanly -- same leading-icon layout pattern already used by
+  .card-byline/.type-label elsewhere on the site.
+  Verified: the reused bell-icon SVG already renders correctly
+  elsewhere on the live site (اطلاعیه‌ها spotlight tile); the color/
+  layout change itself is a straightforward CSS swap reviewed directly
+  in code. Could not populate the new shcore_hero_pub_description field
+  itself to screenshot this exact strip locally (requires a wp-admin
+  login this session doesn't perform), so Farhad should do a final
+  visual check once this build is live.
+  Theme version bumped 1.35.2 -> 1.35.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
