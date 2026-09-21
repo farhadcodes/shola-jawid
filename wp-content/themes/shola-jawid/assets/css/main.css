@@ -1662,17 +1662,17 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   position: relative;
   display: flex;
   flex-direction: column;
-  /* space-between -> flex-start, 2026-09-21: once the type-label moved
-     out of .card-spotlight-body's flow onto the ribbon tag (above), the
-     body's own content got shorter while the tile's height (set by the
-     taller article cards sharing its grid row) stayed the same —
-     space-between stretched that leftover height into a visible dead
-     gap between the content and the "همهٔ اطلاعیه‌ها" link, which
-     Farhad flagged live. flex-start plus the internal spacing increases
-     below (.card-spotlight-body's gap, the compact list's own padding)
-     let any real leftover height fall below the link instead, which
-     reads as normal card bottom padding rather than a stray gap. */
-  justify-content: flex-start;
+  /* space-between -> flex-start -> space-between, 2026-09-21 (same day,
+     second pass): the flex-start version pushed "همهٔ اطلاعیه‌ها" up
+     right after the content instead of anchoring it to the tile's
+     bottom edge — Farhad's live follow-up asked for the button back at
+     the bottom "as previous," while still keeping the reduced gap this
+     pass's other changes (bigger .card-spotlight-body gap, taller
+     compact-list padding, 3-line excerpt clamp) already achieved. Back
+     to space-between: the link now anchors to the bottom again, but the
+     real leftover space above it is smaller than before this pass,
+     since the content itself now fills more of the tile. */
+  justify-content: space-between;
   gap: 1.25rem;
   /*
    * min-width: 0 — the real fix for a bug reported live 2026-09-08:
@@ -1727,7 +1727,14 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    */
   order: 1;
 }
-.card-spotlight-body { display: flex; flex-direction: column; gap: 1rem; }
+/* margin-top: .5rem, 2026-09-21 — small breathing room above the
+   featured item now that the type-label no longer sits in this flow
+   (moved to the ribbon tag above, see .type-label's own comment):
+   without it, the featured badge/title sat flush against the tile's
+   top padding, reading as too close to the top edge right under the
+   tag. Farhad's explicit ask to "centralize it a little," not a full
+   vertical-center — a small nudge down is enough. */
+.card-spotlight-body { display: flex; flex-direction: column; gap: 1rem; margin-top: .5rem; }
 /*
  * Eyebrow badge — reworked 2026-09-07 (still Phase 11), per Farhad
  * reviewing the shipped tile live and flagging that the small uppercase
@@ -1829,7 +1836,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    card's leftover height" fix as .card-spotlight's justify-content
    change above: a slightly longer excerpt is real content filling that
    space, not just added padding. */
-.card-spotlight .card-dek { color: rgba(255, 255, 255, .9); -webkit-line-clamp: 3; line-clamp: 3; }
+/* color .9 -> .63 (~30% dimmer), 2026-09-21, per Farhad's explicit ask:
+   the excerpt's bright white read as too glaring/tiring to read at
+   length against the solid red background (more so now that it's a
+   3-line clamp instead of 2, from this same pass's earlier change).
+   Left the featured headline itself (.h-card a, var(--paper), just
+   above) at full white — that's the tile's one primary heading and
+   needs to stay the most prominent element, same convention as every
+   other card's title on this site. Also deliberately left the compact
+   list's own titles (.card-spotlight-more a, further below) untouched
+   at .95 — dimming those too would have made them dimmer than their
+   own date text (.72, from the previous pass), inverting the title/
+   date hierarchy that pass was built to strengthen. */
+.card-spotlight .card-dek { color: rgba(255, 255, 255, .63); -webkit-line-clamp: 3; line-clamp: 3; }
 /* Dimmed + shrunk, 2026-09-21, per Farhad's explicit ask: the date
    read too close in brightness/size to the title next to it. Dropped
    to rgba(...,.72) rather than further — this exact tile already hit a

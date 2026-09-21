@@ -10924,3 +10924,38 @@ approval:
   Theme version bumped 1.36.3 -> 1.37.0 (minor: layout + accessibility-
   tradeoff change, not just a style tweak). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: featured item breathing room, dimmer excerpt, button back at the bottom
+Three more changes, same day, per Farhad's live follow-up screenshot:
+- **Featured item nudged down**: `.card-spotlight-body` gets `margin-
+  top: .5rem` — since the type-label moved out of this flow onto the
+  ribbon tag (earlier today), the featured badge/title sat flush
+  against the tile's top padding with no breathing room under the tag.
+  A small nudge, not a full vertical-center, per Farhad's own "a little"
+  wording.
+- **Excerpt dimmed ~30%**: `.card-spotlight .card-dek` color `.9` ->
+  `.63`, per Farhad's explicit "at least thirty percent dimmer" ask —
+  the bright white 3-line excerpt (itself lengthened by an earlier
+  change today) read as glaring/tiring to read against the solid red.
+  Deliberately scoped to just the excerpt: the featured headline
+  (`.h-card a`) stayed at full white (the tile's one primary heading,
+  same convention as every card title on this site), and the compact
+  list's own titles (`.card-spotlight-more a`) were left at `.95` —
+  dimming those too would have made them dimmer than their own date
+  text (`.72`, from the previous pass), inverting the title/date
+  hierarchy that pass was built to strengthen.
+- **Button back at the bottom**: `.card-spotlight`'s `justify-content`
+  reverted `flex-start` -> `space-between` — the flex-start version
+  (this same day's earlier pass) pushed "همهٔ اطلاعیه‌ها" up right after
+  the content instead of anchoring it to the tile's bottom edge; Farhad
+  asked for it back "as previous." The other spacing increases from
+  that earlier pass (body gap, compact-list padding, 3-line excerpt)
+  stay in place, so the real gap above the button is still smaller than
+  it was before today even with space-between restored.
+  Verified live at 1200px: computed styles confirm the excerpt's dimmed
+  color and the body's new top margin; measured the gap between the
+  link and the tile's bottom edge at exactly 28px (this tile's own
+  1.75rem padding, i.e. the link sits flush against the padding, not
+  floating above it).
+  Theme version bumped 1.37.0 -> 1.37.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
