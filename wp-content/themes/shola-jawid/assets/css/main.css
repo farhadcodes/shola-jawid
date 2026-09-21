@@ -2462,6 +2462,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   width: 100%;
   border-radius: 0;
   box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25);
+  transition: box-shadow .3s var(--ease);
+}
+/* Thin --winston-red stroke on hover (2026-09-21), per Farhad's
+   explicit ask — added as a third box-shadow layer (0-blur, 1.5px
+   spread) rather than a border/outline, so the existing drop-shadow
+   pair above is fully preserved, not replaced, and the sharp corners
+   (border-radius: 0) stay exactly as-is with no extra layout shift. */
+.hero-pub-card-minimal-cover:hover {
+  box-shadow: 0 30px 60px -30px rgba(15, 15, 15, .45), 0 6px 20px -8px rgba(15, 15, 15, .25), 0 0 0 1.5px var(--winston-red);
 }
 .hero-pub-card-minimal-cover img {
   width: 100%;
@@ -2517,14 +2526,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    of the text in the same follow-up, for the same "notification" read
    Farhad asked for; flex layout replaces the plain text-only block so
    icon and text align on one baseline-centered line, same pattern as
-   .card-byline/.type-label's own leading-icon layout elsewhere. */
+   .card-byline/.type-label's own leading-icon layout elsewhere.
+   Background switched again, same day: --maroon still read as too
+   dominant/attention-grabbing, competing with the title strip above it
+   instead of staying secondary to it — Farhad's explicit ask was a
+   subtle, creamy brand color instead, with text/icon reversed to dark.
+   `--cream` (#FAF8F3, one of the eleven locked tokens, already this
+   site's default page background) plus `--ink-soft` text — `color` set
+   once on the wrapper so the icon (currentColor) reverses along with
+   the text, no separate icon override needed. */
 .hero-pub-card-minimal-desc {
   display: flex;
   align-items: center;
   gap: .4rem;
   margin: 0;
-  background: var(--maroon);
-  color: var(--paper);
+  background: var(--cream);
+  color: var(--ink-soft);
   padding: .6rem .9rem;
   font-size: .8rem;
   line-height: 1.5;
@@ -2536,6 +2553,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-pub-card-minimal-cover img { transition: none; }
+  .hero-pub-card-minimal-cover { transition: none; }
 }
 
 /* --- ۱۰.۴ · Hero "لید + ستون نشریهٔ تمام‌عرض" layout (hero_section:

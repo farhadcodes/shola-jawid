@@ -10735,3 +10735,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   visual check once this build is live.
   Theme version bumped 1.35.2 -> 1.35.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: description strip now subtle cream, plus a hover stroke on the cover
+- **Changed:** `.hero-pub-card-minimal-desc` background `--maroon` ->
+  `--cream` (#FAF8F3), text/icon color `--paper` -> `--ink-soft` — the
+  maroon still read as too dominant, drawing attention ahead of the
+  title above it. Farhad's explicit ask was a subtle, creamy brand color
+  with the text and icon reversed to dark; `--cream` is this site's own
+  default page background, so the strip now reads as calm/secondary
+  rather than competing with the red title strip.
+  Verified live: computed background resolves to rgb(250, 248, 243)
+  (--cream), computed text color to rgb(42, 42, 42) (--ink-soft) — the
+  bell icon inherits the same color via `currentColor`, so no separate
+  icon-color rule was needed.
+- **Added:** a thin `--winston-red` stroke on `.hero-pub-card-minimal-
+  cover` on hover, per Farhad's explicit ask — "every effect currently
+  should be kept, but a very sharp, thin border... should also appear."
+  Implemented as a third box-shadow layer (0-blur, 1.5px spread) added
+  on top of the existing two-layer drop shadow, rather than a
+  border/outline, so the original shadow and the sharp (border-radius:
+  0) corners are fully preserved, not replaced. `transition: box-shadow`
+  added (and disabled under prefers-reduced-motion, matching this
+  card's existing image-transition guard) so the stroke fades in rather
+  than snapping on.
+  Verified live: `cover.matches(':hover')` true after a real mouse
+  hover, and the computed `box-shadow` includes `rgb(204, 0, 0) 0px 0px
+  0px 1.5px` (--winston-red) as the third layer, confirming both the
+  color and that the original shadow layers are still present
+  unchanged.
+  Theme version bumped 1.35.3 -> 1.35.4 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
