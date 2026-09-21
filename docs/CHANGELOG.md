@@ -10971,3 +10971,28 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   the panel renders 6 total items (1 featured + 5 list rows).
   Theme version bumped 1.37.1 -> 1.37.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: گزیده‌ها section background changed to #E6E5E1
+- **Changed:** `.sect-selected`'s background `var(--winston-red)` ->
+  `var(--line)` (#E6E5E1) — a direct client color request relayed by
+  Farhad, exact hex given. #E6E5E1 is already this site's `--line`
+  token (one of the eleven locked brand colors, previously only used
+  for hairline dividers) — reused via that existing token rather than
+  hardcoding the hex a second time.
+- **Removed:** every "inverted for a saturated background" override this
+  section had accumulated while it was solid red — white section-
+  marker/heading/link-more, brightened row dividers, white/cream card
+  text (`.type-label`, `.h-card a`, `.card-dek`, `.card-byline`). Those
+  existed only because solid --winston-red made normal dark-ink text
+  unreadable; `--line` is light (near the --paper/--cream end of the
+  palette), so the section now needs no overrides at all -- it falls
+  back to the exact same default styling page-selected.php's plain-
+  paper archive already uses for these same row classes.
+  Verified live: computed background resolves to rgb(230, 229, 225)
+  (#E6E5E1); heading, category tags, titles, and excerpts all render in
+  their normal default colors (winston-red heading/tags, dark ink body
+  text) and are clearly legible against the new light background.
+  Theme version bumped 1.37.2 -> 1.38.0 (minor: background + cascading
+  color-override removal, not just a single property tweak). No plugin
+  change.
+  Approved by: Farhad, in this session (2026-09-21).

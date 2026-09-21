@@ -2894,25 +2894,25 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * Farhad's explicit ask for "a unique background... one of the prominent
  * colors from the palette" so this section doesn't read as one more shelf
  * in the same cream/tint alternation every other homepage section uses.
- * Originally solid --stone; changed same day, still 2026-09-16, once
- * Farhad reviewed it live and asked for "some of the brighter or a
- * vibrant color from the brand" instead — --stone is a muted warm gray,
- * not actually vibrant. --winston-red is this brand's one genuinely
- * saturated color (the 60/30/10 crimson-as-accent discipline's "10"),
- * already proven as a full-bleed section background elsewhere on the
- * site (.hero-rail, .card-spotlight, the masthead), so this reuses that
- * same established treatment rather than introducing a new one. Every
- * text/link/badge override below already assumed a saturated, non-paper
- * background (built against --stone first, matching .card-spotlight's
- * own red-background conventions) — those needed no changes for this
- * swap, only the background declaration itself.
+ * Originally solid --stone, then solid --winston-red (2026-09-16, once
+ * Farhad asked for "a vibrant color from the brand" instead — see git
+ * history for that round's full reasoning).
+ *
+ * Changed again 2026-09-21: solid --winston-red -> #E6E5E1, per Farhad
+ * relaying a direct client color request (the exact hex, not "pick
+ * something"). #E6E5E1 is this site's existing --line token (one of the
+ * eleven locked brand colors, previously only used for hairline
+ * dividers) — reused here via that token, not a new hardcoded color.
+ * Since --line is light (near the --paper/--cream end of the palette,
+ * not saturated like --winston-red), every "inverted for a saturated
+ * background" override this section accumulated (white section marker/
+ * heading/link-more, brightened dividers, white card text) is no longer
+ * correct and has been removed below — text/links/dividers now fall
+ * back to their normal site-wide default (dark ink) styling, the same
+ * styling page-selected.php's plain-paper archive already uses for
+ * these same row classes.
  */
-.sect-selected { background: var(--winston-red); color: var(--paper); }
-.sect-selected .section-marker,
-.sect-selected .h-section { color: var(--paper); }
-.sect-selected .section-marker::before { background: var(--paper); }
-.sect-selected .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
-.sect-selected .link-more:hover { color: var(--paper); border-color: var(--paper); }
+.sect-selected { background: var(--line); }
 
 .rule       { height: 1px; background: var(--line); border: 0; }
 .rule-crimson { height: 2px; background: var(--winston-red); border: 0; }
@@ -2962,10 +2962,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   padding-top: 1.25rem;
   border-top: 1px solid var(--line);
 }
-/* Divider brightened for legibility against .sect-selected's solid
-   --winston-red background — var(--line) (a near-white hairline meant
-   for --paper backgrounds) would all but vanish there. */
-.sect-selected .selected-row:nth-child(n+2) { border-top-color: rgba(255, 255, 255, .3); }
+/* The divider-brightening override that used to live here
+   (.sect-selected .selected-row:nth-child(n+2/n+3) { border-top-color:
+   rgba(255,255,255,.3) }) was removed 2026-09-21 when .sect-selected's
+   background changed --winston-red -> var(--line) (#E6E5E1) — the
+   plain var(--line) divider above is already correct on this light
+   background, same as it is everywhere else on the site. */
 @media (min-width: 720px) {
   .selected-list { grid-template-columns: repeat(2, 1fr); column-gap: 1.5rem; }
   .selected-row:nth-child(n+2) { margin-top: 0; padding-top: 0; border-top: 0; }
@@ -2974,7 +2976,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
     padding-top: 1.25rem;
     border-top: 1px solid var(--line);
   }
-  .sect-selected .selected-row:nth-child(n+3) { border-top-color: rgba(255, 255, 255, .3); }
 }
 /*
  * .selected-row: back to top-aligned (not the previous round's
@@ -3076,45 +3077,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .selected-row-media img { transition: none; }
 }
 /*
- * Inverted colors — only inside .sect-selected's solid --winston-red
- * background (the homepage tile); page-selected.php's archive uses these
- * same row classes on a plain paper background, so it keeps every
- * class's normal site-wide default styling untouched.
- *
- * .type-label was originally a solid white badge with crimson text (the
- * same "flip polarity for a saturated background" solution
- * .card-spotlight's own eyebrow badge above uses), reworked same day per
- * Farhad comparing against his reference image, where the category
- * label is plain text with no badge/background at all — recolored to
- * --cream. Briefly changed to --ok (#1E7B4F, this site's existing
- * "functional/success" green token) per an explicit hex from Farhad,
- * then reverted the same day once he reviewed it live and didn't like
- * it — flagged at the time that green-on-crimson computed to ~1.2:1
- * contrast (vs. --cream's ~5-6:1) and is also a color-blindness-
- * unfriendly pairing, which likely contributed. Back to --cream, now
- * paired with a small tag icon (shola_tag_icon(), inc/template-tags.php)
- * added the same round so the label reads as more deliberately distinct
- * from the title without needing a background or an off-brand color.
- * Font-size stays the literal 10px (0.625rem) from the earlier round —
- * Farhad's ask there was about size, not color, and wasn't reverted.
+ * The "inverted colors for a saturated background" block that used to
+ * live here (.sect-selected .type-label / .h-card a / .card-dek /
+ * .card-byline, all recolored to --cream/--paper/white-with-opacity)
+ * was removed 2026-09-21, when .sect-selected's background changed
+ * --winston-red -> var(--line) (#E6E5E1, a light neutral). Those
+ * overrides existed only because the old solid-red background made the
+ * normal dark-ink text unreadable; on this light background the normal
+ * site-wide default styling for .type-label/.h-card/.card-dek/
+ * .card-byline is already correct, exactly as it already was on
+ * page-selected.php's plain-paper archive (see that file's own note
+ * above) — so .sect-selected no longer needs any text-color overrides
+ * of its own at all.
  */
-.sect-selected .type-label {
-  color: var(--cream);
-  font-weight: 800;
-  font-size: 0.625rem;
-}
-.sect-selected .type-label a { color: var(--cream); }
-/* Icon matches the label's own text color exactly, per Farhad's explicit
-   ask — .type-label .glyph's site-wide default (main.css §07) hardcodes
-   --winston-red rather than inheriting currentColor, so this override is
-   needed here the same way .card-byline's date icon already gets
-   recolored per-context elsewhere on the site. */
-.sect-selected .type-label .glyph { color: var(--cream); }
-.sect-selected .h-card a { color: var(--paper); }
-.sect-selected a:hover .h-card,
-.sect-selected .h-card a:hover { color: rgba(255, 255, 255, .8); }
-.sect-selected .card-dek { color: rgba(255, 255, 255, .9); }
-.sect-selected .card-byline { color: rgba(255, 255, 255, .9); }
 
 /* -------------------------------------------------------------------------
    ۱۲ · Article page — Aeon-style split
