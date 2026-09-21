@@ -4719,7 +4719,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    Farhad's explicit hex request — #2A2A2A is already this site's
    --ink-soft token (one of the eleven locked brand colors), reused via
    that existing token rather than hardcoding the hex a second time. */
-.sect-library { background: var(--ink-soft); color: var(--paper); }
+/* background --ink-soft (#2A2A2A) -> #3F3F3F, 2026-09-21, per Farhad's
+   explicit ask ("the same color, at least fifty percent brighter"):
+   #2A2A2A = rgb(42,42,42); 42 * 1.5 = 63 = 0x3F, so #3F3F3F is exactly
+   that same neutral gray at 50% higher brightness, not an unrelated new
+   color. */
+.sect-library { background: #3F3F3F; color: var(--paper); }
 .sect-library .h-section { color: var(--paper); }
 .sect-library .section-marker::before { background: var(--paper); }
 .sect-library .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
@@ -4768,11 +4773,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * 3. Everything else (drop shadow, transform-origin, transition timing)
  *    unchanged from the previous round.
  */
+/* border-radius: 4px, 2026-09-21, per Farhad's explicit ask for a
+   little curve on the corners ("two to three percent") for more of a
+   3D book feel. A deliberate, scoped exception to this site's sharp-
+   corners rule (CLAUDE.md) -- same small radius this site's other
+   book/media-shelf component already uses (.hero-strip-card,
+   border-radius: 4px, main.css §10.5), not a new precedent. */
 .library-shelf-cover {
   display: block;
   position: relative;
   aspect-ratio: 3 / 4;
   overflow: hidden;
+  border-radius: 4px;
   box-shadow:
     0 30px 60px -30px rgba(0, 0, 0, .7),
     0 8px 24px -10px rgba(0, 0, 0, .6),

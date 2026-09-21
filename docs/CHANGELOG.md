@@ -11123,3 +11123,20 @@ polished reference sample):
   redesign + content-count change, not just a style tweak). No plugin
   change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: کتابخانه shelf -- curved cover corners, brighter background
+- **Changed:** `.library-shelf-cover` gained `border-radius: 4px`, per
+  Farhad's explicit ask for a slight curve for more of a 3D book feel.
+  A deliberate, scoped exception to this site's sharp-corners rule
+  (CLAUDE.md) -- matches the same small radius this site's other book/
+  media-shelf component already uses (`.hero-strip-card`, 4px), not a
+  new precedent.
+- **Changed:** `.sect-library` background `--ink-soft` (#2A2A2A) ->
+  `#3F3F3F`, per Farhad's explicit ask ("the same color, at least fifty
+  percent brighter"): 42 * 1.5 = 63 = 0x3F, so #3F3F3F is exactly that
+  same neutral gray at 50% higher brightness, not an unrelated new
+  color.
+  Verified live: computed background resolves to rgb(63, 63, 63); cover
+  border-radius resolves to 4px.
+  Theme version bumped 1.40.0 -> 1.40.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
