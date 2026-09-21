@@ -4677,3 +4677,125 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .leaflet-lightbox-prev { inset-inline-start: 1rem; }
 .leaflet-lightbox-next { inset-inline-end: 1rem; }
+
+/* -------------------------------------------------------------------------
+   ۳۳ · کتابخانه (Library) homepage "shelf" — dark, cover-only book shelf
+   (front-page.php, template-parts/cards/library-shelf-card.php; added
+   2026-09-21)
+   ------------------------------------------------------------------------- */
+/*
+ * Client feedback (relayed by Farhad, with a reference screenshot of a
+ * streaming-style "book/movie shelf"): انتشارات حزب, کتابخانه, and اسناد
+ * حزب all share the exact same .issue-grid/.issue-card anatomy and read
+ * as one repetitive pattern three times over. Rather than redesign all
+ * three at once, this reworks کتابخانه specifically — Farhad's own
+ * scoping — into a visually distinct dark shelf; انتشارات حزب and اسناد
+ * حزب keep .issue-grid/.issue-card completely untouched.
+ *
+ * Deliberately cover-only, no visible title/date under each cover
+ * (template-parts/cards/library-shelf-card.php keeps the title as the
+ * link's real text content, via .screen-reader-text below, so it isn't
+ * lost for screen readers/SEO — just not shown visually), matching the
+ * reference's "just the covers, popping with shadow" look.
+ *
+ * Background --ink (not --winston-red): Farhad's own explicit call after
+ * discussion — --winston-red is this brand's one vibrant/saturated
+ * color, but the reference's dramatic cover "pop" comes from a *dark*
+ * backdrop specifically, which a bright red wouldn't reproduce the same
+ * way. --ink is still one of the eleven locked brand tokens (not a new
+ * color), already proven as a full-bleed section background elsewhere
+ * (.sect-leaflet-teaser) — same pattern reused here, not invented fresh.
+ *
+ * Horizontal scroll shelf, not a wrapping grid — reuses the exact
+ * interaction already proven on this site for the homepage hero's
+ * "نوار افقی آخرین مقالات" filmstrip (native scroll + two arrow buttons,
+ * main.js), rather than introducing a new interaction pattern. No
+ * auto-drift here, deliberately, unlike that hero strip — this is a
+ * content shelf people browse deliberately, not a decorative accent, so
+ * an unprompted auto-scroll would fight a visitor actually looking at
+ * the covers rather than add ambiance.
+ */
+.sect-library { background: var(--ink); color: var(--paper); }
+.sect-library .h-section { color: var(--paper); }
+.sect-library .section-marker::before { background: var(--paper); }
+.sect-library .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+.sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
+
+.library-shelf { display: flex; align-items: flex-end; gap: 1rem; }
+.library-shelf-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  padding-block-end: .5rem; /* room for the hover-lift shadow below each cover */
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.library-shelf-track::-webkit-scrollbar { display: none; }
+.library-shelf-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  display: block;
+  width: 190px;
+}
+.library-shelf-cover {
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7), 0 8px 24px -10px rgba(0, 0, 0, .6);
+  transform-origin: center bottom; /* grows up, bottom stays on the shared shelf line */
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.library-shelf-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.library-shelf-card:hover .library-shelf-cover {
+  transform: scale(1.06);
+  box-shadow: 0 40px 70px -28px rgba(0, 0, 0, .8), 0 10px 28px -8px rgba(0, 0, 0, .7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .library-shelf-cover { transition: none; }
+}
+
+.library-shelf-controls { flex: 0 0 auto; display: flex; gap: .5rem; }
+/* Same square-bordered arrow shape as .hero-filmstrip-arrow (main.css
+   §10), recolored for this section's dark background instead of that
+   one's photo backdrop — border/color start at a translucent white,
+   same "flip polarity for a saturated/dark background" principle used
+   elsewhere on this site, rather than the paper-on-photo treatment
+   .hero-filmstrip-arrow uses. */
+.library-shelf-arrow {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.75rem; height: 2.75rem;
+  border: 1px solid rgba(255, 255, 255, .3);
+  color: var(--paper);
+  background: transparent;
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.library-shelf-arrow svg { width: 16px; height: 16px; }
+.library-shelf-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
+
+@media (max-width: 640px) {
+  .library-shelf-card { width: 140px; }
+  .library-shelf-arrow { width: 2.25rem; height: 2.25rem; }
+  .library-shelf-arrow svg { width: 14px; height: 14px; }
+}
+
+/* Standard visually-hidden-but-accessible utility — this theme didn't
+   already define one; needed here so library-shelf-card.php's title
+   stays in the DOM for screen readers/SEO without being shown, per the
+   client's "only the cover" reference. Exact WordPress core convention
+   (same rule core itself and most themes use), not a custom invention. */
+.screen-reader-text {
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  word-wrap: normal !important;
+}

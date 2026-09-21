@@ -1070,7 +1070,20 @@ $library_documents_query = new WP_Query(
 );
 ?>
 <?php if ( $library_documents_query->have_posts() ) : ?>
-	<section class="sect-cream sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_library_heading' ) ); ?>">
+	<?php
+	/*
+	 * Redesigned into a dark, cover-only "shelf" 2026-09-21, per client
+	 * feedback (relayed by Farhad, with a reference screenshot) that this
+	 * section, انتشارات حزب, and اسناد حزب all shared the same
+	 * .issue-grid/.issue-card anatomy and read as one repeated pattern —
+	 * see main.css §33 for the full reasoning (dark --ink background,
+	 * cover-only cards, horizontal scroll shelf reusing the homepage
+	 * hero's filmstrip interaction pattern). .sect-cream -> .sect-library;
+	 * انتشارات حزب/اسناد حزب keep .sect-tint/.issue-grid untouched — this
+	 * was Farhad's own explicit scoping, not a sitewide redesign.
+	 */
+	?>
+	<section class="sect-library sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_library_heading' ) ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
 				<div class="kicker-row">
@@ -1079,21 +1092,31 @@ $library_documents_query = new WP_Query(
 				</div>
 				<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
-			<div class="issue-grid">
-				<?php
-				/*
-				 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
-				 * گزارش/گزیده‌ها/انتشارات حزب above — see انتشارات حزب's
-				 * own comment for the full reasoning.
-				 */
-				$library_documents_shown = 0;
-				while ( $library_documents_query->have_posts() && $library_documents_shown < 6 ) :
-					$library_documents_query->the_post();
-					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
-					++$library_documents_shown;
-				endwhile;
-				wp_reset_postdata();
-				?>
+			<div class="library-shelf">
+				<div class="library-shelf-track">
+					<?php
+					/*
+					 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
+					 * گزارش/گزیده‌ها/انتشارات حزب above — see انتشارات حزب's
+					 * own comment for the full reasoning.
+					 */
+					$library_documents_shown = 0;
+					while ( $library_documents_query->have_posts() && $library_documents_shown < 6 ) :
+						$library_documents_query->the_post();
+						get_template_part( 'template-parts/cards/library-shelf-card', null, array( 'post' => get_post() ) );
+						++$library_documents_shown;
+					endwhile;
+					wp_reset_postdata();
+					?>
+				</div>
+				<div class="library-shelf-controls">
+					<button type="button" class="library-shelf-arrow" data-library-shelf-dir="-1" aria-label="<?php esc_attr_e( 'مورد قبلی', 'shola-jawid' ); ?>">
+						<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</button>
+					<button type="button" class="library-shelf-arrow" data-library-shelf-dir="1" aria-label="<?php esc_attr_e( 'مورد بعدی', 'shola-jawid' ); ?>">
+						<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</button>
+				</div>
 			</div>
 		</div>
 	</section>

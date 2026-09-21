@@ -11036,3 +11036,42 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   consistent, not just correct at one breakpoint.
   Theme version bumped 1.38.1 -> 1.38.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: کتابخانه redesigned into a dark, cover-only "shelf"
+- **Redesigned:** front-page.php's کتابخانه (Library) homepage section,
+  per client feedback (relayed by Farhad, with a streaming-shelf
+  reference screenshot) that انتشارات حزب/کتابخانه/اسناد حزب all shared
+  the exact same .issue-grid/.issue-card anatomy and read as one
+  repeated pattern. Scoped to کتابخانه only, per Farhad's own explicit
+  choice -- انتشارات حزب and اسناد حزب keep .sect-tint/.issue-grid
+  completely untouched.
+  - New `.sect-library` background: solid `--ink` (not `--winston-red`)
+    -- discussed with Farhad first (see the prior session turn's
+    proposal): the reference's dramatic cover "pop" comes from a dark
+    backdrop specifically, and `--ink` is still one of the eleven locked
+    brand tokens, already proven as a full-bleed section background
+    elsewhere (`.sect-leaflet-teaser`) -- reused, not invented.
+  - New template part `template-parts/cards/library-shelf-card.php` --
+    cover-only, no visible title/date, matching the reference's "only
+    the cover" look. Title stays in the DOM as the link's real text via
+    a new `.screen-reader-text` utility (this theme didn't have one
+    yet -- exact WordPress-core convention), so it isn't lost for
+    screen readers/SEO.
+  - New horizontal scroll shelf (`.library-shelf-track` + two arrow
+    buttons) reusing the exact interaction already proven on this site
+    for the homepage hero's "نوار افقی آخرین مقالات" filmstrip (native
+    scroll + `scrollBy()` arrows + the same RTL scroll-sign detection),
+    rather than a new pattern. Deliberately no auto-drift, unlike that
+    hero strip -- this is a content shelf people browse on purpose, not
+    a decorative accent.
+  - Strong drop shadow + hover lift on each cover (0.7-0.8 alpha black
+    shadow, scale(1.06) on hover), matching the reference's tactile
+    "popping" feel.
+  Verified live: computed `.sect-library` background resolves to
+  rgb(15, 15, 15) (--ink); 6 covers render via the new card partial;
+  clicking the arrow button visibly scrolls the shelf and reveals new
+  covers; confirmed clean at mobile width (375px) with کتابخانه now
+  reading as clearly distinct from اسناد حزب directly below it.
+  Theme version bumped 1.38.2 -> 1.39.0 (minor: new component + visual
+  redesign of one homepage section). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).

@@ -440,6 +440,35 @@
     }
   }
 
+  /* ---------- کتابخانه homepage "shelf" (front-page.php, 2026-09-21) ----------
+     .library-shelf-track already scrolls natively with zero JS (touch,
+     trackpad, keyboard) — main.css §33. This only layers the two arrow
+     buttons on top, same scrollBy()-based approach and RTL scroll-sign
+     detection as the hero filmstrip above — but deliberately no
+     auto-drift here: this is a content shelf people browse on purpose,
+     not a decorative accent, so an unprompted auto-scroll would fight a
+     visitor actually looking at the covers instead of adding ambiance. */
+  var libraryShelfTrack = document.querySelector(".library-shelf-track");
+  if (libraryShelfTrack) {
+    var libraryDirSign = 1;
+    (function detectLibraryRtlScrollSign() {
+      var start = libraryShelfTrack.scrollLeft;
+      libraryShelfTrack.scrollBy({ left: 1, behavior: "auto" });
+      if (libraryShelfTrack.scrollLeft <= start) {
+        libraryDirSign = -1;
+      }
+      libraryShelfTrack.scrollBy({ left: start - libraryShelfTrack.scrollLeft, behavior: "auto" });
+    })();
+
+    document.querySelectorAll("[data-library-shelf-dir]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var step = libraryShelfTrack.clientWidth * 0.7;
+        var dir = parseFloat(btn.getAttribute("data-library-shelf-dir")) || 1;
+        libraryShelfTrack.scrollBy({ left: libraryDirSign * dir * step, behavior: "smooth" });
+      });
+    });
+  }
+
   /* ---------- گالری تمام‌صفحهٔ تراکت (page-leaflets.php, front-page.php,
      2026-09-17) ----------
      A native <dialog>, not a hand-built overlay: .showModal() natively
