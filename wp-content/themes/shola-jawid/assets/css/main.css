@@ -4715,7 +4715,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * an unprompted auto-scroll would fight a visitor actually looking at
  * the covers rather than add ambiance.
  */
-.sect-library { background: var(--ink); color: var(--paper); }
+/* background --ink (#0F0F0F) -> --ink-soft (#2A2A2A), 2026-09-21, per
+   Farhad's explicit hex request — #2A2A2A is already this site's
+   --ink-soft token (one of the eleven locked brand colors), reused via
+   that existing token rather than hardcoding the hex a second time. */
+.sect-library { background: var(--ink-soft); color: var(--paper); }
 .sect-library .h-section { color: var(--paper); }
 .sect-library .section-marker::before { background: var(--paper); }
 .sect-library .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }

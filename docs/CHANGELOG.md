@@ -11075,3 +11075,13 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   Theme version bumped 1.38.2 -> 1.39.0 (minor: new component + visual
   redesign of one homepage section). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: کتابخانه shelf background lightened to #2A2A2A
+- **Changed:** `.sect-library` background `var(--ink)` (#0F0F0F) ->
+  `var(--ink-soft)` (#2A2A2A), per Farhad's explicit hex request.
+  #2A2A2A is already this site's `--ink-soft` token (one of the eleven
+  locked brand colors), reused via that existing token rather than a
+  new hardcoded value.
+  Verified live: computed background resolves to rgb(42, 42, 42).
+  Theme version bumped 1.39.0 -> 1.39.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
