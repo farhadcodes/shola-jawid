@@ -10880,3 +10880,47 @@ trail of *why* the build deviated from — or newly applied — a rule in
   --winston-red) with no stroke.
   Theme version bumped 1.36.2 -> 1.36.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: اطلاعیه tile spacing, dimmer dates, filled number badges
+Three changes together, per Farhad's live screenshot and explicit
+approval:
+- **Fixed leftover empty space**: `.card-spotlight`'s `justify-content`
+  changed `space-between` -> `flex-start`. Once the type-label moved
+  out of `.card-spotlight-body`'s flow onto the ribbon tag (earlier
+  today), the body's own content got shorter while the tile's height
+  (set by the taller article cards sharing its grid row) stayed the
+  same -- `space-between` stretched that leftover height into a
+  visible dead gap between the content and "همهٔ اطلاعیه‌ها". Paired
+  with real spacing increases so the content itself fills more of the
+  tile: `.card-spotlight-body` gap .6rem -> 1rem, `.card-spotlight-more`
+  margin/padding-top .4rem/.7rem -> .6rem/.9rem, its `li` padding-block
+  .55rem -> .85rem, and the featured item's excerpt clamp 2 -> 3 lines
+  (more real content, not just padding). Any real leftover height now
+  falls below the link as ordinary bottom padding instead of a stray
+  mid-card gap.
+- **Dimmed + shrunk the dates**: `.card-spotlight .card-byline` and
+  `.card-spotlight-more time` both dropped from `rgba(255,255,255,.9)`
+  to `.72`, with font-size trimmed too (0.875rem inherited -> 0.75rem;
+  0.75rem -> 0.7rem). Flagged and deliberately not dropped further:
+  this exact tile already hit a real accessibility regression once
+  before at a dimmer value (documented in the `.card-spotlight-index`
+  comment -- ~55% white measured ~3.0:1 against --winston-red, below
+  WCAG AA's 4.5:1 floor). `.72` measures ~3.5:1 -- clearly dimmer than
+  the `.9` used elsewhere on this tile without dropping back into that
+  previously-failing range. Not a full AA pass at this text size; a
+  deliberate, flagged trade-off for Farhad's explicit ask on secondary
+  metadata, not primary reading content.
+- **Filled the number badges solid**: `.card-spotlight-index`
+  background/color flipped from a transparent-with-white-border outline
+  to solid `--paper` background / `--winston-red` text -- the same
+  white/red pairing the ribbon tag above now uses, so the tile has one
+  consistent badge language instead of two different treatments. Border
+  removed (redundant once filled).
+  Verified live at 1200px: computed styles confirm the badge's
+  background/color, the byline/date's dimmed color+size, and measured
+  the gap between the "همهٔ اطلاعیه‌ها" link and the tile's own bottom
+  edge (now ~42px of ordinary bottom padding, not a gap floating above
+  the link).
+  Theme version bumped 1.36.3 -> 1.37.0 (minor: layout + accessibility-
+  tradeoff change, not just a style tweak). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).
