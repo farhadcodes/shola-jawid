@@ -10674,3 +10674,33 @@ trail of *why* the build deviated from — or newly applied — a rule in
   when no excerpt exists.
   Theme version bumped 1.35.0 -> 1.35.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- fix: hero card description moved from excerpt to its own new field
+- **Corrected:** the previous change (above, same day) reused the
+  `issue` CPT's native excerpt field for this description. Farhad
+  relayed an explicit client correction, with an annotated screenshot:
+  the excerpt/چکیده field must stay untouched for whatever it's already
+  used for elsewhere, and this needed a genuinely separate, purpose-
+  built field instead.
+- **Added:** `shcore_hero_pub_description` postmeta (plugin, shola-core
+  1.20.0 -> 1.21.0) on `issue` only, in its own new metabox
+  ("توضیح کارت صفحهٔ اصلی", class-meta-fields.php) registered at 'low'
+  priority so it renders directly below WordPress's own core Excerpt
+  box on the edit screen -- exactly where the client's screenshot
+  pointed, not mixed into the existing "اطلاعات شماره" box above it.
+  Field includes a plain-language description explaining what to type
+  and giving a worked example ("نشریه شعله جاوید شمارهٔ ۳۰ منتشر شد"),
+  per Farhad's explicit ask that an editor should understand what
+  belongs there without guessing.
+- **Changed:** `shola_render_hero_publication_card_minimal()`
+  (inc/template-tags.php) now reads `shcore_hero_pub_description`
+  instead of `get_the_excerpt()`/`has_excerpt()`. Same conditional
+  render and `.hero-pub-card-minimal-desc` styling as before -- only the
+  data source changed.
+  Verified live on the local dev site: with the new field empty (not
+  yet set via wp-admin), the card correctly falls back to the original
+  title-straight-to-cover layout with no PHP errors -- confirming the
+  guard and the metabox registration are both sound.
+  Theme version bumped 1.35.1 -> 1.35.2 (patch). Plugin version bumped
+  1.20.0 -> 1.21.0 (minor: new content-model field).
+  Approved by: Farhad, in this session (2026-09-21).

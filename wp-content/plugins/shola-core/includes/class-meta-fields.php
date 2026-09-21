@@ -124,6 +124,28 @@ class Meta_Fields {
 				'auth_callback'     => $auth_callback,
 			)
 		);
+		/*
+		 * shcore_hero_pub_description (2026-09-21) — a separate field from
+		 * the native excerpt, per Farhad relaying an explicit client
+		 * correction: the excerpt/چکیده field must stay untouched for
+		 * whatever it's already used for; this is a distinct, purpose-built
+		 * field just for the one-line announcement shown on the homepage's
+		 * minimal_cover hero publication card (e.g. "نشریه شعله جاوید شمارهٔ
+		 * ۳۰ منتشر شد"). Rendered in its own metabox, deliberately placed
+		 * directly below the Excerpt box (see add_meta_boxes()'s 'low'
+		 * priority comment), not folded into shcore_issue_fields above.
+		 */
+		register_post_meta(
+			'issue',
+			'shcore_hero_pub_description',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 
 		/*
 		 * shcore_subtitle (2026-09-19) — added to `document`,
@@ -582,6 +604,17 @@ class Meta_Fields {
 	 */
 	public static function add_meta_boxes() {
 		add_meta_box( 'shcore_issue_fields', __( 'اطلاعات شماره', 'shola-core' ), array( __CLASS__, 'render_issue_metabox' ), 'issue', 'normal', 'high' );
+		/*
+		 * Separate box, deliberately 'low' priority (2026-09-21) — WP core
+		 * registers the native Excerpt box at 'core' priority in the
+		 * 'normal' context, which renders between 'high' and 'low' custom
+		 * boxes. Registering this one at 'low' is what actually puts it
+		 * directly below Excerpt on the edit screen, matching Farhad's
+		 * explicit ask (relayed from the client, annotated screenshot) for
+		 * this new field to sit "beneath" it, not mixed into
+		 * shcore_issue_fields above or above the Excerpt box.
+		 */
+		add_meta_box( 'shcore_issue_hero_description', __( 'توضیح کارت صفحهٔ اصلی', 'shola-core' ), array( __CLASS__, 'render_issue_hero_description_metabox' ), 'issue', 'normal', 'low' );
 		add_meta_box( 'shcore_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_document_metabox' ), 'document', 'normal', 'high' );
 		add_meta_box( 'shcore_party_publication_fields', __( 'اطلاعات اثر', 'shola-core' ), array( __CLASS__, 'render_party_publication_metabox' ), 'party_publication', 'normal', 'high' );
 		add_meta_box( 'shcore_party_document_fields', __( 'اطلاعات سند', 'shola-core' ), array( __CLASS__, 'render_party_document_metabox' ), 'party_document', 'normal', 'high' );
@@ -652,6 +685,30 @@ class Meta_Fields {
 				<?php self::render_toc_row( '__INDEX__', array() ); ?>
 			</script>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Renders the shcore_hero_pub_description field in its own metabox
+	 * (2026-09-21) — deliberately separate from render_issue_metabox()
+	 * above and registered at 'low' priority so it lands directly below
+	 * WordPress's own core Excerpt box on the edit screen, per Farhad
+	 * relaying the client's explicit correction that this must be a new
+	 * field, not a reuse of the excerpt.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_issue_hero_description_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$description = get_post_meta( $post->ID, 'shcore_hero_pub_description', true );
+		?>
+		<p>
+			<textarea id="shcore_hero_pub_description" name="shcore_hero_pub_description" class="large-text" rows="2"><?php echo esc_textarea( $description ); ?></textarea>
+		</p>
+		<p class="description">
+			<?php esc_html_e( 'این متن، فقط وقتی که این شماره روی صفحهٔ اصلی به‌صورت «کارت شناور» نمایش داده می‌شود، زیر عنوان دیده می‌شود — جدا از چکیده است و به‌جای آن، در آن کارت نمایش داده می‌شود. کوتاه و خبری بنویسید، شبیه یک اعلان؛ مثلاً: «نشریه شعله جاوید شمارهٔ ۳۰ منتشر شد». اگر خالی بگذارید، آن قسمت از کارت اصلاً نمایش داده نمی‌شود.', 'shola-core' ); ?>
+		</p>
 		<?php
 	}
 
@@ -1021,7 +1078,7 @@ class Meta_Fields {
 		}
 
 		$fields_by_type = array(
-			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents' ),
+			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
 			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),

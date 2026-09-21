@@ -1173,19 +1173,19 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  *
  * Optional description strip added 2026-09-21, per Farhad relaying a
  * client request (e.g. "نشریه شعله جاوید شماره ۳۰ منتشر شد") — a short
- * announcement-style line between the title and the cover. Reuses the
- * `issue` CPT's own native excerpt field (already WP-core-supported,
- * see class-post-types.php's `issue` registration) rather than adding a
- * new custom meta field: an editor already has a plain, familiar "خلاصه
- * نوشته" box on the issue edit screen to type this exact kind of
- * one-line text into, so no new plugin field was needed for it. Only
- * renders when an editor actually filled in an excerpt, so issues
- * without one keep the original title-straight-to-cover layout
- * unchanged. `--cinder-red` (a darker, distinct red already in the
- * locked brand token set) rather than repeating `--winston-red` again
- * — the title strip directly above already uses that exact color, and
- * stacking the same solid red twice would read as one oversized block
- * instead of two distinct, readable strips.
+ * announcement-style line between the title and the cover. Sourced from
+ * a dedicated `shcore_hero_pub_description` postmeta field (its own
+ * metabox, class-meta-fields.php), NOT the native excerpt — an initial
+ * version reused the excerpt, but Farhad relayed an explicit client
+ * correction: the excerpt/چکیده field must stay untouched for whatever
+ * it's already used for, and this needed a genuinely separate field.
+ * Only renders when an editor actually filled it in, so issues without
+ * one keep the original title-straight-to-cover layout unchanged.
+ * `--cinder-red` (a darker, distinct red already in the locked brand
+ * token set) rather than repeating `--winston-red` again — the title
+ * strip directly above already uses that exact color, and stacking the
+ * same solid red twice would read as one oversized block instead of two
+ * distinct, readable strips.
  *
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
@@ -1193,11 +1193,12 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  */
 function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	$description  = get_post_meta( $issue->ID, 'shcore_hero_pub_description', true );
 	$permalink    = get_permalink( $issue );
 	?>
 	<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
-	<?php if ( has_excerpt( $issue ) ) : ?>
-		<p class="hero-pub-card-minimal-desc"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 20 ) ); ?></p>
+	<?php if ( $description ) : ?>
+		<p class="hero-pub-card-minimal-desc"><?php echo esc_html( $description ); ?></p>
 	<?php endif; ?>
 	<a href="<?php echo esc_url( $permalink ); ?>" class="hero-pub-card-minimal-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_hero_minimal_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
