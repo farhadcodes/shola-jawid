@@ -1056,14 +1056,19 @@ $party_publications_query = new WP_Query(
  * since اسناد حزب's own .sect-tint differs from this section's cream.
  *
  * `posts_per_page` raised 5 -> 6, 2026-09-18, matching انتشارات حزب's
- * identical treatment above — see that section's own comment for the
- * full reasoning (fixed 6-column desktop grid, hard query cap so this
- * row can never overflow past 6 cards).
+ * identical treatment above (fixed 6-column desktop grid, hard query
+ * cap). Raised again 6 -> 10, 2026-09-21, once this section became the
+ * horizontally-scrolling دارک "shelf" (main.css §33) instead of a fixed
+ * 6-card grid — Farhad's explicit ask: with only 6 covers the shelf ran
+ * out almost immediately when scrolling, not enough to actually browse.
+ * The old "hard 6-column grid" reasoning no longer applies here (this
+ * section isn't a wrapping grid anymore), so a higher count is safe —
+ * انتشارات حزب/اسناد حزب keep their own 6-card grid cap unchanged.
  */
 $library_documents_query = new WP_Query(
 	array(
 		'post_type'      => 'document',
-		'posts_per_page' => 6,
+		'posts_per_page' => 10,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	)
@@ -1098,10 +1103,11 @@ $library_documents_query = new WP_Query(
 					/*
 					 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها/
 					 * گزارش/گزیده‌ها/انتشارات حزب above — see انتشارات حزب's
-					 * own comment for the full reasoning.
+					 * own comment for the full reasoning. Cap raised 6 -> 10
+					 * to match this query's own posts_per_page => 10 above.
 					 */
 					$library_documents_shown = 0;
-					while ( $library_documents_query->have_posts() && $library_documents_shown < 6 ) :
+					while ( $library_documents_query->have_posts() && $library_documents_shown < 10 ) :
 						$library_documents_query->the_post();
 						get_template_part( 'template-parts/cards/library-shelf-card', null, array( 'post' => get_post() ) );
 						++$library_documents_shown;

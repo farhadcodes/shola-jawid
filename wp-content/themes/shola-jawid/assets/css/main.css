@@ -4738,27 +4738,71 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   scrollbar-width: none;
 }
 .library-shelf-track::-webkit-scrollbar { display: none; }
+/* width 190px -> 150px, 2026-09-21, per Farhad's explicit ask for a
+   smaller, more compact cover, closer to the client's reference sample. */
 .library-shelf-card {
   flex: 0 0 auto;
   scroll-snap-align: start;
   display: block;
-  width: 190px;
+  width: 150px;
 }
+/*
+ * "Feels like a book" pass, 2026-09-21, per Farhad's explicit ask —
+ * three changes together:
+ *
+ * 1. Page-edge shading: a layered inset box-shadow simulates the thin
+ *    stack of page edges a real book cover sits against, giving a light
+ *    3D read without adding rounded corners — this site's sharp-corners
+ *    rule (CLAUDE.md) stays intact; the depth comes from shading, not
+ *    shape. A fixed physical offset (not a logical property) — box-
+ *    shadow has no logical-direction equivalent, same accepted
+ *    exception already noted elsewhere on this site (e.g. .hero-lead's
+ *    own scrim gradient) for this exact CSS limitation.
+ * 2. Hover changed from a same-frame zoom (transform: scale on the
+ *    cover) to a tint overlay instead — reuses the exact technique
+ *    already used on regular article-card images (.card-media::after,
+ *    main.css §09: a --winston-red layer, mix-blend-mode: screen,
+ *    0 -> .3 opacity), via a new ::after pseudo-element here. The
+ *    hover-lift/shadow-increase on the cover itself is kept exactly as
+ *    it was — only the zoom is replaced, not the whole hover state.
+ * 3. Everything else (drop shadow, transform-origin, transition timing)
+ *    unchanged from the previous round.
+ */
 .library-shelf-cover {
   display: block;
+  position: relative;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7), 0 8px 24px -10px rgba(0, 0, 0, .6);
+  box-shadow:
+    0 30px 60px -30px rgba(0, 0, 0, .7),
+    0 8px 24px -10px rgba(0, 0, 0, .6),
+    inset 6px 0 10px -6px rgba(0, 0, 0, .55),
+    inset 1px 0 0 rgba(255, 255, 255, .06);
   transform-origin: center bottom; /* grows up, bottom stays on the shared shelf line */
   transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
+.library-shelf-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--winston-red);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+  pointer-events: none;
+}
 .library-shelf-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .library-shelf-card:hover .library-shelf-cover {
-  transform: scale(1.06);
-  box-shadow: 0 40px 70px -28px rgba(0, 0, 0, .8), 0 10px 28px -8px rgba(0, 0, 0, .7);
+  transform: translateY(-4px);
+  box-shadow:
+    0 40px 70px -28px rgba(0, 0, 0, .8),
+    0 10px 28px -8px rgba(0, 0, 0, .7),
+    inset 6px 0 10px -6px rgba(0, 0, 0, .55),
+    inset 1px 0 0 rgba(255, 255, 255, .06);
 }
+.library-shelf-card:hover .library-shelf-cover::after { opacity: .3; }
 @media (prefers-reduced-motion: reduce) {
-  .library-shelf-cover { transition: none; }
+  .library-shelf-cover, .library-shelf-cover::after { transition: none; }
 }
 
 .library-shelf-controls { flex: 0 0 auto; display: flex; gap: .5rem; }
@@ -4780,8 +4824,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 .library-shelf-arrow svg { width: 16px; height: 16px; }
 .library-shelf-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
 
+/* width 140px -> 110px, 2026-09-21, same "smaller, more compact" ask
+   as the desktop size above, proportionally scaled down for mobile. */
 @media (max-width: 640px) {
-  .library-shelf-card { width: 140px; }
+  .library-shelf-card { width: 110px; }
   .library-shelf-arrow { width: 2.25rem; height: 2.25rem; }
   .library-shelf-arrow svg { width: 14px; height: 14px; }
 }

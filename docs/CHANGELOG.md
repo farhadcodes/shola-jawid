@@ -11085,3 +11085,41 @@ Three more changes, same day, per Farhad's live follow-up screenshot:
   Verified live: computed background resolves to rgb(42, 42, 42).
   Theme version bumped 1.39.0 -> 1.39.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-21 -- feat: کتابخانه shelf refined -- smaller covers, page-edge shading, tint hover, more items
+Per Farhad's follow-up (client compared the shipped shelf against a
+polished reference sample):
+- **Smaller, more compact covers**: `.library-shelf-card` width 190px
+  -> 150px (desktop), 140px -> 110px (mobile) — Farhad's explicit ask,
+  closer to the client's reference proportions.
+- **"Feels like a book" page-edge shading**: `.library-shelf-cover`
+  gained two extra inset box-shadow layers (a dark inset shadow + a thin
+  light inset line) simulating the thin stack of page edges a real book
+  cover sits against — a light 3D read via shading, not shape, so the
+  sharp-corners rule (CLAUDE.md) stays intact; no border-radius added.
+- **Hover changed from zoom to tint overlay**: removed the same-frame
+  `transform: scale()` zoom on hover; added a `::after` pseudo-element
+  reusing the exact tint technique already used on regular article-card
+  images elsewhere on the site (`.card-media::after`, main.css §09) --
+  a `--winston-red` layer, `mix-blend-mode: screen`, 0 -> .3 opacity on
+  hover. The hover-lift (now `translateY(-4px)`, was `scale(1.06)`) and
+  shadow-increase are kept, only the zoom itself was swapped out.
+- **More items to scroll through**: front-page.php's
+  `$library_documents_query` `posts_per_page` 6 -> 10, and the loop's
+  hard-cap counter 6 -> 10 to match — Farhad's explicit ask: with only
+  6 covers the shelf ran out almost immediately when scrolling. The old
+  "hard 6-column grid" cap reasoning no longer applies here (this
+  section isn't a wrapping grid anymore); انتشارات حزب/اسناد حزب keep
+  their own 6-card grid cap unchanged.
+  Verified live: computed cover width resolves to 150px (desktop) / 110px
+  (mobile); confirmed via the live stylesheet that
+  `.library-shelf-card:hover .library-shelf-cover` now applies
+  `translateY(-4px)` (no `scale`) and the `::after` tint's opacity
+  resolves to 0.3 on hover; confirmed 8 real covers currently render
+  (all available `document` posts, under the new cap of 10) and the
+  shelf scrolls smoothly via the arrow buttons; checked clean at mobile
+  width (375px) with no overflow or clipping.
+  Theme version bumped 1.39.1 -> 1.40.0 (minor: hover-interaction
+  redesign + content-count change, not just a style tweak). No plugin
+  change.
+  Approved by: Farhad, in this session (2026-09-21).
