@@ -10646,3 +10646,31 @@ trail of *why* the build deviated from — or newly applied — a rule in
   behavior, not just a style tweak). Plugin version bumped 1.19.0 ->
   1.20.0 (minor: new content-model field).
   Approved by: Farhad, in this session (2026-09-19).
+
+## 2026-09-21 -- feat: description strip on the minimal_cover hero publication card
+- **Added:** an optional short description line between the title and
+  the cover on `.hero-pub-card-minimal` (the minimal_cover hero
+  layout's floating publication card) — per a client request relayed by
+  Farhad, e.g. "نشریه شعله جاوید شماره ۳۰ منتشر شد". Reuses the `issue`
+  CPT's own native excerpt field (already WP-core-supported per
+  class-post-types.php's `issue` registration) instead of adding a new
+  plugin meta field — an editor already has a plain excerpt box on the
+  issue edit screen to type this exact kind of one-line announcement
+  into, so no plugin change was needed. Only renders when an editor
+  actually filled in an excerpt (`has_excerpt()` guard) — issues with no
+  excerpt keep the original title-straight-to-cover layout unchanged.
+  `wp_trim_words()` capped at 20, same length-safety-net pattern used
+  everywhere else on this site.
+  Styled as its own small strip (`.hero-pub-card-minimal-desc`,
+  main.css): `--cinder-red` background (not `--winston-red` again — the
+  title strip directly above already uses that color; repeating it
+  would read as one oversized block instead of two distinct strips),
+  small font-size (.8rem) per Farhad's explicit "not big" ask, flush
+  against both the title above and the cover below (margin: 0, sharp
+  corners — same discipline as the rest of this card).
+  Verified live on the local dev site: the current شعله جاوید issue
+  already had an excerpt set, rendering the strip exactly as intended;
+  confirmed via HTML output that the guard correctly skips rendering
+  when no excerpt exists.
+  Theme version bumped 1.35.0 -> 1.35.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-21).

@@ -1171,6 +1171,22 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
  * point to the issue's permalink, so the card keeps exactly one real
  * click target, just without a dedicated button element for it.
  *
+ * Optional description strip added 2026-09-21, per Farhad relaying a
+ * client request (e.g. "نشریه شعله جاوید شماره ۳۰ منتشر شد") — a short
+ * announcement-style line between the title and the cover. Reuses the
+ * `issue` CPT's own native excerpt field (already WP-core-supported,
+ * see class-post-types.php's `issue` registration) rather than adding a
+ * new custom meta field: an editor already has a plain, familiar "خلاصه
+ * نوشته" box on the issue edit screen to type this exact kind of
+ * one-line text into, so no new plugin field was needed for it. Only
+ * renders when an editor actually filled in an excerpt, so issues
+ * without one keep the original title-straight-to-cover layout
+ * unchanged. `--cinder-red` (a darker, distinct red already in the
+ * locked brand token set) rather than repeating `--winston-red` again
+ * — the title strip directly above already uses that exact color, and
+ * stacking the same solid red twice would read as one oversized block
+ * instead of two distinct, readable strips.
+ *
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
  * @return void
@@ -1180,6 +1196,9 @@ function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
 	$permalink    = get_permalink( $issue );
 	?>
 	<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<?php if ( has_excerpt( $issue ) ) : ?>
+		<p class="hero-pub-card-minimal-desc"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 20 ) ); ?></p>
+	<?php endif; ?>
 	<a href="<?php echo esc_url( $permalink ); ?>" class="hero-pub-card-minimal-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_hero_minimal_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
