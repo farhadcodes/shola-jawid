@@ -11466,3 +11466,23 @@ own floating card).
   Theme version bumped 1.42.5 -> 1.43.0 (minor -- new opt-in parameter
   on two shared functions, not just a value tweak). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card white info box made 15% shorter, 15% wider
+- Farhad's ask, "wearing a design head": the white text box overlaid on
+  the photo read as a little tall for its width -- trade 15% of its
+  height for 15% more width, everything else about it unchanged.
+- **Width**: `.hero-feature-card-box`'s `max-width` cap raised
+  420px -> 483px (x1.15). On mobile the box is already constrained by
+  `calc(100% - 2rem)`, not this cap, so the mobile footprint is
+  unaffected.
+- **Height**: rather than shrinking the title/dek font sizes or the
+  dek's existing 3-line clamp (explicitly left alone), height comes
+  down by scaling every vertical space inside the box by the same
+  0.85x: the box's own padding (split into `padding-block: 1.4875rem` /
+  `padding-inline: 1.75rem`, was a uniform `1.75rem`), the type-label's
+  `margin-bottom` (.6rem -> .51rem), and the dek's/byline's `margin-top`
+  (.75rem -> .6375rem each). Mobile's own padding override scaled the
+  same way (1.25rem -> `padding-block: 1.0625rem` / `padding-inline:
+  1.25rem`).
+  Theme version bumped 1.43.0 -> 1.43.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

@@ -3087,15 +3087,29 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * rounded corners" principle as the rest of this site — this box gets
  * its contrast from being genuinely opaque, not from a scrim behind it.
  */
+/*
+ * Proportions corrected 2026-09-24 (tenth pass, same day) -- design-head
+ * assessment, per Farhad's ask: the box read as a little tall for its
+ * width. Traded 15% of its height for 15% more width rather than just
+ * shrinking it overall, so it keeps the same visual weight/footprint on
+ * the photo -- just a squatter, wider proportion. Height comes down via
+ * `padding-block` (vertical padding only, split out from the old
+ * uniform `padding`) and the internal vertical rhythm between the
+ * label/title/dek/byline (all scaled the same 0.85x below), not by
+ * shrinking the title/dek font sizes or truncating the dek's existing
+ * 3-line clamp -- Farhad explicitly asked to leave that untouched.
+ * Width comes from `max-width`: 420px x 1.15 = 483px.
+ */
 .hero-feature-card-box {
   position: absolute;
   z-index: 2;
   inset-inline-start: 2rem;
   bottom: 2rem;
-  max-width: min(420px, calc(100% - 4rem));
+  max-width: min(483px, calc(100% - 4rem));
   background: var(--paper);
   box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
-  padding: 1.75rem;
+  padding-block: 1.4875rem;
+  padding-inline: 1.75rem;
 }
 /*
  * shola_render_hero_body() is reused unchanged for this box's content
@@ -3106,7 +3120,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * assumes text sits directly on the photo), and a noticeably smaller
  * title scale (this is a compact card, not a full masthead headline).
  */
-.hero-feature-card-box .type-label { margin-bottom: .6rem; font-size: 0.7rem; color: var(--winston-red); font-weight: 700; text-shadow: none; }
+.hero-feature-card-box .type-label { margin-bottom: .51rem; font-size: 0.7rem; color: var(--winston-red); font-weight: 700; text-shadow: none; }
 .hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
 .hero-feature-card-box .type-label a { color: var(--winston-red); }
 .hero-feature-card-box .h-display {
@@ -3117,7 +3131,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-feature-card-box .h-display a:hover { color: var(--winston-red); }
 .hero-feature-card-box .dek {
-  margin-top: .75rem;
+  margin-top: .6375rem;
   max-width: none;
   font-size: 0.9375rem;
   color: var(--ink-soft);
@@ -3130,7 +3144,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   line-clamp: 3;
   overflow: hidden;
 }
-.hero-feature-card-box .card-byline { margin-top: .75rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .card-byline { margin-top: .6375rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-lead--feature-card { flex-direction: column; }
@@ -3138,7 +3152,11 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .hero-lead--feature-card .hero-rail { flex: none; width: 100%; }
 }
 @media (max-width: 640px) {
-  .hero-feature-card-box { inset-inline-start: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); padding: 1.25rem; }
+  /* padding-block scaled the same 0.85x as the desktop box above, for
+     the same shorter/wider proportion at mobile width; padding-inline
+     kept as-is since the box is already width-capped by the viewport
+     here (calc(100% - 2rem)), not by the desktop max-width value. */
+  .hero-feature-card-box { inset-inline-start: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); padding-block: 1.0625rem; padding-inline: 1.25rem; }
 }
 
 /* -------------------------------------------------------------------------
