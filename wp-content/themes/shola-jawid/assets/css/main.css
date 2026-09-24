@@ -2906,10 +2906,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    dark overlay Farhad flagged; `.hero-lead--with-rail`/`.hero-lead--
    rail-full` both already opt out the same way for their own layouts,
    this modifier had simply been missed. */
+/* margin-block: 2.5rem, 2026-09-24 — per Farhad's explicit ask for
+   breathing room above/below the whole card, matching the reference's
+   own generous top/bottom spacing (its module sits clearly apart from
+   the header above and the content below, not flush against either).
+   .hero-lead's own base rule (main.css §10) sets `margin-block: 0 0` —
+   fine for every other layout, which are either full-viewport-tall
+   (single/overlay/etc., where flush-against-the-masthead is the point)
+   or already have their own compact-height treatment tuned without
+   this need; this is the first layout that reads as a distinct,
+   inset "card" rather than a full banner, so it's the first to need
+   its own margin. */
 .hero-lead--feature-card {
   display: flex;
   align-items: stretch;
   max-width: var(--wrap-wide);
+  margin-block: 2.5rem;
   margin-inline: auto;
   padding-inline: var(--gap-pad-x);
 }

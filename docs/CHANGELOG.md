@@ -11288,3 +11288,19 @@ horizontally wider."
   to Farhad separately.
   Theme version bumped 1.41.2 -> 1.41.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card hero gets breathing room top and bottom
+- **Changed:** `.hero-lead--feature-card` gained `margin-block: 2.5rem`,
+  per Farhad's explicit ask, matching the reference's own generous top/
+  bottom spacing (its module sits clearly apart from the header above
+  and the content below, not flush against either). `.hero-lead`'s own
+  base rule (`margin-block: 0 0`) is fine for every other layout, which
+  are either full-viewport-tall (where flush-against-the-masthead is
+  the point) or already tuned without this need -- this is the first
+  layout that reads as a distinct, inset "card" rather than a full
+  banner, so it's the first to need its own margin.
+  Verified live: computed margin resolves to 40px (2.5rem) top and
+  bottom; visually confirmed clear breathing room above (below the
+  masthead) and below (above "همهٔ مقالات") the hero card.
+  Theme version bumped 1.41.3 -> 1.41.4 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).
