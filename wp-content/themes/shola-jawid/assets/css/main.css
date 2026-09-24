@@ -2974,7 +2974,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * that layout floats them in; only that wrapper's own positioning was
  * specific to `minimal_cover`, not these two content classes.
  */
-.hero-lead--feature-card .hero-rail .btn-primary:hover { background: var(--winston-red-deep); }
+/*
+ * Top/bottom alignment fix, 2026-09-24 (third pass, same day) — Farhad
+ * flagged the rail sitting visibly lower than the photo column and not
+ * reaching as far down either. Root cause: bare `.hero-rail` centers
+ * its content vertically (`justify-content: center`) — fine for
+ * `lead_rail`/`overlay`, where the rail's content is genuinely meant to
+ * float in the middle of a taller card, but wrong here, where the rail
+ * needs to match the photo column's own top-and-bottom edges exactly.
+ * `justify-content: flex-start` aligns the top; the cover's own fixed
+ * 2/3 aspect-ratio is dropped and given `flex: 1` instead so it grows
+ * to fill whatever height is left after the description chip, meaning
+ * the cover's bottom edge lands exactly on the rail's own bottom edge —
+ * the same edge `.hero-feature-main`'s photo already fills via
+ * `align-items: stretch` on their shared parent.
+ */
+.hero-lead--feature-card .hero-rail { justify-content: flex-start; }
+.hero-feature-card-rail .hero-pub-card-minimal-cover {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: unset;
+}
 /*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/

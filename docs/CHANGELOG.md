@@ -11341,3 +11341,27 @@ own floating card).
   different shared component + a new backward-compatible parameter,
   not just a style tweak). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card rail now aligns top and bottom with the photo
+- **Root cause**: bare `.hero-rail` centers its content vertically
+  (`justify-content: center`) -- correct for `lead_rail`/`overlay`,
+  where the rail's card is meant to float mid-height in a taller
+  column, but wrong for `feature_card`, where the rail needs to match
+  the photo column's exact top and bottom edges. The rail's cover also
+  had a fixed 2/3 aspect-ratio, so even with top-alignment fixed it
+  wouldn't have reached the container's bottom edge.
+- **Fix**: `.hero-lead--feature-card .hero-rail` gets `justify-content:
+  flex-start`, and `.hero-feature-card-rail .hero-pub-card-minimal-
+  cover` drops its fixed aspect-ratio in favor of `flex: 1 1 auto;
+  min-height: 0` -- it now grows to fill whatever height is left under
+  the description chip, so its bottom edge lands exactly on the rail's
+  own bottom edge, the same edge `.hero-feature-main`'s photo already
+  fills via `align-items: stretch` on their shared parent. Also removed
+  a leftover `.btn-primary:hover` override from the previous round's
+  component swap -- dead code, since this rail no longer renders a
+  button at all.
+  Verified live at 1400px via `getBoundingClientRect()`: both columns'
+  top (136.5px) and bottom (556.5px) edges are now identical --
+  confirmed exact alignment, not just visually close.
+  Theme version bumped 1.42.0 -> 1.42.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).
