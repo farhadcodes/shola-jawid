@@ -55,6 +55,30 @@ class Category_Manager {
 	);
 
 	/**
+	 * Managed taxonomies that get every other Category_Manager feature
+	 * (ترتیب ordering, reassign-before-delete, the two-level depth cap) but
+	 * NOT the «دسته‌بندی‌نشده» Uncategorized-fallback subsystem — added
+	 * 2026-09-24, per Farhad relaying the client's explicit request:
+	 * `party_document_category` should never have an Uncategorized term at
+	 * all, front end or back end, undeletable or otherwise. Content in an
+	 * excluded taxonomy that would otherwise fall back to Uncategorized
+	 * (an orphaned term-delete, a cascade-delete of a parent term) is
+	 * simply left with no term instead — every اسناد حزب template already
+	 * handles "no category assigned" as an ordinary, expected state (the
+	 * flat page-party-documents.php listing was never filtered by
+	 * category), so there is nowhere content silently vanishes to.
+	 *
+	 * `ensure_uncategorized_term()` is the single choke point every other
+	 * method here calls through to get/create the term, so excluding a
+	 * taxonomy there alone is enough to cover every code path (seeding,
+	 * recreate-on-delete, the reassignment-dropdown offer, and the cascade-
+	 * delete target) without touching each one individually.
+	 *
+	 * @var string[]
+	 */
+	const NO_UNCATEGORIZED_FALLBACK = array( 'party_document_category' );
+
+	/**
 	 * Every real, non-trashed post status this plugin's reassign/delete
 	 * flows must protect — not just `publish`. Several people actively
 	 * draft content on this site before anything goes live, so a term
@@ -317,9 +341,14 @@ class Category_Manager {
 	 * nothing."
 	 *
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return int Term ID, or 0 if creation failed.
+	 * @return int Term ID, or 0 if creation failed, or 0 unconditionally
+	 *             for a taxonomy listed in NO_UNCATEGORIZED_FALLBACK.
 	 */
 	public static function ensure_uncategorized_term( $taxonomy ) {
+		if ( in_array( $taxonomy, self::NO_UNCATEGORIZED_FALLBACK, true ) ) {
+			return 0;
+		}
+
 		$existing = self::get_uncategorized_term_id( $taxonomy );
 		if ( $existing ) {
 			return $existing;
@@ -438,7 +467,7 @@ class Category_Manager {
 			return $actions;
 		}
 
-		if ( self::is_uncategorized_term( $term ) ) {
+		if ( self::is_uncategorized_term( $term ) && ! in_array( $term->taxonomy, self::NO_UNCATEGORIZED_FALLBACK, true ) ) {
 			unset( $actions['delete'] );
 			return $actions;
 		}
@@ -607,11 +636,17 @@ class Category_Manager {
 		);
 		$children = ( $children && ! is_wp_error( $children ) ) ? $children : array();
 
+		// $uncategorized_id is 0 for a NO_UNCATEGORIZED_FALLBACK taxonomy
+		// (see ensure_uncategorized_term()) — nothing to reassign onto, so
+		// content just loses this branch's term relationship instead,
+		// same as an ordinary, non-cascading delete would leave it.
 		$moved = 0;
 		foreach ( array_merge( array( $term ), $children ) as $branch_term ) {
 			$post_ids = self::get_post_ids_for_term( $post_type, $taxonomy, $branch_term->term_id );
 			foreach ( $post_ids as $post_id ) {
-				wp_set_object_terms( $post_id, array( $uncategorized_id ), $taxonomy, true );
+				if ( $uncategorized_id ) {
+					wp_set_object_terms( $post_id, array( $uncategorized_id ), $taxonomy, true );
+				}
 				wp_remove_object_terms( $post_id, $branch_term->term_id, $taxonomy );
 				++$moved;
 			}
@@ -823,17 +858,33 @@ class Category_Manager {
 			</ul>
 			<p>
 				<?php
+				// NO_UNCATEGORIZED_FALLBACK taxonomies (party_document_category)
+				// have nowhere to move content onto — added 2026-09-24, so the
+				// warning must not promise a "دسته‌بندی‌نشده" move that will not
+				// actually happen for them (see handle_cascade_submission()).
+				$moves_to_uncategorized = ! in_array( $taxonomy, self::NO_UNCATEGORIZED_FALLBACK, true );
 				echo esc_html(
-					sprintf(
-						/* translators: %d: total item count across the parent and its subcategories. */
-						_n(
-							'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، همهٔ آن‌ها به «دسته‌بندی‌نشده» منتقل می‌شوند و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
-							'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، همهٔ آن‌ها به «دسته‌بندی‌نشده» منتقل می‌شوند و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
-							$total,
-							'shola-core'
-						),
-						$total
-					)
+					$moves_to_uncategorized
+						? sprintf(
+							/* translators: %d: total item count across the parent and its subcategories. */
+							_n(
+								'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، همهٔ آن‌ها به «دسته‌بندی‌نشده» منتقل می‌شوند و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
+								'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، همهٔ آن‌ها به «دسته‌بندی‌نشده» منتقل می‌شوند و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
+								$total,
+								'shola-core'
+							),
+							$total
+						)
+						: sprintf(
+							/* translators: %d: total item count across the parent and its subcategories. */
+							_n(
+								'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، دسته‌بندی آن‌ها برداشته می‌شود و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
+								'در مجموع %d مورد در این دسته و زیردسته‌های آن وجود دارد. با ادامه، دسته‌بندی آن‌ها برداشته می‌شود و این دسته و همهٔ زیردسته‌هایش برای همیشه حذف خواهند شد.',
+								$total,
+								'shola-core'
+							),
+							$total
+						)
 				);
 				?>
 			</p>

@@ -11601,3 +11601,57 @@ future subsection.
   new dynamic component). Plugin version bumped 1.22.0 -> 1.23.0 (minor
   -- new seeded terms, two new migrations, one new ongoing save hook).
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: removed اسناد حزب's «دسته‌بندی‌نشده» fallback entirely (reversal)
+
+Farhad relayed the client's correction, the very next round after the
+subsectioning feature above shipped: the «دسته‌بندی‌نشده» tile it
+introduced had no delete option in wp-admin (by Category_Manager's own
+design, meant as a permanent safety net) and should not exist for اسناد
+حزب at all — front end or back end, "as it is not required."
+
+- **Category_Manager (`class-category-manager.php`)**: added
+  `NO_UNCATEGORIZED_FALLBACK` — a list of managed taxonomies that keep
+  every other Category_Manager feature (ترتیب ordering, reassign-before-
+  delete, the two-level depth cap) but opt out of the «دسته‌بندی‌نشده»
+  fallback subsystem specifically. `party_document_category` is the
+  first (only) entry. `ensure_uncategorized_term()` — the single choke
+  point every other method routes through to get/create the term — now
+  refuses outright (returns 0) for a listed taxonomy, which alone
+  prevents it from ever being seeded, recreated after a delete, offered
+  as a reassignment-dropdown destination, or used as a cascade-delete
+  target. `filter_row_actions()`'s protection against deleting the term
+  (previously unconditional) now excludes listed taxonomies too, so if
+  one ever exists it's a normal, deletable term like any other. The
+  cascade-delete confirmation screen's warning text and the actual
+  reassignment logic (`handle_cascade_submission()`) were also corrected
+  for excluded taxonomies specifically: they now say — and actually do —
+  "category removed" rather than promising a move to a term that will
+  not exist.
+- **Plugin (`class-taxonomies.php`)**: replaced the previous round's
+  `migrate_unassigned_party_documents()` (one-time migration that
+  auto-assigned it) and `default_to_uncategorized_party_document()`
+  (ongoing save-hook keeping the same guarantee) with a single new
+  `remove_party_document_uncategorized_term()` — one-time, self-healing,
+  `admin_init` + persisted flag: un-assigns the term from any content
+  still carrying it, then deletes the term outright. Since
+  `party_document_category` is now excluded from
+  `ensure_uncategorized_term()`, Category_Manager's own
+  `recreate_uncategorized_if_deleted()` hook (which routes through that
+  same method) will not bring it back.
+- **Theme (`shola_get_party_document_subsections()`,
+  inc/template-tags.php)**: the fallback term is now excluded from the
+  returned list outright, not sorted last — belt-and-suspenders on top
+  of the plugin-side fix, in case a stray one ever lingers on some site.
+- **Verified live** against the local database: ran the cleanup
+  migration, confirmed the term was deleted and un-assigned from the one
+  document that had carried it, confirmed `ensure_uncategorized_term()`
+  now returns 0 for this taxonomy, and confirmed via screenshot that
+  neither the tile block (page-party-documents.php) nor the cross-
+  subsection nav (taxonomy-party_document_category.php) show it anymore
+  — only the two real, staff-manageable subsections remain, one of which
+  Farhad had since assigned a document to himself in wp-admin between
+  the two rounds, confirming ordinary term CRUD still works normally.
+  Theme version bumped 1.44.0 -> 1.44.1 (patch). Plugin version bumped
+  1.23.0 -> 1.23.1 (patch).
+  Approved by: Farhad, in this session (2026-09-24).

@@ -90,24 +90,24 @@ class Taxonomies {
 		add_action( 'admin_init', array( __CLASS__, 'seed_party_document_categories' ) );
 
 		/*
-		 * One-time migration, same day: every existing اسناد حزب entry
-		 * that has no `party_document_category` term at all gets Category_
-		 * Manager's existing، sitewide «دسته‌بندی‌نشده» fallback term — see
-		 * migrate_unassigned_party_documents()'s own docblock for why (in
-		 * short: the new subsection tile block, page-party-documents.php,
-		 * lists that term as a real, clickable subsection like any other;
-		 * it must actually have content, not sit permanently empty while
-		 * unassigned entries are only reachable from the flat listing).
+		 * One-time cleanup, same day (reversed the very next round): an
+		 * earlier version of this feature auto-assigned every existing،
+		 * previously-unassigned اسناد حزب entry onto Category_Manager's
+		 * «دسته‌بندی‌نشده» fallback term, so the new subsection tile list had
+		 * no permanently-empty entry. Farhad relayed the client's explicit
+		 * correction: that term must not exist for اسناد حزب at all, front
+		 * end or back end — it has no delete option in wp-admin (by
+		 * Category_Manager's own design, meant as a permanent safety net)
+		 * and "there should not be any category for this as it is not
+		 * required." `party_document_category` is now listed in
+		 * Category_Manager::NO_UNCATEGORIZED_FALLBACK (which also makes the
+		 * term deletable and stops it from ever being recreated), and this
+		 * one-time migration undoes the earlier mistake on any site that
+		 * already ran it: un-assigns the term from whatever content it was
+		 * put on, then deletes it outright. See
+		 * remove_party_document_uncategorized_term()'s own docblock.
 		 */
-		add_action( 'admin_init', array( __CLASS__, 'migrate_unassigned_party_documents' ) );
-
-		/*
-		 * Ongoing counterpart to the migration above: keeps the same
-		 * guarantee true for every اسناد حزب entry saved from now on, not
-		 * just the ones that already existed when this shipped — see
-		 * default_to_uncategorized_party_document()'s own docblock.
-		 */
-		add_action( 'save_post_party_document', array( __CLASS__, 'default_to_uncategorized_party_document' ), 20, 3 );
+		add_action( 'admin_init', array( __CLASS__, 'remove_party_document_uncategorized_term' ) );
 
 		/*
 		 * Keep every one of this plugin's taxonomy checklists in their
@@ -656,105 +656,62 @@ class Taxonomies {
 	}
 
 	/**
-	 * One-time move of every existing `party_document` post that has no
-	 * `party_document_category` term at all onto Category_Manager's
-	 * existing، sitewide «دسته‌بندی‌نشده» fallback term — added 2026-09-24
-	 * alongside the new subsection tile block on page-party-documents.php.
+	 * One-time cleanup: removes Category_Manager's «دسته‌بندی‌نشده»
+	 * fallback term for `party_document_category` if one already exists on
+	 * this site (a first version of this feature, shipped and then
+	 * reversed the same day, auto-assigned it to every previously-
+	 * unassigned اسناد حزب entry), un-assigning it from any content that
+	 * carries it first. `party_document_category` is now listed in
+	 * Category_Manager::NO_UNCATEGORIZED_FALLBACK, which makes
+	 * `ensure_uncategorized_term()` refuse to recreate this term for this
+	 * taxonomy — so once deleted here, `recreate_uncategorized_if_deleted()`
+	 * (which routes through that same method) will not bring it back.
 	 *
-	 * That tile block lists «دسته‌بندی‌نشده» as a real, clickable
-	 * subsection exactly like «اسناد پایه»/«اسناد کنگره» (it's a normal
-	 * `get_terms()` result, not a special case — see
-	 * shola_get_party_document_subsections(), inc/template-tags.php).
-	 * Without this migration it would sit permanently empty even though
-	 * every اسناد حزب entry published before this feature has no category
-	 * assigned, since Category_Manager's own `ensure_uncategorized_term()`
-	 * mechanism only ever reassigns content reactively — when a *different*
-	 * term it belonged to gets deleted — never proactively for content that
-	 * simply never had a term in the first place. Considered, and rejected:
-	 * a separate `pd_cat=none` query-string bucket that filtered the main
-	 * listing without touching any real term relationship — dropped once
-	 * this taxonomy's real، already-existing «دسته‌بندی‌نشده» term (visible
-	 * and manageable from wp-admin like any other) was found to already be
-	 * the sitewide answer to exactly this question; adding a second,
-	 * differently-named "uncategorized" concept next to it would only
-	 * confuse the client, not help them.
+	 * Per Farhad relaying the client's explicit correction: this term must
+	 * not exist for اسناد حزب at all, front end or back end — an entry
+	 * with no category assigned is simply an entry with no category
+	 * assigned, an ordinary state every اسناد حزب template already
+	 * handles (the flat page-party-documents.php listing was never
+	 * filtered by category).
 	 *
 	 * Same admin_init + persisted-flag pattern as this file's other
 	 * self-healing migrations — safe to re-run, only ever does real work
-	 * once, and never fights an editor who deliberately moves a document
-	 * off «دسته‌بندی‌نشده» again afterward (the flag is set once and never
-	 * re-checked against current state).
+	 * once per site.
 	 *
 	 * @return void
 	 */
-	public static function migrate_unassigned_party_documents() {
-		if ( get_option( 'shcore_party_documents_uncategorized_migrated' ) ) {
+	public static function remove_party_document_uncategorized_term() {
+		if ( get_option( 'shcore_party_document_uncategorized_removed' ) ) {
 			return;
 		}
 
-		$unassigned_ids = get_posts(
-			array(
-				'post_type'      => 'party_document',
-				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small CPT, one-time migration, not a recurring query.
-					array(
-						'taxonomy' => 'party_document_category',
-						'operator' => 'NOT EXISTS',
+		$term_id = \SholaCore\Category_Manager::get_uncategorized_term_id( 'party_document_category' );
+
+		if ( $term_id ) {
+			$assigned_ids = get_posts(
+				array(
+					'post_type'      => 'party_document',
+					'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small CPT, one-time cleanup, not a recurring query.
+						array(
+							'taxonomy' => 'party_document_category',
+							'field'    => 'term_id',
+							'terms'    => $term_id,
+						),
 					),
-				),
-			)
-		);
+				)
+			);
 
-		if ( $unassigned_ids ) {
-			$uncategorized_id = \SholaCore\Category_Manager::ensure_uncategorized_term( 'party_document_category' );
-			if ( $uncategorized_id ) {
-				foreach ( $unassigned_ids as $post_id ) {
-					wp_set_object_terms( $post_id, array( $uncategorized_id ), 'party_document_category', false );
-				}
+			foreach ( $assigned_ids as $post_id ) {
+				wp_remove_object_terms( $post_id, $term_id, 'party_document_category' );
 			}
+
+			wp_delete_term( $term_id, 'party_document_category' );
 		}
 
-		update_option( 'shcore_party_documents_uncategorized_migrated', 1 );
-	}
-
-	/**
-	 * Ongoing counterpart to migrate_unassigned_party_documents() above:
-	 * whenever a `party_document` is saved and ends up with no
-	 * `party_document_category` term at all, assigns it Category_Manager's
-	 * «دسته‌بندی‌نشده» fallback term — keeps the "every اسناد حزب entry has
-	 * at least one category" guarantee true for content published after
-	 * this feature shipped, not just the backlog the one-time migration
-	 * covers.
-	 *
-	 * Hooked on `save_post_party_document` at priority 20 (after WordPress
-	 * core's own default priority-10 handling of `tax_input`/block-editor
-	 * term saves has already run), so this sees the post's real,
-	 * just-saved term state — not the state from before this save request.
-	 * Skips revisions and autosaves the same way WordPress core's own
-	 * `save_post` consumers always must, since neither actually represents
-	 * a real save an editor asked for.
-	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post    Post object (unused — kept for hook signature match).
-	 * @param bool     $update  Whether this is an update to an existing post (unused).
-	 * @return void
-	 */
-	public static function default_to_uncategorized_party_document( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- $post/$update kept for hook signature match.
-		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
-			return;
-		}
-
-		$current = wp_get_object_terms( $post_id, 'party_document_category', array( 'fields' => 'ids' ) );
-		if ( is_wp_error( $current ) || ! empty( $current ) ) {
-			return;
-		}
-
-		$uncategorized_id = \SholaCore\Category_Manager::ensure_uncategorized_term( 'party_document_category' );
-		if ( $uncategorized_id ) {
-			wp_set_object_terms( $post_id, array( $uncategorized_id ), 'party_document_category', false );
-		}
+		update_option( 'shcore_party_document_uncategorized_removed', 1 );
 	}
 
 	/**

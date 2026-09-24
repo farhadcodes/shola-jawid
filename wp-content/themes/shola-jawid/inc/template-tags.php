@@ -574,24 +574,27 @@ function shola_publication_status_label( $slug ) {
  * real `party_document_category` term surfaces automatically the moment
  * staff create it in wp-admin.
  *
- * Every item is a real, wp-admin-manageable term — including this
- * taxonomy's existing سیستم‌وار «دسته‌بندی‌نشده» fallback term
- * (Category_Manager, shola-core), which this deliberately does NOT
- * exclude or replace with a separate virtual bucket. An earlier version of
- * this feature built its own `pd_cat=none`/tax-query-NOT-EXISTS pseudo-
- * bucket for "Option A" (no existing اسناد حزب entry should go invisible
- * for lack of a category) before noticing Category_Manager already solves
- * exactly this sitewide, with a real term editors already see and manage —
- * having both would mean two different-but-similarly-named "uncategorized"
- * concepts. Removed in favor of just relying on that real term: every
- * party_document is now guaranteed to carry it whenever it would otherwise
- * have none (see Taxonomies::default_to_uncategorized_party_document() and
- * Taxonomies::migrate_unassigned_party_documents(), class-taxonomies.php),
- * so it always has real content once this ships, sorted to the end (see
- * below) exactly like Category_Manager's own admin-side reassignment
- * dropdown always lists it last/separately from ordinary sibling terms.
+ * Every item is a real, wp-admin-manageable term. This taxonomy's
+ * سیستم‌وار «دسته‌بندی‌نشده» fallback term (Category_Manager, shola-core)
+ * is deliberately excluded outright, not just sorted last — Farhad
+ * relayed the client's explicit correction (2026-09-24, the very next
+ * round after this feature first shipped) that this term must not exist
+ * for اسناد حزب at all, front end or back end: it had no delete option in
+ * wp-admin (by Category_Manager's own by-design protection) and "there
+ * should not be any category for this as it is not required".
+ * `party_document_category` is now listed in
+ * Category_Manager::NO_UNCATEGORIZED_FALLBACK, which stops the term from
+ * ever being (re)created — this exclusion here is belt-and-suspenders in
+ * case a stray one ever lingers, not the primary fix.
  *
- * Ordinary terms are sorted by the `shcore_term_order` term meta
+ * An even earlier version of this feature built a separate
+ * `pd_cat=none`/tax-query-NOT-EXISTS pseudo-bucket for "nothing existing
+ * should go invisible for lack of a category" before either of the above
+ * was tried — also removed. An اسناد حزب entry with no category is simply
+ * an entry with no category, an ordinary state page-party-documents.php's
+ * own flat listing already handles (it was never filtered by category).
+ *
+ * Remaining terms are sorted by the `shcore_term_order` term meta
  * (Category_Manager) — same `usort()` pattern already used by
  * taxonomy-publication.php for دوره tiles, since WordPress's own term
  * order for a custom taxonomy isn't guaranteed to match staff's intended
@@ -615,11 +618,9 @@ function shola_get_party_document_subsections() {
 		? \SholaCore\Category_Manager::get_uncategorized_term_id( 'party_document_category' )
 		: 0;
 
-	$ordinary       = array();
-	$uncategorized  = null;
+	$ordinary = array();
 	foreach ( $terms as $term ) {
 		if ( $uncategorized_id && $uncategorized_id === (int) $term->term_id ) {
-			$uncategorized = $term;
 			continue;
 		}
 		$ordinary[] = $term;
@@ -635,10 +636,6 @@ function shola_get_party_document_subsections() {
 			return $order_a <=> $order_b;
 		}
 	);
-
-	if ( $uncategorized ) {
-		$ordinary[] = $uncategorized;
-	}
 
 	$items = array();
 	foreach ( $ordinary as $term ) {

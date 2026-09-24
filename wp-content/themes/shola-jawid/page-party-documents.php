@@ -19,14 +19,13 @@
  * fed by shola_get_party_document_subsections() (inc/template-tags.php)
  * — dynamic via get_terms(), not a hardcoded slug array like کتابخانه's
  * own `$collection_slugs` (see that function's docblock for why that
- * wasn't replicated). Every اسناد حزب entry is guaranteed at least the
- * existing، sitewide «دسته‌بندی‌نشده» fallback term (Category_Manager,
- * shola-core) once assigned a category or not — see
- * Taxonomies::default_to_uncategorized_party_document() and
- * Taxonomies::migrate_unassigned_party_documents() (class-taxonomies.php)
- * — so that term's own tile is a real, clickable subsection like any
- * other, not a separate query-filtered view; this grid below stays the
- * same single flat, unfiltered listing it always was.
+ * wasn't replicated). That helper deliberately excludes this taxonomy's
+ * «دسته‌بندی‌نشده» fallback term entirely (Category_Manager,
+ * `NO_UNCATEGORIZED_FALLBACK` — see its own docblock for the client's
+ * explicit "no such category, front end or back end" correction). This
+ * grid below stays the same single flat, unfiltered listing it always
+ * was — an اسناد حزب entry with no category is an ordinary state, not a
+ * gap that needs its own bucket.
  *
  * @package shola-jawid
  */
