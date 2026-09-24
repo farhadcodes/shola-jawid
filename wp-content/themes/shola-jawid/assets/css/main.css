@@ -2875,6 +2875,98 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .hero-filmstrip-arrow svg { width: 14px; height: 14px; }
 }
 
+/* --- ۱۰.۶ · Hero "دوستونی: کارت مقالهٔ ویژه + ستون نشریه" layout
+   (hero_section: feature_card, added 2026-09-24) ------------------------
+   Per a client reference screenshot (an English-language news site's
+   two-column hero) — a featured-article photo with a solid white info
+   box overlaid at one corner, beside a narrower publication-rail column.
+   Reuses .hero-lead--with-rail's own centered-1200px-band + compact-
+   height treatment (main.css §10.1) rather than duplicating it — same
+   `max-width: var(--wrap-wide)` band, same `clamp(480px, 42vw, 560px)`
+   height at desktop.
+   .hero-feature-main deliberately has NO scrim (unlike .hero-main,
+   §10.1/§10.4's ::before/::after darkening pair): the white box below
+   provides its own contrast against the photo, so darkening the whole
+   photo underneath it isn't needed and would just make the photo less
+   visible — a genuinely different treatment from every other layout,
+   not a reskin of one. */
+.hero-lead--feature-card {
+  display: flex;
+  align-items: stretch;
+  max-width: var(--wrap-wide);
+  margin-inline: auto;
+  padding-inline: var(--gap-pad-x);
+}
+.hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
+@media (min-width: 901px) {
+  .hero-lead--feature-card .hero-media,
+  .hero-feature-main { height: clamp(480px, 42vw, 560px); }
+}
+/*
+ * The box floats within the photo with real margin on every side (not
+ * flush to an edge), per the client's reference — `inset-inline-start`/
+ * `bottom` position it from the reading-start corner (visual right in
+ * this RTL site; the reference's own visual-left corner under its LTR
+ * layout is the same logical corner, so this mirrors correctly, not a
+ * hardcoded flip). Solid --paper background (not translucent) and sharp
+ * corners (no border-radius), same "no borders, whitespace only, no
+ * rounded corners" principle as the rest of this site — this box gets
+ * its contrast from being genuinely opaque, not from a scrim behind it.
+ */
+.hero-feature-card-box {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: 2rem;
+  bottom: 2rem;
+  max-width: min(420px, calc(100% - 4rem));
+  background: var(--paper);
+  box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
+  padding: 1.75rem;
+}
+/*
+ * shola_render_hero_body() is reused unchanged for this box's content
+ * (same .type-label/.h-display/.dek/.card-byline markup every other
+ * hero layout already uses) — only restyled here for a small opaque
+ * card instead of white-on-photo hero text: dark ink colors (not the
+ * white-with-text-shadow treatment §10.1's .hero-body uses, which
+ * assumes text sits directly on the photo), and a noticeably smaller
+ * title scale (this is a compact card, not a full masthead headline).
+ */
+.hero-feature-card-box .type-label { margin-bottom: .6rem; font-size: 0.7rem; color: var(--winston-red); font-weight: 700; text-shadow: none; }
+.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
+.hero-feature-card-box .type-label a { color: var(--winston-red); }
+.hero-feature-card-box .h-display {
+  margin-top: 0;
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  color: var(--ink);
+  text-shadow: none;
+}
+.hero-feature-card-box .h-display a:hover { color: var(--winston-red); }
+.hero-feature-card-box .dek {
+  margin-top: .75rem;
+  max-width: none;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+  text-shadow: none;
+  /* Length safety net, same reasoning as every other card dek on this
+     site — a compact box has no room for an unbounded excerpt. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.hero-feature-card-box .card-byline { margin-top: .75rem; color: var(--stone); text-shadow: none; }
+
+@media (max-width: 900px) {
+  .hero-lead--feature-card { flex-direction: column; }
+  .hero-feature-main { flex: none; width: 100%; }
+  .hero-lead--feature-card .hero-rail { flex: none; width: 100%; }
+}
+@media (max-width: 640px) {
+  .hero-feature-card-box { inset-inline-start: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); padding: 1.25rem; }
+}
+
 /* -------------------------------------------------------------------------
    ۱۱ · Sections & rules
    ------------------------------------------------------------------------- */

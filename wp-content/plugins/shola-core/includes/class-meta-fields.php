@@ -518,15 +518,23 @@ class Meta_Fields {
 	 * entirely, leaving just the issue cover and its title beneath it;
 	 * same full-bleed hero and floating-corner position as `overlay`,
 	 * see shola_render_hero_publication_card_minimal() in
-	 * inc/template-tags.php). An unrecognized value (e.g. a future
-	 * layout type removed later) falls back to the safest option —
-	 * single, the current site's existing hero design.
+	 * inc/template-tags.php), and `feature_card` (2026-09-24, seventh
+	 * layout, per a client reference screenshot: a genuine two-column
+	 * split — a featured-article photo card with a solid white info box
+	 * (category label, title, excerpt, byline) overlaid at one corner,
+	 * beside a narrower publication-card column reusing
+	 * shola_render_hero_publication_card() — not `overlay`/
+	 * `minimal_cover`'s floating-card-over-one-photo idea, and not
+	 * `lead_rail`/`rail_full`'s plain-text-over-photo headline). An
+	 * unrecognized value (e.g. a future layout type removed later) falls
+	 * back to the safest option — single, the current site's existing
+	 * hero design.
 	 *
 	 * @param mixed $value Raw meta value.
 	 * @return string
 	 */
 	public static function sanitize_hero_layout( $value ) {
-		return in_array( $value, array( 'single', 'lead_rail', 'overlay', 'rail_full', 'filmstrip', 'minimal_cover' ), true ) ? $value : 'single';
+		return in_array( $value, array( 'single', 'lead_rail', 'overlay', 'rail_full', 'filmstrip', 'minimal_cover', 'feature_card' ), true ) ? $value : 'single';
 	}
 
 	/**
@@ -937,9 +945,10 @@ class Meta_Fields {
 				<option value="rail_full" <?php selected( $layout, 'rail_full' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + ستون نشریهٔ تمام‌عرض', 'shola-core' ); ?></option>
 				<option value="filmstrip" <?php selected( $layout, 'filmstrip' ); ?>><?php esc_html_e( 'مقالهٔ سرخط + نوار افقی آخرین مقالات', 'shola-core' ); ?></option>
 				<option value="minimal_cover" <?php selected( $layout, 'minimal_cover' ); ?>><?php esc_html_e( 'مقالهٔ سرخط با کاور مینیمال روی تصویر', 'shola-core' ); ?></option>
+				<option value="feature_card" <?php selected( $layout, 'feature_card' ); ?>><?php esc_html_e( 'دوستونی: کارت مقالهٔ ویژه + ستون نشریه', 'shola-core' ); ?></option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'تک‌ستونی: طرح فعلی سایت. دوستونی: ستونی جدا برای آخرین شمارهٔ یک نشریه، کنار مقالهٔ سرخط. کارت شناور: همان تصویر تمام‌عرض تک‌ستونی، با کارتی سفید از آخرین شماره روی گوشهٔ تصویر. ستون تمام‌عرض: مانند دوستونی، با این تفاوت که ستون نشریه تا لبهٔ مرورگر ادامه می‌یابد، نه فقط داخل بخش مرکزی صفحه. فقط در نمایشگرهای بزرگ‌تر (رایانه) دیده می‌شود. نوار افقی: همان تصویر تمام‌عرض تک‌ستونی، با نواری از آخرین مقالات (به‌جز خودِ مقالهٔ سرخط) زیر آن که به‌آرامی و خودکار می‌لغزد و با دو دکمهٔ پیکان هم قابل کنترل دستی است؛ فیلد «نشریهٔ کارت/ستون نشریه» در این چیدمان نادیده گرفته می‌شود. کاور مینیمال: مانند کارت شناور، با این تفاوت که فقط کاور شماره و عنوان آن نمایش داده می‌شود — بدون توضیح و بدون دکمه.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'تک‌ستونی: طرح فعلی سایت. دوستونی: ستونی جدا برای آخرین شمارهٔ یک نشریه، کنار مقالهٔ سرخط. کارت شناور: همان تصویر تمام‌عرض تک‌ستونی، با کارتی سفید از آخرین شماره روی گوشهٔ تصویر. ستون تمام‌عرض: مانند دوستونی، با این تفاوت که ستون نشریه تا لبهٔ مرورگر ادامه می‌یابد، نه فقط داخل بخش مرکزی صفحه. فقط در نمایشگرهای بزرگ‌تر (رایانه) دیده می‌شود. نوار افقی: همان تصویر تمام‌عرض تک‌ستونی، با نواری از آخرین مقالات (به‌جز خودِ مقالهٔ سرخط) زیر آن که به‌آرامی و خودکار می‌لغزد و با دو دکمهٔ پیکان هم قابل کنترل دستی است؛ فیلد «نشریهٔ کارت/ستون نشریه» در این چیدمان نادیده گرفته می‌شود. کاور مینیمال: مانند کارت شناور، با این تفاوت که فقط کاور شماره و عنوان آن نمایش داده می‌شود — بدون توضیح و بدون دکمه. کارت مقالهٔ ویژه + ستون نشریه: مقالهٔ سرخط به‌صورت تصویر با کادر سفید اطلاعات (موضوع، عنوان، خلاصه) روی گوشهٔ آن نمایش داده می‌شود، در کنار ستونی جدا برای آخرین شمارهٔ نشریه (بدون عنوان — فقط کاور، خلاصه و دکمه).', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_hero_rail_publication"><strong><?php esc_html_e( 'نشریهٔ کارت/ستون نشریه', 'shola-core' ); ?></strong></label><br>
 			<select id="shcore_hero_rail_publication" name="shcore_hero_rail_publication">

@@ -11140,3 +11140,50 @@ polished reference sample):
   border-radius resolves to 4px.
   Theme version bumped 1.40.0 -> 1.40.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-21).
+
+## 2026-09-24 -- feat: seventh hero layout -- دوستونی: کارت مقالهٔ ویژه + ستون نشریه
+- **Added:** `feature_card`, a new selectable `hero_section` layout, per
+  a client reference screenshot (an English-language news site's
+  two-column hero: a featured-article photo with a solid white info box
+  overlaid at one corner, beside a narrower promo column). Adapted for
+  RTL, not copied literally: the reference's "photo+box on the left,
+  promo on the right" becomes "photo+box on the visual right (reading-
+  start), publication rail on the visual left" via DOM order alone
+  (`.hero-feature-main` first, `.hero-rail` second) -- the same no-
+  hardcoded-side technique every other multi-column hero layout on this
+  site already uses.
+  - Plugin: `feature_card` added to `sanitize_hero_layout()`'s whitelist
+    and the "نوع چیدمان" dropdown (class-meta-fields.php).
+  - Theme: new `elseif` branch in front-page.php; new CSS section
+    (main.css §10.6): `.hero-lead--feature-card` reuses `lead_rail`'s
+    own centered-1200px-band + compact-height treatment rather than
+    duplicating it. `.hero-feature-main` deliberately has no darkening
+    scrim (unlike every other layout's `.hero-main`/`.hero-media`
+    treatment) -- the white box provides its own contrast, so darkening
+    the photo underneath isn't needed. `.hero-feature-card-box`: solid
+    `--paper` background, sharp corners, floats with real margin from
+    the photo's edge (not flush), positioned via `inset-inline-start`/
+    `bottom` so it mirrors correctly under `dir="ltr"`.
+  - `shola_render_hero_body()` reused unchanged for the box's content
+    (category label, title, excerpt, byline) -- same content function
+    every other hero layout already uses, only restyled here (dark ink
+    colors, no text-shadow, smaller title scale) for a compact card
+    instead of white-on-photo hero text.
+  - `shola_render_hero_publication_card()` (inc/template-tags.php)
+    gained a new optional `$args` parameter with a `show_title` flag
+    (default true, backward-compatible with its three existing callers).
+    `feature_card`'s rail passes `show_title => false` -- Farhad's
+    explicit ask, after the client reviewed a live screenshot, to drop
+    the publication name/issue number heading there and keep just the
+    cover, description, and button.
+  Verified: `php -l` clean on all three changed PHP files; confirmed the
+  homepage still loads with no errors under the existing default
+  `single` layout (this new layout only activates when explicitly
+  selected in the هدر تنظیمات admin screen, which this session doesn't
+  do -- entering wp-admin is outside this session's scope -- so Farhad/
+  the client should do a live visual check once a hero_section post has
+  `feature_card` selected and active).
+  Theme version bumped 1.40.1 -> 1.41.0 (minor: new hero layout).
+  Plugin version bumped 1.21.0 -> 1.22.0 (minor: new layout option +
+  whitelist entry).
+  Approved by: Farhad, in this session (2026-09-24).

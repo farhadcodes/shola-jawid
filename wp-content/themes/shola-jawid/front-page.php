@@ -94,7 +94,7 @@ $hero_layout        = $hero_layout ? $hero_layout : 'single';
 $hero_rail_issue    = null;
 $hero_rail_pub_term = null;
 
-if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full', 'minimal_cover' ), true ) ) {
+if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full', 'minimal_cover', 'feature_card' ), true ) ) {
 	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
 	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
@@ -349,6 +349,54 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	</section>
 
 	<?php shola_render_hero_filmstrip( $hero_filmstrip_posts ); ?>
+
+	<hr class="rule wrap">
+<?php elseif ( $hero && 'feature_card' === $hero_layout ) : ?>
+	<?php
+	/*
+	 * دوستونی: کارت مقالهٔ ویژه + ستون نشریه (2026-09-24, seventh layout):
+	 * per a client reference screenshot (an English-language news site's
+	 * two-column hero — a featured-article photo card with a solid white
+	 * info box overlaid at one corner, beside a narrower promo column) —
+	 * adapted for RTL rather than copied literally: the reference's LTR
+	 * "photo+box on the left, promo on the right" becomes "photo+box on
+	 * the visual right (reading-start), publication rail on the visual
+	 * left" here, via DOM order alone (.hero-feature-main first, .hero-
+	 * rail second) — same no-hardcoded-side technique every other multi-
+	 * column hero layout on this site already uses.
+	 *
+	 * Deliberately its own main-column treatment, not a reuse of
+	 * `overlay`'s floating-card-over-photo or `lead_rail`/`rail_full`'s
+	 * plain-text-over-a-scrim: .hero-feature-main has no darkening
+	 * scrim at all (see main.css §10.6) — the white info box provides
+	 * its own contrast against the photo, so darkening the whole photo
+	 * underneath it isn't needed and would just make the photo itself
+	 * less visible. shola_render_hero_body() is reused unchanged for the
+	 * box's content (category label, title, excerpt, byline) — same
+	 * content function every other layout already uses, only this
+	 * layout's own CSS (.hero-feature-card-box) restyles it for a small
+	 * white card instead of white-on-photo hero text.
+	 *
+	 * Rail column reuses shola_render_hero_publication_card() with
+	 * `show_title => false` — Farhad's explicit ask, after the client
+	 * reviewed a live screenshot, to drop the publication name/issue
+	 * number heading there and keep just the cover, description, and
+	 * button.
+	 */
+	?>
+	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
+		<div class="hero-feature-main">
+			<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+				<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+			</a>
+			<div class="hero-feature-card-box">
+				<?php shola_render_hero_body( $hero ); ?>
+			</div>
+		</div>
+		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false ) ); ?>
+		</aside>
+	</section>
 
 	<hr class="rule wrap">
 <?php endif; ?>

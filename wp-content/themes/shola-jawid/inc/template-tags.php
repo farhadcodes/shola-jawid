@@ -1110,21 +1110,30 @@ function shola_render_hero_body( $hero ) {
 }
 
 /**
- * Renders the "latest issue of a publication" card content shown by two
- * hero_section layouts (front-page.php): `lead_rail`'s side column and
- * `overlay`'s floating card. Identical content either way — kicker, cover,
- * publication name + issue number, dek, "دریافت شماره" button — only the
- * two layouts' own CSS (`.hero-rail` vs. `.hero-overlay-card`) differs in
- * how the surrounding card is positioned/colored. Pulled into one shared
- * helper, 2026-09-10, so a future content change to this card can't be
- * made in one layout and forgotten in the other.
+ * Renders the "latest issue of a publication" card content shown by three
+ * hero_section layouts (front-page.php): `lead_rail`'s side column,
+ * `overlay`'s floating card, and `feature_card`'s rail column. Identical
+ * content either way — cover, publication name + issue number, dek,
+ * "دریافت شماره" button — only the layouts' own CSS differs in how the
+ * surrounding card is positioned/colored. Pulled into one shared helper,
+ * 2026-09-10, so a future content change to this card can't be made in
+ * one layout and forgotten in the others.
  *
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
+ * @param array   $args {
+ *     @type bool $show_title Whether to render the publication name/issue
+ *                            number heading. Default true. `feature_card`
+ *                            (2026-09-24) passes false — Farhad's explicit
+ *                            ask, relayed after the client reviewed a live
+ *                            screenshot, to drop the title text there and
+ *                            keep just the cover + description + button.
+ * }
  * @return void
  */
-function shola_render_hero_publication_card( $issue, $pub_term ) {
+function shola_render_hero_publication_card( $issue, $pub_term, $args = array() ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	$show_title   = isset( $args['show_title'] ) ? (bool) $args['show_title'] : true;
 	/*
 	 * .hero-pub-card-kicker ("شمارهٔ جاری") removed site-wide, 2026-09-15,
 	 * per the client's explicit ask (relayed by Farhad) — this was the
@@ -1138,7 +1147,9 @@ function shola_render_hero_publication_card( $issue, $pub_term ) {
 	<a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="hero-pub-card-cover reveal">
 		<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
-	<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<?php if ( $show_title ) : ?>
+		<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<?php endif; ?>
 	<?php
 	/*
 	 * 18 -> 12 words, 2026-09-10: Farhad flagged this specifically on
