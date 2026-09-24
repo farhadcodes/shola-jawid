@@ -11403,3 +11403,24 @@ own floating card).
   column.
   Theme version bumped 1.42.2 -> 1.42.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card rail narrower, caption background changed
+- **Rail width**: publication card column made ~15% narrower per
+  Farhad's ask. Bare `.hero-rail` fixes its width at
+  `flex: 0 0 320px`; scoped `.hero-lead--feature-card .hero-rail` to
+  `flex-basis: 272px` (320px x 0.85). `.hero-feature-main`'s own
+  `flex: 1 1 70%` only ever acted as a grow factor against the rail's
+  fixed basis, so it automatically widens to fill the space the
+  narrower rail leaves -- no change needed on the photo column's own
+  rule.
+- **Caption background**: the description chip above the publication
+  cover (`.hero-pub-card-minimal-desc`) previously used `--cream`.
+  Asked Farhad which brand-token background to use (winston-red /
+  ink / line-gray) rather than guess, since this class is shared with
+  `minimal_cover`'s own floating-card design and the choice is
+  subjective; Farhad chose the light-neutral option. Scoped the
+  override to `.hero-feature-card-rail .hero-pub-card-minimal-desc`
+  only (background: var(--line), color: var(--ink-soft)) so
+  `minimal_cover` keeps its existing `--cream` treatment untouched.
+  Theme version bumped 1.42.3 -> 1.42.4 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

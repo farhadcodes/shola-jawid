@@ -3021,6 +3021,30 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .hero-lead--feature-card .hero-rail { padding: 0; }
 /*
+ * flex-basis: 272px, 2026-09-24 (sixth pass, same day) -- Farhad's ask:
+ * make the publication card column ~15% narrower. Bare `.hero-rail`
+ * fixes its width at 320px (`flex: 0 0 320px`, main.css above); 320px
+ * x 0.85 = 272px. `.hero-feature-main` uses `flex: 1 1 70%` purely as a
+ * grow factor here (the rail is flex-shrink: 0, so it never actually
+ * competes on that percentage) -- it simply grows to fill whatever
+ * width the rail's fixed basis leaves behind, so narrowing the rail's
+ * basis alone widens the photo column to match, no change needed there.
+ */
+.hero-lead--feature-card .hero-rail { flex-basis: 272px; }
+/*
+ * Caption background, 2026-09-24 (seventh pass, same day) -- Farhad's
+ * ask: change the background of the description caption above the
+ * cover. Scoped to this layout only (`.hero-feature-card-rail`, not the
+ * shared `.hero-pub-card-minimal-desc` class itself), since that class
+ * is also used by `minimal_cover`'s own floating card design, which
+ * Farhad didn't ask to change. Chose `--line` (one of the eleven locked
+ * brand tokens, the site's existing light-neutral-gray token, already
+ * used elsewhere for hairline rules) with `--ink-soft` text, per
+ * Farhad's explicit choice of a subtle light-gray treatment over a red
+ * or dark-ink alternative.
+ */
+.hero-feature-card-rail .hero-pub-card-minimal-desc { background: var(--line); color: var(--ink-soft); }
+/*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/
  * `bottom` position it from the reading-start corner (visual right in
