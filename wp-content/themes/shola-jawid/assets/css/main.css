@@ -3043,7 +3043,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * Farhad's explicit choice of a subtle light-gray treatment over a red
  * or dark-ink alternative.
  */
-.hero-feature-card-rail .hero-pub-card-minimal-desc { background: var(--line); color: var(--ink-soft); }
+/*
+ * Legibility fix, 2026-09-24 (eighth pass, same day) -- Farhad flagged
+ * the caption as dim and hard to read even after the background swap.
+ * Diagnosis: the shared `.hero-pub-card-minimal-desc` base (font-size:
+ * .8rem, no font-weight override, color: var(--ink-soft)) is tuned for
+ * its original floating-card-on-photo context (minimal_cover), where a
+ * light caption reads as an intentionally quiet accent against a large
+ * image; against this layout's small, flat --line chip it just reads
+ * as washed out, not quiet. Farhad approved this specific combination
+ * after a design-head assessment: bump the size slightly, add real
+ * weight to anchor it, and swap to full var(--ink) (darkest token)
+ * instead of --ink-soft for the maximum-contrast reading the caption's
+ * "useful at a glance" job actually needs.
+ */
+.hero-feature-card-rail .hero-pub-card-minimal-desc {
+  background: var(--line);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
 /*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/

@@ -11424,3 +11424,23 @@ own floating card).
   `minimal_cover` keeps its existing `--cream` treatment untouched.
   Theme version bumped 1.42.3 -> 1.42.4 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card caption made legible (size, weight, contrast)
+- Farhad flagged the caption above the publication cover as dim and
+  hard to read after the background-color change. Asked to weigh in
+  "wearing a design head" before touching anything, per his request.
+- **Diagnosis**: `.hero-pub-card-minimal-desc`'s base styling
+  (font-size: .8rem, regular weight, color: var(--ink-soft)) was tuned
+  for its original context (`minimal_cover`'s floating card over a
+  photo, where a light caption is an intentional quiet accent) -- on
+  this layout's small, flat `--line` chip that same styling just reads
+  as washed out, not quiet.
+- **Fix**, approved by Farhad after the recommendation:
+  `.hero-feature-card-rail .hero-pub-card-minimal-desc` gets
+  `font-size: 0.875rem`, `font-weight: 600`, and `color: var(--ink)`
+  (full dark ink, not --ink-soft) -- scoped to this layout only, so
+  `minimal_cover`'s own caption is untouched. No breakpoint-specific
+  override needed: the rule isn't gated behind a media query, so mobile
+  gets the same legibility fix automatically.
+  Theme version bumped 1.42.4 -> 1.42.5 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).
