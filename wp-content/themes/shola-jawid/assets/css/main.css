@@ -2917,9 +2917,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
    this need; this is the first layout that reads as a distinct,
    inset "card" rather than a full banner, so it's the first to need
    its own margin. */
+/* gap: 2.5rem, 2026-09-24 (fifth pass, same day) — Farhad flagged the
+   two columns sitting flush against each other with no space between,
+   unlike the reference's own generous white-space gutter between the
+   photo and the promo column. Earlier in this layout's history a "gap
+   between columns" complaint was misdiagnosed as the outer wrap's
+   padding/max-width (see the removed full-bleed detour, reverted
+   above) — that was wrong because a flex row's own outer padding never
+   affects spacing *between* its children, only its edges relative to
+   the page. This time the ask is genuinely about inter-column spacing,
+   so the fix is the property actually meant for it: `gap` on the flex
+   container itself. */
 .hero-lead--feature-card {
   display: flex;
   align-items: stretch;
+  gap: 2.5rem;
   max-width: var(--wrap-wide);
   margin-block: 2.5rem;
   margin-inline: auto;

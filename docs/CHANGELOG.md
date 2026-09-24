@@ -11386,3 +11386,20 @@ own floating card).
   clean alignment.)
   Theme version bumped 1.42.1 -> 1.42.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card hero gets real white space between its two columns
+- **Root cause**: the two columns sat flush against each other with no gap.
+  This layout's flex container never set an explicit `gap` (only
+  `padding-inline` on the outer wrap, which affects the block's own
+  left/right edges relative to the page, not the space between its own
+  children) -- flex children with no `gap` sit flush by default
+  regardless of that outer padding. An earlier round in this same
+  layout's history had misdiagnosed a similar-sounding complaint as
+  being about that outer padding/max-width and briefly went full-bleed
+  to "fix" it; that was reverted once the real ask (fixed grid width)
+  came in, but the actual `gap` property was never added at that time.
+- **Fix**: added `gap: 2.5rem` to `.hero-lead--feature-card`, matching
+  the reference's own generous gutter between the photo and the promo
+  column.
+  Theme version bumped 1.42.2 -> 1.42.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).
