@@ -260,9 +260,21 @@ function shola_date_icon() {
  * than duplicated inline, same convention as shola_date_icon()/
  * shola_word_count_icon() above.
  *
+ * `$filled` param added 2026-09-24 for `feature_card`'s rail caption:
+ * Farhad flagged the outline glyph as reading weak now that the
+ * caption text itself was already bolded up for legibility, and asked
+ * for a filled icon in the brand's winston-red instead. Kept as an
+ * opt-in flag rather than a second function since the outline variant
+ * is still correct for minimal_cover's own quieter caption.
+ *
+ * @param bool $filled Whether to return the solid/filled variant
+ *                      instead of the default outline stroke icon.
  * @return string Trusted, static inline SVG markup.
  */
-function shola_bell_icon() {
+function shola_bell_icon( $filled = false ) {
+	if ( $filled ) {
+		return '<svg class="glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a6 6 0 0 0-6 6c0 7-3 9-3 9h18s-3-2-3-9a6 6 0 0 0-6-6z"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0h-5z"/></svg>';
+	}
 	return '<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
 }
 
@@ -1235,8 +1247,11 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
  * @param array   $args {
- *     @type bool $show_title Whether to render the publication name/issue
- *                            number heading. Default true.
+ *     @type bool $show_title  Whether to render the publication name/issue
+ *                             number heading. Default true.
+ *     @type bool $filled_icon Whether the description strip's bell glyph
+ *                             uses the filled variant instead of the
+ *                             default outline. Default false.
  * }
  * @return void
  */
@@ -1245,13 +1260,14 @@ function shola_render_hero_publication_card_minimal( $issue, $pub_term, $args = 
 	$description  = get_post_meta( $issue->ID, 'shcore_hero_pub_description', true );
 	$permalink    = get_permalink( $issue );
 	$show_title   = isset( $args['show_title'] ) ? (bool) $args['show_title'] : true;
+	$filled_icon  = isset( $args['filled_icon'] ) ? (bool) $args['filled_icon'] : false;
 	?>
 	<?php if ( $show_title ) : ?>
 		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
 	<?php endif; ?>
 	<?php if ( $description ) : ?>
 		<p class="hero-pub-card-minimal-desc">
-			<?php echo shola_bell_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
+			<?php echo shola_bell_icon( $filled_icon ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
 			<span><?php echo esc_html( $description ); ?></span>
 		</p>
 	<?php endif; ?>

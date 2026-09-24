@@ -11444,3 +11444,25 @@ own floating card).
   gets the same legibility fix automatically.
   Theme version bumped 1.42.4 -> 1.42.5 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- feat: feature_card caption glyph switched to filled winston-red
+- Farhad's ask: the caption's bell glyph (outline, `currentColor`) read
+  as weak against the now-bolder caption text, and should become a
+  filled icon in winston-red instead.
+- **`shola_bell_icon( $filled = false )`** (inc/template-tags.php) gained
+  a `$filled` param; when true it returns a solid bell path
+  (`fill="currentColor"`, no stroke) instead of the existing outline
+  stroke path. The outline path/behavior is unchanged and remains the
+  default, so every other existing call keeps its current look.
+- **`shola_render_hero_publication_card_minimal()`** gained a matching
+  `filled_icon` arg (default false) that passes straight through to
+  `shola_bell_icon()`. `minimal_cover`'s own call passes no `$args` for
+  this key, so it keeps the outline icon unchanged.
+- **front-page.php**'s `feature_card` rail call now passes
+  `'filled_icon' => true`; main.css scopes the color with
+  `.hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color:
+  var(--winston-red); }` -- the glyph's own `fill="currentColor"` picks
+  this up directly, independent of the caption text's own `--ink` color.
+  Theme version bumped 1.42.5 -> 1.43.0 (minor -- new opt-in parameter
+  on two shared functions, not just a value tweak). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

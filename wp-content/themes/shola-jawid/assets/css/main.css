@@ -3064,6 +3064,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   font-weight: 600;
 }
 /*
+ * Bell glyph, 2026-09-24 (ninth pass, same day) -- Farhad's ask: the
+ * outline icon read as weak once the caption text itself was bolded up
+ * for legibility (previous pass), and should be filled + winston-red
+ * instead. `shola_bell_icon( true )` (inc/template-tags.php) now
+ * renders the solid variant for this layout only, via a new
+ * `filled_icon` arg on shola_render_hero_publication_card_minimal()
+ * (front-page.php passes it for feature_card, minimal_cover doesn't) --
+ * the glyph's `fill="currentColor"` means only the color needs setting
+ * here, overriding the caption's own var(--ink) text color for the
+ * icon specifically so the glyph reads red while the text stays dark.
+ */
+.hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--winston-red); }
+/*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/
  * `bottom` position it from the reading-start corner (visual right in

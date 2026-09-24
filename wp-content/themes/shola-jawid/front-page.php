@@ -388,6 +388,12 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	 * metabox) already matches the reference once its title is turned
 	 * off — no button either, since that function never had one to begin
 	 * with (removed from it entirely back on 2026-09-18).
+	 *
+	 * `filled_icon => true` added 2026-09-24 (fourth pass, same day) —
+	 * Farhad flagged the caption's outline bell glyph as reading weak
+	 * once the caption text itself was bolded up for legibility, and
+	 * asked for a filled icon in winston-red instead; the color itself
+	 * is set in main.css (feature_card's own rail scope), not here.
 	 */
 	?>
 	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
@@ -400,7 +406,7 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 			</div>
 		</div>
 		<aside class="hero-rail hero-feature-card-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-			<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false ) ); ?>
+			<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'filled_icon' => true ) ); ?>
 		</aside>
 	</section>
 
