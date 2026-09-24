@@ -2876,32 +2876,60 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 
 /* --- ۱۰.۶ · Hero "دوستونی: کارت مقالهٔ ویژه + ستون نشریه" layout
-   (hero_section: feature_card, added 2026-09-24) ------------------------
+   (hero_section: feature_card, added 2026-09-24; corrected same day
+   after Farhad relayed a live client screenshot against the reference)
+   ------------------------------------------------------------------
    Per a client reference screenshot (an English-language news site's
    two-column hero) — a featured-article photo with a solid white info
-   box overlaid at one corner, beside a narrower publication-rail column.
-   Reuses .hero-lead--with-rail's own centered-1200px-band + compact-
-   height treatment (main.css §10.1) rather than duplicating it — same
-   `max-width: var(--wrap-wide)` band, same `clamp(480px, 42vw, 560px)`
-   height at desktop.
-   .hero-feature-main deliberately has NO scrim (unlike .hero-main,
-   §10.1/§10.4's ::before/::after darkening pair): the white box below
-   provides its own contrast against the photo, so darkening the whole
-   photo underneath it isn't needed and would just make the photo less
-   visible — a genuinely different treatment from every other layout,
-   not a reskin of one. */
-.hero-lead--feature-card {
-  display: flex;
-  align-items: stretch;
-  max-width: var(--wrap-wide);
-  margin-inline: auto;
-  padding-inline: var(--gap-pad-x);
-}
+   box overlaid at one corner, beside a narrower publication-rail
+   column, the two columns flush against each other edge-to-edge with
+   no surrounding padding and no darkening wash over the photo.
+   First pass wrongly modeled the outer container on .hero-lead--with-
+   rail (main.css §10.1) — that layout's centered 1200px band +
+   padding-inline is exactly what produced the visible gap between the
+   two columns Farhad flagged live (padding-inline sits on the shared
+   container, but at this component's width it read as a real gap
+   between the columns, not just outer breathing room). Corrected to
+   .hero-lead--rail-full's edge-to-edge model instead (main.css §10.4):
+   no max-width/margin-inline/padding-inline, columns genuinely flush.
+   `.hero-lead--feature-card::before/::after { content: none }` also
+   added here — .hero-lead's own base ::before/::after (main.css §10,
+   the gray-wash + dark-gradient pair every full-bleed layout normally
+   wants) applied unconditionally since this modifier never opted out,
+   which was the dark overlay Farhad flagged; `.hero-lead--with-rail`/
+   `.hero-lead--rail-full` both already opt out the same way for their
+   own layouts, this modifier had simply been missed. */
+.hero-lead--feature-card { display: flex; align-items: stretch; }
+.hero-lead--feature-card::before,
+.hero-lead--feature-card::after { content: none; }
 .hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
 @media (min-width: 901px) {
   .hero-lead--feature-card .hero-media,
   .hero-feature-main { height: clamp(480px, 42vw, 560px); }
 }
+/*
+ * The publication rail reuses the plain .hero-rail class (same 320px
+ * width as `lead_rail`'s own rail), but that class's default styling
+ * is a solid --winston-red background with white text — built for
+ * `lead_rail`/`overlay`'s own design, not this layout's reference,
+ * which shows a plain, unstyled promo column with no background of its
+ * own. Overridden here to a transparent background with the site's
+ * normal dark-ink text colors, and the button reset to its ordinary
+ * .btn-primary look (red bg/white text) instead of `.hero-rail`'s own
+ * inverted (white bg/red text) version of it, which only makes sense
+ * against a red background. Farhad's explicit ask, after the client
+ * flagged the rail's red fill against the reference's plain column.
+ */
+.hero-lead--feature-card .hero-rail {
+  background: none;
+  color: var(--ink);
+}
+.hero-lead--feature-card .hero-rail .hero-pub-card-kicker,
+.hero-lead--feature-card .hero-rail .h-page,
+.hero-lead--feature-card .hero-rail .h-page a { color: var(--ink); }
+.hero-lead--feature-card .hero-rail .dek { color: var(--ink-soft); }
+.hero-lead--feature-card .hero-rail .btn-primary { background: var(--winston-red); color: var(--paper); }
+.hero-lead--feature-card .hero-rail .btn-primary:hover { background: var(--winston-red-deep); }
 /*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/

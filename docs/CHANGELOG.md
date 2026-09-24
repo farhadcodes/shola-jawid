@@ -11187,3 +11187,37 @@ polished reference sample):
   Plugin version bumped 1.21.0 -> 1.22.0 (minor: new layout option +
   whitelist entry).
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card hero -- dark overlay, column gap, rail background
+Farhad relayed a live client screenshot of the shipped `feature_card`
+layout against the original reference, flagging three things:
+- **Dark overlay over the photo, when the reference has none**: root
+  cause -- `.hero-lead`'s own base `::before`/`::after` (the gray-wash +
+  dark-gradient pair every full-bleed layout gets by default) apply
+  unconditionally unless a layout modifier explicitly opts out;
+  `.hero-lead--with-rail` and `.hero-lead--rail-full` both already do
+  this for their own layouts, but `.hero-lead--feature-card` was
+  missed. Added the same `content: none` override.
+- **A visible gap between the two columns, when the reference has them
+  flush**: root cause -- the outer container was modeled on
+  `.hero-lead--with-rail` (main.css §10.1), which centers a 1200px band
+  with `padding-inline` -- exactly what read as a gap between the
+  columns at this component's width. Corrected to
+  `.hero-lead--rail-full`'s edge-to-edge model instead (no max-width/
+  margin-inline/padding-inline) -- the columns are now genuinely flush.
+- **A solid red background on the publication rail, when the reference
+  shows a plain, unstyled column**: root cause -- the rail reuses the
+  plain `.hero-rail` class, whose default styling (solid `--winston-red`
+  background, white text, an inverted white-bg/red-text button) was
+  built for `lead_rail`/`overlay`'s own design. Added a `.hero-lead--
+  feature-card .hero-rail` override: transparent background, normal
+  dark-ink text colors, and the button reset to its ordinary `.btn-
+  primary` look (red bg/white text) instead of the inverted version,
+  which only made sense against a red fill.
+  Verified: homepage still loads correctly (confirmed via page title)
+  after the change -- this layout only activates when explicitly
+  selected and active on a hero_section post, which this session
+  doesn't do; Farhad/the client should do another live visual check
+  once it's re-uploaded.
+  Theme version bumped 1.41.0 -> 1.41.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).
