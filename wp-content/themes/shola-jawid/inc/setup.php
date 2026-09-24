@@ -563,7 +563,11 @@ function shola_skip_404_for_secondary_query_pagination( $preempt, $query ) {
 		return $preempt;
 	}
 
-	$paginated_taxonomies = array( 'topic', 'collection', 'publication' );
+	// `party_document_category` added 2026-09-24 alongside the new
+	// taxonomy-party_document_category.php archive template — same
+	// secondary-WP_Query pagination shape as `collection`'s own archive,
+	// so it needs the exact same fix.
+	$paginated_taxonomies = array( 'topic', 'collection', 'publication', 'party_document_category' );
 	$paginated_pages      = array( 'party-publications', 'party-documents', 'reports' );
 
 	if ( $query->is_tax( $paginated_taxonomies ) || $query->is_page( $paginated_pages ) ) {

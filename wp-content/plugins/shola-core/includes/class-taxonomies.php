@@ -73,6 +73,43 @@ class Taxonomies {
 		add_action( 'admin_init', array( __CLASS__, 'migrate_legacy_reports_tag' ) );
 
 		/*
+		 * Same self-healing seed pattern, for party_document_category's two
+		 * new starting subsections (اسناد پایه, اسناد کنگره) — added
+		 * 2026-09-24. create_default_terms() above only runs on plugin
+		 * *activation*, which does not re-fire on a code-only zip redeploy
+		 * to an already-active plugin (the same gap seed_publication_
+		 * periods() was fixed for on 2026-09-04); since this feature ships
+		 * as a redeploy to a site where shola-core is already active, this
+		 * admin_init hook is what actually seeds these two terms in
+		 * practice. Guarded by its own persisted flag (not just
+		 * term_exists(), same reasoning as seed_publication_periods()'s
+		 * 2026-09-04 fix) so deleting one of these terms later never
+		 * silently recreates it — this taxonomy is self-managed by design,
+		 * this is only a one-time starting point.
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'seed_party_document_categories' ) );
+
+		/*
+		 * One-time migration, same day: every existing اسناد حزب entry
+		 * that has no `party_document_category` term at all gets Category_
+		 * Manager's existing، sitewide «دسته‌بندی‌نشده» fallback term — see
+		 * migrate_unassigned_party_documents()'s own docblock for why (in
+		 * short: the new subsection tile block, page-party-documents.php,
+		 * lists that term as a real, clickable subsection like any other;
+		 * it must actually have content, not sit permanently empty while
+		 * unassigned entries are only reachable from the flat listing).
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'migrate_unassigned_party_documents' ) );
+
+		/*
+		 * Ongoing counterpart to the migration above: keeps the same
+		 * guarantee true for every اسناد حزب entry saved from now on, not
+		 * just the ones that already existed when this shipped — see
+		 * default_to_uncategorized_party_document()'s own docblock.
+		 */
+		add_action( 'save_post_party_document', array( __CLASS__, 'default_to_uncategorized_party_document' ), 20, 3 );
+
+		/*
 		 * Keep every one of this plugin's taxonomy checklists in their
 		 * fixed registered order in wp-admin — never reordered by what's
 		 * currently checked. Added 2026-09-05: Farhad reported this for
@@ -372,7 +409,7 @@ class Taxonomies {
 
 		/*
 		 * party_document_category — added 2026-09-04 alongside the
-		 * party_document CPT. Deliberately not seeded with any terms in
+		 * party_document CPT. Originally seeded with zero terms in
 		 * create_default_terms() below, unlike topic/publication/collection's
 		 * fixed vocabularies: the client asked specifically for a
 		 * self-managed grouping staff can grow themselves as اسناد حزب
@@ -380,6 +417,18 @@ class Taxonomies {
 		 * true for the same reason as the other three (Categories-style
 		 * admin UI, matches how Farhad already manages Library shelves and
 		 * دوره periods) — not because any sub-nesting is expected.
+		 *
+		 * 2026-09-24: the client asked for اسناد حزب to have at least the
+		 * same kind of subsectioning کتابخانه already has, naming two
+		 * starting subsections explicitly (اسناد پایه, اسناد کنگره). This
+		 * taxonomy already covers the requirement exactly as-is — no new
+		 * taxonomy needed, just two initial terms, seeded below the same
+		 * idempotent way as every other taxonomy's vocabulary. It remains
+		 * self-managed going forward: these are a starting point staff can
+		 * rename/delete/add to freely from wp-admin, not a fixed list —
+		 * unlike topic/publication/collection, nothing here re-creates a
+		 * deleted term the way seed_publication_periods() deliberately does
+		 * for دوره (see create_default_terms()'s own idempotency note).
 		 */
 		register_taxonomy(
 			'party_document_category',
@@ -550,6 +599,23 @@ class Taxonomies {
 		}
 
 		/*
+		 * party_document_category — two starting subsections added
+		 * 2026-09-24 per the client's explicit request (اسناد پایه, اسناد
+		 * کنگره), same idempotent maybe_insert_term() pattern as every
+		 * other taxonomy above. Unlike those, this taxonomy stays
+		 * self-managed after this point — staff can rename, delete, or add
+		 * further terms freely from wp-admin with no code involved (see
+		 * register_taxonomies()'s comment on this taxonomy).
+		 */
+		$party_document_categories = array(
+			'foundational-documents' => 'اسناد پایه',
+			'congress-documents'     => 'اسناد کنگره',
+		);
+		foreach ( $party_document_categories as $slug => $name ) {
+			self::maybe_insert_term( $name, 'party_document_category', $slug );
+		}
+
+		/*
 		 * گزارش, Phase B (2026-08-25) originally seeded as a `post_tag`
 		 * term. Replaced 2026-09-05 (see register_taxonomies()'s comment
 		 * on the new `report` taxonomy for why) with this custom taxonomy
@@ -563,6 +629,132 @@ class Taxonomies {
 		 * under the old `post_tag` term onto this one.
 		 */
 		self::maybe_insert_term( 'گزارش', 'report', 'reports' );
+	}
+
+	/**
+	 * Self-healing, one-time seed of party_document_category's two starting
+	 * subsections (اسناد پایه, اسناد کنگره) — see the `init()` comment above
+	 * this is hooked from for why this exists separately from
+	 * create_default_terms() (that method only fires on plugin activation,
+	 * which a code-only zip redeploy to an already-active plugin does not
+	 * re-trigger). Guarded by its own persisted flag rather than
+	 * term_exists() alone, so a term deleted afterward — this taxonomy is
+	 * self-managed, staff may rename or remove either of these — is never
+	 * silently recreated on the next admin page load.
+	 *
+	 * @return void
+	 */
+	public static function seed_party_document_categories() {
+		if ( get_option( 'shcore_party_document_categories_seeded' ) ) {
+			return;
+		}
+
+		self::maybe_insert_term( 'اسناد پایه', 'party_document_category', 'foundational-documents' );
+		self::maybe_insert_term( 'اسناد کنگره', 'party_document_category', 'congress-documents' );
+
+		update_option( 'shcore_party_document_categories_seeded', 1 );
+	}
+
+	/**
+	 * One-time move of every existing `party_document` post that has no
+	 * `party_document_category` term at all onto Category_Manager's
+	 * existing، sitewide «دسته‌بندی‌نشده» fallback term — added 2026-09-24
+	 * alongside the new subsection tile block on page-party-documents.php.
+	 *
+	 * That tile block lists «دسته‌بندی‌نشده» as a real, clickable
+	 * subsection exactly like «اسناد پایه»/«اسناد کنگره» (it's a normal
+	 * `get_terms()` result, not a special case — see
+	 * shola_get_party_document_subsections(), inc/template-tags.php).
+	 * Without this migration it would sit permanently empty even though
+	 * every اسناد حزب entry published before this feature has no category
+	 * assigned, since Category_Manager's own `ensure_uncategorized_term()`
+	 * mechanism only ever reassigns content reactively — when a *different*
+	 * term it belonged to gets deleted — never proactively for content that
+	 * simply never had a term in the first place. Considered, and rejected:
+	 * a separate `pd_cat=none` query-string bucket that filtered the main
+	 * listing without touching any real term relationship — dropped once
+	 * this taxonomy's real، already-existing «دسته‌بندی‌نشده» term (visible
+	 * and manageable from wp-admin like any other) was found to already be
+	 * the sitewide answer to exactly this question; adding a second,
+	 * differently-named "uncategorized" concept next to it would only
+	 * confuse the client, not help them.
+	 *
+	 * Same admin_init + persisted-flag pattern as this file's other
+	 * self-healing migrations — safe to re-run, only ever does real work
+	 * once, and never fights an editor who deliberately moves a document
+	 * off «دسته‌بندی‌نشده» again afterward (the flag is set once and never
+	 * re-checked against current state).
+	 *
+	 * @return void
+	 */
+	public static function migrate_unassigned_party_documents() {
+		if ( get_option( 'shcore_party_documents_uncategorized_migrated' ) ) {
+			return;
+		}
+
+		$unassigned_ids = get_posts(
+			array(
+				'post_type'      => 'party_document',
+				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small CPT, one-time migration, not a recurring query.
+					array(
+						'taxonomy' => 'party_document_category',
+						'operator' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		if ( $unassigned_ids ) {
+			$uncategorized_id = \SholaCore\Category_Manager::ensure_uncategorized_term( 'party_document_category' );
+			if ( $uncategorized_id ) {
+				foreach ( $unassigned_ids as $post_id ) {
+					wp_set_object_terms( $post_id, array( $uncategorized_id ), 'party_document_category', false );
+				}
+			}
+		}
+
+		update_option( 'shcore_party_documents_uncategorized_migrated', 1 );
+	}
+
+	/**
+	 * Ongoing counterpart to migrate_unassigned_party_documents() above:
+	 * whenever a `party_document` is saved and ends up with no
+	 * `party_document_category` term at all, assigns it Category_Manager's
+	 * «دسته‌بندی‌نشده» fallback term — keeps the "every اسناد حزب entry has
+	 * at least one category" guarantee true for content published after
+	 * this feature shipped, not just the backlog the one-time migration
+	 * covers.
+	 *
+	 * Hooked on `save_post_party_document` at priority 20 (after WordPress
+	 * core's own default priority-10 handling of `tax_input`/block-editor
+	 * term saves has already run), so this sees the post's real,
+	 * just-saved term state — not the state from before this save request.
+	 * Skips revisions and autosaves the same way WordPress core's own
+	 * `save_post` consumers always must, since neither actually represents
+	 * a real save an editor asked for.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object (unused — kept for hook signature match).
+	 * @param bool     $update  Whether this is an update to an existing post (unused).
+	 * @return void
+	 */
+	public static function default_to_uncategorized_party_document( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- $post/$update kept for hook signature match.
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
+		$current = wp_get_object_terms( $post_id, 'party_document_category', array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $current ) || ! empty( $current ) ) {
+			return;
+		}
+
+		$uncategorized_id = \SholaCore\Category_Manager::ensure_uncategorized_term( 'party_document_category' );
+		if ( $uncategorized_id ) {
+			wp_set_object_terms( $post_id, array( $uncategorized_id ), 'party_document_category', false );
+		}
 	}
 
 	/**

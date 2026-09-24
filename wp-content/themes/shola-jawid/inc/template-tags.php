@@ -558,6 +558,102 @@ function shola_publication_status_label( $slug ) {
 }
 
 /**
+ * Shared subsection list for اسناد حزب's collection-style subsectioning —
+ * added 2026-09-24, per the client's request to bring اسناد حزب to parity
+ * with کتابخانه's own collection tiles/nav (page-library.php,
+ * taxonomy-collection.php). Used by both page-party-documents.php (landing
+ * tile block) and taxonomy-party_document_category.php (cross-subsection
+ * nav strip) so the list is built in exactly one place.
+ *
+ * Deliberately built via `get_terms()` (`hide_empty => false`, so a
+ * brand-new, still-empty term shows up immediately), NOT a hardcoded slug
+ * array — unlike کتابخانه's own `$collection_slugs` arrays in
+ * page-library.php/taxonomy-collection.php, which was found during this
+ * feature's planning to silently require a code change for any new
+ * `collection` term to ever appear. That gap is not replicated here: every
+ * real `party_document_category` term surfaces automatically the moment
+ * staff create it in wp-admin.
+ *
+ * Every item is a real, wp-admin-manageable term — including this
+ * taxonomy's existing سیستم‌وار «دسته‌بندی‌نشده» fallback term
+ * (Category_Manager, shola-core), which this deliberately does NOT
+ * exclude or replace with a separate virtual bucket. An earlier version of
+ * this feature built its own `pd_cat=none`/tax-query-NOT-EXISTS pseudo-
+ * bucket for "Option A" (no existing اسناد حزب entry should go invisible
+ * for lack of a category) before noticing Category_Manager already solves
+ * exactly this sitewide, with a real term editors already see and manage —
+ * having both would mean two different-but-similarly-named "uncategorized"
+ * concepts. Removed in favor of just relying on that real term: every
+ * party_document is now guaranteed to carry it whenever it would otherwise
+ * have none (see Taxonomies::default_to_uncategorized_party_document() and
+ * Taxonomies::migrate_unassigned_party_documents(), class-taxonomies.php),
+ * so it always has real content once this ships, sorted to the end (see
+ * below) exactly like Category_Manager's own admin-side reassignment
+ * dropdown always lists it last/separately from ordinary sibling terms.
+ *
+ * Ordinary terms are sorted by the `shcore_term_order` term meta
+ * (Category_Manager) — same `usort()` pattern already used by
+ * taxonomy-publication.php for دوره tiles, since WordPress's own term
+ * order for a custom taxonomy isn't guaranteed to match staff's intended
+ * display order, and this taxonomy has the same "ترتیب" admin field.
+ *
+ * @return array[] Each item: array( 'term' => WP_Term, 'name' => string,
+ *                  'link' => string, 'count' => int ).
+ */
+function shola_get_party_document_subsections() {
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'party_document_category',
+			'hide_empty' => false,
+		)
+	);
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+
+	$uncategorized_id = class_exists( '\SholaCore\Category_Manager' )
+		? \SholaCore\Category_Manager::get_uncategorized_term_id( 'party_document_category' )
+		: 0;
+
+	$ordinary       = array();
+	$uncategorized  = null;
+	foreach ( $terms as $term ) {
+		if ( $uncategorized_id && $uncategorized_id === (int) $term->term_id ) {
+			$uncategorized = $term;
+			continue;
+		}
+		$ordinary[] = $term;
+	}
+
+	usort(
+		$ordinary,
+		function ( $a, $b ) {
+			$order_a = get_term_meta( $a->term_id, 'shcore_term_order', true );
+			$order_b = get_term_meta( $b->term_id, 'shcore_term_order', true );
+			$order_a = ( '' === $order_a ) ? PHP_INT_MAX : (int) $order_a;
+			$order_b = ( '' === $order_b ) ? PHP_INT_MAX : (int) $order_b;
+			return $order_a <=> $order_b;
+		}
+	);
+
+	if ( $uncategorized ) {
+		$ordinary[] = $uncategorized;
+	}
+
+	$items = array();
+	foreach ( $ordinary as $term ) {
+		$items[] = array(
+			'term'  => $term,
+			'name'  => $term->name,
+			'link'  => get_term_link( $term ),
+			'count' => (int) $term->count,
+		);
+	}
+
+	return $items;
+}
+
+/**
  * Fixed Latin brand-code used in the masthead runner's mono/lang="en"
  * context ("SHOLA JAWID · شماره ۳۲ · سرطان ۱۴۰۵" in v6) — a running-head
  * mark, not a translation of the site name (`get_bloginfo('name')`

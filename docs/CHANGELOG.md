@@ -11501,3 +11501,103 @@ own floating card).
   Approved by: Farhad, in this session (2026-09-24) -- pending Farhad's
   visual confirmation this reversed treatment reads better than the
   light-chip version it replaces.
+
+## 2026-09-24 -- feat: اسناد حزب (Party Documents) subsectioning, at parity with کتابخانه
+
+Client request: give اسناد حزب the same kind of subsectioning کتابخانه
+already has, with two starting subsections (اسناد پایه, اسناد کنگره),
+fully manageable from wp-admin with no developer involvement for any
+future subsection.
+
+- **Audit before building** (approved by Farhad before implementation):
+  کتابخانه's own subsectioning turned out to already be taxonomy-based
+  (`collection`, `document`) but its two templates
+  (page-library.php/taxonomy-collection.php) hardcode a literal 4-slug
+  PHP array rather than calling `get_terms()` — a new `collection` term
+  created in wp-admin would not appear anywhere on the front end without
+  a code change to both files. **Deliberately not replicated**: doing so
+  would have technically matched the surface request ("taxonomy-based
+  subsectioning") while failing its actual point (no-developer-needed).
+  کتابخانه's own files/taxonomy/content are untouched — that bug is
+  logged here for the record, not fixed, as it's out of this task's
+  scope.
+- **No new taxonomy needed**: اسناد حزب already has its own CPT
+  (`party_document`) and its own dedicated, already-registered taxonomy
+  (`party_document_category`, hierarchical, wp-admin-manageable, zero
+  terms seeded by design). The only taxonomy-layer work was seeding two
+  starting terms into it.
+- **Second finding during implementation** (not caught in the original
+  audit, found while verifying against the live/local DB): this project
+  already has a generalized "Uncategorized" fallback-term system
+  (`Category_Manager`, `class-category-manager.php`, added 2026-09-05)
+  covering `party_document_category` among five managed taxonomies — a
+  real، permanent «دسته‌بندی‌نشده» term, editor-visible, used as the
+  reassignment target when a term with content gets deleted. An initial
+  version of this feature built its own separate `pd_cat=none`/
+  tax-query-NOT-EXISTS pseudo-bucket for "nothing existing goes
+  invisible" (Farhad's approved "Option A") before this was found —
+  removed in favor of just using the taxonomy's real fallback term
+  instead of inventing a second, differently-named "uncategorized"
+  concept alongside it.
+- **Plugin (shola-core, `includes/class-taxonomies.php`)**:
+  - `create_default_terms()` and new self-healing `admin_init` hook
+    `seed_party_document_categories()` (the activation-only path doesn't
+    re-fire on a code-only redeploy, same gap `seed_publication_periods()`
+    was fixed for on 2026-09-04) seed اسناد پایه
+    (`foundational-documents`) and اسناد کنگره (`congress-documents`).
+    Self-managed afterward — staff can rename/delete/add freely.
+  - New `migrate_unassigned_party_documents()` (one-time, `admin_init` +
+    persisted flag): moves every existing اسناد حزب entry with zero
+    `party_document_category` terms onto Category_Manager's real
+    «دسته‌بندی‌نشده» term, so that term's own subsection tile has real
+    content from day one instead of sitting permanently empty. Confirmed
+    live on the local DB: both of the site's existing اسناد حزب entries
+    had zero terms before this ran; both now carry «دسته‌بندی‌نشده».
+  - New `default_to_uncategorized_party_document()` (hooked
+    `save_post_party_document`, priority 20): keeps the same guarantee
+    true for every اسناد حزب entry saved from now on, not just the
+    backlog the one-time migration covers.
+- **Theme (shola-jawid)**:
+  - New `shola_get_party_document_subsections()` (inc/template-tags.php):
+    a live `get_terms()` call (`hide_empty => false`, so a brand-new,
+    still-empty term shows immediately) — zero hardcoded term
+    names/slugs anywhere, unlike کتابخانه's own `$collection_slugs`
+    arrays. Ordinary terms sorted by the `shcore_term_order` term meta
+    (same `usort()` pattern already used by taxonomy-publication.php for
+    دوره tiles, since this taxonomy has the same "ترتیب" admin field);
+    the «دسته‌بندی‌نشده» term is always sorted last, mirroring
+    Category_Manager's own admin-side convention of listing it
+    separately from ordinary sibling terms.
+  - `page-party-documents.php`: added a `.topic-list` tile block (reused
+    as-is from کتابخانه's own landing page, no new CSS) right after the
+    header; the existing flat `.issue-grid` listing below it is
+    unchanged.
+  - New `taxonomy-party_document_category.php` (WP template hierarchy,
+    one file for every term): mirrors taxonomy-collection.php's
+    header/nav/pagination structure exactly, but reuses اسناد حزب's own
+    existing `.issue-grid`/`issue-card` display (not کتابخانه's
+    document-row list) and a `.topic-nav` cross-subsection strip built
+    from the same dynamic helper.
+  - `inc/setup.php`: added `party_document_category` to
+    `shola_skip_404_for_secondary_query_pagination()`'s
+    `$paginated_taxonomies` list — found while reading this file that
+    every taxonomy archive pagination template needs this specific fix
+    (2026-09-10 bug, `pre_handle_404`) or page 2+ hard-404s; the new
+    template has the exact same secondary-`WP_Query` pagination shape as
+    `collection`'s own archive. Verified live: `/party-documents-
+    category/party_document_category-uncategorized/page/2/` renders the
+    template's own empty state, not a 404.
+- **Verification**: confirmed live against the local site's actual
+  database (not assumed) — seeded terms, ran both migrations, confirmed
+  both existing اسناد حزب entries landed under «دسته‌بندی‌نشده» with the
+  correct count. Screenshotted desktop (1200px+), tablet (768px), and
+  mobile (375px) for both page-party-documents.php's tile block and
+  taxonomy-party_document_category.php's nav+grid — tiles collapse to a
+  single column below 720px (`.topic-list`'s existing breakpoint), nav
+  wraps cleanly, RTL reading order confirmed correct (first array item =
+  rightmost tile/nav entry) at every width. Confirmed کتابخانه
+  (`/library/`) renders exactly as before, no regression.
+  Theme version bumped 1.43.2 -> 1.44.0 (minor -- new template file,
+  new dynamic component). Plugin version bumped 1.22.0 -> 1.23.0 (minor
+  -- new seeded terms, two new migrations, one new ongoing save hook).
+  Approved by: Farhad, in this session (2026-09-24).
