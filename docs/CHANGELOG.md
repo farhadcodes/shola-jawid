@@ -11250,3 +11250,41 @@ Farhad relayed another live client screenshot with two more asks:
   should do another live visual check once it's re-uploaded.
   Theme version bumped 1.41.1 -> 1.41.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card hero height made genuinely compact
+Farhad relayed a direct side-by-side comparison against the reference:
+the shipped hero was still much taller than the reference's short, wide
+banner card -- "not a full viewport design... vertically shorter,
+horizontally wider."
+- **Root cause**: the previous round's height fix reused this site's
+  `lead_rail`/`rail_full` compact-height convention
+  (`clamp(480px, 42vw, 560px)`), itself already much shorter than a
+  full-viewport hero, but still noticeably taller than the reference's
+  own proportions -- and that clamp only applied at `min-width: 901px`,
+  so the stacked mobile/tablet state below that still fell back to
+  `.hero-media`'s base `calc(100vh - 128px)` (near-full-viewport)
+  height, which is the "full viewport" Farhad was actually seeing.
+- **Fix**: `.hero-feature-main` and `.hero-lead--feature-card .hero-
+  media` now get an unconditional `height: 320px` as their base (so the
+  stacked mobile/tablet state is never full-viewport-tall either), with
+  a `min-width: 901px` override to a shorter desktop clamp,
+  `clamp(340px, 30vw, 420px)` (down from `480-560px`) -- a genuinely
+  short banner card at every width, not just "shorter than a full-
+  viewport hero."
+  Verified live at 1400px: computed `.hero-feature-main` height
+  resolves to 420px (the clamp's cap) and the rail stretches to match
+  it exactly (`align-items: stretch`) -- both columns visibly shorter
+  and the two-column block now reads as a compact card, matching the
+  reference's proportions. Mobile/tablet verification was blocked by a
+  viewport-emulation tooling issue this session (the browser pane
+  wouldn't hold a narrow width), so the unconditional 320px base was
+  verified by reading the CSS rule directly rather than a live
+  screenshot -- worth Farhad's own visual confirmation once uploaded.
+  Also surfaced in passing, unrelated to this component: a pre-existing
+  horizontal-overflow bug on `.mast-two-tier-flag-glow` (the two-tier
+  masthead's flag glow element) was causing the whole page to overflow
+  its own viewport width at narrow widths during this session's
+  testing -- not touched here (out of scope for this request), flagged
+  to Farhad separately.
+  Theme version bumped 1.41.2 -> 1.41.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

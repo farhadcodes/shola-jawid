@@ -2915,10 +2915,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 .hero-lead--feature-card::before,
 .hero-lead--feature-card::after { content: none; }
-.hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
+/*
+ * Height corrected 2026-09-24 (third round), per Farhad's explicit
+ * side-by-side comparison against the reference: the reference's hero
+ * is a genuinely short, wide banner card — nowhere near this site's own
+ * `lead_rail`/`rail_full` compact-height convention
+ * (clamp(480px, 42vw, 560px), itself already much shorter than a full-
+ * viewport hero), let alone `single`'s full-viewport height. Set
+ * directly here rather than reusing that existing clamp, and applied
+ * unconditionally (not gated behind a min-width) so this layout is
+ * never full-viewport-tall at any width, including the stacked mobile/
+ * tablet state below — a shorter, fixed value there too (mobile has no
+ * sibling rail to share a height with once stacked, so it just needs
+ * its own sensible photo height, not "whatever's left of the
+ * viewport").
+ */
+.hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; height: 320px; }
+.hero-lead--feature-card .hero-media { height: 320px; }
 @media (min-width: 901px) {
   .hero-lead--feature-card .hero-media,
-  .hero-feature-main { height: clamp(480px, 42vw, 560px); }
+  .hero-feature-main { height: clamp(340px, 30vw, 420px); }
 }
 /*
  * The publication rail reuses the plain .hero-rail class (same 320px
