@@ -11486,3 +11486,18 @@ own floating card).
   1.25rem`).
   Theme version bumped 1.43.0 -> 1.43.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card caption tried as inverse (winston-red bg, white text/icon)
+- Farhad still felt the caption looked "off" (light --line bg, dark
+  --ink text, red icon) and wanted to try the reverse as a live A/B:
+  solid winston-red background, white icon and white text.
+- `.hero-feature-card-rail .hero-pub-card-minimal-desc` background
+  switched `--line` -> `--winston-red`, color `--ink` -> `--paper`
+  (white); its `.glyph` color switched `--winston-red` -> `--paper` to
+  match (no longer a two-tone red-icon/dark-text look, now solid
+  white-on-red). Scoped to feature_card only, as with every prior
+  caption override -- minimal_cover is untouched.
+  Theme version bumped 1.43.1 -> 1.43.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24) -- pending Farhad's
+  visual confirmation this reversed treatment reads better than the
+  light-chip version it replaces.

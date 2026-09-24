@@ -3077,6 +3077,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  */
 .hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--winston-red); }
 /*
+ * Colors reversed, 2026-09-24 (eleventh pass, same day) -- Farhad still
+ * felt the caption looked "off" against --line/--ink and wants to try
+ * the inverse as a live comparison: solid winston-red background with
+ * white icon and text, instead of the light chip with dark text/red
+ * icon. This override comes after the two rules above in source order
+ * so it wins on both properties they set; only `color` needs setting on
+ * the glyph specifically since it no longer differs from the caption
+ * text's own color (both white here, unlike the two-tone red/dark
+ * treatment this replaces).
+ */
+.hero-feature-card-rail .hero-pub-card-minimal-desc { background: var(--winston-red); color: var(--paper); }
+.hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--paper); }
+/*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/
  * `bottom` position it from the reading-start corner (visual right in
