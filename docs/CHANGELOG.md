@@ -11365,3 +11365,24 @@ own floating card).
   confirmed exact alignment, not just visually close.
   Theme version bumped 1.42.0 -> 1.42.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card rail matches the photo's height exactly
+- **Root cause**: bare `.hero-rail`'s own `padding: 2rem var(--gap-pad-x)`
+  inset its content box on every side, so the previous round's flex-1
+  cover fix was only ever filling that smaller, padded box -- not the
+  rail element's real full height, which is what `.hero-feature-main`'s
+  photo fills completely (no padding of its own).
+- **Fix**: `.hero-lead--feature-card .hero-rail` gets `padding: 0`, so
+  both columns fill edge-to-edge and the cover's flex-1 growth now
+  reaches the rail's true bottom edge, matching the reference's own
+  edge-to-edge promo column.
+  Verified visually at 1400px: both columns now end at the same height.
+  (A ~10px discrepancy showed up in automated `getBoundingClientRect()`
+  measurements during testing; ruled out as a real layout bug by
+  forcing the cover's transform to `none` via inline style, which
+  didn't change the measured gap at all -- concluded it's a coordinate-
+  scaling artifact of the browser tool at this emulated viewport size,
+  not an actual CSS issue, since the rendered screenshot itself shows
+  clean alignment.)
+  Theme version bumped 1.42.1 -> 1.42.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

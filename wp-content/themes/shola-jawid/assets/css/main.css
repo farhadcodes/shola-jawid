@@ -2996,6 +2996,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   aspect-ratio: unset;
 }
 /*
+ * padding: 0, 2026-09-24 (fourth pass, same day) — Farhad flagged the
+ * rail still coming up shorter than the photo even after the flex-1
+ * cover fix above. Root cause: bare `.hero-rail`'s own
+ * `padding: 2rem var(--gap-pad-x)` insets its content box on every
+ * side, so the cover's flex-1 growth was only ever filling that
+ * smaller, padded box, not the rail element's real full height/width —
+ * `.hero-feature-main`'s photo has no such padding, filling its
+ * container completely, which is what actually produced the visible
+ * height (and width) gap. Zeroing it out here makes both columns fill
+ * edge-to-edge, matching the reference's own edge-to-edge promo column.
+ */
+.hero-lead--feature-card .hero-rail { padding: 0; }
+/*
  * The box floats within the photo with real margin on every side (not
  * flush to an edge), per the client's reference — `inset-inline-start`/
  * `bottom` position it from the reading-start corner (visual right in
