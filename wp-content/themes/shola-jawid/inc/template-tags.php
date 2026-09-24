@@ -1122,18 +1122,23 @@ function shola_render_hero_body( $hero ) {
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
  * @param array   $args {
- *     @type bool $show_title Whether to render the publication name/issue
- *                            number heading. Default true. `feature_card`
- *                            (2026-09-24) passes false — Farhad's explicit
- *                            ask, relayed after the client reviewed a live
- *                            screenshot, to drop the title text there and
- *                            keep just the cover + description + button.
+ *     @type bool $show_title  Whether to render the publication name/issue
+ *                             number heading. Default true. `feature_card`
+ *                             (2026-09-24) passes false — Farhad's explicit
+ *                             ask, relayed after the client reviewed a live
+ *                             screenshot, to drop the title text there.
+ *     @type bool $show_button Whether to render the "دریافت شماره" button.
+ *                             Default true. `feature_card` (2026-09-24)
+ *                             also passes false for this — Farhad's
+ *                             explicit ask to drop the download button
+ *                             from that layout's rail entirely.
  * }
  * @return void
  */
 function shola_render_hero_publication_card( $issue, $pub_term, $args = array() ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 	$show_title   = isset( $args['show_title'] ) ? (bool) $args['show_title'] : true;
+	$show_button  = isset( $args['show_button'] ) ? (bool) $args['show_button'] : true;
 	/*
 	 * .hero-pub-card-kicker ("شمارهٔ جاری") removed site-wide, 2026-09-15,
 	 * per the client's explicit ask (relayed by Farhad) — this was the
@@ -1163,7 +1168,9 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
 	 */
 	?>
 	<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 12 ) ); ?></p>
-	<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+	<?php if ( $show_button ) : ?>
+		<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+	<?php endif; ?>
 	<?php
 }
 

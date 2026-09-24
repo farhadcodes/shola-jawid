@@ -378,10 +378,10 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	 * white card instead of white-on-photo hero text.
 	 *
 	 * Rail column reuses shola_render_hero_publication_card() with
-	 * `show_title => false` — Farhad's explicit ask, after the client
-	 * reviewed a live screenshot, to drop the publication name/issue
-	 * number heading there and keep just the cover, description, and
-	 * button.
+	 * `show_title => false, show_button => false` — Farhad's explicit
+	 * ask, after the client reviewed a live screenshot, to drop both the
+	 * publication name/issue number heading and the "دریافت شماره"
+	 * download button, keeping just the cover and description.
 	 */
 	?>
 	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
@@ -394,7 +394,7 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 			</div>
 		</div>
 		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false ) ); ?>
+			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'show_button' => false ) ); ?>
 		</aside>
 	</section>
 

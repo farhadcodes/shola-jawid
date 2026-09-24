@@ -11221,3 +11221,32 @@ layout against the original reference, flagging three things:
   once it's re-uploaded.
   Theme version bumped 1.41.0 -> 1.41.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card hero back into the standard content grid, download button removed
+Farhad relayed another live client screenshot with two more asks:
+- **Width**: the previous fix (above, same day) had chased a "gap
+  between the columns" report by removing this layout's max-width
+  entirely, going full-bleed edge-to-edge. That diagnosis was wrong --
+  a flex row's children sit flush regardless of the container's own
+  padding-inline, so the width/padding was never actually the cause of
+  any real gap. Farhad's explicit follow-up: this layout should sit in
+  the same fixed-width grid column every other homepage section uses,
+  not full-bleed. `.hero-lead--feature-card` now uses the exact box
+  model `.wrap` itself uses (main.css §04): `max-width: var(--wrap-
+  wide)`, `margin-inline: auto`, `padding-inline: var(--gap-pad-x)`.
+  The dark-overlay opt-out and the plain-rail-background fix from the
+  previous round are both kept unchanged.
+- **Download button removed from the rail**: `shola_render_hero_
+  publication_card()` (inc/template-tags.php) gained a second optional
+  `$args` flag, `show_button` (default true, backward-compatible with
+  every existing caller). `feature_card`'s rail now passes `show_title
+  => false, show_button => false` -- Farhad's explicit ask to drop the
+  "دریافت شماره" button entirely, keeping just the cover and
+  description.
+  Verified: `php -l` clean on both changed PHP files; homepage still
+  loads correctly (confirmed via page title) after the change. This
+  layout only activates when explicitly selected and active on a
+  hero_section post, which this session doesn't do -- Farhad/the client
+  should do another live visual check once it's re-uploaded.
+  Theme version bumped 1.41.1 -> 1.41.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

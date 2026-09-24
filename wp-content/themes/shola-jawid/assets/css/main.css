@@ -2876,30 +2876,43 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
 }
 
 /* --- ۱۰.۶ · Hero "دوستونی: کارت مقالهٔ ویژه + ستون نشریه" layout
-   (hero_section: feature_card, added 2026-09-24; corrected same day
-   after Farhad relayed a live client screenshot against the reference)
-   ------------------------------------------------------------------
+   (hero_section: feature_card, added 2026-09-24; corrected twice same
+   week after Farhad relayed live client screenshots against the
+   reference) ---------------------------------------------------------
    Per a client reference screenshot (an English-language news site's
    two-column hero) — a featured-article photo with a solid white info
    box overlaid at one corner, beside a narrower publication-rail
-   column, the two columns flush against each other edge-to-edge with
-   no surrounding padding and no darkening wash over the photo.
-   First pass wrongly modeled the outer container on .hero-lead--with-
-   rail (main.css §10.1) — that layout's centered 1200px band +
-   padding-inline is exactly what produced the visible gap between the
-   two columns Farhad flagged live (padding-inline sits on the shared
-   container, but at this component's width it read as a real gap
-   between the columns, not just outer breathing room). Corrected to
-   .hero-lead--rail-full's edge-to-edge model instead (main.css §10.4):
-   no max-width/margin-inline/padding-inline, columns genuinely flush.
-   `.hero-lead--feature-card::before/::after { content: none }` also
-   added here — .hero-lead's own base ::before/::after (main.css §10,
-   the gray-wash + dark-gradient pair every full-bleed layout normally
-   wants) applied unconditionally since this modifier never opted out,
-   which was the dark overlay Farhad flagged; `.hero-lead--with-rail`/
-   `.hero-lead--rail-full` both already opt out the same way for their
-   own layouts, this modifier had simply been missed. */
-.hero-lead--feature-card { display: flex; align-items: stretch; }
+   column, no darkening wash over the photo.
+   Width corrected twice: first pass used .hero-lead--with-rail's
+   centered-1200px-band model (main.css §10.1); second pass wrongly
+   removed that entirely in favor of .hero-lead--rail-full's edge-to-
+   edge model (main.css §10.4) chasing a "gap between the columns"
+   report that turned out not to be caused by the width/padding at all
+   (a flex row's children sit flush regardless of the container's own
+   padding-inline — that was a wrong diagnosis). Farhad's explicit
+   follow-up: this layout should sit in the same fixed-width grid
+   column every other homepage section uses, not full-bleed — so this
+   is back to the exact box model `.wrap` itself uses (main.css §04):
+   `max-width: var(--wrap-wide)`, `margin-inline: auto`,
+   `padding-inline: var(--gap-pad-x)`. No explicit `gap` is set (never
+   was) — the two flex children sit genuinely flush against each other
+   regardless of this outer padding, which only affects the block's own
+   left/right edges relative to the page, not the space between its
+   children.
+   `.hero-lead--feature-card::before/::after { content: none }` —
+   .hero-lead's own base ::before/::after (main.css §10, the gray-wash +
+   dark-gradient pair every full-bleed layout normally wants) applied
+   unconditionally since this modifier never opted out, which was the
+   dark overlay Farhad flagged; `.hero-lead--with-rail`/`.hero-lead--
+   rail-full` both already opt out the same way for their own layouts,
+   this modifier had simply been missed. */
+.hero-lead--feature-card {
+  display: flex;
+  align-items: stretch;
+  max-width: var(--wrap-wide);
+  margin-inline: auto;
+  padding-inline: var(--gap-pad-x);
+}
 .hero-lead--feature-card::before,
 .hero-lead--feature-card::after { content: none; }
 .hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; }
