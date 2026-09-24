@@ -377,11 +377,17 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	 * layout's own CSS (.hero-feature-card-box) restyles it for a small
 	 * white card instead of white-on-photo hero text.
 	 *
-	 * Rail column reuses shola_render_hero_publication_card() with
-	 * `show_title => false, show_button => false` — Farhad's explicit
-	 * ask, after the client reviewed a live screenshot, to drop both the
-	 * publication name/issue number heading and the "دریافت شماره"
-	 * download button, keeping just the cover and description.
+	 * Rail column corrected 2026-09-24 (same day, second pass) — Farhad
+	 * relayed the client comparing a live screenshot against the
+	 * reference sample and asking for the rail's card to match it: now
+	 * reuses shola_render_hero_publication_card_minimal() (the same
+	 * function `minimal_cover`'s own floating card uses) with `show_title
+	 * => false`, instead of shola_render_hero_publication_card(). That
+	 * function's description-above-cover shape (sourced from the
+	 * `shcore_hero_pub_description` field, main.css §10.3b's own
+	 * metabox) already matches the reference once its title is turned
+	 * off — no button either, since that function never had one to begin
+	 * with (removed from it entirely back on 2026-09-18).
 	 */
 	?>
 	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
@@ -393,8 +399,8 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 				<?php shola_render_hero_body( $hero ); ?>
 			</div>
 		</div>
-		<aside class="hero-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-			<?php shola_render_hero_publication_card( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'show_button' => false ) ); ?>
+		<aside class="hero-rail hero-feature-card-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+			<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false ) ); ?>
 		</aside>
 	</section>
 

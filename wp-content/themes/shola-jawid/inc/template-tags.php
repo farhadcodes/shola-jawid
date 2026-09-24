@@ -1223,16 +1223,32 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
  * same solid red twice would read as one oversized block instead of two
  * distinct, readable strips.
  *
+ * Reused by `feature_card`'s rail column, 2026-09-24, with `show_title
+ * => false` — Farhad's explicit ask, after comparing a live screenshot
+ * against the client's reference sample, for that rail to show the
+ * description above the cover with no title at all (that layout's rail
+ * previously reused shola_render_hero_publication_card() instead, but
+ * that function's own cover-then-title-then-dek anatomy didn't match
+ * the reference; this function's existing description-above-cover
+ * shape already did, once the title itself could be turned off).
+ *
  * @param WP_Post $issue The issue post to feature.
  * @param WP_Term $pub_term The issue's publication term.
+ * @param array   $args {
+ *     @type bool $show_title Whether to render the publication name/issue
+ *                            number heading. Default true.
+ * }
  * @return void
  */
-function shola_render_hero_publication_card_minimal( $issue, $pub_term ) {
+function shola_render_hero_publication_card_minimal( $issue, $pub_term, $args = array() ) {
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 	$description  = get_post_meta( $issue->ID, 'shcore_hero_pub_description', true );
 	$permalink    = get_permalink( $issue );
+	$show_title   = isset( $args['show_title'] ) ? (bool) $args['show_title'] : true;
 	?>
-	<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<?php if ( $show_title ) : ?>
+		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+	<?php endif; ?>
 	<?php if ( $description ) : ?>
 		<p class="hero-pub-card-minimal-desc">
 			<?php echo shola_bell_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>

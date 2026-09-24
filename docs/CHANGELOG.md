@@ -11304,3 +11304,40 @@ horizontally wider."
   masthead) and below (above "همهٔ مقالات") the hero card.
   Theme version bumped 1.41.3 -> 1.41.4 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-24 -- fix: feature_card rail now matches the reference card, sourced from the description field
+Farhad relayed the client comparing a live screenshot against the
+reference sample: the rail's card didn't match, and asked for the
+description to sit at the top, pulled from the field shown in an
+annotated wp-admin screenshot (the "توضیح کارت صفحهٔ اصلی" /
+`shcore_hero_pub_description` field already built for `minimal_cover`'s
+own floating card).
+- **Root cause**: the rail reused `shola_render_hero_publication_card()`
+  -- cover, then title, then excerpt-derived dek, then a button -- an
+  anatomy that never matched the reference's "description above cover,
+  nothing else" shape, no matter how many individual pieces (title,
+  button, background) got turned off piece by piece.
+- **Fix**: switched to `shola_render_hero_publication_card_minimal()`
+  (inc/template-tags.php) instead -- the same function `minimal_cover`'s
+  floating card already uses, which already renders description-above-
+  cover sourced from `shcore_hero_pub_description`. Gave it a new
+  optional `$args['show_title']` flag (default true, backward-
+  compatible with `minimal_cover`'s own existing call) and passed
+  `show_title => false` from `feature_card`'s rail. No button either --
+  that function never had one to begin with.
+  main.css §10.6 updated to match: removed the now-unused `.h-page`/
+  `.dek`/`.btn-primary` overrides (leftover from the old function) and
+  confirmed `.hero-pub-card-minimal-desc`/`-cover` need no further
+  styling -- both already carry everything needed (background, sharp
+  corners, `width: 100%`) from their existing `minimal_cover` design,
+  since neither ever depended on that layout's own absolutely-
+  positioned wrapper.
+  Verified live at 1400px: the rail's rendered HTML confirms the
+  description text ("نشریه شعله جاوید شماره ۳۰ منتشر شد", the exact
+  value in that field) renders above the cover with no title and no
+  button; visually confirmed the card now reads as a clean, compact
+  block matching the reference's structure.
+  Theme version bumped 1.41.4 -> 1.42.0 (minor: rail now uses a
+  different shared component + a new backward-compatible parameter,
+  not just a style tweak). No plugin change.
+  Approved by: Farhad, in this session (2026-09-24).

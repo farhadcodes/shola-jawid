@@ -2954,22 +2954,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * is a solid --winston-red background with white text — built for
  * `lead_rail`/`overlay`'s own design, not this layout's reference,
  * which shows a plain, unstyled promo column with no background of its
- * own. Overridden here to a transparent background with the site's
- * normal dark-ink text colors, and the button reset to its ordinary
- * .btn-primary look (red bg/white text) instead of `.hero-rail`'s own
- * inverted (white bg/red text) version of it, which only makes sense
- * against a red background. Farhad's explicit ask, after the client
- * flagged the rail's red fill against the reference's plain column.
+ * own. Overridden here to a transparent background. Farhad's explicit
+ * ask, after the client flagged the rail's red fill against the
+ * reference's plain column.
  */
-.hero-lead--feature-card .hero-rail {
-  background: none;
-  color: var(--ink);
-}
-.hero-lead--feature-card .hero-rail .hero-pub-card-kicker,
-.hero-lead--feature-card .hero-rail .h-page,
-.hero-lead--feature-card .hero-rail .h-page a { color: var(--ink); }
-.hero-lead--feature-card .hero-rail .dek { color: var(--ink-soft); }
-.hero-lead--feature-card .hero-rail .btn-primary { background: var(--winston-red); color: var(--paper); }
+.hero-lead--feature-card .hero-rail { background: none; color: var(--ink); }
+/*
+ * Rail content corrected 2026-09-24 (second pass, same day) — now
+ * renders shola_render_hero_publication_card_minimal()'s markup
+ * (.hero-pub-card-minimal-desc + .hero-pub-card-minimal-cover, title
+ * turned off via show_title => false) instead of
+ * shola_render_hero_publication_card()'s (.h-page/.dek/.btn-primary,
+ * now unused here) — see front-page.php's own comment on this swap.
+ * Both classes already carry everything needed (their own solid
+ * --cream/--paper background, sharp corners, and `width: 100%`) from
+ * their original floating-card design on `minimal_cover` — they need
+ * no further overrides to work correctly inside this plain flex-column
+ * rail, since neither ever assumed the absolutely-positioned wrapper
+ * that layout floats them in; only that wrapper's own positioning was
+ * specific to `minimal_cover`, not these two content classes.
+ */
 .hero-lead--feature-card .hero-rail .btn-primary:hover { background: var(--winston-red-deep); }
 /*
  * The box floats within the photo with real margin on every side (not
