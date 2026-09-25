@@ -5,6 +5,18 @@
  * 03_UI_Design/shola-jawid-ui/pages/body-document-single.html (Phase
  * 4.2).
  *
+ * `.single-document-page` wrapper class added 2026-09-25, per Farhad
+ * relaying the client's explicit ask to bring the same compacting
+ * already applied to single-party_document.php (اسناد حزب) here too —
+ * smaller cover, smaller title, tighter meta spacing, a smaller "اسناد
+ * مرتبط" heading, so the hero is visible without scrolling.
+ * `.issue-hero`/`.article-title--doc`/`.issue-meta`/`.h-section` are
+ * shared with single-issue.php/single-party_publication.php too, so
+ * this compacting is scoped to `.single-document-page` specifically
+ * (main.css), same approach as `.single-party-document` — those two
+ * other single-item templates weren't part of either ask and keep their
+ * original sizing.
+ *
  * @package shola-jawid
  */
 
@@ -50,7 +62,7 @@ while ( have_posts() ) :
 	}
 	?>
 
-	<section class="wrap">
+	<section class="wrap single-document-page">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>

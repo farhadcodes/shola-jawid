@@ -11942,3 +11942,30 @@ Audited all three کتابخانه levels first:
   breadcrumb confirmed unaffected.
   Theme version bumped 1.46.1 -> 1.46.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: single کتابخانه document page made compact, matching سند حزب
+
+Farhad relayed the client's ask to bring single-party_document.php's
+earlier compacting (smaller cover, smaller title, tighter meta,
+smaller section headings) to single-document.php (single کتابخانه book
+page) too, so it's fully visible without scrolling.
+
+- Added a `.single-document-page` wrapper class to
+  single-document.php's outer `<section>`, and extended the existing
+  compacting CSS rule set in main.css to also match this class —
+  same selectors, same values as `.single-party-document` (380px ->
+  285px cover column, 35px -> 28px title, ~20-23% tighter meta spacing,
+  section headings fixed at 25px), combined into one shared rule set
+  rather than duplicated, since both pages want the identical
+  treatment.
+- `single-issue.php`/`single-party_publication.php` still share the
+  same base `.issue-hero`/`.article-title--doc`/`.h-section` classes
+  but were not part of either ask — confirmed live that
+  انتشارات حزب's own single page keeps its original, unchanged size.
+- **Verified live**: the کتابخانه single-document hero now fits without
+  scrolling at a normal desktop window, the "اسناد مرتبط" heading reads
+  at the same smaller size, and mobile (375px) renders the existing
+  stacked layout correctly, unaffected by the desktop-only column-width
+  change.
+  Theme version bumped 1.46.2 -> 1.46.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).

@@ -3962,8 +3962,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * `.single-party-document` (single-party_document.php's own wrapper
  * class) since `.issue-hero`/`.article-title--doc`/`.issue-meta`/
  * `.h-section` are shared with single-issue.php/single-document.php/
- * single-party_publication.php — those three single-item pages weren't
- * part of this ask and keep their existing sizing untouched.
+ * single-party_publication.php.
+ *
+ * `.single-document-page` (single-document.php, کتابخانه) added the same
+ * day, same round of feedback: Farhad relayed the client's explicit ask
+ * to bring the identical compacting here too. Same selectors, same
+ * values — kept as one shared rule set rather than duplicating it,
+ * since both pages want exactly the same treatment.
+ * single-issue.php/single-party_publication.php still weren't part of
+ * either ask and keep their existing sizing untouched.
  *
  * Cover: 380px -> 285px (25% narrower, same ratio as the client's own
  * "maybe 25% smaller" spec) — `.issue-hero`'s grid column width is what
@@ -3971,21 +3978,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
  * its own, just its 3:4 aspect-ratio), so only the column needs
  * changing. Title: 35px -> 28px (20% down). Meta block (تاریخ نشر/دسته/
  * حجم فایل rows) spacing/gaps scaled down the same ~20-23%. Section
- * headings ("جزئیات سند", "سایر اسناد حزب") fixed at 25px instead of
- * `.h-section`'s own clamp (which scales up to 32px on wider viewports)
- * — the client named 32px -> 25px specifically for these.
+ * headings ("جزئیات سند", "سایر اسناد حزب"/"اسناد مرتبط") fixed at 25px
+ * instead of `.h-section`'s own clamp (which scales up to 32px on wider
+ * viewports) — the client named 32px -> 25px specifically for these.
  */
-.single-party-document .issue-hero { padding-block: 3rem; }
+.single-party-document .issue-hero,
+.single-document-page .issue-hero { padding-block: 3rem; }
 @media (min-width: 800px) {
-  .single-party-document .issue-hero { grid-template-columns: 285px 1fr; gap: 3rem; }
+  .single-party-document .issue-hero,
+  .single-document-page .issue-hero { grid-template-columns: 285px 1fr; gap: 3rem; }
 }
-.single-party-document .article-title.article-title--doc { font-size: 1.75rem; /* 28px */ }
-.single-party-document .issue-meta {
+.single-party-document .article-title.article-title--doc,
+.single-document-page .article-title.article-title--doc { font-size: 1.75rem; /* 28px */ }
+.single-party-document .issue-meta,
+.single-document-page .issue-meta {
   gap: .4rem 1.2rem;
   padding-block: 1.15rem;
   margin-block: 1.5rem;
 }
-.single-party-document .h-section { font-size: 1.5625rem; /* 25px */ }
+.single-party-document .h-section,
+.single-document-page .h-section { font-size: 1.5625rem; /* 25px */ }
 
 .doc-row {
   display: flex; flex-wrap: wrap; align-items: center;
