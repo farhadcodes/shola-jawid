@@ -4072,24 +4072,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * 
   .issue-grid { grid-template-columns: repeat(6, 1fr); justify-content: initial; }
 }
 
-/*
- * `.issue-grid--library` — added 2026-09-25 for taxonomy-collection.php's
- * new cover-thumbnail grid (کتابخانه subcategory archives). Farhad's
- * explicit ask was a 3-column grid specifically, not this shared class's
- * existing tablet (fluid auto-fit) or desktop (hard 6-column) behavior
- * above — both tuned for other .issue-grid contexts (انتشارات
- * حزب/اسناد حزب's own paginated archives, the homepage teasers). This
- * modifier only overrides the column count at the same two breakpoints;
- * mobile is left alone since base `.issue-grid` is already 3 columns
- * there.
- */
-@media (min-width: 640px) {
-  .issue-grid--library { grid-template-columns: repeat(3, 1fr); justify-content: initial; }
-}
-@media (min-width: 1000px) {
-  .issue-grid--library { grid-template-columns: repeat(3, 1fr); }
-}
-
 .issue-card { display: flex; flex-direction: column; gap: .75rem; }
 .issue-card-media {
   aspect-ratio: 3 / 4;

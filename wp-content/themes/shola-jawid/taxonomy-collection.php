@@ -13,14 +13,17 @@
  * issue-card.php pairing already used for the same "paginated grid of
  * PDF covers" job on page-party-publications.php — issue-card.php was
  * already generalized to work with the `document` post type (its own
- * docblock says so), so no new card template was needed. `.issue-grid`'s
- * own shared CSS isn't a flat 3-column grid at every width (it's a hard
- * 6-column row at desktop, tuned for the homepage teasers that also use
- * it), so this page's grid gets its own `.issue-grid--library` modifier
- * class overriding just the column count at tablet/desktop — the
- * homepage's 6-column layout is untouched. `posts_per_page` raised
- * 6 -> 20 to match the client's "paginate past ~20" ask (comfortably
- * more than the "at least five rows" minimum at 3 columns).
+ * docblock says so), so no new card template was needed. `posts_per_page`
+ * raised 6 -> 20 to match the client's "paginate past ~20" ask.
+ *
+ * Column count: briefly given its own `.issue-grid--library` 3-column
+ * override the same day, then reverted a round later per Farhad's
+ * follow-up design-head assessment against a live screenshot — 3
+ * columns made each cover far too large for comfortable archive
+ * browsing at desktop width. Plain `.issue-grid` (no modifier) is used
+ * instead, matching انتشارات حزب/اسناد حزب's own paginated grids and the
+ * homepage teasers exactly: 3 columns on mobile, fluid auto-fit on
+ * tablet, a flat 6-column row on desktop.
  *
  * @package shola-jawid
  */
@@ -78,7 +81,7 @@ $archive_query = new WP_Query(
 		</nav>
 
 		<?php if ( $archive_query->have_posts() ) : ?>
-			<div class="issue-grid issue-grid--library">
+			<div class="issue-grid">
 				<?php
 				while ( $archive_query->have_posts() ) :
 					$archive_query->the_post();

@@ -11888,3 +11888,29 @@ re-tuning the visuals anyway, at which point it's not really reuse.
   removed a page section). Plugin version bumped 1.24.0 -> 1.24.1
   (patch -- label description text only, no behavior change).
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: کتابخانه subcategory grid reverted to 6 columns
+
+Farhad relayed the client's follow-up design-head assessment against a
+live screenshot, the very next round after the 3-column grid above
+shipped: at a normal desktop width each cover filled roughly a third of
+the screen — too large for comfortable archive browsing. Asked for "at
+least six columns," matching common library/archive-page conventions.
+Agreed this was the better call before implementing.
+
+- Removed the `.issue-grid--library` 3-column CSS override
+  (`assets/css/main.css`) and the matching class from
+  `taxonomy-collection.php`'s grid markup entirely, rather than just
+  changing its column count — the plain, unmodified `.issue-grid` was
+  already exactly what was wanted (3 columns mobile, fluid auto-fit
+  tablet, flat 6-column desktop), identical to انتشارات حزب/اسناد حزب's
+  own paginated grids and the homepage teasers. One shared layout, not a
+  second one to maintain.
+- Updated taxonomy-collection.php's own docblock to record both rounds
+  (3-column, then reverted to plain 6-column) rather than leaving a
+  stale explanation pointing at a class that no longer exists.
+- **Verified live** at 1400px desktop width (clean 6-column grid) and
+  768px tablet (unaffected, still its existing fluid auto-fit layout) —
+  mobile was never touched by either round.
+  Theme version bumped 1.46.0 -> 1.46.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).
