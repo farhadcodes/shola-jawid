@@ -1111,6 +1111,42 @@ function shola_get_primary_topic( $post ) {
 }
 
 /**
+ * The small "مقاله" / "گزارش" / "یادداشت" kicker text every card-style
+ * template (card.php, the homepage hero) shows above a post's title.
+ *
+ * Added 2026-09-25 after Farhad relayed a client report of "confusion
+ * between the three homepage sections" (تازه‌ترین مقاله‌ها, گزارش,
+ * گزیده‌ها): both card.php and front-page.php's hero body previously
+ * hardcoded this text to "مقاله" (or "یادداشت" for the aside post
+ * format) unconditionally — a گزارش post landing in the گزارش section,
+ * or as the homepage's featured/hero post, still displayed the word
+ * "مقاله" on itself, which is a real, visible cause of exactly the kind
+ * of "these look like the same thing" confusion the client described,
+ * independent of any of the three sections' own query logic (each of
+ * which was already independent and already sorted latest-first —
+ * verified separately, not touched here).
+ *
+ * `report` taxonomy checked first, since a post can carry both a `topic`
+ * and the `report` term — reports are their own content bucket
+ * (front-page.php's گزارش section, taxonomy-report.php) and must read as
+ * such everywhere, not just inside that one section.
+ *
+ * @param int|WP_Post $post Post ID or object.
+ * @return string
+ */
+function shola_get_content_type_label( $post ) {
+	if ( has_term( 'reports', 'report', $post ) ) {
+		return __( 'گزارش', 'shola-jawid' );
+	}
+
+	if ( has_post_format( 'aside', $post ) ) {
+		return __( 'یادداشت', 'shola-jawid' );
+	}
+
+	return __( 'مقاله', 'shola-jawid' );
+}
+
+/**
  * Shared query for گزیده‌ها (Selected) — added 2026-09-16, used by both
  * front-page.php's homepage tile and page-selected.php's full archive, so
  * the two can't drift apart on what counts as "selected."
@@ -1135,11 +1171,26 @@ function shola_get_primary_topic( $post ) {
  */
 function shola_get_selected_query( $extra_args = array() ) {
 	$args = array(
-		'post_type'  => 'post',
-		'meta_key'   => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern as the Most Viewed panel's own meta-based query.
-		'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-		'orderby'    => 'date',
-		'order'      => 'DESC',
+		'post_type'           => 'post',
+		'meta_key'            => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern as the Most Viewed panel's own meta-based query.
+		'meta_value'          => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		/*
+		 * ignore_sticky_posts => true — added 2026-09-25, same investigation
+		 * as front-page.php's own hero/تازه‌ترین مقاله‌ها/گزارش queries (see
+		 * their matching comments): without this, WP_Query force-prepends
+		 * any post marked with WordPress's native "Stick to the front page"
+		 * flag ahead of this query's real date-sorted results, regardless of
+		 * `meta_query`/`orderby` — capable of both breaking the "latest
+		 * first" guarantee this section promises and of silently pushing a
+		 * genuinely-selected post out of the capped result set. This site's
+		 * own گزیده‌ها feature is a dedicated postmeta flag specifically
+		 * because native Sticky was rejected already (see this function's
+		 * own docblock above) — it must never be allowed back in through
+		 * WP_Query's default sticky-post handling.
+		 */
+		'ignore_sticky_posts' => true,
 	);
 
 	return new WP_Query( array_merge( $args, $extra_args ) );
@@ -1193,7 +1244,19 @@ function shola_render_hero_body( $hero ) {
 	?>
 	<p class="type-label">
 		<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h9a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V2Zm1 1v8a2 2 0 0 0 2 2h8V5a2 2 0 0 0-2-2H3Z"/></svg>
-		<span><?php echo has_post_format( 'aside', $hero ) ? esc_html__( 'یادداشت', 'shola-jawid' ) : esc_html__( 'مقاله', 'shola-jawid' ); ?></span>
+		<?php
+		/*
+		 * shola_get_content_type_label(), not a hardcoded "مقاله" — fixed
+		 * 2026-09-25. The hero always shows whichever post is truly latest
+		 * across articles/reports/گزیده‌ها combined (front-page.php's
+		 * $hero_query has never filtered by type), but this label always
+		 * printed "مقاله" regardless, so a گزارش post leading the homepage
+		 * displayed as if it were a plain article — part of the same
+		 * mislabeling Farhad relayed from the client. See that function's
+		 * docblock (this file) for the full reasoning.
+		 */
+		?>
+		<span><?php echo esc_html( shola_get_content_type_label( $hero ) ); ?></span>
 		<?php if ( $hero_term ) : ?>
 			<span class="divider">/</span>
 			<a href="<?php echo esc_url( get_term_link( $hero_term ) ); ?>"><?php echo esc_html( $hero_term->name ); ?></a>

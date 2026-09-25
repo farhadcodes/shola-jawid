@@ -43,7 +43,16 @@ if ( 'document' === $card_type ) {
 	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
 } else {
 	$permalink   = get_permalink( $card_post );
-	$type_label  = has_post_format( 'aside', $card_post ) ? __( 'یادداشت', 'shola-jawid' ) : __( 'مقاله', 'shola-jawid' );
+	/*
+	 * shola_get_content_type_label() — fixed 2026-09-25. This used to
+	 * hardcode "مقاله"/"یادداشت" here regardless of content, so a گزارش
+	 * post rendered through this same card (front-page.php's گزارش
+	 * section, taxonomy-report.php) displayed "مقاله" on itself — a real,
+	 * visible cause of the "confusion between the sections" Farhad relayed
+	 * from the client. See that function's own docblock (inc/template-
+	 * tags.php) for the full reasoning.
+	 */
+	$type_label  = shola_get_content_type_label( $card_post );
 	$term        = shola_get_primary_topic( $card_post );
 	$term_link   = $term ? get_term_link( $term ) : '';
 	$term_name   = $term ? $term->name : '';

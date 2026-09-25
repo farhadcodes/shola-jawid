@@ -61,10 +61,27 @@ get_header();
  */
 $hero_query = new WP_Query(
 	array(
-		'post_type'      => 'post',
-		'posts_per_page' => 1,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
+		'post_type'           => 'post',
+		'posts_per_page'      => 1,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		/*
+		 * ignore_sticky_posts => true — added 2026-09-25, per Farhad
+		 * relaying a client report of "confusion between the three
+		 * homepage sections" and articles disappearing after marking one
+		 * گزیده‌ها. Without this, WP_Query force-prepends whatever post
+		 * carries WordPress's own native "Stick to the front page" flag
+		 * ahead of true date order — silently overriding "the hero is
+		 * always whichever of the three is genuinely latest" with a stale
+		 * sticky post instead. That native checkbox is a completely
+		 * separate WordPress feature from this site's own hero_section CPT
+		 * and گزیده‌ها flag, and (per shola_get_selected_query()'s own
+		 * docblock) is only visible to مدیر/سردبیر-level accounts able to
+		 * edit other users' posts — exactly the accounts most likely to be
+		 * the client's own login, and exactly the reported symptom shape:
+		 * one post checked, others pushed out of a capped result set.
+		 */
+		'ignore_sticky_posts' => true,
 	)
 );
 $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
@@ -141,11 +158,12 @@ $hero_filmstrip_posts = array();
 if ( $hero && 'filmstrip' === $hero_layout ) {
 	$hero_filmstrip_query = new WP_Query(
 		array(
-			'post_type'      => 'post',
-			'posts_per_page' => 10,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'post__not_in'   => array( $hero->ID ),
+			'post_type'           => 'post',
+			'posts_per_page'      => 10,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
+			'post__not_in'        => array( $hero->ID ),
+			'ignore_sticky_posts' => true, // See $hero_query's own comment above for why.
 		)
 	);
 	$hero_filmstrip_posts = $hero_filmstrip_query->posts;
@@ -516,11 +534,22 @@ $articles_count = ( $has_spotlight && ! $has_mostviewed ) ? 5 : 6;
 
 $articles_query = new WP_Query(
 	array(
-		'post_type'      => 'post',
-		'posts_per_page' => $articles_count,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+		'post_type'           => 'post',
+		'posts_per_page'      => $articles_count,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		/*
+		 * ignore_sticky_posts => true — added 2026-09-25 (see $hero_query's
+		 * own comment above for the full reasoning). Matters even more here
+		 * than for the hero: WP_Query's native sticky-post handling
+		 * force-prepends sticky posts *before* this query's own tax_query
+		 * exclusion is applied to them, so a گزارش post marked sticky could
+		 * bypass the "no reports here" rule entirely and appear in تازه‌ترین
+		 * مقاله‌ها — exactly the kind of cross-section mixing Farhad relayed
+		 * as client-reported "confusion between the sections."
+		 */
+		'ignore_sticky_posts' => true,
+		'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
 			array(
 				'taxonomy' => 'report',
 				'field'    => 'slug',
@@ -730,11 +759,12 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
  */
 $reports_query = new WP_Query(
 	array(
-		'post_type'      => 'post',
-		'posts_per_page' => 4,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+		'post_type'           => 'post',
+		'posts_per_page'      => 4,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'ignore_sticky_posts' => true, // See $articles_query's own comment above for why.
+		'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
 			array(
 				'taxonomy' => 'report',
 				'field'    => 'slug',

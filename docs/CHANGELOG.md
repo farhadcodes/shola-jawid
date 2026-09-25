@@ -12135,3 +12135,71 @@ round's investigation):
   per Farhad's explicit "keep the computer version untouched" ask.
   Theme version bumped 1.47.2 -> 1.47.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 (later same session) — fix: homepage تازه‌ترین مقاله‌ها / گزارش / گزیده‌ها confusion + wrong type labels
+
+Farhad relayed a client complaint of "confusion between the three
+[homepage] sections" (تازه‌ترین مقاله‌ها, گزارش, گزیده‌ها), including a
+report that marking an article گزیده‌ها ("selected") made other articles
+disappear from the homepage. Presented a written checklist of current
+behavior first (per this project's standing discipline) before touching
+any code; Farhad approved it and added one more requirement: the
+homepage's featured/hero post must both (a) always be the genuinely
+latest of the three combined, and (b) label itself correctly as whichever
+type it actually is.
+
+Audited all three sections' queries (front-page.php) end to end first:
+each was already independent (تازه‌ترین مقاله‌ها excludes only the
+`report` taxonomy; گزارش includes only it; گزیده‌ها filters only on the
+`shcore_is_selected` postmeta flag, unrelated to either) and already
+sorted `orderby => date, order => DESC`. No change needed to any of
+that — it was already correct. Two real, separate bugs were found
+instead:
+
+1. **Wrong type label, not a query bug** — `card.php` (used by both
+   تازه‌ترین مقاله‌ها and گزارش) and `front-page.php`'s hero body both
+   hardcoded their "مقاله"/"یادداشت" kicker text unconditionally, so a
+   گزارش post — whether shown in its own گزارش section or as the
+   homepage's featured/hero post — still displayed the word "مقاله" on
+   itself. This is very likely the real, visible source of "these look
+   like the same thing" confusion: the three sections' *content* was
+   already correctly separated, but a گزارش post never announced itself
+   as one anywhere on the page. Fixed by extracting the shared logic into
+   one new helper, `shola_get_content_type_label()` (inc/template-
+   tags.php) — checks the `report` taxonomy first, falls back to the
+   existing یادداشت/مقاله post-format check — and switching both card.php
+   and `shola_render_hero_body()` to call it, so this can't drift apart
+   between the two call sites again. This also directly satisfies
+   Farhad's added requirement that the hero label itself correctly.
+2. **Native WordPress "Stick to the front page" left reachable** — a
+   real, root-cause candidate for "other articles disappearing": WP_Query
+   force-prepends any post carrying WordPress's own native Sticky flag
+   ahead of true date order in *every* query that doesn't explicitly set
+   `ignore_sticky_posts => true` — including bypassing a `tax_query`
+   exclusion entirely, so a sticky گزارش post could leak into تازه‌ترین
+   مقاله‌ها, and a sticky post could silently displace the true latest
+   post from a capped result set. That checkbox is only ever visible to
+   accounts that can edit other users' posts (confirmed in this
+   project's own earlier history — see `shola_get_selected_query()`'s
+   docblock, 2026-09-16 — this is exactly why گزیده‌ها itself doesn't use
+   native Sticky), i.e. exactly مدیر/سردبیر-level accounts, which fits a
+   client-level login. Fixed two ways: (a) added
+   `ignore_sticky_posts => true` to every `post_type => post` query on
+   the homepage — `$hero_query`, `$hero_filmstrip_query`,
+   `$articles_query`, `$reports_query` (front-page.php), and
+   `shola_get_selected_query()` (inc/template-tags.php) — so native
+   Sticky can never again override any of these three sections' own
+   sort/filter rules, and (b) removed the control itself from `post` edit
+   screens (`Meta_Fields::hide_native_sticky_control()`, new in
+   class-meta-fields.php, hooked to `admin_head-post.php`/
+   `admin_head-post-new.php`) — this site already has two dedicated
+   "feature this content" mechanisms (hero_section CPT, گزیده‌ها flag),
+   and an editor should never be able to reach for a third, unrelated one
+   by mistake.
+- Not changed: whether a post can be both `report` and گزیده‌ها at once
+  (and so legitimately appear in both سکشن) — Farhad didn't ask for these
+  to become mutually exclusive when this was raised as an open question,
+  so both remain independent, orthogonal flags exactly as already built.
+  Theme version bumped 1.47.3 -> 1.47.4 (patch). Plugin version bumped
+  1.24.1 -> 1.24.2 (patch).
+  Approved by: Farhad, in this session (2026-09-25).

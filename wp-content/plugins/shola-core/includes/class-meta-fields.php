@@ -63,6 +63,52 @@ class Meta_Fields {
 		add_filter( 'post_row_actions', array( __CLASS__, 'add_masthead_set_active_row_action' ), 10, 2 );
 		add_action( 'admin_action_shcore_set_active_masthead', array( __CLASS__, 'handle_set_active_masthead' ) );
 		add_action( 'admin_init', array( __CLASS__, 'seed_default_masthead_section' ) );
+
+		/*
+		 * Hide WordPress's native "Stick to the front page" control on
+		 * `post` edit screens — added 2026-09-25. This site already has two
+		 * dedicated, purpose-built "feature this content" mechanisms (the
+		 * hero_section CPT and the گزیده‌ها `shcore_is_selected` flag right
+		 * in this same file), and native Sticky is a third, WordPress-core
+		 * one that does something different from both: it silently
+		 * force-prepends the flagged post ahead of true date order in *any*
+		 * `WP_Query` that doesn't explicitly opt out (`ignore_sticky_posts`),
+		 * including bypassing tax_query exclusions. Farhad relayed a client
+		 * report of "confusion between the three homepage sections" and
+		 * other articles vanishing after marking one — front-page.php's own
+		 * queries now all set `ignore_sticky_posts => true` defensively, but
+		 * removing the control itself (rather than only neutralizing its
+		 * effect) is the real fix for the confusion: an editor should never
+		 * be able to reach for a third, unrelated "feature this" checkbox by
+		 * mistake when this site only ever wants the other two used.
+		 */
+		add_action( 'admin_head-post.php', array( __CLASS__, 'hide_native_sticky_control' ) );
+		add_action( 'admin_head-post-new.php', array( __CLASS__, 'hide_native_sticky_control' ) );
+	}
+
+	/**
+	 * Prints a tiny inline stylesheet hiding the native "Stick to the front
+	 * page" checkbox on `post` edit screens (classic Publish box's
+	 * `#sticky-span`, and the block editor's equivalent post-status-panel
+	 * row) — see the `admin_head-post.php`/`admin_head-post-new.php` hooks
+	 * above for why. Screen-gated to `post` only; every other post type
+	 * this site defines never had this control to begin with.
+	 *
+	 * @return void
+	 */
+	public static function hide_native_sticky_control() {
+		$screen = get_current_screen();
+		if ( ! $screen || 'post' !== $screen->post_type ) {
+			return;
+		}
+		?>
+		<style>
+			/* Classic editor / Publish metabox */
+			#sticky-span { display: none; }
+			/* Block editor's post-status panel sticky row */
+			.editor-post-sticky, .edit-post-post-sticky { display: none; }
+		</style>
+		<?php
 	}
 
 	/**
