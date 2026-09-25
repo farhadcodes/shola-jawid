@@ -11998,3 +11998,34 @@ in the masthead for a visitor deep in the site.
   Theme version bumped 1.46.3 -> 1.47.0 (minor -- new masthead nav
   item). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: masthead hamburger icon no longer overlaps the flag
+
+Farhad relayed the client's report against a live screenshot, the very
+next round after the menu-button split above shipped: on the base
+(non-scrolled) masthead specifically — not the sticky/shrunk navbar —
+splitting `#menu-open` into its own icon button plus a separate
+"صفحهٔ نخست" link widened `.masthead-left` just enough that the
+hamburger icon slid partly underneath the flag graphic. Client's own
+fix spec: shrink the nav items from 16px to 15px and tighten the
+spacing between them.
+
+- `.mast-btn`'s base font-size (`assets/css/main.css`): `1rem` ->
+  `0.9375rem` (16px -> 15px), applied through the existing
+  `--mast-scale` variable like every other masthead size — at the
+  scrolled/sticky `0.68` scale this still resolves to the same
+  `0.75rem` floor as before (`0.9375 x 0.68 = 0.6375rem`, still under
+  the floor), so the sticky navbar's own text size is genuinely
+  unaffected, matching Farhad's explicit "not the sticky shrinky
+  navbar" scope.
+- Tightened three related gaps the same way, all through
+  `--mast-scale`: `.masthead-left`/`.masthead-right` and
+  `nav.mast-pub-nav` (`.6rem` -> `.5rem` each) — enough to pull the
+  hamburger clear of the flag without visibly cramming the row.
+- **Verified live** at 1600px (wide enough to show the full desktop nav
+  row alongside the flag) — hamburger icon now sits with clear space
+  before the flag pole, both on the base masthead and, scrolled, on the
+  sticky navbar (confirmed unaffected). Also checked mobile (375px):
+  row still reads comfortably.
+  Theme version bumped 1.47.0 -> 1.47.1 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).

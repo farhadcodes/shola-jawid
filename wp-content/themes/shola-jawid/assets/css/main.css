@@ -457,7 +457,15 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
 }
 .masthead-left, .masthead-right {
   display: flex; align-items: center;
-  gap: calc(.6rem * var(--mast-scale));
+  /* .5rem, was .6rem — tightened 2026-09-25, per Farhad relaying the
+     client's report: splitting #menu-open into its own icon button plus
+     a separate "صفحهٔ نخست" link (same-day earlier change) widened
+     .masthead-left just enough that the hamburger icon slid partly
+     underneath the flag graphic on the base (non-scrolled) masthead.
+     Scoped to the base --mast-scale: 1 case only, same as the font-size
+     change below — the sticky/scrolled navbar wasn't affected by the
+     original overlap and isn't the target of this fix. */
+  gap: calc(.5rem * var(--mast-scale));
   transition: gap var(--dur) var(--ease);
 }
 .masthead-right { justify-content: flex-end; }
@@ -474,8 +482,14 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
      floor keeps text readable while padding/gap/icons above still
      shrink fully. 0.75rem (~12px) matches this design's existing
      smallest deliberately-legible UI text size (.t-small is 0.875rem;
-     0.75rem/--t-caption is already used for meta text sitewide). */
-  font-size: max(0.75rem, calc(1rem * var(--mast-scale)));
+     0.75rem/--t-caption is already used for meta text sitewide).
+     Base value 0.9375rem (15px), was 1rem (16px) — same 2026-09-25 fix
+     as the gap change above, Farhad's explicit "16 -> 15px" ask. Applied
+     via --mast-scale like everything else here, so at the scrolled
+     0.68 scale this still resolves to the same 0.75rem floor as before
+     (0.9375 x 0.68 = 0.6375rem, still under the floor) — the sticky
+     navbar's own text size is unchanged either way. */
+  font-size: max(0.75rem, calc(0.9375rem * var(--mast-scale)));
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--paper);
@@ -591,7 +605,9 @@ body.admin-bar .masthead { top: 32px; } /* WP core's own admin-bar height */
    unrelated to the dropdown and still applies to this plain three-
    link row, so the fix stays. The extra element-type selector wins
    regardless of source order. */
-nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.6rem * var(--mast-scale)); transition: gap var(--dur) var(--ease); }
+/* gap tightened .6rem -> .5rem, 2026-09-25 — same masthead-overlap fix
+   as .masthead-left/.masthead-right's own gap change above. */
+nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * var(--mast-scale)); transition: gap var(--dur) var(--ease); }
 
 @media (max-width: 720px) {
   .masthead-inner { grid-template-columns: auto 1fr auto; padding-block: calc(1rem * var(--mast-scale)); }
