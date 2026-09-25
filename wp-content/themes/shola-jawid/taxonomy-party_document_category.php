@@ -12,13 +12,20 @@
  *
  * The cross-subsection nav strip is built from
  * shola_get_party_document_subsections() (inc/template-tags.php) — a live
- * get_terms() call (including the taxonomy's existing «دسته‌بندی‌نشده»
- * fallback term, Category_Manager, always sorted last), not a hardcoded
- * slug array like taxonomy-collection.php's own `$collection_slugs`
- * (found, during this feature's planning, to require a code change for
- * any new `collection` term to ever appear). Any term created, renamed, or
- * deleted for `party_document_category` from wp-admin is reflected here
- * immediately, with no such gap.
+ * get_terms() call, not a hardcoded slug array like
+ * taxonomy-collection.php's own `$collection_slugs` (found, during this
+ * feature's planning, to require a code change for any new `collection`
+ * term to ever appear). Any term created, renamed, or deleted for
+ * `party_document_category` from wp-admin is reflected here immediately,
+ * with no such gap. That helper excludes this taxonomy's «دسته‌بندی‌نشده»
+ * fallback term outright (Category_Manager, `NO_UNCATEGORIZED_FALLBACK`)
+ * per a 2026-09-24 client correction — see its own docblock.
+ *
+ * `.article-crumb` breadcrumb added 2026-09-25, per Farhad relaying the
+ * client's explicit ask for one here "like the rest of the site" —
+ * three-level Home / اسناد حزب / {term}, the same pattern
+ * taxonomy-publication.php's own leaf view already uses for Home / نشرات
+ * / {parent} / {دوره}.
  *
  * @package shola-jawid
  */
@@ -52,6 +59,14 @@ $archive_query = new WP_Query(
 );
 ?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+		</nav>
 
 		<header class="page-header page-header--narrow page-header--tight">
 			<div class="kicker-row">

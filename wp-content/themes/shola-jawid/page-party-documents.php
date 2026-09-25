@@ -8,10 +8,10 @@
  * (page-library.php), including the migration of the 2 documents
  * previously filed under کتابخانه's now-removed "اسناد حزب" shelf.
  *
- * A single, paginated grid, same shape as page-party-publications.php —
- * `party_document_category` is a self-managed taxonomy (the client wants
- * staff to be able to add categories freely as اسناد حزب accumulates, not
- * a fixed IA-doc vocabulary).
+ * A subsection landing page, not a document listing — `party_document_
+ * category` is a self-managed taxonomy (the client wants staff to be
+ * able to add categories freely as اسناد حزب accumulates, not a fixed
+ * IA-doc vocabulary).
  *
  * Subsection tile block added 2026-09-24, per the client's explicit
  * request to bring اسناد حزب to parity with کتابخانه's own collection
@@ -22,10 +22,25 @@
  * wasn't replicated). That helper deliberately excludes this taxonomy's
  * «دسته‌بندی‌نشده» fallback term entirely (Category_Manager,
  * `NO_UNCATEGORIZED_FALLBACK` — see its own docblock for the client's
- * explicit "no such category, front end or back end" correction). This
- * grid below stays the same single flat, unfiltered listing it always
- * was — an اسناد حزب entry with no category is an ordinary state, not a
- * gap that needs its own bucket.
+ * explicit "no such category, front end or back end" correction).
+ *
+ * Flat document grid removed 2026-09-25 (the very next round, per
+ * Farhad relaying the client's explicit correction against a live
+ * screenshot): individual اسناد حزب entries were showing both here
+ * *and* under their own subsection archive
+ * (taxonomy-party_document_category.php) — the client wants documents
+ * reachable only through their subsection, not duplicated on this
+ * landing page too. This page is now tiles-only, the same "browse by
+ * category" landing role page-library.php's own tile block plays
+ * (though that page additionally keeps its own flat "latest documents"
+ * feed — a deliberate difference Farhad confirmed is intentional for
+ * اسناد حزب specifically, not an oversight). One side effect worth
+ * knowing: an اسناد حزب entry with no category assigned is no longer
+ * reachable from this section of the site at all (no subsection to
+ * list it under, and no "uncategorized" bucket per the prior
+ * correction) — still reachable by its own permalink/search, just not
+ * browsable from here, so staff should assign a category to every new
+ * اسناد حزب entry going forward.
  *
  * @package shola-jawid
  */
@@ -36,20 +51,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$paged       = max( 1, get_query_var( 'paged' ) );
 $subsections = shola_get_party_document_subsections();
-
-$party_documents_query = new WP_Query(
-	array(
-		'post_type'      => 'party_document',
-		'posts_per_page' => 20,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
 ?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+		</nav>
 
 		<header class="page-header">
 			<div class="kicker-row">
@@ -59,50 +69,16 @@ $party_documents_query = new WP_Query(
 			<p class="dek"><?php esc_html_e( 'اسناد داخلی حزب — با پیش‌نمایش درون‌مرورگری و دریافت آزاد PDF.', 'shola-jawid' ); ?></p>
 		</header>
 
-		<ul class="topic-list">
-			<?php foreach ( $subsections as $subsection ) : ?>
-				<li><a href="<?php echo esc_url( $subsection['link'] ); ?>">
-					<span class="name"><?php echo esc_html( $subsection['name'] ); ?></span>
-					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $subsection['count'], 'shola-jawid' ), shola_to_persian_digits( $subsection['count'] ) ) ); ?></span></a></li>
-			<?php endforeach; ?>
-		</ul>
-
-		<?php if ( $party_documents_query->have_posts() ) : ?>
-			<div class="issue-grid">
-				<?php
-				while ( $party_documents_query->have_posts() ) :
-					$party_documents_query->the_post();
-					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
-				endwhile;
-				wp_reset_postdata();
-				?>
-			</div>
-
-			<?php if ( $party_documents_query->max_num_pages > 1 ) : ?>
-				<div class="pagination">
-					<?php
-					$links = paginate_links(
-						array(
-							'base'      => add_query_arg( 'paged', '%#%' ),
-							'total'     => $party_documents_query->max_num_pages,
-							'current'   => $paged,
-							'type'      => 'array',
-							'prev_text' => '→',
-							'next_text' => '←',
-						)
-					);
-					if ( $links ) {
-						foreach ( $links as $link ) {
-							$link = shola_persian_digits_pagination_link( $link );
-							$link = str_replace( 'page-numbers', 'page-num', $link );
-							echo wp_kses_post( $link );
-						}
-					}
-					?>
-				</div>
-			<?php endif; ?>
+		<?php if ( $subsections ) : ?>
+			<ul class="topic-list">
+				<?php foreach ( $subsections as $subsection ) : ?>
+					<li><a href="<?php echo esc_url( $subsection['link'] ); ?>">
+						<span class="name"><?php echo esc_html( $subsection['name'] ); ?></span>
+						<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $subsection['count'], 'shola-jawid' ), shola_to_persian_digits( $subsection['count'] ) ) ); ?></span></a></li>
+				<?php endforeach; ?>
+			</ul>
 		<?php else : ?>
-			<p class="dek"><?php esc_html_e( 'هنوز سندی منتشر نشده است.', 'shola-jawid' ); ?></p>
+			<p class="dek"><?php esc_html_e( 'هنوز دسته‌ای ایجاد نشده است.', 'shola-jawid' ); ?></p>
 		<?php endif; ?>
 
 	</section>

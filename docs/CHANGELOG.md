@@ -11655,3 +11655,49 @@ design, meant as a permanent safety net) and should not exist for اسناد
   Theme version bumped 1.44.0 -> 1.44.1 (patch). Plugin version bumped
   1.23.0 -> 1.23.1 (patch).
   Approved by: Farhad, in this session (2026-09-24).
+
+## 2026-09-25 -- fix: اسناد حزب landing page is tiles-only; breadcrumb added
+
+Farhad relayed two corrections against a live screenshot of
+page-party-documents.php:
+
+1. Individual اسناد حزب entries were showing both on the main
+   اسناد حزب landing page (the flat grid below the subsection tiles)
+   *and* under their own subsection archive
+   (taxonomy-party_document_category.php) — the client wants documents
+   reachable only through their subsection, not duplicated on the
+   landing page too.
+2. Neither اسناد حزب page had the `.article-crumb` breadcrumb every
+   single-*.php view and taxonomy-publication.php already have
+   sitewide.
+
+- **page-party-documents.php**: removed the flat `.issue-grid` document
+  query, pagination UI, and "no documents yet" state entirely — the page
+  is now tiles-only (header + `.topic-list` subsection tiles, or a
+  "هنوز دسته‌ای ایجاد نشده است" message if the taxonomy has zero terms).
+  Added a two-level `.article-crumb` breadcrumb (Home / اسناد حزب),
+  matching single-party_document.php's own existing breadcrumb text/link
+  exactly.
+  **Side effect flagged, not silently absorbed**: an اسناد حزب entry
+  with no category assigned is no longer reachable from this section of
+  the site at all — no subsection lists it, and the prior round removed
+  the "uncategorized" bucket per the client's own explicit correction.
+  Still reachable by its own permalink/search. Staff should assign a
+  category to every new اسناد حزب entry going forward for it to be
+  browsable here.
+- **taxonomy-party_document_category.php**: added a three-level
+  `.article-crumb` breadcrumb (Home / اسناد حزب / {term}), the same
+  pattern taxonomy-publication.php's own leaf view already uses for
+  Home / نشرات / {parent} / {دوره}.
+- **inc/setup.php**: removed the now-dead `party-documents` entry from
+  `shola_skip_404_for_secondary_query_pagination()`'s `$paginated_pages`
+  list — that page no longer runs a paginated secondary query at all.
+- **Verified live**: confirmed via screenshot (desktop + mobile) that
+  the landing page shows tiles only with the new two-level breadcrumb,
+  the subsection archive still correctly lists its own document(s) with
+  the new three-level breadcrumb, and both breadcrumbs wrap correctly at
+  375px. کتابخانه is untouched (no files it uses were edited this round).
+  Theme version bumped 1.44.1 -> 1.45.0 (minor -- removed a listing
+  behavior, added a new breadcrumb component to two templates). No
+  plugin change.
+  Approved by: Farhad, in this session (2026-09-25).
