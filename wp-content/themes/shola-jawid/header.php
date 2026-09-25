@@ -6,6 +6,18 @@
 // (1) the invalid nested <a> inside <button> at _header.html:6-12 is fixed
 // here (siblings instead), (2) all inline style="" attributes are replaced
 // with classes added to assets/css/main.css (same computed values).
+//
+// #menu-open split 2026-09-25, per Farhad relaying the client's explicit
+// ask: someone deep in the site should have an always-visible "go home"
+// link in the masthead, not just a "منو" (Menu) label with no direct
+// home shortcut. The hamburger icon button (id="menu-open", main.js keys
+// off this ID, not DOM position or its previous text content) keeps its
+// exact existing open-menu behavior unchanged; the "منو" text that used
+// to live inside that same button is now a separate <a href="/"> reading
+// "صفحهٔ نخست" (the client's specific wording, not "صفحهٔ اصلی") right
+// next to it. template-parts/masthead/two-tier.php has its own identical
+// copy of this button (that file's own docblock says it's deliberately
+// kept in sync with this one) — updated the same way there too.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -188,8 +200,8 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 		<div class="masthead-left">
 			<button type="button" id="menu-open" class="mast-btn" aria-expanded="false" aria-controls="menu-panel" aria-label="<?php esc_attr_e( 'باز کردن منو', 'shola-jawid' ); ?>">
 				<svg width="22" height="14" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M0 1h16M0 5h16M0 9h16"/></svg>
-				<span><?php esc_html_e( 'منو', 'shola-jawid' ); ?></span>
 			</button>
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'صفحهٔ نخست', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true" class="mast-slash">/</span>
 			<?php
 			/*

@@ -19,6 +19,11 @@
  * position), and the same six utility/pub-nav links + search-icon
  * markup header.php's default row already renders.
  *
+ * #menu-open split from its "منو" text 2026-09-25, in sync with the same
+ * change in header.php — see that file's own docblock for the full
+ * reasoning. The icon button's existing behavior is unchanged; a
+ * separate "صفحهٔ نخست" (home) link sits next to it.
+ *
  * Flag treatment corrected 2026-09-18 (third pass): per Farhad's live
  * review, the flag is a large, tilted background graphic sitting
  * behind the title/date (not a small third stacked line beneath them)
@@ -77,8 +82,8 @@ $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
 	<div class="mast-two-tier-utility">
 		<button type="button" id="menu-open" class="mast-btn" aria-expanded="false" aria-controls="menu-panel" aria-label="<?php esc_attr_e( 'باز کردن منو', 'shola-jawid' ); ?>">
 			<svg width="22" height="14" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M0 1h16M0 5h16M0 9h16"/></svg>
-			<span><?php esc_html_e( 'منو', 'shola-jawid' ); ?></span>
 		</button>
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'صفحهٔ نخست', 'shola-jawid' ); ?></a>
 		<nav class="mast-two-tier-util-nav" aria-label="<?php esc_attr_e( 'پیوندهای کمکی', 'shola-jawid' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>

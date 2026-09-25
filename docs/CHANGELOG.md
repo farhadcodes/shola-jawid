@@ -11969,3 +11969,32 @@ page) too, so it's fully visible without scrolling.
   change.
   Theme version bumped 1.46.2 -> 1.46.3 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- feat: masthead menu button split into home link + icon
+
+Farhad relayed the client's explicit ask, confirmed against a stated
+understanding before implementing: the hamburger icon and the "منو"
+(Menu) text next to it were one single combined button — clicking
+either opened the popup menu, with no direct "go home" shortcut visible
+in the masthead for a visitor deep in the site.
+
+- Split `#menu-open` into two independent elements in both places this
+  markup exists — `header.php` (the default/logo/logo-light masthead
+  row) and `template-parts/masthead/two-tier.php` (that file's own
+  docblock already documents it as deliberately kept in sync with
+  header.php's version, so both needed the same fix): the icon keeps the
+  `#menu-open` id and its exact existing open-menu behavior (main.js
+  keys off the id, not DOM position or text content, so no JS change
+  was needed); a new `<a href="/">` sits next to it reading "صفحهٔ
+  نخست" (the client's specific wording — corrected once from an initial
+  "صفحهٔ اصلی" before implementing).
+- Reused the existing `.mast-btn` class for the new link — the same
+  shared masthead nav-item typography/hover treatment already used
+  throughout, no new CSS needed.
+- **Verified live** at desktop, tablet (768px), and mobile (375px) on
+  both a page other than the homepage (confirming the new link actually
+  navigates home, not a no-op) — hamburger icon still opens the full
+  popup menu correctly at every width tested.
+  Theme version bumped 1.46.3 -> 1.47.0 (minor -- new masthead nav
+  item). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).
