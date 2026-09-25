@@ -91,6 +91,15 @@ class Label_Settings {
 	 * `latest_documents_heading`, same "different UI role" reasoning as
 	 * the rest of this comment).
 	 *
+	 * `latest_documents_heading` itself is now unused as of 2026-09-25:
+	 * page-library.php's "تازه‌ترین اسناد" flat document feed was removed
+	 * entirely (client's explicit ask, relayed by Farhad — the library
+	 * landing page should only show collection tiles). Same "kept
+	 * registered, not deleted" precedent as `home_articles_section_aria`/
+	 * `home_latest_heading` above — an editor's already-saved override
+	 * isn't silently lost, and the settings-page description below is
+	 * prefixed "(غیرفعال)" instead.
+	 *
 	 * @return array<string, string>
 	 */
 	public static function get_defaults() {
@@ -125,7 +134,7 @@ class Label_Settings {
 			'home_latest_heading'         => __( '(غیرفعال — بخش «تازه‌ها» از صفحهٔ اصلی حذف شد) عنوان بخش «تازه‌ها»', 'shola-core' ),
 			'home_topics_link_more'       => __( 'صفحهٔ اصلی — پیوند «همهٔ موضوعات» کنار بخش تازه‌ترین', 'shola-core' ),
 			'home_topics_section_heading' => __( 'صفحهٔ اصلی — عنوان بخش موضوعات', 'shola-core' ),
-			'latest_documents_heading'    => __( 'کتابخانه — عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
+			'latest_documents_heading'    => __( '(غیرفعال — بخش «تازه‌ترین اسناد» از صفحهٔ کتابخانه حذف شد) عنوان بخش «تازه‌ترین اسناد»', 'shola-core' ),
 			'home_latest_documents_heading' => __( 'صفحهٔ اصلی — عنوان بخش «اسناد حزب»', 'shola-core' ),
 			'home_library_heading'        => __( 'صفحهٔ اصلی — عنوان بخش «کتابخانه»', 'shola-core' ),
 			'home_reports_heading'        => __( 'صفحهٔ اصلی — عنوان بخش «گزارش»', 'shola-core' ),

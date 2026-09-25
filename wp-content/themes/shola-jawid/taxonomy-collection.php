@@ -5,6 +5,23 @@
  * 03_UI_Design/shola-jawid-ui/pages/body-library-classics.html (and its
  * 3 structurally identical siblings) — Phase 4.2.
  *
+ * Cover-thumbnail grid added 2026-09-25, per Farhad relaying the
+ * client's explicit ask against a live screenshot: the plain text-row
+ * list (document-row.php — title + a small download button, no cover)
+ * "does not have their thumbnail of the cover page" and "should not
+ * look like a list." Switched to the exact `.issue-grid` +
+ * issue-card.php pairing already used for the same "paginated grid of
+ * PDF covers" job on page-party-publications.php — issue-card.php was
+ * already generalized to work with the `document` post type (its own
+ * docblock says so), so no new card template was needed. `.issue-grid`'s
+ * own shared CSS isn't a flat 3-column grid at every width (it's a hard
+ * 6-column row at desktop, tuned for the homepage teasers that also use
+ * it), so this page's grid gets its own `.issue-grid--library` modifier
+ * class overriding just the column count at tablet/desktop — the
+ * homepage's 6-column layout is untouched. `posts_per_page` raised
+ * 6 -> 20 to match the client's "paginate past ~20" ask (comfortably
+ * more than the "at least five rows" minimum at 3 columns).
+ *
  * @package shola-jawid
  */
 
@@ -22,7 +39,7 @@ $collection_slugs = array( 'classics', 'international-movement', 'party-document
 $archive_query = new WP_Query(
 	array(
 		'post_type'      => 'document',
-		'posts_per_page' => 6,
+		'posts_per_page' => 20,
 		'paged'          => $paged,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
@@ -61,15 +78,15 @@ $archive_query = new WP_Query(
 		</nav>
 
 		<?php if ( $archive_query->have_posts() ) : ?>
-			<ul>
+			<div class="issue-grid issue-grid--library">
 				<?php
 				while ( $archive_query->have_posts() ) :
 					$archive_query->the_post();
-					get_template_part( 'template-parts/rows/document-row', null, array( 'post' => get_post() ) );
+					get_template_part( 'template-parts/cards/issue-card', null, array( 'post' => get_post() ) );
 				endwhile;
 				wp_reset_postdata();
 				?>
-			</ul>
+			</div>
 
 			<?php if ( $archive_query->max_num_pages > 1 ) : ?>
 				<div class="pagination" aria-label="<?php esc_attr_e( 'صفحه‌بندی', 'shola-jawid' ); ?>">

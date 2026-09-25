@@ -11825,3 +11825,66 @@ window.
   unchanged size.
   Theme version bumped 1.45.1 -> 1.45.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- feat: کتابخانه subcategory pages get a cover-thumbnail grid; landing page's flat feed removed
+
+Farhad relayed two client corrections against live screenshots:
+
+1. Documents listed inside a کتابخانه subcategory (`/library/{term}/`)
+   had no cover thumbnail at all — a plain text-row list (title + a
+   small download button). The client wants each document's cover shown
+   (keeping its portrait/vertical proportion), laid out as a 3-column
+   grid (not a list), at least five rows before pagination, paginating
+   once a subcategory passes ~20 documents.
+2. Separately, کتابخانه's own landing page (`/library/`) should show
+   only the four collection tiles — the flat "تازه‌ترین اسناد" (latest
+   documents, across all collections) feed underneath them should be
+   removed entirely.
+
+Investigated before building: `issue-card.php` (the cover+title+date
+card already used for اسناد حزب/انتشارات حزب's own paginated grids) was
+already generalized in its own code comments to work with the
+`document` post type specifically — no new card template needed.
+`library-shelf-card.php` (the homepage's own document-cover component)
+was ruled out for this reuse: it renders no visible title at all (by
+design, for its dark horizontal-scroll shelf context) and its shadow/
+hover styling was tuned for that dark background specifically — putting
+it on a plain white paginated grid would mean adding a title and
+re-tuning the visuals anyway, at which point it's not really reuse.
+
+- **`taxonomy-collection.php`**: swapped `document-row.php` (text row,
+  no cover) for the exact `.issue-grid` + `issue-card.php` pairing
+  `page-party-publications.php` already uses for the same "paginated
+  grid of PDF covers" job. `posts_per_page` raised 6 -> 20 (the
+  client's own pagination threshold; comfortably more than "at least
+  five rows" at 3 columns). Existing pagination UI (`paginate_links()`)
+  was already wired here, just gated behind too low a per-page count to
+  ever trigger before.
+- **New `.issue-grid--library` CSS modifier** (`assets/css/main.css`):
+  `.issue-grid`'s shared desktop rule is a hard 6-column row (tuned for
+  انتشارات حزب/اسناد حزب's own archives and the homepage teasers, all
+  sharing that same class) — not what the client asked for here. This
+  modifier overrides just the column count to a flat 3 at the existing
+  tablet (≥640px) and desktop (≥1000px) breakpoints, leaving every other
+  `.issue-grid` context (homepage, اسناد حزب, انتشارات حزب) untouched.
+  Mobile needed no override — base `.issue-grid` is already 3 columns
+  there.
+- **`page-library.php`**: removed the "تازه‌ترین اسناد" section and its
+  `WP_Query` entirely — the landing page is now just the header + the
+  four collection tiles.
+- **`class-label-settings.php`**: `latest_documents_heading` (the label
+  that section's heading used) is left registered rather than deleted —
+  same "don't silently lose an editor's saved override" precedent
+  already established in this file for other now-unused labels
+  (`home_articles_section_aria`/`home_latest_heading`) — its
+  settings-page description is now prefixed "(غیرفعال — ...)" instead.
+- **Verified live** at desktop, tablet (768px), and mobile (375px): the
+  subcategory grid renders a clean 3-column layout with covers, titles,
+  and dates at every width tested; confirmed انتشارات حزب's own
+  `.issue-grid` page is unaffected (still its original layout, no
+  `.issue-grid--library` class applied there); confirmed the کتابخانه
+  landing page now shows only the four tiles.
+  Theme version bumped 1.45.2 -> 1.46.0 (minor -- new grid layout,
+  removed a page section). Plugin version bumped 1.24.0 -> 1.24.1
+  (patch -- label description text only, no behavior change).
+  Approved by: Farhad, in this session (2026-09-25).

@@ -4,6 +4,15 @@
  * Converted from 03_UI_Design/shola-jawid-ui/pages/body-library.html
  * (Phase 4.2). Applies to the Page with slug `library`.
  *
+ * "تازه‌ترین اسناد" (latest documents, flat across all collections)
+ * section removed 2026-09-25, per Farhad relaying the client's explicit
+ * ask against a live screenshot: this landing page should only show the
+ * collection tiles, not a flat document feed underneath. The
+ * `latest_documents_heading` label this section used is left registered
+ * in Label_Settings (not deleted) — same "don't silently lose an
+ * editor's saved override, mark the settings-page description instead"
+ * precedent already established there for other now-unused labels.
+ *
  * @package shola-jawid
  */
 
@@ -14,15 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 $collection_slugs = array( 'classics', 'international-movement', 'party-documents', 'critique-polemic' );
-
-$documents_query = new WP_Query(
-	array(
-		'post_type'      => 'document',
-		'posts_per_page' => 5,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
 ?>
 	<section class="wrap section-top">
 
@@ -49,38 +49,5 @@ $documents_query = new WP_Query(
 		</ul>
 
 	</section>
-
-	<?php if ( $documents_query->have_posts() ) : ?>
-		<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'latest_documents_heading' ) ); ?>">
-			<div class="section-head row-between">
-				<div class="kicker-row">
-					<p class="section-marker"></p>
-					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'latest_documents_heading' ) ); ?></h2>
-				</div>
-				<?php
-				// v6's own text/target here differs from front-page.php's equivalent
-				// link ("همهٔ مجموعه‌ها" -> /library/) -- body-library.html specifically
-				// says "همهٔ آثار کلاسیک" linking to the classics collection, not a
-				// generic "all collections" link (which would be redundant on this
-				// page, since the collections list is already right above). Matched
-				// exactly rather than assumed to be the same component.
-				$classics_term = get_term_by( 'slug', 'classics', 'collection' );
-				?>
-				<?php if ( $classics_term ) : ?>
-					<a class="link-more" href="<?php echo esc_url( get_term_link( $classics_term ) ); ?>"><?php esc_html_e( 'همهٔ آثار کلاسیک', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-				<?php endif; ?>
-			</div>
-
-			<ul>
-				<?php
-				while ( $documents_query->have_posts() ) :
-					$documents_query->the_post();
-					get_template_part( 'template-parts/rows/document-row', null, array( 'post' => get_post() ) );
-				endwhile;
-				wp_reset_postdata();
-				?>
-			</ul>
-		</section>
-	<?php endif; ?>
 <?php
 get_footer();
