@@ -11701,3 +11701,29 @@ page-party-documents.php:
   behavior, added a new breadcrumb component to two templates). No
   plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- rules: no direct commits to `main` — branch + squash-merge, always
+
+Farhad raised this after reading about software development practice:
+many small, direct-to-`main` commits make a repo's history "too
+complicated" at scale, and asked for a strategy going forward.
+
+- **Changed**: CLAUDE.md §8 tightened. The file already said "one
+  feature/phase-step per branch/PR where practical," but in this
+  project's actual day-to-day practice that was being read as applying
+  only to big execution-plan phase-steps — every routine client-feedback
+  round or small fix (the overwhelming majority of this project's
+  history) was committed and pushed straight to `main` instead. §8 now
+  says explicitly, with no size exception: every task gets its own
+  branch (`feat/...`/`fix/...`), commits happen freely there, and the
+  branch is squash-merged into `main` once verified/approved, so
+  `main`'s own history reads as clean milestones rather than a
+  step-by-step diary. The "always push immediately, don't ask
+  permission" standing instruction is unchanged — this only reshapes
+  *how* `main`'s history looks, not whether/when work gets pushed.
+- Confirmed by Farhad this preference applies to his other projects too,
+  not only this one — CLAUDE.md itself only governs this repo, so it's
+  restated here for this project's own record; a separate project's own
+  CLAUDE.md (or equivalent) needs the same rule added independently if
+  Farhad wants it enforced there too.
+  Approved by: Farhad, in this session (2026-09-25).

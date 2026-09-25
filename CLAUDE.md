@@ -331,9 +331,27 @@ one without asking).
   **Never commit real client content, credentials, or DB exports.**
 - Conventional commit messages: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`,
   scoped where useful (`feat(theme): add front-page.php hero loop`).
-- One feature/phase-step per branch/PR where practical
-  (`feat/cpt-issue-document-announcement`), merged to `main` only after the
-  relevant phase's QC step (see execution plan) passes.
+- **No direct commits to `main`, ever — every task gets its own branch, squash-merged
+  in when done.** (Confirmed explicitly by Farhad, 2026-09-25, after noticing the
+  project's actual practice up to that point was direct-to-`main` commits for every
+  change, however small — this rule already existed below it in spirit ("one
+  feature/phase-step per branch") but was being read as applying only to big
+  execution-plan phase-steps, not routine client-feedback rounds or small fixes. It
+  applies to *all* work, no exceptions for size:
+  1. Before starting any task (a new feature, a bug-fix round, a single round of
+     client feedback), create a branch off `main` — `feat/short-description` or
+     `fix/short-description`, matching the conventional-commit type.
+  2. Commit freely on that branch — as many small, granular commits as the work
+     naturally produces; this is where fine-grained history belongs.
+  3. Once the task is verified and approved, squash-merge the branch into `main` as
+     one commit (or a small number of logically distinct commits for a large,
+     multi-part task), so `main`'s own history reads as clean milestones, not a
+     step-by-step diary. Delete the branch after merging.
+  4. Push `main` after every squash-merge, same as before — this rule changes *how*
+     history is shaped, not the "always push, don't ask permission" standing
+     instruction.
+  This applies across Farhad's other projects too, not just this repo, but this file
+  only governs this one — restate it explicitly if asked to work elsewhere.
 - Tag a release (`v1.0.0`) at final handover (Phase 7), matching the `Version:` in
   `style.css`.
 - `docs/CHANGELOG.md` is updated **every time a rule in this file is applied in a
