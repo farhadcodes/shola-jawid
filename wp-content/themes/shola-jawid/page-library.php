@@ -13,6 +13,14 @@
  * editor's saved override, mark the settings-page description instead"
  * precedent already established there for other now-unused labels.
  *
+ * `.article-crumb` breadcrumb added 2026-09-25, per Farhad relaying the
+ * client's explicit ask for one "on all levels that require it" across
+ * کتابخانه — this landing page had none at all. Two levels only (Home /
+ * کتابخانه, matching page-party-documents.php's own equivalent) since
+ * there's no deeper context to show here; taxonomy-collection.php (one
+ * level down) and single-document.php (already had one) each get their
+ * own third level for the collection.
+ *
  * @package shola-jawid
  */
 
@@ -25,6 +33,12 @@ get_header();
 $collection_slugs = array( 'classics', 'international-movement', 'party-documents', 'critique-polemic' );
 ?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+		</nav>
 
 		<header class="page-header">
 			<div class="kicker-row">

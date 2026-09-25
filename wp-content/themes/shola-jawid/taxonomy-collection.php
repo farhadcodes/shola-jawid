@@ -25,6 +25,12 @@
  * homepage teasers exactly: 3 columns on mobile, fluid auto-fit on
  * tablet, a flat 6-column row on desktop.
  *
+ * `.article-crumb` breadcrumb added 2026-09-25, per Farhad relaying the
+ * client's explicit ask for one "on all levels that require it" across
+ * کتابخانه — this page had none. Three levels (Home / کتابخانه /
+ * {collection}), the same pattern taxonomy-party_document_category.php
+ * and single-document.php's own (already-correct) breadcrumb both use.
+ *
  * @package shola-jawid
  */
 
@@ -57,6 +63,14 @@ $archive_query = new WP_Query(
 );
 ?>
 	<section class="wrap section-top">
+
+		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			<span aria-hidden="true"> / </span>
+			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+		</nav>
 
 		<header class="page-header page-header--narrow page-header--tight">
 			<div class="kicker-row">

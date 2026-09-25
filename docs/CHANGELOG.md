@@ -11914,3 +11914,31 @@ Agreed this was the better call before implementing.
   mobile was never touched by either round.
   Theme version bumped 1.46.0 -> 1.46.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: breadcrumb added across all کتابخانه levels
+
+Farhad relayed the client's explicit ask, against a live screenshot of
+the subcategory grid: a breadcrumb "on all levels that require it"
+across کتابخانه, guiding the visitor from the homepage down.
+
+Audited all three کتابخانه levels first:
+- `page-library.php` (landing, `/library/`) — had no breadcrumb at all.
+- `taxonomy-collection.php` (subcategory, `/library/{term}/`) — had
+  none either (the gap in the client's screenshot).
+- `single-document.php` (single book, `/library/{term}/{slug}/`) —
+  already had a correct, existing three-level breadcrumb (Home /
+  کتابخانه / {collection}) from earlier work; confirmed live, no change
+  needed.
+
+- **`page-library.php`**: added a two-level `.article-crumb` (Home /
+  کتابخانه), matching page-party-documents.php's own equivalent for a
+  section landing page with no deeper context to show.
+- **`taxonomy-collection.php`**: added a three-level `.article-crumb`
+  (Home / کتابخانه / {collection}), the same pattern
+  taxonomy-party_document_category.php and single-document.php's own
+  breadcrumb both already use.
+- **Verified live** at desktop and mobile (375px) on all three levels —
+  wraps correctly, reads correctly, single-document.php's pre-existing
+  breadcrumb confirmed unaffected.
+  Theme version bumped 1.46.1 -> 1.46.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).
