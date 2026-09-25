@@ -12075,3 +12075,63 @@ happen in a standards-mode browser).
   Theme version bumped 1.47.1 -> 1.47.2 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25) -- pending
   Farhad's real-device re-verification.
+
+## 2026-09-25 -- fix: found and fixed the real horizontal-overflow sources (blank mobile page)
+
+Farhad retested the previous round's `overflow-x: hidden` mitigation and
+confirmed the problem was still there — including a real, physical
+detail the previous investigation couldn't have found: it's not just a
+resting-scroll-position issue, the page can genuinely be dragged left/
+right to reveal blank space, at more than one real device size
+(screenshots from actual Chrome DevTools, iPhone 16 Pro Max and iPhone
+16). Also separately flagged: a homepage card rendering as a square
+image where it should be a 2:3/3:4 portrait cover.
+
+Re-investigated from scratch with a cleaner method (previous session's
+`window.innerWidth` readings had been unreliable) — direct DOM
+bisection: replace each element on the page with a placeholder one at a
+time and compare `document.documentElement.scrollWidth` before/after,
+rather than trusting any single suspect measurement. This conclusively
+isolated two real, distinct, previously-shipped bugs, neither of which
+was the two-tier masthead flag graphic (a red herring from the earlier
+round's investigation):
+
+1. **`.library-shelf-track`** (the homepage کتابخانه shelf, added
+   2026-09-21): its own box was always correctly sized and clipped —
+   `overflow-x: auto` genuinely only ever scrolled itself — but its
+   horizontally-scrolling `scroll-snap-type` content was still leaking
+   into `document.documentElement.scrollWidth`, a known tricky nested-
+   scroll-container-in-RTL interaction. Plain `overflow-x: hidden` on
+   its own ancestor (`.sect-library`) did **not** stop this, confirmed
+   live; `contain: layout` on the track itself did, confirmed live —
+   this tells the browser the element's internal layout genuinely
+   cannot affect anything outside it. This was the dominant source at
+   mobile widths and very likely the direct cause of the "completely
+   blank" report (the client's homepage-card square-image complaint was
+   also very likely just visual fallout from this same broken layout —
+   the کتابخانه shelf's covers were confirmed rendering at their
+   correct 3:4 ratio once this was fixed, and no separate aspect-ratio
+   bug was found).
+2. **`.current-issues`** (the homepage's «نشریات» two-card grid): a
+   textbook CSS Grid gotcha — its `grid-template-columns: 1fr 1fr` gives
+   each column an implicit `min-width: auto`, meaning a column can never
+   shrink narrower than its content's own min-content size. At tablet
+   width (confirmed live at 768px) the two cards' combined natural width
+   didn't fit, forcing the section wider than the viewport. Fixed with
+   the standard `minmax(0, 1fr) minmax(0, 1fr)` — the explicit `0`
+   minimum lets the tracks actually shrink. A ~9px residual (some
+   deeper, harder-to-reach min-content inside the card) is left fully
+   absorbed by the previous round's root `overflow-x: hidden` — confirmed
+   live that `overflow-x: hidden` genuinely blocks any scroll attempt
+   (`window.scrollTo()` had no effect), so this residual is inert, not
+   a lingering version of the original bug.
+- **Verified live**, all via direct `scrollWidth`/`scrollX` measurement
+  plus screenshots, not assumption: mobile 390px and the exact iPhone 16
+  size (393x852) both show `scrollWidth === clientWidth` and
+  `scrollX: 0` after a forced scroll attempt; tablet 768px confirmed
+  down to a fully-absorbed 9px residual; desktop (1400px) confirmed
+  completely unaffected — both fixed sections (کتابخانه shelf, نشریات
+  two-card grid) screenshotted there and visually identical to before,
+  per Farhad's explicit "keep the computer version untouched" ask.
+  Theme version bumped 1.47.2 -> 1.47.3 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).

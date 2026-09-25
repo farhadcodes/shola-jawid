@@ -3927,7 +3927,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    too narrow for it to read well. */
 .current-issues { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
 @media (min-width: 700px) {
-  .current-issues { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+  /*
+   * minmax(0, 1fr), not a bare 1fr — added 2026-09-25, same investigation
+   * as .library-shelf-track's contain:layout fix above (a report of the
+   * whole mobile/tablet site overflowing horizontally). A bare `1fr`
+   * grid track has an implicit `min-width: auto`, which means it will
+   * never shrink narrower than its content's own min-content size — a
+   * classic CSS Grid gotcha. At tablet widths (confirmed live at 768px)
+   * the two نشریات cards' combined natural width didn't fit their
+   * assigned 1fr columns, forcing this whole section wider than the
+   * viewport. `minmax(0, 1fr)` is the standard fix: the explicit `0`
+   * minimum lets the track actually shrink to the available space.
+   */
+  .current-issues { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.5rem; }
 }
 
 .current-issues .issue-hero--embedded {
@@ -5111,6 +5123,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
 .library-shelf { display: flex; align-items: flex-end; gap: 1rem; }
+/*
+ * contain: layout — added 2026-09-25. Root-caused a report of the
+ * entire mobile site rendering blank (and, on retest, horizontally
+ * draggable to reveal blank space) all the way back to this one
+ * element: even though `.library-shelf-track`'s own box was always
+ * correctly sized and clipped (its `overflow-x: auto` genuinely scrolls
+ * only itself), its horizontally-scrolling `scroll-snap-type` content
+ * was still leaking into `document.documentElement.scrollWidth` —
+ * confirmed live via direct DOM bisection (removing just this element
+ * dropped the document's scrollWidth back to the true viewport width;
+ * removing every other candidate on the page, including the two-tier
+ * masthead's flag graphic and the page-load overlay, changed nothing).
+ * A plain `overflow-x: hidden` on this element's own ancestors (tried
+ * on `.sect-library` directly) did NOT stop the leak — this specific
+ * nested-scroll-container-in-RTL interaction needed `contain: layout`
+ * specifically, which tells the browser this element's internal layout
+ * genuinely cannot affect anything outside it. Confirmed live: adding
+ * this one declaration alone brought scrollWidth back to the true
+ * viewport width with nothing else changed.
+ */
 .library-shelf-track {
   display: flex;
   align-items: flex-end;
@@ -5121,6 +5153,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-block-end: .5rem; /* room for the hover-lift shadow below each cover */
   scroll-snap-type: x proximity;
   scrollbar-width: none;
+  contain: layout;
 }
 .library-shelf-track::-webkit-scrollbar { display: none; }
 /* width 190px -> 150px, 2026-09-21, per Farhad's explicit ask for a
