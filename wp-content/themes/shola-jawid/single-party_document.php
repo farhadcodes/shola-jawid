@@ -24,6 +24,18 @@
  * — an ordinary state, see Category_Manager::NO_UNCATEGORIZED_FALLBACK
  * — rather than showing an empty or placeholder crumb).
  *
+ * `.single-party-document` wrapper class added 2026-09-25, per Farhad
+ * relaying the client's ask (design-head framing, against a live
+ * screenshot) to make this page noticeably more compact — smaller
+ * cover, smaller title, tighter meta spacing, a smaller "سایر اسناد
+ * حزب" heading — so a visitor sees the page without scrolling as much.
+ * `.issue-hero`/`.article-title--doc`/`.h-section` are shared with
+ * single-issue.php/single-document.php/single-party_publication.php, so
+ * this compacting is scoped to `.single-party-document` specifically
+ * (main.css) rather than changing those shared base rules, which would
+ * have also shrunk نشریه/کتابخانه/انتشارات حزب's own single-item pages —
+ * not asked for.
+ *
  * @package shola-jawid
  */
 
@@ -59,7 +71,7 @@ while ( have_posts() ) :
 	);
 	?>
 
-	<section class="wrap">
+	<section class="wrap single-party-document">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>

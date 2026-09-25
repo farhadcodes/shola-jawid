@@ -11786,3 +11786,42 @@ URL for that document should include the subsection segment too —
   1.23.1 -> 1.24.0 (minor -- permalink structure change, new permalink
   filter, new self-healing flush).
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: single سند حزب page made compact (design-head ask)
+
+Farhad relayed the client's design-head feedback against a live
+screenshot: the single اسناد حزب page's cover/title/spacing all read
+too large, forcing a scroll to see the whole hero on a normal desktop
+window.
+
+- Added a `.single-party-document` wrapper class to
+  single-party_document.php's outer `<section>`, then scoped every
+  change to it in main.css — `.issue-hero`/`.article-title--doc`/
+  `.issue-meta`/`.h-section` are shared with single-issue.php/
+  single-document.php/single-party_publication.php, so a global change
+  to those base rules would have also shrunk نشریه/کتابخانه/انتشارات
+  حزب's own single-item pages, which weren't part of this ask.
+- Cover: the `.issue-hero` grid column that actually sizes `.issue-cover`
+  (that class has no fixed width of its own, just its 3:4 aspect-ratio)
+  narrowed 380px -> 285px (25% narrower, matching the client's own
+  "maybe 25% smaller" spec) at the existing ≥800px two-column
+  breakpoint; `padding-block` 4rem -> 3rem.
+- Title (`.article-title--doc`): 35px -> 28px (20% down).
+- Meta block (تاریخ نشر/دسته/حجم فایل rows): gap/padding/margin all
+  scaled down roughly the same 20-23%.
+- Section headings ("جزئیات سند", "سایر اسناد حزب"): fixed at 25px
+  instead of the shared `.h-section` class's own clamp (which scales up
+  to 32px on wider viewports) — the client named 32px -> 25px
+  specifically for these.
+- **Verified live** at desktop (the hero now fits without scrolling at
+  a normal window size), mobile 375px (cover/title still read correctly
+  in the existing stacked single-column layout below 800px, unaffected
+  by the column-width change since that layout was never governed by
+  the 380px value), and tablet 768px (still uses the same stacked
+  layout as every other single-item template at this width — pre-
+  existing sitewide behavor, not something this change altered).
+  Confirmed کتابخانه's own single-document page
+  (single-document.php/`.issue-hero`) renders at its original,
+  unchanged size.
+  Theme version bumped 1.45.1 -> 1.45.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25).
