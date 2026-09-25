@@ -11727,3 +11727,62 @@ complicated" at scale, and asked for a strategy going forward.
   CLAUDE.md (or equivalent) needs the same rule added independently if
   Farhad wants it enforced there too.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- feat: اسناد حزب single-post breadcrumb + URL nest under subsection
+
+Farhad relayed two corrections against a live screenshot of a single
+سند حزب page: the breadcrumb stopped at اسناد حزب (2 levels) instead of
+also showing the document's own subsection, and separately, the site's
+URL for that document should include the subsection segment too —
+`/party-documents/{subsection}/{document}/`, not the flat
+`/party-documents/{document}/` it had.
+
+- **Plugin (`class-post-types.php`)**: `party_document`'s rewrite slug
+  changed from `party-documents` to `party-documents/%party_document_
+  category%`, mirroring the exact pattern `document`'s own
+  `library/%collection%` already uses. Added `%party_document_category%`
+  to `register_rewrite_tags()` and a new
+  `filter_party_document_permalink()` (hooked on `post_type_link`),
+  mirroring `filter_document_permalink()`: fills the placeholder with
+  the document's first assigned category slug, falling back to a
+  literal "بدون-دسته" segment for a document with none (an ordinary
+  state — see Category_Manager::NO_UNCATEGORIZED_FALLBACK — mirroring
+  `filter_document_permalink()`'s own "بدون-مجموعه" fallback exactly).
+  No collision with `party_document_category`'s own taxonomy-archive
+  rewrite slug (`party-documents-category`, a different top segment) —
+  unlike `library`/`collection`'s well-documented shared-slug collision,
+  this doesn't need an equivalent `register_pagination_collision_fixes()`
+  entry.
+  Added a new self-healing `maybe_flush_rewrite_rules_for_party_document()`
+  (`admin_init` + persisted flag, same pattern as every other one-time
+  fix in this plugin): a permalink-structure change like this requires
+  WordPress to regenerate its cached rewrite rules, which normally only
+  happens on plugin activation or a manual Settings -> Permalinks visit
+  — neither fires on a code-only zip redeploy to an already-active
+  plugin, so without this every اسناد حزب single-post link would 404
+  until someone happened to re-save permalinks by hand. Confirmed this
+  exact failure mode live during testing (tested the new URL before the
+  flush had run) before adding the fix, then re-confirmed it resolves
+  correctly once flushed.
+- **Theme (`single-party_document.php`)**: breadcrumb extended to a
+  conditional third level (the document's own subsection, when one is
+  assigned), mirroring single.php's own conditional third `topic` crumb
+  exactly — omitted entirely (falls back to the original two levels) for
+  a document with no category, rather than showing an empty or
+  placeholder crumb.
+- **Verified live**: confirmed via direct DB script that
+  `filter_party_document_permalink()` produces the correct URL for both
+  a categorized document (`.../party-documents/foundational-documents/
+  {slug}/`) and an uncategorized one (`.../party-documents/بدون-دسته/
+  {slug}/`); confirmed both actually resolve (not 404) in the browser
+  after the flush, with the new three-level breadcrumb rendering
+  correctly on desktop and wrapping cleanly on mobile (375px); confirmed
+  the two-level fallback breadcrumb renders correctly for the
+  uncategorized document; spot-checked that a subsection archive's own
+  document-card links (built via `get_permalink()`, not hardcoded) still
+  resolve correctly under the new URL shape with no template changes
+  needed there.
+  Theme version bumped 1.45.0 -> 1.45.1 (patch). Plugin version bumped
+  1.23.1 -> 1.24.0 (minor -- permalink structure change, new permalink
+  filter, new self-healing flush).
+  Approved by: Farhad, in this session (2026-09-25).

@@ -13,6 +13,17 @@
  * when at least one category has actually been assigned, since the
  * client asked for this to be optional, not a required classification).
  *
+ * Breadcrumb extended 2026-09-25 to a third, conditional level (the
+ * document's own subsection) per Farhad relaying the client's explicit
+ * correction against a live screenshot: it previously stopped at اسناد
+ * حزب, the same two levels the site's own URL for this document did
+ * before this same round's permalink-structure change
+ * (Post_Types::filter_party_document_permalink()) added the subsection
+ * segment there too. Mirrors single.php's own conditional third crumb
+ * for `topic` exactly (omitted entirely for a document with no category
+ * — an ordinary state, see Category_Manager::NO_UNCATEGORIZED_FALLBACK
+ * — rather than showing an empty or placeholder crumb).
+ *
  * @package shola-jawid
  */
 
@@ -53,7 +64,13 @@ while ( have_posts() ) :
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+			<?php if ( $categories ) : ?>
+				<a href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+				<span aria-hidden="true"> / </span>
+				<a class="active" href="<?php echo esc_url( get_term_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a>
+			<?php else : ?>
+				<a class="active" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+			<?php endif; ?>
 		</nav>
 
 		<div class="issue-hero">

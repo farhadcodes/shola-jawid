@@ -33,6 +33,8 @@ class Post_Types {
 		add_action( 'init', array( __CLASS__, 'register_pagination_collision_fixes' ) );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_issue_permalink' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_document_permalink' ), 10, 2 );
+		add_filter( 'post_type_link', array( __CLASS__, 'filter_party_document_permalink' ), 10, 2 );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_flush_rewrite_rules_for_party_document' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'include_cpts_in_search' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'register_search_type_query_var' ) );
 	}
@@ -140,16 +142,17 @@ class Post_Types {
 	 * already produces — no custom tag/filter needed for it.
 	 * `party_document` (added 2026-09-04, Farhad relaying a client
 	 * request for اسناد حزب as its own independent section, distinct from
-	 * both `document`/`library` and `party_publication`) does carry a
-	 * taxonomy (`party_document_category`), but deliberately keeps the
-	 * same plain `party-documents/%postname%/` URL shape as
-	 * `party_publication` rather than nesting under a category term in
-	 * the URL — the client's own description of this feature ("they
-	 * should be able to add categories inside this one if they need")
-	 * describes an optional, self-managed grouping for the admin list,
-	 * not a URL taxonomy structure like `publication`/`collection` have;
-	 * category membership is still fully filterable on the front end
-	 * without it needing to be embedded in the address.
+	 * both `document`/`library` and `party_publication`) also carries a
+	 * taxonomy (`party_document_category`). Originally kept the same
+	 * plain `party-documents/%postname%/` shape as `party_publication` —
+	 * the client's initial description of this feature ("they should be
+	 * able to add categories inside this one if they need") read as an
+	 * optional, self-managed grouping for the admin list only, not a URL
+	 * taxonomy structure. Changed 2026-09-25: the client explicitly asked
+	 * for the category to appear in the URL too, once subsectioning
+	 * shipped — now nests under its category term exactly like
+	 * `issue`/`document` do, via the same custom-rewrite-tag pattern (see
+	 * register_rewrite_tags()/filter_party_document_permalink()).
 	 * `announcement` is registered with a real archive since
 	 * /announcements is itself a listing template
 	 * (archive-announcement.php), not a static Page.
@@ -288,6 +291,19 @@ class Post_Types {
 		 * shelf is migrated onto this new post type separately (see
 		 * Taxonomies::migrate_legacy_party_documents()) — this
 		 * registration alone does not move anything.
+		 *
+		 * `rewrite.slug` changed 2026-09-25, per Farhad relaying the
+		 * client's explicit ask: a single document's URL should include
+		 * its subsection, the same `{listing}/%taxonomy%/{slug}` pattern
+		 * `document`'s own `library/%collection%` already uses below
+		 * (`%party_document_category%` registered in
+		 * register_rewrite_tags(), filled in per-post by
+		 * filter_party_document_permalink()). Unlike `library`/`collection`
+		 * sharing one slug (the documented rewrite-rule collision
+		 * register_pagination_collision_fixes() exists for), this doesn't
+		 * introduce an equivalent collision: the `party_document_category`
+		 * taxonomy's own archive lives at the different `party-documents-
+		 * category` slug, not `party-documents`.
 		 */
 		register_post_type(
 			'party_document',
@@ -313,7 +329,7 @@ class Post_Types {
 				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'editor' ),
 				'taxonomies'   => array( 'party_document_category' ),
 				'rewrite'      => array(
-					'slug'       => 'party-documents',
+					'slug'       => 'party-documents/%party_document_category%',
 					'with_front' => false,
 				),
 			)
@@ -522,6 +538,30 @@ class Post_Types {
 	public static function register_rewrite_tags() {
 		add_rewrite_tag( '%publication%', '([^/]+)' );
 		add_rewrite_tag( '%collection%', '([^/]+)' );
+		add_rewrite_tag( '%party_document_category%', '([^/]+)' );
+	}
+
+	/**
+	 * One-time rewrite-rules flush for the 2026-09-25 party_document
+	 * permalink structure change (`party-documents` ->
+	 * `party-documents/%party_document_category%`). WordPress only
+	 * regenerates its rewrite rules on plugin activation or a manual
+	 * Settings -> Permalinks visit — neither happens on a code-only zip
+	 * redeploy to an already-active plugin, so without this, every
+	 * existing/new اسناد حزب single-post link would 404 until someone
+	 * happened to re-save permalinks by hand. Same self-healing
+	 * admin_init + persisted-flag pattern as every other one-time fix in
+	 * this plugin (see Taxonomies::seed_publication_periods() for the
+	 * original precedent).
+	 *
+	 * @return void
+	 */
+	public static function maybe_flush_rewrite_rules_for_party_document() {
+		if ( get_option( 'shcore_party_document_permalink_flushed' ) ) {
+			return;
+		}
+		flush_rewrite_rules();
+		update_option( 'shcore_party_document_permalink_flushed', 1 );
 	}
 
 	/**
@@ -608,5 +648,34 @@ class Post_Types {
 		$slug  = $term ? $term->slug : 'بدون-مجموعه';
 
 		return str_replace( '%collection%', $slug, $link );
+	}
+
+	/**
+	 * Replace the %party_document_category% placeholder with the
+	 * document's actual category term slug — added 2026-09-25, same
+	 * pattern as filter_document_permalink() above. A document can carry
+	 * more than one `party_document_category` term (unlike `publication`,
+	 * this taxonomy isn't enforced single-select); the first term
+	 * (WordPress's own default ordering) wins for the URL, same as
+	 * filter_document_permalink()/filter_issue_permalink() already do for
+	 * their own taxonomies. A document with no category at all (a real,
+	 * ordinary state — see Category_Manager::NO_UNCATEGORIZED_FALLBACK)
+	 * falls back to a literal "بدون-دسته" URL segment, mirroring
+	 * filter_document_permalink()'s own "بدون-مجموعه" fallback exactly.
+	 *
+	 * @param string   $link Post permalink.
+	 * @param \WP_Post $post Post object.
+	 * @return string
+	 */
+	public static function filter_party_document_permalink( $link, $post ) {
+		if ( 'party_document' !== $post->post_type || false === strpos( $link, '%party_document_category%' ) ) {
+			return $link;
+		}
+
+		$terms = get_the_terms( $post, 'party_document_category' );
+		$term  = ( $terms && ! is_wp_error( $terms ) ) ? array_shift( $terms ) : false;
+		$slug  = $term ? $term->slug : 'بدون-دسته';
+
+		return str_replace( '%party_document_category%', $slug, $link );
 	}
 }
