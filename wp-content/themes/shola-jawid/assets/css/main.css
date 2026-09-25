@@ -305,7 +305,30 @@
    ۰۲ · Reset & base
    ------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/*
+ * overflow-x: hidden — added 2026-09-25, per Farhad relaying the
+ * client's report of a completely blank mobile page. Root-caused to a
+ * genuine (if narrow) horizontal-overflow condition on `<html>` itself
+ * (the page's own scrolling element, confirmed live via
+ * document.documentElement.scrollWidth exceeding clientWidth at mobile
+ * widths) combined with this being an RTL document: Chrome's default
+ * resting scroll position for an *overflowing RTL* root element can
+ * land on the portion of the page that has no real content painted
+ * under it, rendering as solid blank rather than merely "slightly
+ * scrolled." The exact source element contributing the extra width
+ * couldn't be conclusively isolated live (the two most likely
+ * candidates — the page-loader overlay, the two-tier masthead's
+ * decorative flag graphic — were each individually hidden and ruled
+ * out), so this is the standard, low-risk mitigation for this entire
+ * class of bug regardless of source: clip horizontal overflow at the
+ * root rather than let the browser ever have a wider-than-viewport
+ * scrollable area to rest on. Only `overflow-x`, not a bare
+ * `overflow: hidden` — `html` remains the page's real vertical
+ * scrolling element (`document.scrollingElement`), and the masthead's
+ * own `position: sticky` shrink-on-scroll behavior depends on that
+ * staying true; clipping only the horizontal axis doesn't change what
+ * establishes the vertical scroll container. */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: hidden; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {

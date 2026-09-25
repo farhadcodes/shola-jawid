@@ -12029,3 +12029,49 @@ spacing between them.
   row still reads comfortably.
   Theme version bumped 1.47.0 -> 1.47.1 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-25 -- fix: blank mobile page — root `overflow-x: hidden` safety net
+
+Farhad reported (Chrome DevTools device emulation, then confirmed again
+on retry) the mobile site rendering as completely blank white.
+
+Investigated at length live: reproduced a blank page in a browser
+session too, and traced it to a genuine (if narrow) case where
+`document.documentElement.scrollWidth` exceeds `clientWidth` — the
+`<html>` element itself, this page's real scrolling element, ends up
+with a slightly wider scrollable area than the viewport. Combined with
+this being an RTL document, Chrome's default resting scroll position
+for an *overflowing RTL* root can land on a portion of the page with
+nothing painted under it — rendering as solid blank instead of merely
+"a bit scrolled."
+
+Individually hid the two most likely contributors — the page-loader
+overlay (`#page-loader`) and the two-tier masthead's decorative flag
+graphic (`.mast-two-tier-flag`/`-glow`) — and ruled both out; neither
+one's removal changed the measured overflow. Could not conclusively
+isolate the exact contributing element live (testing was itself
+complicated by inconsistent viewport-emulation readings in the browser
+tooling used to investigate — `window.innerWidth` and
+`document.documentElement.clientWidth` disagreeing, which should never
+happen in a standards-mode browser).
+
+- Given the inconclusive isolation, applied the standard, low-risk
+  mitigation for this entire class of bug rather than continuing to
+  chase the exact source: `html { overflow-x: hidden; }`
+  (`assets/css/main.css`, §02 Reset & base). Only the horizontal axis —
+  `html` remains this site's real vertical scrolling element
+  (`document.scrollingElement`), which the masthead's own
+  `position: sticky` shrink-on-scroll behavior depends on; clipping
+  only `overflow-x` doesn't change what establishes that.
+- **Honesty note for the record**: I was not able to get a fully clean,
+  trustworthy confirmation that this specific fix resolves the exact
+  blank-page symptom in my own testing session, due to the
+  viewport-emulation inconsistency mentioned above. This is a correct,
+  standard, safe fix for the underlying mechanism regardless, but
+  Farhad asked to re-verify on his end after this ships — ideally via
+  Local's "Live Link" feature on an actual phone, since this bug
+  pattern is known to sometimes behave differently under desktop
+  Chrome's device-emulation than on real mobile browsers.
+  Theme version bumped 1.47.1 -> 1.47.2 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-25) -- pending
+  Farhad's real-device re-verification.
