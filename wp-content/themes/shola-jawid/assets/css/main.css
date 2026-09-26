@@ -1477,7 +1477,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   border-bottom: 1px solid rgba(204, 0, 0, .4);
   margin-bottom: 2rem;
 }
-.section-head .h-section { margin-top: .5rem; }
+/*
+ * font-size: 1.625rem (26px) — added 2026-09-26, per Farhad's explicit
+ * ask to bring every homepage section's title down from 32px
+ * (`.h-section`'s own base rule: `clamp(1.6rem, 3vw, var(--t-h2))`,
+ * `var(--t-h2)` = 2rem = 32px, the ceiling this clamp resolves to at
+ * ordinary desktop widths). Scoped to `.section-head .h-section`
+ * specifically, not the shared base `.h-section` rule itself — that
+ * class is also used for headings on single post/document/issue pages
+ * and taxonomy archives (single.php, single-document.php,
+ * single-issue.php, taxonomy-publication.php, etc.), none of which
+ * Farhad asked to change; only the homepage's own section titles should
+ * move.
+ */
+.section-head .h-section { margin-top: .5rem; font-size: 1.625rem; }
 
 /*
  * Kicker sweep (Phase 7.5, 2026-08-07): once the English kicker word is

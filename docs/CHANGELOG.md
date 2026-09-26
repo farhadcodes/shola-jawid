@@ -12501,3 +12501,22 @@ implementing.
   375px mobile.
   Theme version bumped 1.47.11 -> 1.47.12 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — homepage section titles: 32px -> 26px
+
+Farhad asked to bring every homepage section's title down from 32px to
+26px.
+
+- **Changed:** added `font-size: 1.625rem` (26px) to
+  `.section-head .h-section` (main.css §7) — scoped to that selector
+  specifically, not the shared base `.h-section` rule (`clamp(1.6rem,
+  3vw, var(--t-h2))`, resolving to 32px at ordinary desktop widths),
+  since `.h-section` is also the heading class for several single-page
+  and archive contexts (single.php, single-document.php,
+  single-issue.php, taxonomy-publication.php, etc.) that weren't part of
+  this ask — only the homepage's own section titles move.
+  Verified live: all 7 rendered `.section-head .h-section` instances
+  confirmed at exactly `26px` at both 1200px desktop and 375px mobile; no
+  horizontal overflow introduced at either width.
+  Theme version bumped 1.47.12 -> 1.47.13 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
