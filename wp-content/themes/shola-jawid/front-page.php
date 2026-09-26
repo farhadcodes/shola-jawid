@@ -1222,14 +1222,6 @@ $library_documents_query = new WP_Query(
 					wp_reset_postdata();
 					?>
 				</div>
-				<div class="library-shelf-controls">
-					<button type="button" class="library-shelf-arrow" data-library-shelf-dir="-1" aria-label="<?php esc_attr_e( 'مورد قبلی', 'shola-jawid' ); ?>">
-						<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					</button>
-					<button type="button" class="library-shelf-arrow" data-library-shelf-dir="1" aria-label="<?php esc_attr_e( 'مورد بعدی', 'shola-jawid' ); ?>">
-						<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					</button>
-				</div>
 			</div>
 		</div>
 	</section>

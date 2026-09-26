@@ -12582,3 +12582,19 @@ the one thing that's actually wrong.
   width.
   Theme version bumped 1.47.14 -> 1.47.15 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — کتابخانه shelf: removed nav arrows, added auto-slide
+
+- **Removed:** the prev/next arrow buttons (markup, CSS, click handler) —
+  client feedback that they didn't work well. The shelf still scrolls
+  natively via touch/trackpad/keyboard.
+- **Added:** the shelf now auto-advances one cover every 4 seconds with a
+  smooth scroll, loops back to the start at the end, pauses on
+  hover/touch, and is skipped entirely for `prefers-reduced-motion`.
+- Also noted going forward: in-code comments are being kept to 1-3 lines
+  per Farhad's explicit ask (2026-09-26) — full change history lives in
+  commit messages and this changelog instead.
+  Theme version bumped 1.47.15 -> 1.47.17 (patch, two bumps — the first
+  was needed mid-session to bust a stale cached `main.js` during testing).
+  No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

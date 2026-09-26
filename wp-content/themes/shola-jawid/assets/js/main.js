@@ -440,16 +440,11 @@
     }
   }
 
-  /* ---------- کتابخانه homepage "shelf" (front-page.php, 2026-09-21) ----------
-     .library-shelf-track already scrolls natively with zero JS (touch,
-     trackpad, keyboard) — main.css §33. This only layers the two arrow
-     buttons on top, same scrollBy()-based approach and RTL scroll-sign
-     detection as the hero filmstrip above — but deliberately no
-     auto-drift here: this is a content shelf people browse on purpose,
-     not a decorative accent, so an unprompted auto-scroll would fight a
-     visitor actually looking at the covers instead of adding ambiance. */
+  /* کتابخانه homepage shelf: auto-advances one cover every 4s, loops at
+     the end, pauses on hover/touch, skips entirely under reduced-motion.
+     Arrow buttons removed 2026-09-26 per client. */
   var libraryShelfTrack = document.querySelector(".library-shelf-track");
-  if (libraryShelfTrack) {
+  if (libraryShelfTrack && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     var libraryDirSign = 1;
     (function detectLibraryRtlScrollSign() {
       var start = libraryShelfTrack.scrollLeft;
@@ -460,12 +455,29 @@
       libraryShelfTrack.scrollBy({ left: start - libraryShelfTrack.scrollLeft, behavior: "auto" });
     })();
 
-    document.querySelectorAll("[data-library-shelf-dir]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var step = libraryShelfTrack.clientWidth * 0.7;
-        var dir = parseFloat(btn.getAttribute("data-library-shelf-dir")) || 1;
-        libraryShelfTrack.scrollBy({ left: libraryDirSign * dir * step, behavior: "smooth" });
-      });
+    var libraryPaused = false;
+
+    function libraryShelfStep() {
+      if (libraryPaused) return;
+      var firstCard = libraryShelfTrack.querySelector(".library-shelf-card");
+      if (!firstCard) return;
+      var trackStyle = window.getComputedStyle(libraryShelfTrack);
+      var step = firstCard.getBoundingClientRect().width + parseFloat(trackStyle.gap || 0);
+      var maxScroll = libraryShelfTrack.scrollWidth - libraryShelfTrack.clientWidth;
+      var atEnd = Math.abs(Math.abs(libraryShelfTrack.scrollLeft) - maxScroll) < step / 2;
+      if (atEnd) {
+        libraryShelfTrack.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        libraryShelfTrack.scrollBy({ left: libraryDirSign * step, behavior: "smooth" });
+      }
+    }
+
+    window.setInterval(libraryShelfStep, 4000);
+    ["mouseenter", "touchstart", "pointerdown"].forEach(function (evt) {
+      libraryShelfTrack.addEventListener(evt, function () { libraryPaused = true; }, { passive: true });
+    });
+    ["mouseleave", "touchend"].forEach(function (evt) {
+      libraryShelfTrack.addEventListener(evt, function () { libraryPaused = false; }, { passive: true });
     });
   }
 

@@ -5451,31 +5451,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   .library-shelf-cover, .library-shelf-cover::after { transition: none; }
 }
 
-.library-shelf-controls { flex: 0 0 auto; display: flex; gap: .5rem; }
-/* Same square-bordered arrow shape as .hero-filmstrip-arrow (main.css
-   §10), recolored for this section's dark background instead of that
-   one's photo backdrop — border/color start at a translucent white,
-   same "flip polarity for a saturated/dark background" principle used
-   elsewhere on this site, rather than the paper-on-photo treatment
-   .hero-filmstrip-arrow uses. */
-.library-shelf-arrow {
-  flex: 0 0 auto;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 2.75rem; height: 2.75rem;
-  border: 1px solid rgba(255, 255, 255, .3);
-  color: var(--paper);
-  background: transparent;
-  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
-}
-.library-shelf-arrow svg { width: 16px; height: 16px; }
-.library-shelf-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
-
 /* width 140px -> 110px, 2026-09-21, same "smaller, more compact" ask
    as the desktop size above, proportionally scaled down for mobile. */
 @media (max-width: 640px) {
   .library-shelf-card { width: 110px; }
-  .library-shelf-arrow { width: 2.25rem; height: 2.25rem; }
-  .library-shelf-arrow svg { width: 14px; height: 14px; }
 }
 
 /* Standard visually-hidden-but-accessible utility — this theme didn't
