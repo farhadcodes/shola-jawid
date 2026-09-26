@@ -1413,7 +1413,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 /* margin-bottom reduced 2.5rem -> 2rem, 2026-09-07 full-homepage review
    (same pass as .sect above — see docs/CHANGELOG.md). */
-.section-head { margin-bottom: 2rem; }
+/*
+ * padding-bottom + border-bottom — added 2026-09-26, per Farhad relaying
+ * the client's ask for a fine divider line under each homepage section's
+ * heading row, closing it off from the content grid below. `.section-head`
+ * is the one shared class every homepage section's header already uses
+ * (front-page.php: تازه‌ترین مقاله‌ها, گزارش, نشریات, گزیده‌ها, انتشارات
+ * حزب, کتابخانه, اسناد حزب, موضوعات) — one rule here reaches all of them
+ * at once, no per-section markup needed.
+ *
+ * `var(--line)`, not a new color — reuses the same subtle divider token
+ * this site's existing `<hr class="rule">` elements already use (main.css
+ * §11), so this line reads as the same family of "fine line" the site
+ * already has, not a new visual element.
+ *
+ * `padding-bottom: 1.25rem` before the border, not a bare border directly
+ * under the text — gives the line breathing room below the Persian text's
+ * descenders/the "see all" link, per Farhad's explicit "fine and elegant
+ * spacing" ask. `margin-bottom` (below the line, before the grid) kept
+ * unchanged at 2rem rather than adding to it — the line itself already
+ * reads as a clear break, doubling the gap below it as well would make
+ * the header row float oddly far from its own section.
+ */
+.section-head {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
 .section-head .h-section { margin-top: .5rem; }
 
 /*

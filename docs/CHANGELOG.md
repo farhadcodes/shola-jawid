@@ -12364,3 +12364,33 @@ phone screen; asked for 65% instead. Same mechanism, same
   overflow.
   Theme version bumped 1.47.6 -> 1.47.7 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — fine divider line under every homepage section heading
+
+Farhad relayed a client request (with two reference screenshots of the
+نشریات and انتشارات حزب sections) for a subtle horizontal line under each
+homepage section's heading row, closing it off from the content grid
+below. Presented a written understanding first (per this project's
+standing discipline): every homepage section's header row already shares
+one class, `.section-head` (front-page.php: تازه‌ترین مقاله‌ها, گزارش,
+نشریات, گزیده‌ها, انتشارات حزب, کتابخانه, اسناد حزب, موضوعات), so this is
+one CSS rule reaching all of them, not 8 separate edits. Farhad confirmed
+before implementation.
+
+- **Added:** `.section-head` (main.css §7) now gets `padding-bottom:
+  1.25rem` + `border-bottom: 1px solid var(--line)`, `margin-bottom` kept
+  unchanged at 2rem. `var(--line)` reuses the same subtle divider color
+  this site's existing `<hr class="rule">` elements already use (main.css
+  §11) — not a new color, the same "fine line" family the site already
+  has. The padding-bottom gives the line room below the Persian text's
+  descenders/the "see all" link before the rule, per Farhad's explicit
+  "fine and elegant spacing" ask.
+  Verified live: all 7 currently-rendered `.section-head` instances
+  confirmed identical (`border-bottom: 0.8px solid rgb(230, 229, 225)` —
+  `--line`'s value — `padding-bottom: 20px`, `margin-bottom: 32px`) at
+  1200px desktop; confirmed rendering cleanly at 375px mobile too (same
+  rule, no separate mobile override needed or added, per Farhad's "make
+  sure it looks sharp on mobile too" ask) with no horizontal overflow
+  introduced at either width.
+  Theme version bumped 1.47.7 -> 1.47.8 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
