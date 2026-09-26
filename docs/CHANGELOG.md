@@ -12352,3 +12352,15 @@ left exactly as they were.
   both literally unchanged, not just visually similar.
   Theme version bumped 1.47.5 -> 1.47.6 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — feature_card hero mobile photo: 80% -> 65% of viewport
+
+Farhad tested the 80% version live and found it too tall on an actual
+phone screen; asked for 65% instead. Same mechanism, same
+`max-width: 640px` scope, only the percentage changed (`80vh`/`80dvh` ->
+`65vh`/`65dvh`) — tablet and desktop untouched, as before.
+  Verified live: 65.0% of viewport height exactly at 393x852
+  (`getBoundingClientRect()` against `window.innerHeight`), no horizontal
+  overflow.
+  Theme version bumped 1.47.6 -> 1.47.7 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

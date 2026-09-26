@@ -3266,7 +3266,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
      here (calc(100% - 2rem)), not by the desktop max-width value. */
   .hero-feature-card-box { inset-inline-start: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); padding-block: 1.0625rem; padding-inline: 1.25rem; }
   /*
-   * Photo height raised to ~80% of the viewport, mobile only — added
+   * Photo height raised to ~65% of the viewport, mobile only — added
    * 2026-09-26, per Farhad relaying the client's live phone-size test
    * (iPhone 16, 393x852): the shared 320px height (main.css §10.6 base
    * rule, also used by the 641-900px tablet range) read as too short and
@@ -3276,7 +3276,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    * 900px breakpoint above), per Farhad's explicit "tablet already looks
    * good, only fix mobile" — the 641-900px tablet range keeps the
    * original 320px untouched.
-   * `80vh` first (fallback for browsers without dvh support), `80dvh`
+   * 80% (first live version, same day) tested as too tall on a real
+   * phone-size viewport — lowered to 65% same session, same reasoning
+   * and mechanism otherwise unchanged.
+   * `65vh` first (fallback for browsers without dvh support), `65dvh`
    * after — same progressive-enhancement pattern `single`/`overlay`'s own
    * full-viewport `.hero-media` height already uses (main.css §10.1),
    * `dvh` accounts for mobile Safari/Chrome's collapsing address bar so
@@ -3284,8 +3287,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    */
   .hero-lead--feature-card .hero-media,
   .hero-feature-main {
-    height: 80vh;
-    height: 80dvh;
+    height: 65vh;
+    height: 65dvh;
   }
 }
 
