@@ -12658,3 +12658,17 @@ still feels alive.
   confirmed present and pointed left, no layout shift.
   Theme version bumped 1.47.19 -> 1.47.20 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — مقالات section: article count 6 -> 4
+
+- **Changed:** `$articles_count` in front-page.php's مقالات query, previously
+  a dynamic 5/6 value chosen to match the height of the adjacent stacked
+  spotlight/Most Viewed column, is now a flat `4`. Flagged to Farhad first
+  that this leaves a visible gap under the article grid at desktop width
+  (≥1000px, 3-column layout) since 4 cards over 2 columns is only 2 rows
+  against the taller 3rd column. Farhad confirmed to proceed as-is — he
+  plans to move the Most Viewed panel to the گزارش section next, which
+  will resolve the height mismatch from the other side.
+  Verified live: exactly 4 article cards render.
+  Theme version bumped 1.47.20 -> 1.47.21 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

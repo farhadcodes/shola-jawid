@@ -539,15 +539,11 @@ $most_viewed_query = new WP_Query(
 $has_mostviewed = $most_viewed_query->have_posts();
 
 /*
- * Article count: this grid's third column (visually leftmost under
- * dir="rtl", see .card-spotlight's grid-column: 3 in main.css) holds
- * اطلاعیه spotlight + Most Viewed stacked, one row each on top of the
- * other — so whenever Most Viewed renders, that whole column is spoken
- * for and columns 1-2 need a full 3 rows (6 cards) to stay gap-free.
- * Falls back to the pre-existing 5/6 split only in the (now rare)
- * case Most Viewed itself has nothing to show.
+ * 6 -> 4, 2026-09-26: Farhad's explicit ask. No longer tied to the
+ * spotlight/Most Viewed column's height (that gap-matching will be
+ * revisited once Most Viewed moves to the گزارش section).
  */
-$articles_count = ( $has_spotlight && ! $has_mostviewed ) ? 5 : 6;
+$articles_count = 4;
 
 $articles_query = new WP_Query(
 	array(
