@@ -1406,8 +1406,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   color: var(--winston-red);
   display: inline-flex; align-items: center; gap: .6rem;
 }
+/*
+ * content: none — removed 2026-09-26, per Farhad relaying the client's
+ * ask to drop the short dash before every section title, sitewide, now
+ * that .section-head's own full-width divider line (added earlier this
+ * session) already closes off each heading — the small per-heading dash
+ * read as redundant/cluttered alongside it. Left the rest of the rule in
+ * place (not deleted outright) since `.section-marker` itself is still a
+ * real, non-decorative element in the DOM on every homepage section
+ * (front-page.php's `<p class="section-marker"></p>`) — this only turns
+ * off its generated content, it doesn't need removing from markup.
+ */
 .section-marker::before {
-  content: ""; display: inline-block;
+  content: none;
+  display: inline-block;
   width: 24px; height: 1px;
   background: var(--winston-red);
 }
@@ -1926,7 +1938,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    for Farhad's explicit "dimmer" ask on secondary metadata, not primary
    reading content. */
 .card-spotlight .card-byline { color: rgba(255, 255, 255, .72); font-size: 0.75rem; margin-top: 0; }
-.card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+/*
+ * border-color: transparent, was rgba(255,255,255,.4) — changed
+ * 2026-09-26, per Farhad relaying the client's ask to remove the
+ * always-visible underline beneath every "see all"-style link, sitewide.
+ * This dark-tile override previously kept the underline visibly on at
+ * rest (unlike the sitewide base `.link-more` rule, which is
+ * transparent until hover) — brought in line with that same base
+ * behavior instead of removing the hover indicator itself.
+ */
+.card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: transparent; }
 .card-spotlight .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
 /*
@@ -4975,7 +4996,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  */
 .sect-leaflet-teaser { background: var(--ink); color: var(--paper); }
 .sect-leaflet-teaser .h-section { color: var(--paper); }
-.sect-leaflet-teaser .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+/* border-color: transparent — same fix/reasoning as .card-spotlight .link-more above. */
+.sect-leaflet-teaser .link-more { color: var(--paper); border-color: transparent; }
 .sect-leaflet-teaser .link-more:hover { color: var(--paper); border-color: var(--paper); }
 .leaflet-teaser {
   display: flex;
@@ -5226,7 +5248,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library { background: #3F3F3F; color: var(--paper); }
 .sect-library .h-section { color: var(--paper); }
 .sect-library .section-marker::before { background: var(--paper); }
-.sect-library .link-more { color: var(--paper); border-color: rgba(255, 255, 255, .4); }
+/* border-color: transparent — same fix/reasoning as .card-spotlight .link-more above. */
+.sect-library .link-more { color: var(--paper); border-color: transparent; }
 .sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
 .library-shelf { display: flex; align-items: flex-end; gap: 1rem; }

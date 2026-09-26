@@ -12394,3 +12394,35 @@ before implementation.
   introduced at either width.
   Theme version bumped 1.47.7 -> 1.47.8 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — removed the per-heading dash + always-on link underline, sitewide
+
+Farhad relayed the client's follow-up (with an annotated کتابخانه
+screenshot) asking to remove two small, now-redundant marks on every
+homepage section, now that `.section-head`'s own full-width divider line
+(added earlier this session) already closes off each heading: the short
+dash before every section title, and the short underline sitting under
+every "see all"-style link (e.g. «همهٔ مجموعه‌ها») on dark-background
+sections.
+
+- **`.section-marker::before`** (main.css §7, the small 24px dash every
+  homepage heading's `.kicker-row` renders before the title) —
+  `content: none`. Left the rest of the rule and the markup
+  (`<p class="section-marker">`, still present on every homepage section)
+  untouched — this only turns off the generated dash, nothing else
+  depends on removing the element itself.
+- **Always-on link underline** — `.card-spotlight .link-more`,
+  `.sect-leaflet-teaser .link-more`, and `.sect-library .link-more` each
+  had their own `border-color: rgba(255,255,255,.4)` override, keeping
+  the underline visible at rest on their dark backgrounds — unlike the
+  sitewide base `.link-more` rule, which is `border-color: transparent`
+  until hover. Brought all three in line with that same base behavior
+  (`border-color: transparent`) rather than removing the hover indicator
+  itself, which nothing asked for.
+  Verified live: `.section-marker::before`'s computed `content` is
+  `none` at both 1200px desktop and 375px mobile; کتابخانه's «همهٔ
+  مجموعه‌ها» link confirmed with a fully transparent border at rest
+  (`rgba(0, 0, 0, 0)`); no horizontal overflow introduced at either
+  width.
+  Theme version bumped 1.47.8 -> 1.47.9 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
