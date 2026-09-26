@@ -12324,3 +12324,31 @@ doing most of the work of making the card tall.
   breakpoint.
   Theme version bumped 1.47.4 -> 1.47.5 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — feature_card hero: taller photo on mobile only
+
+Farhad tested the redesigned feature_card hero on an actual phone-size
+viewport (iPhone 16, 393x852, via Chrome DevTools) and flagged the photo
+as too short/cramped — the shared 320px height (main.css §10.6, also
+used by the 641-900px tablet range) barely registered before the white
+card took over, on an actually-tall phone screen. Explicit ask: taller
+photo (~80% of the viewport height) on mobile only, tablet and desktop
+left exactly as they were.
+
+- **Fixed:** added a `height: 80vh; height: 80dvh;` override for
+  `.hero-feature-main`/`.hero-lead--feature-card .hero-media`, scoped to
+  the same `max-width: 640px` breakpoint this layout's card already uses
+  for its own mobile tweak — not the wider 900px breakpoint, so the
+  641-900px tablet range keeps its original 320px untouched, and the
+  ≥901px desktop `clamp(340px, 30vw, 420px)` rule is untouched. `vh`
+  first as a fallback, `dvh` after — same progressive-enhancement pattern
+  the `single`/`overlay` layouts' own full-viewport hero height already
+  uses, so the photo doesn't visibly resize as mobile Safari/Chrome's
+  address bar collapses on scroll.
+  Verified live: 80.0% of viewport height exactly at 393x852 (measured
+  `getBoundingClientRect()` against `window.innerHeight`), no horizontal
+  overflow introduced; tablet (768px) confirmed still exactly 320px;
+  desktop (1024px) confirmed still exactly 340px (its own clamp value) —
+  both literally unchanged, not just visually similar.
+  Theme version bumped 1.47.5 -> 1.47.6 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
