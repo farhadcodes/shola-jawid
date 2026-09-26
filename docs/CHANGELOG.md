@@ -12203,3 +12203,54 @@ instead:
   Theme version bumped 1.47.3 -> 1.47.4 (patch). Plugin version bumped
   1.24.1 -> 1.24.2 (patch).
   Approved by: Farhad, in this session (2026-09-25).
+
+## 2026-09-26 — fix: featured image missing on live site until re-picked (LiteSpeed Cache)
+
+After deploying the previous fix, Farhad reported a new issue found while
+uploading it to the live site: a freshly-published post's featured image
+doesn't render anywhere (hero, cards — everywhere
+`shola_get_featured_image()` is used) — the theme's own
+`assets/images/fallback.png` shows instead — until the client re-opens
+that post and re-selects the same featured image, then updates. Not
+reproducible on Farhad's local install.
+
+Diagnosed by process of elimination rather than guessing: read
+`shola_get_featured_image()` (identical logic in both environments —
+`has_post_thumbnail()` gates the fallback, nothing environment-specific
+there) and every plugin hook touching `_thumbnail_id`
+(`Image_Optimizer::maybe_optimize_on_thumbnail_set()`, scoped to the
+`leaflet` CPT only — not the cause here). With no code-level explanation
+found, asked Farhad two targeted questions rather than guessing further:
+(1) does merely clicking Update fix it, or does the image itself need
+re-picking — answer: the image must be re-picked, meaning
+`_thumbnail_id` genuinely isn't saved on first publish, not just a stale
+cached page; (2) is any caching active on the live host — confirmed yes,
+**LiteSpeed Cache**.
+
+This matches a known LiteSpeed Cache interaction: its automatic purge
+rules key off `save_post`/post-status transitions, not off a postmeta
+write that can land via a separate REST request within the block
+editor's own publish flow — so a cached copy of the post/homepage from
+just before the image attached can persist until something else
+triggers a purge (re-picking the image does, by writing `_thumbnail_id`
+again).
+
+- **Fixed:** new `Meta_Fields::purge_cache_on_thumbnail_set()`
+  (class-meta-fields.php), hooked to `added_post_meta`/
+  `updated_post_meta` for `_thumbnail_id` — the same hook pair
+  `Image_Optimizer` already uses for the same reason, but not scoped to
+  one post type here, since every content type with a featured image
+  (post, issue, document, party_publication, party_document, leaflet)
+  needs the same protection. Calls WordPress core's own
+  `clean_post_cache()` + `wp_cache_delete( $post_id, 'post_meta' )`
+  (harmless with or without an object cache active) and fires
+  `do_action( 'litespeed_purge_post', $post_id )` — LiteSpeed Cache's own
+  documented public purge-by-post integration hook, a no-op if the
+  plugin isn't installed, so no `class_exists()`/`defined()` guard
+  needed.
+- Not a §3 whitelist addition: LiteSpeed Cache is hosting-provided
+  infrastructure already running on the live site, not a plugin this
+  project is installing — this change only makes existing theme/plugin
+  code cooperate correctly with it.
+  Plugin version bumped 1.24.2 -> 1.24.3 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-09-26).

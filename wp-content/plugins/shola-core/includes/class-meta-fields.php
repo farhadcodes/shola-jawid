@@ -84,6 +84,70 @@ class Meta_Fields {
 		 */
 		add_action( 'admin_head-post.php', array( __CLASS__, 'hide_native_sticky_control' ) );
 		add_action( 'admin_head-post-new.php', array( __CLASS__, 'hide_native_sticky_control' ) );
+
+		/*
+		 * Force-purge any cache holding a stale, no-featured-image version
+		 * of a post the instant its `_thumbnail_id` is actually written —
+		 * added 2026-09-26 after Farhad relayed a client report that a
+		 * freshly-published post's featured image (hero/card image
+		 * everywhere shola_get_featured_image() is used) doesn't appear on
+		 * the live site until the client re-opens the post and re-picks the
+		 * same image, confirmed not reproducible on Farhad's local install
+		 * (no server-side cache there). The live site runs LiteSpeed Cache
+		 * (confirmed by Farhad): the block editor's "Publish" action can
+		 * finish attaching the featured image in a moment LiteSpeed's own
+		 * automatic purge rules don't cover (its default purge triggers key
+		 * off `save_post`/status transitions, not off a postmeta write that
+		 * can land via a separate REST request in the same publish flow),
+		 * leaving a cached copy of the post/homepage from just before the
+		 * image was attached. Re-picking the image forces a fresh
+		 * `_thumbnail_id` write, which is exactly what this hook now reacts
+		 * to directly, rather than relying on LiteSpeed's own purge timing.
+		 *
+		 * Same hook pair Image_Optimizer already uses for the same reason
+		 * (added_post_meta fires on first set, updated_post_meta if changed
+		 * after) — not scoped to any one post type here, unlike
+		 * Image_Optimizer's leaflet-only scope, since every content type
+		 * this site shows a featured image for (post, issue, document,
+		 * party_publication, party_document, leaflet) needs the same
+		 * protection.
+		 */
+		add_action( 'added_post_meta', array( __CLASS__, 'purge_cache_on_thumbnail_set' ), 10, 4 );
+		add_action( 'updated_post_meta', array( __CLASS__, 'purge_cache_on_thumbnail_set' ), 10, 4 );
+	}
+
+	/**
+	 * Purges any cache (WordPress's own object cache, plus LiteSpeed Cache's
+	 * page cache when that plugin is active) for a post the moment its
+	 * featured image is actually attached — see the `added_post_meta`/
+	 * `updated_post_meta` hook registration above for the full reasoning.
+	 *
+	 * `do_action( 'litespeed_purge_post', ... )` is LiteSpeed Cache's own
+	 * documented public integration hook for third-party code to request a
+	 * purge of one specific post's cached pages; firing it when the plugin
+	 * isn't installed is a harmless no-op (an action with no listeners),
+	 * so this never needs a class_exists()/defined() guard around it.
+	 *
+	 * @param int    $meta_id Meta row ID (unused).
+	 * @param int    $post_id Post the meta belongs to.
+	 * @param string $meta_key Meta key.
+	 * @param mixed  $meta_value New `_thumbnail_id` value (unused).
+	 * @return void
+	 */
+	public static function purge_cache_on_thumbnail_set( $meta_id, $post_id, $meta_key, $meta_value ) {
+		if ( '_thumbnail_id' !== $meta_key ) {
+			return;
+		}
+
+		clean_post_cache( $post_id );
+		wp_cache_delete( $post_id, 'post_meta' );
+
+		/**
+		 * LiteSpeed Cache public purge-by-post hook.
+		 *
+		 * @param int $post_id Post ID to purge.
+		 */
+		do_action( 'litespeed_purge_post', $post_id );
 	}
 
 	/**
