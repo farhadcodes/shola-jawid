@@ -12446,3 +12446,28 @@ roughly 75-80% of that space.
   horizontal overflow introduced at 1200px desktop or 375px mobile.
   Theme version bumped 1.47.9 -> 1.47.10 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — section-head divider: real contrast on light-background sections
+
+Farhad relayed the client's live check that the divider line was
+"literally invisible" on this page's light-background sections, asking
+for it to be made prominent with real contrast.
+
+- **Changed:** `.section-head`'s `border-bottom` color (main.css §7):
+  `var(--line)` -> `var(--stone)`. `--line` (#E6E5E1) is barely a shade
+  off `--cream`/`--paper` — exactly why it works well as this site's
+  sitewide *subtle*-divider token everywhere else it's used (menus,
+  cards, tables, ~40 other usages, all left untouched), but fails here,
+  where a *prominent* line was explicitly asked for. `--stone` (#6E6E6A)
+  is one of this site's own locked brand tokens, not a new color, and
+  reads with real contrast against every homepage section's background —
+  checked against all of them, light (cream/white/tint) and the two
+  genuinely dark ones (کتابخانه `#3F3F3F`, تراکت `var(--ink)`), so no
+  separate per-section override was needed either way.
+  Verified live: all rendered `.section-head` instances confirmed
+  `border-bottom: 1px solid rgb(110, 110, 106)` (`--stone`) at 1200px
+  desktop; visually confirmed clearly visible on both a light section
+  (تازه‌ترین مقاله‌ها, cream) and a dark one (کتابخانه); no horizontal
+  overflow introduced at 1200px desktop or 375px mobile.
+  Theme version bumped 1.47.10 -> 1.47.11 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

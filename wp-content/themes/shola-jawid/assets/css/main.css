@@ -1434,10 +1434,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * حزب, کتابخانه, اسناد حزب, موضوعات) — one rule here reaches all of them
  * at once, no per-section markup needed.
  *
- * `var(--line)`, not a new color — reuses the same subtle divider token
- * this site's existing `<hr class="rule">` elements already use (main.css
- * §11), so this line reads as the same family of "fine line" the site
- * already has, not a new visual element.
+ * Color changed `var(--line)` -> `var(--stone)` same session (2026-09-26),
+ * after Farhad relayed the client's live check that the line was
+ * "literally invisible" on this page's light-background sections (cream/
+ * white/pale-pink — the majority of them; only کتابخانه and تراکت are
+ * genuinely dark). `--line` (#E6E5E1) is barely a shade off `--cream`/
+ * `--paper`, which is exactly why it works well as the *sitewide* subtle-
+ * divider token everywhere else it's used (menus, cards, tables) but
+ * fails here specifically, where the client explicitly wants a
+ * *prominent*, clearly-visible line, not a subtle one. `--stone`
+ * (#6E6E6A, one of this site's own locked brand tokens — not a new
+ * color) reads with real contrast against every homepage section's
+ * background, light or dark, so no separate dark-section override was
+ * needed.
  *
  * `padding-bottom: 0.3rem` before the border, not a bare border directly
  * under the text — gives the line a little breathing room below the
@@ -1453,7 +1462,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  */
 .section-head {
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--stone);
   margin-bottom: 2rem;
 }
 .section-head .h-section { margin-top: .5rem; }
