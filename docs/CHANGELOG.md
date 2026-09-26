@@ -12614,3 +12614,24 @@ the one thing that's actually wrong.
   (natural width, no overflow).
   Theme version bumped 1.47.17 -> 1.47.18 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — کتابخانه shelf: edge-to-edge alignment, replacing the centered gap
+
+Farhad flagged the centered shelf from the previous change as leaving an
+unwanted gap on both sides; asked for the covers to align flush with the
+column instead.
+
+- **Changed:** removed `.library-shelf`'s `max-width`/`margin-inline:
+  auto` cap. `.library-shelf-card` width changed from a fixed `150px` to
+  `calc((100% - 5 * 1.5rem) / 6)` — 6 covers now fill the row exactly,
+  edge to edge, no leftover margin either side. This does widen the
+  covers (from 150px to ~167px at 1200px desktop) beyond Farhad's earlier
+  explicit 150px sizing call — necessary to hit true edge alignment
+  without breaking the auto-slide's fixed one-cover-per-step scrolling.
+  Mobile/tablet's own fixed `110px` card width (`max-width: 640px`) is
+  untouched.
+  Verified live: shelf now measures flush with the column on both sides
+  (32px gap matching the column's own padding, same as every other
+  section) at 1200px desktop; mobile confirmed still 110px, no overflow.
+  Theme version bumped 1.47.18 -> 1.47.19 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

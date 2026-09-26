@@ -5344,8 +5344,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library .link-more { color: var(--paper); border-color: transparent; }
 .sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
-/* Capped to exactly 6 covers + gaps so a 7th never peeks in; centered when narrower than the row. */
-.library-shelf { display: flex; align-items: flex-end; gap: 1rem; max-width: calc(6 * 150px + 5 * 1.5rem); margin-inline: auto; }
+.library-shelf { display: flex; align-items: flex-end; gap: 1rem; }
 /*
  * contain: layout — added 2026-09-25. Root-caused a report of the
  * entire mobile site rendering blank (and, on retest, horizontally
@@ -5379,13 +5378,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   contain: layout;
 }
 .library-shelf-track::-webkit-scrollbar { display: none; }
-/* width 190px -> 150px, 2026-09-21, per Farhad's explicit ask for a
-   smaller, more compact cover, closer to the client's reference sample. */
+/* Width fills exactly 1/6 of the row (minus gaps), so 6 covers span edge-to-edge with no leftover margin. */
 .library-shelf-card {
   flex: 0 0 auto;
   scroll-snap-align: start;
   display: block;
-  width: 150px;
+  width: calc((100% - 5 * 1.5rem) / 6);
 }
 /*
  * "Feels like a book" pass, 2026-09-21, per Farhad's explicit ask —
