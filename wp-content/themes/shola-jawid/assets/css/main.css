@@ -2967,13 +2967,36 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    the page. This time the ask is genuinely about inter-column spacing,
    so the fix is the property actually meant for it: `gap` on the flex
    container itself. */
-.hero-lead--feature-card {
+/*
+ * Full-bleed cream band, centered content column — added 2026-09-26, per
+ * Farhad's live test request ("give تازه‌ترین مقاله‌ها's cream background
+ * to the hero, edge to edge"). This layout's photo+rail row needs a
+ * `max-width`/centered column (so it doesn't stretch edge to edge itself),
+ * but a background needs to reach the true viewport edges — the same
+ * "unconstrained full-width `<section>` wrapping a centered `.wrap`"
+ * split every other section on this page already uses (.sect-cream +
+ * `.wrap`), applied here via a dedicated inner wrapper
+ * (`.hero-feature-card-inner`, front-page.php) instead of `.wrap` itself,
+ * since this layout's own gap/flex/padding values are specific to it.
+ *
+ * A first attempt tried to fake this split with a single element (a
+ * `::before` pseudo-element pulled out to 100vw via `transform:
+ * translateX(-50%)`, avoiding a markup change) — abandoned after hitting
+ * two real rendering bugs in a row confirmed live (a stacking-context
+ * issue needing `isolation: isolate`, then the backdrop still not
+ * reaching the edge even after that fix, most likely clipped by this
+ * site's own `overflow-x: hidden` on `<html>`, added for the mobile
+ * blank-page fix). Two real elements is simply the robust, already-
+ * proven pattern; not worth re-fighting a hack for.
+ */
+.hero-lead--feature-card { background: var(--cream); }
+.hero-feature-card-inner {
   display: flex;
   align-items: stretch;
   gap: 2.5rem;
   max-width: var(--wrap-wide);
-  margin-block: 2.5rem;
   margin-inline: auto;
+  padding-block: 2.5rem;
   padding-inline: var(--gap-pad-x);
 }
 .hero-lead--feature-card::before,
@@ -3160,7 +3183,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   max-width: min(483px, calc(100% - 4rem));
   background: var(--paper);
   box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
-  padding-block: 1.4875rem;
+  padding-block: 1.125rem;
   padding-inline: 1.75rem;
 }
 /*
@@ -3172,9 +3195,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * assumes text sits directly on the photo), and a noticeably smaller
  * title scale (this is a compact card, not a full masthead headline).
  */
-.hero-feature-card-box .type-label { margin-bottom: .51rem; font-size: 0.7rem; color: var(--winston-red); font-weight: 700; text-shadow: none; }
-.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
-.hero-feature-card-box .type-label a { color: var(--winston-red); }
+/*
+ * .type-label pulled onto the photo, above the box — added 2026-09-26,
+ * per Farhad relaying the client's UI critique (with a reference
+ * screenshot showing category tags sitting directly on the photo, above
+ * a compact title/byline card, not inside it): the label was previously
+ * a normal-flow child at the top of this box, adding to its height for
+ * no real benefit (it's taxonomy metadata, not article content) and
+ * leaving less of the photo visible. `position: absolute; bottom: 100%`
+ * takes it out of the box's normal flow entirely (no longer adds to the
+ * box's height) and anchors it directly above the box's own top edge,
+ * still aligned to the same inline-start edge. Color switched from
+ * `--winston-red` (only legible against this box's white background) to
+ * the same white-text-with-shadow treatment `.hero-body .type-label`
+ * (main.css §10.1) already uses for every other layout's on-photo kicker
+ * — reusing an already-established site pattern for "text sitting
+ * directly on an unpredictable photo," not inventing a new one.
+ */
+.hero-feature-card-box .type-label {
+  position: absolute;
+  bottom: 100%;
+  inset-inline-start: 0;
+  margin-bottom: .75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .9);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+}
+.hero-feature-card-box .type-label .glyph { color: var(--paper); }
+.hero-feature-card-box .type-label a { color: var(--paper); }
 .hero-feature-card-box .h-display {
   margin-top: 0;
   font-size: clamp(1.25rem, 1.8vw, 1.5rem);
@@ -3188,18 +3237,25 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   font-size: 0.9375rem;
   color: var(--ink-soft);
   text-shadow: none;
-  /* Length safety net, same reasoning as every other card dek on this
-     site — a compact box has no room for an unbounded excerpt. */
+  /*
+   * -webkit-line-clamp: 2, was 3 — reduced 2026-09-26, per Farhad relaying
+   * the client's explicit ask to shorten the excerpt so this compact card
+   * covers less of the photo behind it. Still reuses
+   * shola_render_hero_body()'s existing wp_trim_words(...,34) source text
+   * unchanged (shared by every hero layout) — clamping to fewer rendered
+   * lines is sufficient on its own and doesn't require touching that
+   * shared function or affecting any other layout's dek length.
+   */
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
 }
 .hero-feature-card-box .card-byline { margin-top: .6375rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
-  .hero-lead--feature-card { flex-direction: column; }
+  .hero-feature-card-inner { flex-direction: column; }
   .hero-feature-main { flex: none; width: 100%; }
   .hero-lead--feature-card .hero-rail { flex: none; width: 100%; }
 }

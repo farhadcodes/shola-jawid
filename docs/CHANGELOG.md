@@ -12254,3 +12254,73 @@ again).
   code cooperate correctly with it.
   Plugin version bumped 1.24.2 -> 1.24.3 (patch). No theme change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — feature_card hero: full-width cream band + redesigned overlay card
+
+Two related visual changes to the `feature_card` hero_section layout
+(front-page.php/main.css), both live-tested locally and approved by
+Farhad before committing, same process as every other visual change this
+session.
+
+**1. Full-bleed cream background.** Farhad asked for this layout's
+background to match تازه‌ترین مقاله‌ها's cream, edge to edge, as a visual
+test. `.hero-lead--feature-card` already had its own `max-width`/
+`margin-inline: auto` (needed so the photo+rail row doesn't stretch edge
+to edge) — a plain `background` on that element only fills that
+constrained box, leaving the page's default white visible in the margins
+outside it. A first attempt tried faking a full-bleed backdrop with a
+single `::before` pseudo-element (`transform: translateX(-50%)` breakout,
+avoiding a markup change) and hit two real, confirmed-live bugs in a row:
+a stacking-context issue (`position: relative` alone doesn't create one,
+so the pseudo's `z-index: -1` sank behind unrelated ancestors instead of
+just its own siblings) and, even after fixing that with
+`isolation: isolate`, the backdrop still didn't reach the true edge
+(likely clipped by this site's own `overflow-x: hidden` on `<html>`,
+added earlier this session for the mobile blank-page fix). Abandoned the
+hack in favor of the same, already-proven "full-bleed `<section>` +
+centered inner wrapper" split every other homepage section already uses
+(`.sect-cream` + `.wrap`) — a new `.hero-feature-card-inner` div
+(front-page.php) now carries the flex/max-width/gap/padding this layout's
+photo+rail row always had, while `.hero-lead--feature-card` itself is
+just the plain, unconstrained full-width section holding the background.
+`padding-block` moved from the (now removed) outer margin onto the inner
+wrapper, so the vertical spacing above/below the row is filled with
+cream instead of staying white. Verified live: cream now reaches both
+true screen edges at 1200px/1400px desktop widths (confirmed via
+`elementFromPoint()` returning the section itself, cream background, at
+x=10 and x=1390 of a 1400px viewport) and the mobile stacked layout
+(375px) is unaffected, no horizontal overflow introduced
+(`scrollWidth === clientWidth`).
+
+**2. Overlay card redesigned per a client UI critique.** Farhad relayed
+the client comparing the feature_card hero against a reference
+screenshot (an editorial site with small category tags sitting directly
+on the photo, above a compact title/byline card) and asking for three
+changes, all agreed on as sound UI critique before implementing: the
+white card was too tall and covered too much of the photo, the kicker
+label buried inside the card added to that height for no benefit (it's
+taxonomy metadata, not article content), and the 3-line excerpt was
+doing most of the work of making the card tall.
+- `.type-label` pulled out of the card's normal flow —
+  `position: absolute; bottom: 100%`, anchored to the card's own
+  inline-start edge, sitting directly on the photo above the card instead
+  of inside it. Recolored from `--winston-red` (only legible against the
+  card's white background) to the same white-text-with-shadow treatment
+  `.hero-body .type-label` already uses everywhere else on this page for
+  text sitting directly on an unpredictable photo — reused, not
+  reinvented.
+  shola_render_hero_body() (inc/template-tags.php), shared by all seven
+  hero layouts, was deliberately left untouched — only this layout's own
+  CSS scope changed.
+- Dek clamped to 2 lines, was 3 (`-webkit-line-clamp`) — the underlying
+  `wp_trim_words(...,34)` source text in the shared render function is
+  unchanged; clamping fewer rendered lines was sufficient on its own and
+  doesn't affect any other layout's dek length.
+- `padding-block` on the card: 1.4875rem -> 1.125rem, since the label no
+  longer needs room inside it and the dek is shorter.
+  Verified live at 375px mobile, 768px tablet, and 1200px/1400px desktop:
+  label reads clearly on the photo at every size, card is visibly
+  shorter, more of the photo shows above/around it, no overflow at any
+  breakpoint.
+  Theme version bumped 1.47.4 -> 1.47.5 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

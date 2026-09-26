@@ -415,17 +415,34 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 	 */
 	?>
 	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">
-		<div class="hero-feature-main">
-			<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
-				<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
-			</a>
-			<div class="hero-feature-card-box">
-				<?php shola_render_hero_body( $hero ); ?>
+		<?php
+		/*
+		 * .hero-feature-card-inner — added 2026-09-26, per Farhad's live
+		 * test request for this layout's background to match تازه‌ترین
+		 * مقاله‌ها's cream, edge to edge. `.hero-lead--feature-card` itself
+		 * is now the plain, unconstrained full-width section (background
+		 * lives there, main.css), and this inner wrapper carries the
+		 * flex/max-width/gap/padding this layout's photo+rail row always
+		 * had — the same "full-bleed section + centered inner column"
+		 * split every other homepage section already uses (.sect-cream +
+		 * .wrap), just under this layout's own class name since its
+		 * gap/flex/padding values are specific to it, not the sitewide
+		 * .wrap ones.
+		 */
+		?>
+		<div class="hero-feature-card-inner">
+			<div class="hero-feature-main">
+				<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>" class="hero-media" aria-hidden="true" tabindex="-1">
+					<?php echo shola_get_featured_image( $hero, 'shola_hero_wide', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+				</a>
+				<div class="hero-feature-card-box">
+					<?php shola_render_hero_body( $hero ); ?>
+				</div>
 			</div>
+			<aside class="hero-rail hero-feature-card-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
+				<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'filled_icon' => true ) ); ?>
+			</aside>
 		</div>
-		<aside class="hero-rail hero-feature-card-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-			<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'filled_icon' => true ) ); ?>
-		</aside>
 	</section>
 
 	<hr class="rule wrap">
