@@ -1439,16 +1439,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * §11), so this line reads as the same family of "fine line" the site
  * already has, not a new visual element.
  *
- * `padding-bottom: 1.25rem` before the border, not a bare border directly
- * under the text — gives the line breathing room below the Persian text's
- * descenders/the "see all" link, per Farhad's explicit "fine and elegant
- * spacing" ask. `margin-bottom` (below the line, before the grid) kept
- * unchanged at 2rem rather than adding to it — the line itself already
- * reads as a clear break, doubling the gap below it as well would make
- * the header row float oddly far from its own section.
+ * `padding-bottom: 0.3rem` before the border, not a bare border directly
+ * under the text — gives the line a little breathing room below the
+ * Persian text's descenders/the "see all" link without floating far away
+ * from it. Started at 1.25rem, tightened same session (2026-09-26) after
+ * Farhad relayed the client's live screenshot flagging that gap as too
+ * wide/loose — a divider is meant to sit close to what it's closing off;
+ * 0.3rem is roughly a quarter of the original value, matching the
+ * client's explicit "cut 75-80% of that space" ask. `margin-bottom`
+ * (below the line, before the grid) kept unchanged at 2rem — the line
+ * itself already reads as a clear break, doubling the gap below it as
+ * well would make the header row float oddly far from its own section.
  */
 .section-head {
-  padding-bottom: 1.25rem;
+  padding-bottom: 0.3rem;
   border-bottom: 1px solid var(--line);
   margin-bottom: 2rem;
 }

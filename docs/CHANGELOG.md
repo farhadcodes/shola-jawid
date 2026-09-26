@@ -12426,3 +12426,23 @@ sections.
   width.
   Theme version bumped 1.47.8 -> 1.47.9 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — section-head divider: tightened gap between text and line
+
+Farhad relayed a live client screenshot (کتابخانه) flagging the gap
+between the heading/"see all" link text and the divider line added
+earlier this session as too wide/loose, with an explicit ask to cut
+roughly 75-80% of that space.
+
+- **Changed:** `.section-head`'s `padding-bottom` (main.css §7): 1.25rem
+  -> 0.3rem — a divider is meant to sit close to what it closes off, not
+  float away from it. 0.3rem is roughly a quarter of the original value,
+  matching the client's "cut 75-80%" ask precisely. `border-bottom`
+  (`var(--line)`) and `margin-bottom` (2rem, the gap to the content grid
+  below) both left unchanged — only the space between the text and the
+  line itself moved.
+  Verified live: computed `padding-bottom` is `4.8px` (0.3rem) at 1200px
+  desktop; confirmed visually tightened on کتابخانه/اسناد حزب; no
+  horizontal overflow introduced at 1200px desktop or 375px mobile.
+  Theme version bumped 1.47.9 -> 1.47.10 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
