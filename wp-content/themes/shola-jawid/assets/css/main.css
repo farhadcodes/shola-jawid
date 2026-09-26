@@ -1768,6 +1768,38 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
      2026-09-07 when that gap was tightened (see .grid-cards above); if
      that gap ever changes again, this must change with it. */
   .section-head--with-spotlight { padding-inline-end: calc((100% - 3rem) / 3 + 1.5rem); }
+  /*
+   * Divider line shortened to match — added 2026-09-26, per Farhad
+   * relaying a live client screenshot: `.section-head`'s own full-width
+   * border-bottom (added earlier this session) ran underneath the
+   * reserved spotlight-tile padding above, visually reading as if the
+   * line belonged to both تازه‌ترین مقاله‌ها's own header AND the
+   * اطلاعیه‌ها spotlight tile floating in the grid's third column below
+   * it — the client's explicit ask was to cut the line off right after
+   * the «همهٔ مقالات» link, matching the same boundary the padding above
+   * already tracks, not the container's full width. A `border-bottom`
+   * can't be narrower than its own box, so this replaces it with a
+   * `::after` sized to exactly the same `calc()` as the padding above,
+   * anchored to the box's own bottom edge (`position: relative` on the
+   * box). Scoped to the same `min-width: 1000px` breakpoint the padding
+   * fix above already uses, for the same reason: below that width the
+   * spotlight tile becomes a full-width banner above the grid, not a
+   * side column, so the plain full-width line is already correct there
+   * and every other `.section-head` on the site is untouched.
+   */
+  .section-head--with-spotlight {
+    position: relative;
+    border-bottom: none;
+  }
+  .section-head--with-spotlight::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+    width: calc(100% - ((100% - 3rem) / 3 + 1.5rem));
+    height: 1px;
+    background: rgba(204, 0, 0, .4);
+  }
 }
 
 .card-spotlight {

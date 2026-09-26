@@ -12520,3 +12520,35 @@ Farhad asked to bring every homepage section's title down from 32px to
   horizontal overflow introduced at either width.
   Theme version bumped 1.47.12 -> 1.47.13 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — تازه‌ترین مقاله‌ها's divider: stop at the "همهٔ مقالات" link, not the spotlight tile
+
+Farhad relayed a live client screenshot: on تازه‌ترین مقاله‌ها specifically
+(the only homepage section with a spotlight tile — `.section-head--with-
+spotlight`, `.grid-cards--with-spotlight` reserves the grid's third
+column for it at desktop, ≥1000px), the full-width divider line added
+earlier this session ran underneath that reserved column too, reading as
+if the line belonged to both تازه‌ترین مقاله‌ها's own header and the
+اطلاعیه‌ها spotlight tile floating in the grid below it. Client's ask:
+cut the line off right after the «همهٔ مقالات» link, not the full row
+width — same boundary the header's own `padding-inline-end` (added
+2026-09-07 for the same spotlight-column reason) already tracks.
+
+- **Fixed:** a plain `border-bottom` can't be narrower than its own box,
+  so `.section-head--with-spotlight` (main.css §7, inside the existing
+  `@media (min-width: 1000px)` block) now sets `border-bottom: none` and
+  gets its line from a new `::after` instead, sized to the exact same
+  `calc((100% - 3rem) / 3 + 1.5rem)` the padding above already reserves,
+  anchored to the box's own bottom edge. Scoped to the same ≥1000px
+  breakpoint as the padding fix, for the same reason: below that width
+  the spotlight tile becomes a full-width banner above the grid, not a
+  side column, so the plain full-width line is already correct there —
+  confirmed live, tablet (768px) and mobile (375px) both still show the
+  ordinary full-width `border-bottom`, untouched.
+  Verified live at 1200px desktop: `.section-head--with-spotlight`'s own
+  `border-bottom` computed to `none`, its new `::after` measured at
+  ~66% of the row's width (739px of 1121px) — matching the reserved
+  third-column-plus-gap exactly; no horizontal overflow introduced at
+  1200px, 768px, or 375px.
+  Theme version bumped 1.47.13 -> 1.47.14 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
