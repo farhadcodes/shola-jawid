@@ -5315,7 +5315,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    #2A2A2A = rgb(42,42,42); 42 * 1.5 = 63 = 0x3F, so #3F3F3F is exactly
    that same neutral gray at 50% higher brightness, not an unrelated new
    color. */
-.sect-library { background: #3F3F3F; color: var(--paper); }
+/* Extra vertical breathing room for this section's tall covers. */
+.sect-library { background: #3F3F3F; color: var(--paper); padding-block: 5rem; }
 .sect-library .h-section { color: var(--paper); }
 .sect-library .section-marker::before { background: var(--paper); }
 /*
@@ -5343,7 +5344,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library .link-more { color: var(--paper); border-color: transparent; }
 .sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
 
-.library-shelf { display: flex; align-items: flex-end; gap: 1rem; }
+/* Capped to exactly 6 covers + gaps so a 7th never peeks in; centered when narrower than the row. */
+.library-shelf { display: flex; align-items: flex-end; gap: 1rem; max-width: calc(6 * 150px + 5 * 1.5rem); margin-inline: auto; }
 /*
  * contain: layout — added 2026-09-25. Root-caused a report of the
  * entire mobile site rendering blank (and, on retest, horizontally

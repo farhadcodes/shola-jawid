@@ -12598,3 +12598,19 @@ the one thing that's actually wrong.
   was needed mid-session to bust a stale cached `main.js` during testing).
   No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — کتابخانه section: more vertical space, capped to 6 covers
+
+- **Padding:** `.sect-library` padding-block 3rem -> 5rem (was inheriting
+  the sitewide `.sect` default; scoped to this section only).
+- **Visible count:** `.library-shelf` capped to `max-width: calc(6 * 150px
+  + 5 * 1.5rem)` (1020px) with `margin-inline: auto` — exactly 6 covers
+  show with no partial 7th, leftover space split evenly on both sides.
+  Cover size (150px) kept unchanged, per Farhad's own earlier sizing
+  decision; only the visible window is capped. No effect at mobile/tablet
+  widths, where the row is already narrower than the cap.
+  Verified live: shelf measured exactly 1020px wide with symmetric 82.4px
+  margins on each side at 1200px desktop; mobile confirmed unaffected
+  (natural width, no overflow).
+  Theme version bumped 1.47.17 -> 1.47.18 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
