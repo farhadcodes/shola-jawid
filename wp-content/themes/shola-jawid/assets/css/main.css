@@ -1442,11 +1442,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * `--paper`, which is exactly why it works well as the *sitewide* subtle-
  * divider token everywhere else it's used (menus, cards, tables) but
  * fails here specifically, where the client explicitly wants a
- * *prominent*, clearly-visible line, not a subtle one. `--stone`
- * (#6E6E6A, one of this site's own locked brand tokens — not a new
- * color) reads with real contrast against every homepage section's
- * background, light or dark, so no separate dark-section override was
- * needed.
+ * *prominent*, clearly-visible line, not a subtle one.
+ *
+ * `--stone` then changed again, same session, to a soft `--winston-red`
+ * tint: discussed with Farhad first (this project's standing "changes
+ * to color tokens/hierarchy need explicit confirmation" rule) — a plain
+ * gray line and a crimson heading read as two disconnected elements;
+ * tinting the line toward the heading's own accent color ties them
+ * together as one unit. Not `var(--winston-red)` at full strength (that
+ * would compete with the heading text for attention, the opposite of
+ * "soft") and not the existing `--winston-red-tint` token either (that's
+ * a near-white pink wash meant for large background fills, e.g.
+ * `.sect-tint` — at 1px it would be indistinguishable from `--line`
+ * again). `rgba(204, 0, 0, .4)` is `--winston-red`'s own RGB value at
+ * 40% opacity — the same "tint an existing token via rgba(), don't
+ * introduce a new hue" technique this file already uses elsewhere (e.g.
+ * `.hero-body .type-label`'s `rgba(255, 255, 255, .85)`), not a new
+ * hardcoded color.
  *
  * `padding-bottom: 0.3rem` before the border, not a bare border directly
  * under the text — gives the line a little breathing room below the
@@ -1462,7 +1474,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  */
 .section-head {
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--stone);
+  border-bottom: 1px solid rgba(204, 0, 0, .4);
   margin-bottom: 2rem;
 }
 .section-head .h-section { margin-top: .5rem; }

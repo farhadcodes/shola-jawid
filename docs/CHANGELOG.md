@@ -12471,3 +12471,33 @@ for it to be made prominent with real contrast.
   overflow introduced at 1200px desktop or 375px mobile.
   Theme version bumped 1.47.10 -> 1.47.11 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — section-head divider: soft crimson tint instead of gray
+
+Farhad asked (as a design discussion, not a direct instruction) whether
+the section heading text color should match the divider line — advised
+against it (would flatten the heading's own visual hierarchy, matching
+this project's own brand discipline of a sparing but purposeful crimson
+accent), then Farhad asked the reverse instead: tint the *line* toward
+the heading's crimson color, softened, to tie the two together. Agreed
+this was the better direction and confirmed the approach before
+implementing.
+
+- **Changed:** `.section-head`'s `border-bottom` color (main.css §7):
+  `var(--stone)` -> `rgba(204, 0, 0, .4)` — `--winston-red`'s own RGB
+  value at 40% opacity, not a new hue. Full-strength `--winston-red` was
+  ruled out (would compete with the heading text, the opposite of the
+  "soft" ask); the existing `--winston-red-tint` token was also ruled out
+  (a near-white pink wash meant for large background fills like
+  `.sect-tint`, indistinguishable from the previous `--line` at 1px).
+  Same "tint an existing token via rgba(), don't introduce a new
+  hardcoded color" technique this file already uses elsewhere (e.g.
+  `.hero-body .type-label`'s `rgba(255, 255, 255, .85)`).
+  Verified live: all rendered `.section-head` instances confirmed
+  `border-bottom: 1px solid rgba(204, 0, 0, 0.4)` at 1200px desktop;
+  visually confirmed reading as a soft, connected accent alongside the
+  crimson heading on both a light section (تازه‌ترین مقاله‌ها) and a dark
+  one (کتابخانه); no horizontal overflow introduced at 1200px desktop or
+  375px mobile.
+  Theme version bumped 1.47.11 -> 1.47.12 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
