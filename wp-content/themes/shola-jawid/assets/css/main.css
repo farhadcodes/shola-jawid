@@ -1530,11 +1530,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   text-transform: uppercase;
   color: var(--winston-red);
   padding: .4rem 0;
-  border-bottom: 1px solid transparent;
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease);
 }
-.link-more:hover { color: var(--winston-red-deep); border-color: var(--winston-red-deep); }
-.link-more .arr { display: inline-block; transform: translateY(-1px); }
+/* Underline-on-hover removed sitewide, replaced by the arrow nudge below. */
+.link-more:hover { color: var(--winston-red-deep); }
+.link-more .arr { display: inline-block; transform: translateY(-1px); transition: transform var(--dur) var(--ease); }
+/* Arrow nudges further in its own pointing direction on hover (physical transform, not logical -- direction must stay literally leftward regardless of RTL). */
+.link-more:hover .arr { transform: translateY(-1px) translateX(-4px); }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
@@ -2018,7 +2020,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * behavior instead of removing the hover indicator itself.
  */
 .card-spotlight .link-more { align-self: flex-start; color: var(--paper); border-color: transparent; }
-.card-spotlight .link-more:hover { color: var(--paper); border-color: var(--paper); }
+.card-spotlight .link-more:hover { color: var(--paper); }
 
 /*
  * Numbered index badges (۱/۲/۳) — added 2026-09-07 (still Phase 11)
@@ -5068,7 +5070,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-leaflet-teaser .h-section { color: var(--paper); }
 /* border-color: transparent — same fix/reasoning as .card-spotlight .link-more above. */
 .sect-leaflet-teaser .link-more { color: var(--paper); border-color: transparent; }
-.sect-leaflet-teaser .link-more:hover { color: var(--paper); border-color: var(--paper); }
+.sect-leaflet-teaser .link-more:hover { color: var(--paper); }
 .leaflet-teaser {
   display: flex;
   flex-direction: column;
@@ -5342,7 +5344,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library .section-head { border-bottom-color: rgba(255, 255, 255, .4); }
 /* border-color: transparent — same fix/reasoning as .card-spotlight .link-more above. */
 .sect-library .link-more { color: var(--paper); border-color: transparent; }
-.sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
+.sect-library .link-more:hover { color: var(--paper); }
 
 .library-shelf { display: flex; align-items: flex-end; gap: 1rem; }
 /*

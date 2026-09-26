@@ -12635,3 +12635,26 @@ column instead.
   section) at 1200px desktop; mobile confirmed still 110px, no overflow.
   Theme version bumped 1.47.18 -> 1.47.19 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — `.link-more` links: remove underline-on-hover sitewide, add leftward arrow nudge
+
+The section-head divider line added earlier this session made the
+underline-on-hover on "see all"-style links redundant; client asked for
+it removed everywhere, plus a hover animation on the arrow so the link
+still feels alive.
+
+- **Removed:** `.link-more:hover`'s `border-bottom`/`border-color`
+  transition (the underline), sitewide — affects all `.link-more` uses,
+  including the three dark-section overrides (`.card-spotlight`,
+  `.sect-leaflet-teaser`, `.sect-library`) which previously also set
+  `border-color: var(--paper)`.
+- **Added:** `.link-more:hover .arr` now nudges the arrow further in its
+  own pointing direction (`translateX(-4px)`, physically leftward — a
+  deliberate physical-property exception, `transform` has no logical
+  equivalent, consistent with the hero full-bleed breakout fix earlier
+  this session) instead of standing static.
+  Verified live: underline confirmed gone on both light (تازه‌ترین
+  مقاله‌ها) and dark (کتابخانه) section variants; arrow nudge transform
+  confirmed present and pointed left, no layout shift.
+  Theme version bumped 1.47.19 -> 1.47.20 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).
