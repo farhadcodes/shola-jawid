@@ -12552,3 +12552,33 @@ width — same boundary the header's own `padding-inline-end` (added
   1200px, 768px, or 375px.
   Theme version bumped 1.47.13 -> 1.47.14 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-26 (later same session) — کتابخانه's divider: white instead of the sitewide crimson tint
+
+Farhad relayed a live client screenshot: the sitewide divider color (a
+soft crimson tint, `rgba(204, 0, 0, .4)`) has poor contrast on کتابخانه
+specifically — its dark `#3F3F3F` background sits closer to that
+crimson's own darkened value than the light backgrounds every other
+section uses. Farhad offered two options (lighten the background, or
+match the line to the heading's own color there); matching the heading
+was the better fix — it leaves this section's already-tuned background
+alone (see the `#3F3F3F` history right above this rule) and only touches
+the one thing that's actually wrong.
+
+- **Fixed:** `.sect-library .section-head { border-bottom-color:
+  rgba(255, 255, 255, .4); }` (main.css §16) — matches
+  `.sect-library .h-section`'s own `var(--paper)` white, and reuses the
+  exact `rgba(255, 255, 255, .4)` value this section's `.link-more` used
+  for the same "visible line on this dark background" purpose earlier
+  this session (before that was corrected to transparent-until-hover
+  *elsewhere*, where it was wrongly always-on — here it's the right,
+  deliberate choice). Scoped to `.sect-library` only, per Farhad's
+  explicit "just for this section" — confirmed live every other
+  homepage `.section-head` still uses the sitewide crimson tint,
+  untouched.
+  Verified live: `.sect-library .section-head` computed
+  `border-bottom: 1px solid rgba(255, 255, 255, 0.4)` at both 1200px
+  desktop and 375px mobile; no horizontal overflow introduced at either
+  width.
+  Theme version bumped 1.47.14 -> 1.47.15 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-26).

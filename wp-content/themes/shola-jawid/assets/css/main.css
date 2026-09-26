@@ -5318,6 +5318,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .sect-library { background: #3F3F3F; color: var(--paper); }
 .sect-library .h-section { color: var(--paper); }
 .sect-library .section-marker::before { background: var(--paper); }
+/*
+ * border-bottom-color: rgba(255,255,255,.4) — added 2026-09-26, per
+ * Farhad relaying a live client screenshot: `.section-head`'s sitewide
+ * divider color (a soft crimson tint, `rgba(204, 0, 0, .4)`) has poor
+ * contrast against this section's dark `#3F3F3F` background — crimson
+ * darkens toward the same neutral gray it's sitting on, unlike on every
+ * light-background section where it reads clearly against cream/white.
+ * Farhad offered two options (lighten the background, or match the line
+ * to the heading's own color here) — matching the heading color
+ * (`var(--paper)`, white, already used by `.sect-library .h-section`
+ * above) was the better fix: it doesn't touch this section's background
+ * (already tuned once before, see the `#3F3F3F` comment above) and reuses
+ * the exact same `rgba(255, 255, 255, .4)` value this section's own
+ * `.link-more` used for the same "visible line against this specific
+ * dark background" purpose before that was removed as *always-on*
+ * elsewhere this session — here it's the right, deliberate choice, not
+ * an accidental leftover. Scoped to `.sect-library` only, per Farhad's
+ * explicit "just for this section" — every other homepage section keeps
+ * the sitewide crimson-tint divider.
+ */
+.sect-library .section-head { border-bottom-color: rgba(255, 255, 255, .4); }
 /* border-color: transparent — same fix/reasoning as .card-spotlight .link-more above. */
 .sect-library .link-more { color: var(--paper); border-color: transparent; }
 .sect-library .link-more:hover { color: var(--paper); border-color: var(--paper); }
