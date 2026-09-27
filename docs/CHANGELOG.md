@@ -12672,3 +12672,21 @@ still feels alive.
   Verified live: exactly 4 article cards render.
   Theme version bumped 1.47.20 -> 1.47.21 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-26).
+
+## 2026-09-27 — Homepage hero: remove excerpt, keep label/title/date
+
+Client feedback (relayed by Farhad, live screenshot on sholajawid.com,
+`feature_card` layout): a long excerpt was covering most of the
+featured photo, making it effectively invisible.
+
+- **Removed:** the `.dek` excerpt paragraph from
+  `shola_render_hero_body()` (inc/template-tags.php) — the single
+  shared function every hero_section layout (`single`, `lead_rail`,
+  `overlay`, `minimal_cover`, `rail_full`, `filmstrip`, `feature_card`)
+  renders through, so this fixes the photo-coverage problem sitewide,
+  not just the one layout screenshotted. Kept: type-label (کتگوری/
+  موضوع), title, date.
+  Verified live: `feature_card` layout confirmed excerpt gone, photo
+  fully visible, label/title/date intact.
+  Theme version bumped 1.47.21 -> 1.47.22 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-27).

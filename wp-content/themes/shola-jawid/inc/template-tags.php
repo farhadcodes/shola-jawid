@@ -1265,9 +1265,12 @@ function shola_render_hero_body( $hero ) {
 	<h1 class="h-display">
 		<a href="<?php echo esc_url( get_permalink( $hero ) ); ?>"><?php echo esc_html( get_the_title( $hero ) ); ?></a>
 	</h1>
-	<p class="dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero ), 34 ) ); ?></p>
 	<?php
 	/*
+	 * Excerpt (.dek) removed sitewide from the hero, 2026-09-27: client
+	 * feedback (relayed by Farhad) that a long excerpt covered too much
+	 * of the featured photo. Kept: type-label, title, date.
+	 *
 	 * Byline (author/username) removed site-wide, 2026-09-02, per the
 	 * client's explicit instruction (relayed by Farhad) — the date
 	 * stays.
