@@ -1111,8 +1111,9 @@ function shola_get_primary_topic( $post ) {
 }
 
 /**
- * The small "مقاله" / "گزارش" / "یادداشت" kicker text every card-style
- * template (card.php, the homepage hero) shows above a post's title.
+ * The small "مقاله" / "گزارش" / "یادداشت" / "ترجمه" kicker text every
+ * card-style template (card.php, the homepage hero) shows above a post's
+ * title.
  *
  * Added 2026-09-25 after Farhad relayed a client report of "confusion
  * between the three homepage sections" (تازه‌ترین مقاله‌ها, گزارش,
@@ -1131,6 +1132,14 @@ function shola_get_primary_topic( $post ) {
  * (front-page.php's گزارش section, taxonomy-report.php) and must read as
  * such everywhere, not just inside that one section.
  *
+ * `shcore_is_selected` (ترجمه) checked third, added 2026-09-27: Farhad
+ * flagged a ترجمه-flagged post showing as "مقاله" when it led the
+ * homepage hero — same hardcoded-label class of bug this function was
+ * built to fix, just for the newer ترجمه flag. Checked after report/aside
+ * rather than first, so a post that's also a گزارش or a یادداشت still
+ * reads as that (its more specific content type) even if also flagged
+ * ترجمه.
+ *
  * @param int|WP_Post $post Post ID or object.
  * @return string
  */
@@ -1141,6 +1150,10 @@ function shola_get_content_type_label( $post ) {
 
 	if ( has_post_format( 'aside', $post ) ) {
 		return __( 'یادداشت', 'shola-jawid' );
+	}
+
+	if ( (bool) get_post_meta( $post instanceof WP_Post ? $post->ID : $post, 'shcore_is_selected', true ) ) {
+		return __( 'ترجمه', 'shola-jawid' );
 	}
 
 	return __( 'مقاله', 'shola-jawid' );

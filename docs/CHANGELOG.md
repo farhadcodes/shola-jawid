@@ -12784,3 +12784,24 @@ newer flag.
   carrying both flags disappeared from مقالات, stayed in ترجمه).
   Theme version bumped 1.47.24 -> 1.47.25 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-09-27 (later same session) — Content type label: recognize ترجمه
+
+Farhad found live: a ترجمه-flagged post (no report term) leading the
+homepage hero showed the kicker label "مقاله" instead of "ترجمه" —
+same hardcoded/incomplete-label class of bug `shola_get_content_type_
+label()` was built 2026-09-25 to fix for گزارش, just missing the newer
+ترجمه flag.
+
+- **Added:** a `shcore_is_selected` check in `shola_get_content_type_
+  label()` (inc/template-tags.php), returning "ترجمه" — checked after
+  the existing `report`/aside(`یادداشت`) checks, so a post that's also
+  a گزارش or a یادداشت still shows that more specific type even if also
+  flagged ترجمه. This is the one shared function both the homepage hero
+  and card.php's own type-label read from, so the fix applies
+  everywhere either renders a ترجمه-flagged post, not just the hero.
+  Verified live: hero (post #170, ترجمه-flagged, no report term) now
+  shows "ترجمه"; گزارش section's own cards unaffected, still show
+  "گزارش".
+  Theme version bumped 1.47.25 -> 1.47.26 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-27).
