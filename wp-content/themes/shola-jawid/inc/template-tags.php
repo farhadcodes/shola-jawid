@@ -1147,9 +1147,11 @@ function shola_get_content_type_label( $post ) {
 }
 
 /**
- * Shared query for گزیده‌ها (Selected) — added 2026-09-16, used by both
- * front-page.php's homepage tile and page-selected.php's full archive, so
- * the two can't drift apart on what counts as "selected."
+ * Shared query for ترجمه (Translation, renamed from گزیده‌ها/Selected
+ * 2026-09-27 — same meta key, mechanism, and function name, label only)
+ * — added 2026-09-16, used by both front-page.php's homepage tile and
+ * page-selected.php's full archive, so the two can't drift apart on what
+ * counts as "selected."
  *
  * Originally built on WordPress's native Sticky Post flag (no new admin UI
  * at all), but Farhad found live that the "Stick to the front page"

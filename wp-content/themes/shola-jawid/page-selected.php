@@ -1,10 +1,14 @@
 <?php
 /**
- * Template: page-selected.php — گزیده‌ها (Selected), the full paginated
- * archive of flagged articles/reports (see shola_get_selected_query(),
- * inc/template-tags.php). Assigned automatically to a real WP Page by
- * shola_maybe_seed_selected_page() (inc/setup.php) — added 2026-09-16,
- * linked from the homepage tile's "همهٔ گزیده‌ها" link (front-page.php).
+ * Template: page-selected.php — ترجمه (Translation, renamed from
+ * گزیده‌ها/Selected 2026-09-27 — label only, same mechanism), the full
+ * paginated archive of flagged articles/reports (see
+ * shola_get_selected_query(), inc/template-tags.php). Assigned
+ * automatically to a real WP Page by shola_maybe_seed_selected_page()
+ * (inc/setup.php) — added 2026-09-16, linked from the homepage tile's
+ * "همهٔ ترجمه‌ها" link (front-page.php). File/page slug (`selected`)
+ * deliberately left unchanged by the rename — only user-facing text
+ * changed, not the URL.
  *
  * @package shola-jawid
  */
@@ -36,9 +40,9 @@ $selected_query  = shola_get_selected_query(
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></h1>
+				<h1 class="h-page"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></h1>
 			</div>
-			<p class="dek"><?php esc_html_e( 'مقالات و گزارش‌های برگزیدهٔ سردبیری.', 'shola-jawid' ); ?></p>
+			<p class="dek"><?php esc_html_e( 'مقالات و گزارش‌های ترجمه‌شدهٔ سردبیری.', 'shola-jawid' ); ?></p>
 		</header>
 
 		<?php if ( $selected_query->have_posts() ) : ?>
@@ -74,7 +78,7 @@ $selected_query  = shola_get_selected_query(
 				</div>
 			<?php endif; ?>
 		<?php else : ?>
-			<p class="dek"><?php esc_html_e( 'هنوز مطلبی در گزیده‌ها نیست.', 'shola-jawid' ); ?></p>
+			<p class="dek"><?php esc_html_e( 'هنوز مطلبی در ترجمه نیست.', 'shola-jawid' ); ?></p>
 		<?php endif; ?>
 
 		<?php wp_reset_postdata(); ?>

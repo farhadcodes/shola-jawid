@@ -564,6 +564,38 @@ class Meta_Fields {
 			)
 		);
 		/*
+		 * ترجمه (Translation) fields — added 2026-09-27, alongside the
+		 * گزیده‌ها -> ترجمه rename of the section above. Deliberately
+		 * distinct meta keys from the existing (unused) `shcore_
+		 * translation_id` field a few lines up in render_article_metabox()
+		 * — that field is a different, still-inactive concept (linking two
+		 * posts as a bilingual pair, per the IA doc's open §9 decision),
+		 * not this one (crediting who originally wrote vs. translated a
+		 * single post already shown in ترجمه).
+		 */
+		register_post_meta(
+			'post',
+			'shcore_translation_original_author',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'post',
+			'shcore_translation_translator',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		/*
 		 * Primary topic (2026-09-02): a post can carry several `topic`
 		 * terms, but the breadcrumb/card display needs exactly one. This
 		 * stores which of the assigned terms the editor picked as primary
@@ -748,8 +780,15 @@ class Meta_Fields {
 		 * "Stick to the front page" checkbox would normally live. A new,
 		 * minimal box keeps that existing box's position/behavior
 		 * completely unchanged for every other field it holds.
+		 *
+		 * Title relabeled گزیده‌ها -> ترجمه, 2026-09-27 (client decision,
+		 * relayed by Farhad): same box, same meta key, same mechanism —
+		 * see render_selected_metabox()'s own docblock for the full
+		 * rename. Box ID (`shcore_selected_field`) deliberately left
+		 * unchanged — it's WordPress's internal key for this box's saved
+		 * position/collapsed state, not user-facing text.
 		 */
-		add_meta_box( 'shcore_selected_field', __( 'گزیده‌ها', 'shola-core' ), array( __CLASS__, 'render_selected_metabox' ), 'post', 'side', 'high' );
+		add_meta_box( 'shcore_selected_field', __( 'ترجمه', 'shola-core' ), array( __CLASS__, 'render_selected_metabox' ), 'post', 'side', 'high' );
 		add_meta_box( 'shcore_hero_fields', __( 'تنظیمات هدر', 'shola-core' ), array( __CLASS__, 'render_hero_metabox' ), 'hero_section', 'normal', 'high' );
 		add_meta_box( 'shcore_masthead_fields', __( 'تنظیمات هدر سایت', 'shola-core' ), array( __CLASS__, 'render_masthead_metabox' ), 'masthead_section', 'normal', 'high' );
 	}
@@ -979,7 +1018,7 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Render the گزیده‌ها (Selected) checkbox — a small, standalone
+	 * Render the ترجمه (Translation) box — a small, standalone
 	 * 'side'-context box (see add_meta_boxes() above for why it's separate
 	 * from shcore_article_fields). Prints its own nonce field even though
 	 * shcore_article_fields already prints an identical one on the same
@@ -988,20 +1027,41 @@ class Meta_Fields {
 	 * identical hidden inputs sharing one `name` is harmless (the browser
 	 * submits whichever renders, both are the same valid nonce).
 	 *
+	 * Relabeled گزیده‌ها -> ترجمه, and two plain-text fields added
+	 * (نویسنده اصلی / مترجم), 2026-09-27 — client decision, relayed by
+	 * Farhad, repurposing this existing mechanism rather than building a
+	 * separate CPT. The checkbox's meta key (`shcore_is_selected`), the
+	 * homepage/archive query it drives, its ordering, its item limit, and
+	 * its edit_post-only permission are all unchanged — this is a label
+	 * and additive-fields change only. The two new fields
+	 * (`shcore_translation_original_author`, `shcore_translation_
+	 * translator`) are specific to this box and don't touch the separate,
+	 * general "نام مستعار نویسنده" field in shcore_article_fields above.
+	 *
 	 * @param \WP_Post $post Post object.
 	 * @return void
 	 */
 	public static function render_selected_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$is_selected = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
+		$is_selected      = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
+		$original_author  = get_post_meta( $post->ID, 'shcore_translation_original_author', true );
+		$translator       = get_post_meta( $post->ID, 'shcore_translation_translator', true );
 		?>
+		<p>
+			<label for="shcore_translation_original_author"><strong><?php esc_html_e( 'نویسنده اصلی', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_translation_original_author" name="shcore_translation_original_author" class="widefat" value="<?php echo esc_attr( $original_author ); ?>">
+		</p>
+		<p>
+			<label for="shcore_translation_translator"><strong><?php esc_html_e( 'مترجم', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_translation_translator" name="shcore_translation_translator" class="widefat" value="<?php echo esc_attr( $translator ); ?>">
+		</p>
 		<p>
 			<label>
 				<input type="checkbox" id="shcore_is_selected" name="shcore_is_selected" value="1" <?php checked( $is_selected ); ?>>
-				<strong><?php esc_html_e( 'نمایش در گزیده‌ها', 'shola-core' ); ?></strong>
+				<strong><?php esc_html_e( 'نمایش در ترجمه', 'shola-core' ); ?></strong>
 			</label>
 		</p>
-		<p class="description"><?php esc_html_e( 'این نوشته را در بخش «گزیده‌ها»ی صفحهٔ اصلی و آرشیو آن نمایش می‌دهد. محدودیتی بر اساس نقش کاربری ندارد — هر کسی که اجازهٔ ویرایش این نوشته را داشته باشد می‌تواند آن را فعال کند.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'این نوشته را در بخش «ترجمه»ی صفحهٔ اصلی و آرشیو آن نمایش می‌دهد. محدودیتی بر اساس نقش کاربری ندارد — هر کسی که اجازهٔ ویرایش این نوشته را داشته باشد می‌تواند آن را فعال کند.', 'shola-core' ); ?></p>
 		<?php
 	}
 
@@ -1201,7 +1261,7 @@ class Meta_Fields {
 			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
-			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected' ),
+			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected', 'shcore_translation_original_author', 'shcore_translation_translator' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
 		);
@@ -1236,7 +1296,7 @@ class Meta_Fields {
 			if ( 'shcore_is_selected' === $field ) {
 				// Same "absent means false" reasoning as shcore_hero_active
 				// above — no singleton constraint here, unlike hero/masthead,
-				// since a site can have any number of گزیده‌ها articles.
+				// since a site can have any number of ترجمه articles.
 				update_post_meta( $post_id, 'shcore_is_selected', isset( $_POST['shcore_is_selected'] ) );
 				continue;
 			}

@@ -1000,11 +1000,17 @@ foreach ( $publication_terms as $pub_term ) {
 
 <?php
 /*
- * گزیده‌ها (Selected) — added 2026-09-16, per Farhad relaying the client's
- * request for a curated homepage section (the client's own word,
- * "گزیده‌ها"). Flag is `shcore_is_selected`, a dedicated postmeta checkbox
- * on the article edit screen ("اطلاعات مقاله" box, class-meta-fields.php)
- * — see shola_get_selected_query() (inc/template-tags.php) for the full
+ * ترجمه (Translation, renamed from گزیده‌ها/Selected 2026-09-27 — client
+ * decision, relayed by Farhad, repurposing this existing mechanism
+ * instead of a new CPT) — added 2026-09-16, per Farhad relaying the
+ * client's request for a curated homepage section (the client's own word
+ * at the time, "گزیده‌ها"). Flag is `shcore_is_selected`, a dedicated
+ * postmeta checkbox in its own "ترجمه" sidebar box (class-meta-fields.php)
+ * — unchanged by the rename: same meta key, same query, same ordering,
+ * same cap, same edit_post-only permission. Two new plain-text fields
+ * (نویسنده اصلی / مترجم) were added to that same box alongside the rename
+ * — see class-meta-fields.php's render_selected_metabox() docblock.
+ * See shola_get_selected_query() (inc/template-tags.php) for the full
  * history: this originally reused WordPress's native Sticky Post flag,
  * switched to a custom field same-session once Farhad found live that
  * Sticky's checkbox is gated behind a WordPress core capability
@@ -1029,14 +1035,14 @@ foreach ( $publication_terms as $pub_term ) {
 $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
 ?>
 <?php if ( $selected_query->have_posts() ) : ?>
-	<section class="sect-selected sect" aria-label="<?php esc_attr_e( 'گزیده‌ها', 'shola-jawid' ); ?>">
+	<section class="sect-selected sect" aria-label="<?php esc_attr_e( 'ترجمه', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head row-between">
 				<div class="kicker-row">
 					<p class="section-marker"></p>
-					<h2 class="h-section"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></h2>
+					<h2 class="h-section"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'همهٔ گزیده‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'همهٔ ترجمه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 			</div>
 			<div class="selected-list">
 				<?php

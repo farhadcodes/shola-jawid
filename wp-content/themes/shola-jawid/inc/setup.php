@@ -276,8 +276,11 @@ function shola_maybe_seed_nav_menus() {
 add_action( 'admin_init', 'shola_maybe_seed_nav_menus' );
 
 /**
- * One-time seed for the گزیده‌ها (Selected) archive page — added 2026-09-16,
- * per Farhad relaying the client's request for a homepage "Selected" section
+ * One-time seed for the ترجمه (Translation, renamed from گزیده‌ها/Selected
+ * 2026-09-27 — this seed only runs for a fresh install; an already-existing
+ * `selected` page's post_title must be updated manually in wp-admin, this
+ * code can't retroactively rename it) archive page — added 2026-09-16, per
+ * Farhad relaying the client's request for a homepage "Selected" section
  * (sticky articles/reports, see front-page.php) with a link to its own
  * paginated archive. Same reasoning as shola_maybe_seed_nav_menus() above:
  * auto-create the real WP Page and assign it `page-selected.php` so the
@@ -305,7 +308,7 @@ function shola_maybe_seed_selected_page() {
 
 	$page_id = wp_insert_post(
 		array(
-			'post_title'   => __( 'گزیده‌ها', 'shola-jawid' ),
+			'post_title'   => __( 'ترجمه', 'shola-jawid' ),
 			'post_name'    => 'selected',
 			'post_type'    => 'page',
 			'post_status'  => 'publish',

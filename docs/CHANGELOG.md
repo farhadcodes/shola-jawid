@@ -12704,3 +12704,56 @@ featured photo, making it effectively invisible.
   `feature_card` hero layout.
   Theme version bumped 1.47.22 -> 1.47.23 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-09-27 (later same session) — گزیده‌ها renamed to ترجمه, two new fields added
+
+Client decision (relayed by Farhad), superseding an earlier idea to
+build a separate ترجمه CPT: repurpose the existing گزیده‌ها (Selected)
+mechanism instead — same postmeta flag, same query, same ordering,
+same item limit (6), same edit_post-only permission. Label and
+additive fields only, not a rebuild.
+
+- **Renamed (labels only, no mechanism change):** the `shcore_
+  selected_field` metabox title ("گزیده‌ها" -> "ترجمه"), its checkbox
+  label ("نمایش در گزیده‌ها" -> "نمایش در ترجمه"), and its helper text
+  (class-meta-fields.php, `render_selected_metabox()`). Homepage
+  section heading/aria-label and "همهٔ گزیده‌ها" -> "همهٔ ترجمه‌ها" link
+  text (front-page.php). Archive page heading, dek, and empty-state
+  text (page-selected.php). The archive's URL/page slug (`/selected/`)
+  was deliberately left unchanged — only user-facing text changed, to
+  avoid breaking any existing link to that page. The already-existing
+  WP Page's `post_title` (stored in the database, not code) had to be
+  updated separately — inc/setup.php's seed function only runs for a
+  fresh install and can't retroactively rename an existing page; done
+  manually on local dev via wp_update_post(), still needs the same
+  manual rename in wp-admin on production.
+- **Added:** two new plain-text fields inside the same ترجمه box,
+  stacked above the checkbox — نویسنده اصلی (`shcore_translation_
+  original_author`) and مترجم (`shcore_translation_translator`).
+  Deliberately distinct meta keys from the pre-existing, still-unused
+  `shcore_translation_id` field in the general "اطلاعات مقاله" box
+  (a different, still-inactive concept — linking two posts as a
+  bilingual pair, per the IA doc's open §9 decision) to avoid
+  confusion between the two "ترجمه"-named things. Both fields are
+  additive and don't touch the separate, general "نام مستعار نویسنده"
+  field elsewhere on the post edit screen.
+- **Flagged, not yet resolved:** displaying نویسنده اصلی/مترجم on the
+  front end (single-post view and/or the ترجمه archive row) conflicts
+  with a standing 2026-09-02 site-wide rule that no author/username is
+  ever publicly displayed (single.php's own docblock). Front-end
+  display of these two fields is not yet implemented — placement is
+  pending Farhad's decision on how to reconcile that conflict.
+- **Existing-content flag:** querying `shcore_is_selected = 1` found
+  **6 posts** on local dev (test/seed content) but only **1 post** on
+  production (sholajawid.com) — "اعتراض زنان هرات؛ پژواک خشم فروخورده
+  مردم افغانستان". Every one of these will appear under "ترجمه" once
+  this ships even if not actually a translation; none were unchecked
+  as part of this change — that decision is left to the client.
+  Verified live at desktop/tablet/mobile: labels correct, RTL correct,
+  checkbox toggle and the two new fields' save/reload confirmed via a
+  local WP-bootstrap script (round-tripped on a scratch post, then
+  deleted), existing `shcore_byline` field confirmed untouched, no
+  other homepage section affected.
+  Theme version bumped 1.47.23 -> 1.47.24 (patch). Plugin version
+  bumped 1.24.3 -> 1.24.4 (patch).
+  Approved by: Farhad, in this session (2026-09-27).
