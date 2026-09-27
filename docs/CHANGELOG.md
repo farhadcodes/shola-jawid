@@ -12757,3 +12757,30 @@ additive fields only, not a rebuild.
   Theme version bumped 1.47.23 -> 1.47.24 (patch). Plugin version
   bumped 1.24.3 -> 1.24.4 (patch).
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-09-27 (later same session) — مقالات: exclude ترجمه-flagged posts
+
+Farhad found live: a post checked "نمایش در ترجمه" (with no topic
+terms assigned) rendered in both مقالات and ترجمه at once — same
+"post appears in two homepage sections" confusion گزارش's own
+exclusion already solves for that section, never applied to this
+newer flag.
+
+- **Added:** a `meta_query` on `$articles_query` (front-page.php) that
+  excludes any post with `shcore_is_selected = 1`, alongside the
+  existing `report` taxonomy exclusion. Uses `NOT EXISTS OR != '1'`
+  (not a plain `!=`) because a post that's never had the checkbox
+  touched has no `shcore_is_selected` row at all yet — a plain `!=`
+  would have wrongly excluded those too (classic WP meta_query gotcha
+  with a LEFT JOIN against a possibly-absent row).
+  Scoped to this one section only, confirmed with Farhad: topic
+  archive pages, search results, and the پربازدیدترین (Most Viewed)
+  ranking are untouched — a ترجمه post can still surface there.
+  Verified via a local WP-bootstrap script (scratch post, no other
+  meta/terms, flagged is_selected -> confirmed excluded from مقالات,
+  still included in ترجمه; a second unflagged scratch post confirmed
+  still included in مقالات, ruling out a regression from the NOT
+  EXISTS branch) and live on the homepage (an existing test post
+  carrying both flags disappeared from مقالات, stayed in ترجمه).
+  Theme version bumped 1.47.24 -> 1.47.25 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-27).

@@ -468,6 +468,11 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
  * feeds, reports only ever belong in their own homepage section and
  * archive.
  *
+ * `shcore_is_selected` (ترجمه) exclusion added 2026-09-27, same
+ * reasoning: a ترجمه-flagged post was appearing here too, not just in
+ * its own section. Scoped to this section only (not topic archives,
+ * search, or Most Viewed), per Farhad's explicit confirmation.
+ *
  * اطلاعیه spotlight tile added 2026-09-07 (Phase 11, client-requested —
  * see docs/CHANGELOG.md): the latest اطلاعیه‌ها occupy this grid's own
  * visually-leftmost slot (template-parts/cards/announcement-
@@ -568,6 +573,30 @@ $articles_query = new WP_Query(
 				'field'    => 'slug',
 				'terms'    => 'reports',
 				'operator' => 'NOT IN',
+			),
+		),
+		/*
+		 * Exclude ترجمه-flagged posts, 2026-09-27: Farhad reported a post
+		 * marked "نمایش در ترجمه" showing in both مقالات and ترجمه at once
+		 * — same "two homepage sections showing the same post" confusion
+		 * گزارش's own exclusion above already solves, just never applied
+		 * to this newer flag. Scoped to this section only, per Farhad's
+		 * explicit confirmation — topic archives, search, and Most Viewed
+		 * are untouched. `NOT EXISTS OR != '1'` (not a plain `!=`) because
+		 * a post that never had this checkbox touched at all has no
+		 * `shcore_is_selected` row yet; a plain `!=` would wrongly exclude
+		 * those too.
+		 */
+		'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- small, bounded flag, same pattern as shola_get_selected_query()'s own meta_key query.
+			'relation' => 'OR',
+			array(
+				'key'     => 'shcore_is_selected',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => 'shcore_is_selected',
+				'value'   => '1',
+				'compare' => '!=',
 			),
 		),
 	)
