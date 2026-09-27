@@ -20,6 +20,7 @@ while ( have_posts() ) :
 	$terms       = get_the_terms( get_the_ID(), 'topic' );
 	$terms       = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
 	$topic       = shola_get_primary_topic( get_the_ID() );
+	$is_tarjome  = (bool) get_post_meta( get_the_ID(), 'shcore_is_selected', true );
 	$stats       = shola_get_reading_stats();
 	$post_tags   = get_the_tags();
 	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
@@ -73,6 +74,21 @@ while ( have_posts() ) :
 						<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 						<span aria-hidden="true"> / </span>
 						<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
+						<?php
+						/*
+						 * ترجمه crumb — added 2026-09-27, per Farhad relaying
+						 * the client's request: a ترجمه-flagged post's
+						 * breadcrumb showed no trace of that at all. Placed
+						 * right after موضوعات (matching where Farhad pointed
+						 * on a live screenshot), before the topic crumb if
+						 * one also exists — additive, doesn't replace the
+						 * topic crumb.
+						 */
+						?>
+						<?php if ( $is_tarjome ) : ?>
+							<span aria-hidden="true"> / </span>
+							<a class="<?php echo $topic ? '' : 'active'; ?>" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></a>
+						<?php endif; ?>
 						<?php if ( $topic ) : ?>
 							<span aria-hidden="true"> / </span>
 							<a class="active" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a>

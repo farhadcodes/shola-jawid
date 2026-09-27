@@ -12805,3 +12805,24 @@ label()` was built 2026-09-25 to fix for گزارش, just missing the newer
   "گزارش".
   Theme version bumped 1.47.25 -> 1.47.26 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-09-27 (later same session) — Single-post breadcrumb: add ترجمه crumb
+
+Farhad flagged live (annotated screenshot): a ترجمه-flagged post's
+single-page breadcrumb showed only "صفحهٔ اصلی / موضوعات" — no
+indication the post is in ترجمه at all, unlike the homepage/hero which
+already got its ترجمه label fixed earlier this session.
+
+- **Added:** a `$is_tarjome` check (`shcore_is_selected` postmeta) in
+  single.php's breadcrumb, inserting a "ترجمه" crumb (linking to
+  `/selected/`) right after موضوعات — additive, doesn't replace the
+  existing topic crumb: if the post also has a primary topic, both now
+  show (`صفحهٔ اصلی / موضوعات / ترجمه / {topic}`); if not, ترجمه is
+  the last, active crumb, matching exactly the case Farhad
+  screenshotted.
+  Verified live at desktop and mobile: ترجمه-flagged post (#170, no
+  topic) now shows "صفحهٔ اصلی / موضوعات / ترجمه"; a normal, non-flagged
+  post with a topic (اقتصاد) confirmed unaffected, still shows
+  "صفحهٔ اصلی / موضوعات / اقتصاد".
+  Theme version bumped 1.47.26 -> 1.47.27 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-27).
