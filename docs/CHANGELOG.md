@@ -12690,3 +12690,17 @@ featured photo, making it effectively invisible.
   fully visible, label/title/date intact.
   Theme version bumped 1.47.21 -> 1.47.22 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-09-27 (later same session) — Homepage hero date: add the site's existing calendar icon
+
+- **Added:** `shola_date_icon()` before the hero's date in
+  `shola_render_hero_body()` (inc/template-tags.php) — the same
+  calendar glyph already used on every other `.card-byline` date
+  site-wide (card.php, single.php, selected-row.php, etc.), just never
+  applied to the hero specifically. No CSS changes needed: `.card-
+  byline`'s flex layout and `.glyph` sizing/color-inheritance rules
+  already apply generically wherever the icon is used.
+  Verified live: calendar icon renders before the date on the
+  `feature_card` hero layout.
+  Theme version bumped 1.47.22 -> 1.47.23 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-09-27).
