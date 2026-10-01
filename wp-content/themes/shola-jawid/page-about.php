@@ -1,22 +1,31 @@
 <?php
 /**
  * Template: page-about.php — دربارهٔ حزب کمونیست (مائوئیست) افغانستان
- * (About page). Heading text updated, Phase D (2026-08-26,
- * docs/CHANGELOG.md) — organization-name rename; see that entry for
- * scope (this heading only — the About WP Page's own title/body
- * content is out of scope, edited by Farhad directly in wp-admin).
- * Converted from 03_UI_Design/shola-jawid-ui/pages/body-about.html
- * (Phase 4.2). Applies to the Page with slug `about`.
+ * (About page). Converted from
+ * 03_UI_Design/shola-jawid-ui/pages/body-about.html (Phase 4.2).
+ * Applies to the Page with slug `about`.
+ *
+ * H1 now pulls from the real WP Page title (spec-audit gap B13,
+ * 2026-10-01) — the spec lists "عنوان صفحه" (page title) as one of this
+ * page's three admin-editable parts, alongside the logo (B14, separate
+ * gap) and the content body below. It was a hardcoded string before
+ * this fix (the organization-name rename, Phase D, 2026-08-26, updated
+ * that string in place rather than switching to the real title) —
+ * `docs/CHANGELOG.md`'s Phase D entry describes that older, now
+ * superseded state.
  *
  * The tab nav is structural chrome (fragment links into the sections
- * below) kept in the template, but the actual prose — mission
- * statement, editorial board, submission guidelines, etc. — lives in
- * the Page's own post_content, edited via the block editor (Heading
- * blocks with an Anchor set to match each tab's #fragment), not
- * hardcoded here. Per Farhad's confirmation (2026-08-06): this is
- * substantive editorial content the client should be able to edit
- * without a code change, unlike the short structural labels elsewhere
- * in this phase.
+ * below) kept in the template, not pulled from admin — checked the
+ * spec text directly for this gap: دربارهٔ ما's three listed parts are
+ * title, logo, and the content body only, no mention of tabs, so this
+ * remains intentional, not another instance of the same gap. The
+ * actual prose — mission statement, editorial board, submission
+ * guidelines, etc. — lives in the Page's own post_content, edited via
+ * the block editor (Heading blocks with an Anchor set to match each
+ * tab's #fragment), not hardcoded here. Per Farhad's confirmation
+ * (2026-08-06): this is substantive editorial content the client
+ * should be able to edit without a code change, unlike the short
+ * structural labels elsewhere in this phase.
  *
  * @package shola-jawid
  */
@@ -42,7 +51,7 @@ $tabs = array(
 		<header class="page-header page-header--tight">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php esc_html_e( 'دربارهٔ حزب کمونیست (مائوئیست) افغانستان', 'shola-jawid' ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( get_the_title( get_queried_object_id() ) ); ?></h1>
 			</div>
 		</header>
 

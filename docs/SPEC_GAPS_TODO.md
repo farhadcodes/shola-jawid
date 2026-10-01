@@ -378,17 +378,26 @@ spec actually states.
   few to show pagination either way, but the hook logic itself verified
   directly).
 
-### B13. دربارهٔ ما: hard-coded H1 and tab navigation
+### ✅ B13. دربارهٔ ما: hard-coded H1 — DONE 2026-10-01 (tabs confirmed out of scope)
 
-Page title and tab nav don't pull from the actual WP Page content/title.
+Checked the actual spec text first to answer this item's own open
+question: دربارهٔ ما's spec lists exactly three admin-editable parts —
+عنوان صفحه (title), لوگوی حزب (logo, tracked separately as B14), and
+the content body. No mention of tabs anywhere, so the tab nav stays
+structural/hardcoded chrome, not another instance of this gap — nothing
+to confirm with Farhad, the spec already answers it.
 
-- File: `wp-content/themes/shola-jawid/page-about.php`.
-- Fix shape: use `the_title()` for the H1 instead of a literal string; the
-  tab navigation is a bigger question — confirm with Farhad whether the
-  tabs themselves need to become admin-editable or just the heading before
-  touching that part, since the spec text for this page is fairly minimal
-  (title + logo + editable content) and doesn't obviously require
-  editable tabs at all.
+Fixed: the H1 (`page-about.php`) now reads the real WP Page title via
+`get_the_title( get_queried_object_id() )` instead of a hardcoded
+string left over from the Phase D organization-name rename. The real
+Page title ("دربارهٔ شعله جاوید") differs from that old hardcoded text
+("دربارهٔ حزب کمونیست (مائوئیست) افغانستان") — this is a real, visible
+change, not just a code-quality fix; flagged to Farhad rather than
+treating it as invisible. The title is now simply whatever he sets on
+the Page in wp-admin going forward.
+Verified live at desktop, tablet, and mobile — tab nav and content body
+(already pulling from `the_content()`, unaffected by this fix) both
+render correctly, correct RTL, no regressions.
 
 ### B14. دربارهٔ ما: no party-logo slot in the template
 

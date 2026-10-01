@@ -13380,3 +13380,29 @@ already at or under that threshold, so none of them were changed.
   Theme version bumped 1.47.35 -> 1.47.36 (patch). Plugin version
   bumped 1.24.14 -> 1.24.15 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B13: دربارهٔ ما H1 now pulls from the real Page title
+
+This item's own description left an open question — whether the tab
+nav also needs to become admin-editable, or just the H1. Checked the
+actual spec text before implementing rather than asking: دربارهٔ ما
+lists exactly three admin-editable parts (عنوان صفحه, لوگوی حزب — B14,
+separate — and the content body). No mention of tabs anywhere, so the
+tab nav stays intentional structural chrome; this gap is just the H1.
+
+- **Changed:** `page-about.php`'s H1 from a hardcoded string (a leftover
+  from the Phase D organization-name rename, 2026-08-26 — the rename
+  updated that string's text in place rather than switching to the real
+  Page title) to `get_the_title( get_queried_object_id() )`.
+- **Real, visible change, not just a code-quality fix:** the actual WP
+  Page title ("دربارهٔ شعله جاوید") differs from the old hardcoded text
+  ("دربارهٔ حزب کمونیست (مائوئیست) افغانستان") — flagging this
+  explicitly rather than treating a changed H1 as invisible. The title
+  shown on this page is now simply whatever Farhad sets on the Page in
+  wp-admin, which is the entire point of this fix.
+  Verified live at desktop, tablet, and mobile: new title renders
+  correctly, tab nav and the content body (already pulling from
+  `the_content()`, untouched by this fix) both unaffected, correct RTL,
+  no regressions.
+  Theme version bumped 1.47.36 -> 1.47.37 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
