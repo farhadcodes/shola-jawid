@@ -13005,3 +13005,32 @@ live link.
   template touched, so no desktop/tablet/mobile UI check applies.
   Plugin version bumped 1.24.7 -> 1.24.8 (patch). No theme change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — B5 revised: hints shortened to one-liners
+
+Farhad reviewed the just-shipped 15–25 word hints live and flagged
+them as cluttered, especially in narrow sidebar boxes like ترجمه where
+they wrapped to two lines under every field. Agreed this is a
+legitimate UX call and a deliberate, approved deviation from the
+spec's own "۱۵ تا ۲۵ کلمه" wording — Farhad authored that spec himself
+and asked for true one-liners instead.
+
+- **Shortened** every hint touched in the previous B5 pass to roughly
+  9–14 words: issue number, دوره/جلد, document نویسنده/منبع,
+  party_document شمارهٔ سریال, article توضیح همکاری, زبان, the shared
+  PDF field, the TOC intro (now two short lines instead of one long
+  paragraph), and both ترجمه name fields (main hint + restriction line
+  each independently shortened).
+  Deliberately left alone: the longer, pre-existing multi-option
+  explanations this session's earlier B5 pass already chose not to
+  touch (hero/masthead layout pickers, shcore_subtitle's own hint, the
+  ترجمه checkbox's description) — those predate this complaint and
+  serve a different purpose (explaining several dropdown options at
+  once), not the "padded for its own sake" problem being fixed here.
+  Verified via the same local WP-bootstrap script as the previous
+  pass: every changed function re-rendered, each line now genuinely
+  short, no PHP warnings/fatals. Confirmed live that the homepage still
+  renders normally. Admin-only text change, no front-end template
+  touched.
+  Plugin version bumped 1.24.8 -> 1.24.9 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-10-01).

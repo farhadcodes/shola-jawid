@@ -212,14 +212,17 @@ title-size modifier, which was unrelated to this). See
 `docs/CHANGELOG.md` 2026-10-01 for full detail, including the new
 `.article-hero-visual .article-subtitle` legibility override.
 
-### ✅ B5. Admin field help text: too short / missing on several fields — DONE 2026-10-01
+### ✅ B5. Admin field help text: too short / missing on several fields — DONE 2026-10-01, revised same day
 
-Fixed: expanded under-15-word hints into the 15–25 word range, added
-previously-missing descriptions (ترجمه name fields, TOC intro's «بخش»
-explanation), and added explicit restriction lines (PDF format, ترجمه
-names not shown publicly yet). Longer, already-adequate multi-option
-explanations (hero/masthead layout pickers, etc.) deliberately left
-alone. See `docs/CHANGELOG.md` 2026-10-01 for the full list.
+Fixed: added previously-missing descriptions (ترجمه name fields, TOC
+intro's «بخش» explanation) and restriction lines (PDF format, ترجمه
+names not shown publicly yet). **Note:** initially expanded to the
+spec's own "15–25 words" wording, but Farhad reviewed it live and
+asked for true one-liners instead (~9–14 words) — a deliberate,
+approved deviation from his own spec document, not an oversight. Both
+passes are in `docs/CHANGELOG.md` 2026-10-01. Longer, pre-existing
+multi-option explanations (hero/masthead layout pickers, etc.)
+deliberately left alone throughout.
 
 ### B6. نشریات: issue table-of-contents missing its page-number column
 

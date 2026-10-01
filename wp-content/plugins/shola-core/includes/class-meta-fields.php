@@ -829,17 +829,18 @@ class Meta_Fields {
 			<label for="shcore_issue_number"><strong><?php esc_html_e( 'شمارهٔ شماره', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_issue_number" name="shcore_issue_number" class="regular-text" value="<?php echo esc_attr( $number ); ?>">
 		</p>
-		<p class="description"><?php esc_html_e( 'شمارهٔ پیاپی این شماره از نشریه را به‌صورت عددی وارد کنید؛ مثلاً ۳۱. این عدد در صفحهٔ شماره و آرشیو نمایش داده می‌شود.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'شمارهٔ پیاپی این نشریه را وارد کنید؛ مثلاً ۳۱.', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_volume"><strong><?php esc_html_e( 'دوره / جلد', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_volume" name="shcore_volume" class="regular-text" value="<?php echo esc_attr( $volume ); ?>">
 		</p>
-		<p class="description"><?php esc_html_e( 'دورهٔ یا جلد این شماره را در صورت وجود بنویسید؛ مثلاً «دورهٔ دوم». اگر نشریه دوره یا جلد مشخصی ندارد، خالی بگذارید.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'دورهٔ یا جلد این شماره را بنویسید؛ در صورت نبود، خالی بگذارید.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 
 		<p><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></p>
 		<p class="description">
-			<?php esc_html_e( 'نوشته‌های شماره فقط در PDF چاپ می‌شوند و در سایت صفحهٔ مستقل ندارند — این فهرست فقط توضیحی است. ستون «بخش» فقط برای دسته‌بندی نمایشی همین فهرست است، نه موضوع واقعی مقاله. هر سه ستون اختیاری‌اند؛ ردیف‌های کاملاً خالی هنگام ذخیره نادیده گرفته می‌شوند.', 'shola-core' ); ?>
+			<?php esc_html_e( 'نوشته‌های این فهرست فقط در PDF چاپ می‌شوند؛ همهٔ ستون‌ها اختیاری‌اند.', 'shola-core' ); ?><br>
+			<?php esc_html_e( 'ستون «بخش» فقط نمایشی است، نه موضوع واقعی مقاله.', 'shola-core' ); ?>
 		</p>
 		<div class="shcore-toc-repeater-wrap">
 			<table class="widefat shcore-toc-repeater">
@@ -952,7 +953,7 @@ class Meta_Fields {
 			<label for="shcore_author_source"><strong><?php esc_html_e( 'نویسنده / منبع', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_author_source" name="shcore_author_source" class="regular-text" value="<?php echo esc_attr( $author_source ); ?>">
 		</p>
-		<p class="description"><?php esc_html_e( 'نام نویسندهٔ اصلی متن یا منبعی را که این سند از آن گرفته‌شده بنویسید؛ مثلاً نام نویسندهٔ کتاب یا مقالهٔ اصلی. این فیلد اختیاری است.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'نام نویسندهٔ اصلی این سند یا منبع را بنویسید؛ اختیاری است.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
 		<?php
@@ -999,7 +1000,7 @@ class Meta_Fields {
 			<label for="shcore_serial_number"><strong><?php esc_html_e( 'شمارهٔ سریال', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_serial_number" name="shcore_serial_number" class="regular-text" value="<?php echo esc_attr( $serial_number ); ?>">
 		</p>
-		<p class="description"><?php esc_html_e( 'شمارهٔ ثبت یا سریال داخلی این سند حزبی را، همان‌طور که در آرشیو فیزیکی یا دیجیتال حزب ثبت شده، اینجا وارد کنید؛ اختیاری است.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'شمارهٔ ثبت یا سریال داخلی این سند را وارد کنید؛ اختیاری است.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
 		<?php
@@ -1029,7 +1030,7 @@ class Meta_Fields {
 			<label for="shcore_author_note"><strong><?php esc_html_e( 'توضیح همکاری', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_author_note" name="shcore_author_note" class="large-text" value="<?php echo esc_attr( $author_note ); ?>">
 		</p>
-		<p class="description"><?php esc_html_e( 'توضیح کوتاه دربارهٔ نحوهٔ همکاری در تولید این نوشته برای نمایش کنار آن؛ مثلاً «کاری از میز اقتصاد» یا «با همکاری میز گزارش». اختیاری است.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'توضیح کوتاهی دربارهٔ نحوهٔ همکاری در این نوشته؛ مثلاً «کاری از میز اقتصاد».', 'shola-core' ); ?></p>
 		<?php self::render_language_field( $language ); ?>
 		<p>
 			<label for="shcore_translation_id"><strong><?php esc_html_e( 'شناسهٔ نوشتهٔ ترجمه', 'shola-core' ); ?></strong></label><br>
@@ -1074,16 +1075,16 @@ class Meta_Fields {
 			<input type="text" id="shcore_translation_original_author" name="shcore_translation_original_author" class="widefat" value="<?php echo esc_attr( $original_author ); ?>">
 		</p>
 		<p class="description">
-			<?php esc_html_e( 'نام نویسنده یا نویسندگان اثر اصلی (پیش از ترجمه) را وارد کنید؛ در صورت وجود چند نفر، نام‌ها را با ویرگول از هم جدا کنید.', 'shola-core' ); ?><br>
-			<?php esc_html_e( 'محدودیت: این نام فعلاً در صفحهٔ عمومی نمایش داده نمی‌شود؛ فقط در بخش مدیریت ثبت و نگهداری می‌شود.', 'shola-core' ); ?>
+			<?php esc_html_e( 'نام نویسنده یا نویسندگان اثر اصلی را وارد کنید.', 'shola-core' ); ?><br>
+			<?php esc_html_e( 'محدودیت: این نام فعلاً در صفحهٔ عمومی نمایش داده نمی‌شود.', 'shola-core' ); ?>
 		</p>
 		<p>
 			<label for="shcore_translation_translator"><strong><?php esc_html_e( 'مترجم', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_translation_translator" name="shcore_translation_translator" class="widefat" value="<?php echo esc_attr( $translator ); ?>">
 		</p>
 		<p class="description">
-			<?php esc_html_e( 'نام مترجم یا مترجمان این متن را وارد کنید؛ در صورت وجود چند مترجم، نام‌ها را با ویرگول از هم جدا کنید.', 'shola-core' ); ?><br>
-			<?php esc_html_e( 'محدودیت: این نام فعلاً در صفحهٔ عمومی نمایش داده نمی‌شود؛ فقط در بخش مدیریت ثبت و نگهداری می‌شود.', 'shola-core' ); ?>
+			<?php esc_html_e( 'نام مترجم یا مترجمان این متن را وارد کنید.', 'shola-core' ); ?><br>
+			<?php esc_html_e( 'محدودیت: این نام فعلاً در صفحهٔ عمومی نمایش داده نمی‌شود.', 'shola-core' ); ?>
 		</p>
 		<p>
 			<label>
@@ -1235,7 +1236,7 @@ class Meta_Fields {
 				<option value="en" <?php selected( $language, 'en' ); ?>>English</option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'زبان اصلی این محتوا را مشخص کنید تا در فیلترها و آرشیو درست دسته‌بندی شود؛ در حال حاضر فقط گزینهٔ فارسی برای سایت فعال است.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'زبان اصلی این محتوا را مشخص کنید؛ اکنون فقط فارسی فعال است.', 'shola-core' ); ?></p>
 		<?php
 	}
 
@@ -1262,8 +1263,8 @@ class Meta_Fields {
 			<button type="button" class="button shcore-pdf-remove" <?php echo $pdf_id ? '' : 'style="display:none"'; ?>><?php esc_html_e( 'حذف', 'shola-core' ); ?></button>
 		</p>
 		<p class="description">
-			<?php esc_html_e( 'فایل نهایی این محتوا را به‌صورت PDF از کتابخانهٔ رسانه انتخاب کنید یا فایل تازه‌ای از رایانهٔ خود بارگذاری کنید.', 'shola-core' ); ?><br>
-			<?php esc_html_e( 'محدودیت: تنها فایل‌های با فرمت PDF پذیرفته می‌شوند؛ فرمت‌های دیگر هنگام بارگذاری رد خواهند شد.', 'shola-core' ); ?>
+			<?php esc_html_e( 'فایل PDF این محتوا را از کتابخانهٔ رسانه انتخاب یا بارگذاری کنید.', 'shola-core' ); ?><br>
+			<?php esc_html_e( 'محدودیت: تنها فایل‌های PDF پذیرفته می‌شوند.', 'shola-core' ); ?>
 		</p>
 		<?php
 	}
