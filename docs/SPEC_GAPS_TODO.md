@@ -427,10 +427,28 @@ Verified live at desktop, tablet, and mobile — logo renders at a
 reasonable size, correctly centered, no layout shift to the H1/tabs
 below it, correct RTL, no regressions.
 
-### B15. Contact page: title/description hard-coded; response/privacy note split into two lines instead of one
+### ✅ B15. Contact page: title/description hard-coded; response/privacy note split into two lines instead of one — DONE 2026-10-01
 
-- File: `wp-content/themes/shola-jawid/page-contact.php`.
-- Low risk, cosmetic/content changes only, no shared code.
+Checked the spec text first: ارتباط با ما's components are عنوان صفحه
+(title), توضیحات مختصر زیر عنوان (short description under the title),
+the form (already built), the dynamic email (already built, B2), and
+«توضیحات یک‌خطی دربارهٔ زمان پاسخ‌دهی و حریم خصوصی» — a *one-line* note
+covering both response time and privacy together, not two separate
+paragraphs.
+
+Fixed: `page-contact.php`'s H1 and dek now pull from the real WP Page
+(`get_the_title()`/`get_the_excerpt()`), same "title field, description
+field" shape as B13's about-page fix — the dek falls back to the old
+hardcoded sentence if the Page's excerpt is left empty (it currently
+is, so nothing visibly changed yet; the real title already matched the
+old hardcoded text too). The response-time and privacy paragraphs were
+merged into one line under one combined label ("پاسخ‌دهی و حریم
+خصوصی"), with the existing privacy-policy-link logic (Settings →
+Privacy) preserved unchanged.
+Verified live at desktop, tablet, and mobile — title/dek unchanged in
+practice (no surprise this time), combined response/privacy line
+renders correctly as one line under one label, correct RTL, no
+regressions.
 
 ---
 

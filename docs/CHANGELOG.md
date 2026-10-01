@@ -13494,3 +13494,35 @@ Farhad reviewed the logo-centering fix live and asked for the tab nav
   no dead space where the nav used to sit.
   Theme version bumped 1.47.39 -> 1.47.40 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B15: ارتباط با حزب title/dek + combined response-privacy line
+
+Checked the spec text first: ارتباط با ما's components are عنوان صفحه,
+توضیحات مختصر زیر عنوان, the form, the already-dynamic email (B2), and
+«توضیحات یک‌خطی دربارهٔ زمان پاسخ‌دهی و حریم خصوصی» — a *one-line* note
+covering both topics together, not two separate paragraphs under two
+headings (what this page actually had).
+
+- **Changed:** `page-contact.php`'s H1 and dek now read
+  `get_the_title()`/`get_the_excerpt()` from the real Page instead of
+  hardcoded strings, same shape as B13's about-page fix. The dek falls
+  back to the old hardcoded sentence if the Page's excerpt is empty
+  (it is, today) — same "un-configured field keeps working" pattern as
+  B2's email default. The real title already matched the hardcoded
+  text, so — unlike B13 — this is not a visible change today, only a
+  mechanism change for when Farhad edits the Page later.
+- **Changed:** merged the separate "زمان پاسخ‌دهی" and "حریم خصوصی"
+  paragraphs (each with its own label) into one line under one combined
+  label ("پاسخ‌دهی و حریم خصوصی"), matching the spec's explicit
+  "one-line" instruction. The existing privacy-policy-link logic
+  (Settings → Privacy, added 2026-09-11) is unchanged — still links to
+  a real policy page if one is set, still doesn't promise one if not.
+  Verified live at desktop, tablet, and mobile: title/dek render
+  identically to before (confirmed no visual regression despite the
+  mechanism change), the combined response/privacy line renders
+  correctly as one line under one label, correct RTL, no regressions.
+  Also confirmed via a WP-bootstrap script that `get_privacy_policy_url()`
+  currently returns empty (no policy page set yet), exercising the
+  fallback branch, not just the linked one.
+  Theme version bumped 1.47.40 -> 1.47.41 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
