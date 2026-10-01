@@ -35,8 +35,10 @@ class Post_Types {
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_document_permalink' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_party_document_permalink' ), 10, 2 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_flush_rewrite_rules_for_party_document' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_flush_rewrite_rules_for_editors_pick' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'include_cpts_in_search' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'set_announcement_archive_posts_per_page' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'set_editors_pick_archive_posts_per_page' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'register_search_type_query_var' ) );
 	}
 
@@ -151,6 +153,24 @@ class Post_Types {
 	 */
 	public static function set_announcement_archive_posts_per_page( $query ) {
 		if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'announcement' ) ) {
+			return;
+		}
+
+		$query->set( 'posts_per_page', 20 );
+	}
+
+	/**
+	 * Explicit posts-per-page for گزیده‌ها's archive — added 2026-10-01,
+	 * same reasoning and pattern as set_announcement_archive_posts_per_page()
+	 * just above: archive-editors_pick.php runs the native main query, not
+	 * its own WP_Query, so this is the only place to cap it rather than
+	 * silently inheriting Settings -> Reading's global default.
+	 *
+	 * @param \WP_Query $query The query being modified.
+	 * @return void
+	 */
+	public static function set_editors_pick_archive_posts_per_page( $query ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'editors_pick' ) ) {
 			return;
 		}
 
@@ -590,6 +610,71 @@ class Post_Types {
 				),
 			)
 		);
+
+		/*
+		 * گزیده‌ها (editors_pick, labeled "Editor's Picks" in English) —
+		 * added 2026-10-01, per Farhad relaying the client's explicit
+		 * request after reviewing the homepage live: the پربازدیدترین
+		 * (Most Viewed, analytics-ranked) column under اطلاعیه‌ها is being
+		 * replaced there by a committee-curated "گزیده‌ها" column instead.
+		 * View_Counter and the Most Viewed mechanism are NOT being removed
+		 * — Farhad was explicit that single.php's article-sidebar Most
+		 * Viewed panel and taxonomy-topic.php's پرخواننده‌ترین sort tab
+		 * must keep working exactly as before; only front-page.php's one
+		 * homepage slot changes what it shows.
+		 *
+		 * Deliberately a brand-new, independent CPT — not a revival of the
+		 * old `shcore_is_selected` flag, which was renamed in place to
+		 * ترجمه (translation) on 2026-09-27 and stays exactly as-is per
+		 * Farhad's explicit instruction not to touch ترجمه in this round.
+		 * گزیده‌ها needed its own real taxonomy ("category... that has all
+		 * the standard properties of the WordPress CMS" — Farhad's words),
+		 * which a postmeta flag on `post` could never have provided
+		 * without conflating two unrelated things under one taxonomy.
+		 *
+		 * `supports` matches a normal WP article: title, body, author,
+		 * featured image, excerpt — "same as the articles but independent"
+		 * (Farhad's words), at the level of standard WP fields, not
+		 * articles' own custom meta (shcore_subtitle, shcore_byline, etc.),
+		 * none of which this new, simpler content type inherits.
+		 *
+		 * `single.php` (the existing article template) is reused for this
+		 * CPT's single view per Farhad's explicit instruction, rather than
+		 * a new single-editors_pick.php — see that file's own updated
+		 * breadcrumb logic for the one small adjustment this required.
+		 * has_archive => 'editors-picks' gives it a real, paginated archive
+		 * page (archive-editors_pick.php, new file) the same way
+		 * `announcement` already has one just above.
+		 */
+		register_post_type(
+			'editors_pick',
+			array(
+				'labels'       => array(
+					'name'               => __( 'گزیده‌ها', 'shola-core' ),
+					'singular_name'      => __( 'گزیده', 'shola-core' ),
+					'add_new'            => __( 'افزودن گزیده', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن گزیدهٔ جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش گزیده', 'shola-core' ),
+					'new_item'           => __( 'گزیدهٔ جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ گزیده', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی گزیده‌ها', 'shola-core' ),
+					'not_found'          => __( 'گزیده‌ای یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'گزیده‌ای در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ گزیده‌ها', 'shola-core' ),
+					'menu_name'          => __( 'گزیده‌ها', 'shola-core' ),
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'has_archive'  => 'editors-picks',
+				'menu_icon'    => 'dashicons-star-filled',
+				'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'author' ),
+				'taxonomies'   => array( 'editors_pick_category' ),
+				'rewrite'      => array(
+					'slug'       => 'editors-picks',
+					'with_front' => false,
+				),
+			)
+		);
 	}
 
 	/**
@@ -625,6 +710,25 @@ class Post_Types {
 		}
 		flush_rewrite_rules();
 		update_option( 'shcore_party_document_permalink_flushed', 1 );
+	}
+
+	/**
+	 * One-time rewrite-rules flush for the new 2026-10-01 `editors_pick`
+	 * CPT (and its `editors_pick_category` taxonomy) — same reasoning as
+	 * maybe_flush_rewrite_rules_for_party_document() just above: this
+	 * ships as a code-only redeploy to an already-active plugin, which
+	 * never re-fires the activation hook that would otherwise register
+	 * /editors-picks/'s rewrite rules, so without this every گزیده‌ها
+	 * single-post link and the archive page itself would 404.
+	 *
+	 * @return void
+	 */
+	public static function maybe_flush_rewrite_rules_for_editors_pick() {
+		if ( get_option( 'shcore_editors_pick_permalink_flushed' ) ) {
+			return;
+		}
+		flush_rewrite_rules();
+		update_option( 'shcore_editors_pick_permalink_flushed', 1 );
 	}
 
 	/**

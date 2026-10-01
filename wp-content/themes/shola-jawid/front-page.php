@@ -512,36 +512,28 @@ $announcement_query = new WP_Query(
 $has_spotlight = $announcement_query->have_posts();
 
 /*
- * پربازدیدترین (Most Viewed) panel — added 2026-09-15, client-requested
- * via Farhad, inspired by an aawsat.com reference design (see
- * docs/CHANGELOG.md). Ranks real reader views (SholaCore\View_Counter,
- * shcore_view_count postmeta) across `post` (covers both articles and
- * گزارش/reports — both are post type `post`, distinguished only by the
- * `report` taxonomy, deliberately NOT excluded here unlike the
- * تازه‌ترین مقالات query below) and `announcement`. Publications/
- * documents are deliberately out of scope — client confirmed 2026-09-15
- * that "articles, reports, announcements" is the intended ranking pool,
- * not the whole site. Same `orderby => meta_value_num` sort already
- * proven by taxonomy-topic.php's پرخواننده‌ترین tab.
+ * گزیده‌ها (Editor's Picks) panel — replaces پربازدیدترین (Most Viewed)
+ * in this one homepage slot, 2026-10-01, per Farhad's explicit request
+ * after reviewing the live homepage: this column should show content
+ * the editorial committee curates, not an analytics ranking. The Most
+ * Viewed *mechanism* (SholaCore\View_Counter, shcore_view_count) is
+ * untouched and still powers single.php's article-sidebar panel and
+ * taxonomy-topic.php's پرخواننده‌ترین sort tab — Farhad was explicit
+ * that only this one slot's content source changes, nothing else. See
+ * SholaCore\Post_Types' `editors_pick` CPT registration docblock for
+ * the full feature history.
  */
-$most_viewed_query = new WP_Query(
+$editors_picks_query = new WP_Query(
 	array(
-		'post_type'           => array( 'post', 'announcement' ),
-		/*
-		 * 5 -> 6, 2026-09-21: Farhad's explicit ask — the panel had
-		 * visible empty space below its 5th item, one more row fills
-		 * it out. most-viewed-panel.php's own $rest slice raised
-		 * 4 -> 5 to match (1 featured + 5 list rows = 6 total).
-		 */
+		'post_type'           => 'editors_pick',
 		'posts_per_page'      => 6,
-		'orderby'             => 'meta_value_num',
-		'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
+		'orderby'             => 'date',
 		'order'               => 'DESC',
 		'ignore_sticky_posts' => true,
 		'no_found_rows'       => true,
 	)
 );
-$has_mostviewed = $most_viewed_query->have_posts();
+$has_editorspicks = $editors_picks_query->have_posts();
 
 /*
  * 6 -> 4, 2026-09-26: Farhad's explicit ask. No longer tied to the
@@ -606,10 +598,10 @@ $grid_cards_classes = 'grid-cards';
 if ( $has_spotlight ) {
 	$grid_cards_classes .= ' grid-cards--with-spotlight';
 }
-if ( $has_mostviewed ) {
-	$grid_cards_classes .= ' grid-cards--with-mostviewed';
+if ( $has_editorspicks ) {
+	$grid_cards_classes .= ' grid-cards--with-editorspicks';
 	if ( ! $has_spotlight ) {
-		$grid_cards_classes .= ' grid-cards--mv-only';
+		$grid_cards_classes .= ' grid-cards--ep-only';
 	}
 }
 ?>
@@ -633,11 +625,11 @@ if ( $has_mostviewed ) {
 						array( 'posts' => $announcement_query->posts )
 					);
 				}
-				if ( $has_mostviewed ) {
+				if ( $has_editorspicks ) {
 					get_template_part(
-						'template-parts/cards/most-viewed-panel',
+						'template-parts/cards/editors-picks-panel',
 						null,
-						array( 'posts' => $most_viewed_query->posts )
+						array( 'posts' => $editors_picks_query->posts )
 					);
 				}
 				/*

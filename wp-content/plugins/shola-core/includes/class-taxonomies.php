@@ -492,6 +492,44 @@ class Taxonomies {
 				'rewrite'           => false,
 			)
 		);
+
+		/*
+		 * editors_pick_category — added 2026-10-01 alongside the new
+		 * editors_pick (گزیده‌ها) CPT. Same self-managed pattern as
+		 * party_document_category above: zero starting terms (no fixed
+		 * IA-doc vocabulary given for this one, unlike topic/publication/
+		 * collection), hierarchical => true for the standard
+		 * Categories-style checkbox admin UI Farhad asked for ("all the
+		 * standard properties of the WordPress CMS"). Unlike
+		 * party_document_category, this one DOES get the normal
+		 * «دسته‌بندی‌نشده» Uncategorized fallback (see
+		 * Category_Manager::NO_UNCATEGORIZED_FALLBACK, which this taxonomy
+		 * is deliberately NOT added to) — nothing was said against it this
+		 * time, and "standard WordPress" behavior includes that fallback.
+		 */
+		register_taxonomy(
+			'editors_pick_category',
+			'editors_pick',
+			array(
+				'labels'            => array(
+					'name'          => __( 'دسته‌های گزیده', 'shola-core' ),
+					'singular_name' => __( 'دستهٔ گزیده', 'shola-core' ),
+					'search_items'  => __( 'جست‌وجوی دسته‌ها', 'shola-core' ),
+					'all_items'     => __( 'همهٔ دسته‌ها', 'shola-core' ),
+					'edit_item'     => __( 'ویرایش دسته', 'shola-core' ),
+					'view_item'     => __( 'مشاهدهٔ دسته', 'shola-core' ),
+					'menu_name'     => __( 'دسته‌ها', 'shola-core' ),
+				),
+				'public'            => true,
+				'show_in_rest'      => true,
+				'hierarchical'      => true,
+				'show_admin_column' => true,
+				'rewrite'           => array(
+					'slug'       => 'editors-picks-category',
+					'with_front' => false,
+				),
+			)
+		);
 	}
 
 	/**

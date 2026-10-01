@@ -5,6 +5,15 @@
  * (Phase 4.2). Applies to the native `post` type (articles/notes) — issue
  * and document have their own single-issue.php/single-document.php.
  *
+ * Also reused for `editors_pick` (گزیده‌ها), 2026-10-01, per Farhad's
+ * explicit instruction: "the same as the articles but independent," so
+ * the existing article single view is the right template rather than a
+ * new single-editors_pick.php. WordPress's own template hierarchy falls
+ * back to this file automatically for that post type (no
+ * single-editors_pick.php exists) — no routing change was needed here,
+ * only the breadcrumb below, since `editors_pick` posts carry no `topic`
+ * terms and the fixed موضوعات crumb link below was always unconditional.
+ *
  * @package shola-jawid
  */
 
@@ -76,26 +85,46 @@ while ( have_posts() ) :
 				<header class="wrap article-header">
 					<nav class="article-crumb" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
 						<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
-						<span aria-hidden="true"> / </span>
-						<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
-						<?php
-						/*
-						 * ترجمه crumb — added 2026-09-27, per Farhad relaying
-						 * the client's request: a ترجمه-flagged post's
-						 * breadcrumb showed no trace of that at all. Placed
-						 * right after موضوعات (matching where Farhad pointed
-						 * on a live screenshot), before the topic crumb if
-						 * one also exists — additive, doesn't replace the
-						 * topic crumb.
-						 */
-						?>
-						<?php if ( $is_tarjome ) : ?>
+						<?php if ( 'editors_pick' === get_post_type() ) : ?>
+							<?php
+							/*
+							 * گزیده‌ها crumb — added 2026-10-01, when this
+							 * template was reused for the new editors_pick CPT
+							 * (Farhad's explicit instruction, "same as the
+							 * articles but independent"). An editors_pick post
+							 * never has `topic` terms or the ترجمه flag, so the
+							 * موضوعات crumb below (and the two conditional ones
+							 * that depend on it) would otherwise show a
+							 * dangling, non-active "موضوعات" link that doesn't
+							 * actually describe this content — this crumb
+							 * replaces that branch entirely for this one post
+							 * type instead of appending to it.
+							 */
+							?>
 							<span aria-hidden="true"> / </span>
-							<a class="<?php echo $topic ? '' : 'active'; ?>" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></a>
-						<?php endif; ?>
-						<?php if ( $topic ) : ?>
+							<a class="active" href="<?php echo esc_url( home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></a>
+						<?php else : ?>
 							<span aria-hidden="true"> / </span>
-							<a class="active" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a>
+							<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
+							<?php
+							/*
+							 * ترجمه crumb — added 2026-09-27, per Farhad relaying
+							 * the client's request: a ترجمه-flagged post's
+							 * breadcrumb showed no trace of that at all. Placed
+							 * right after موضوعات (matching where Farhad pointed
+							 * on a live screenshot), before the topic crumb if
+							 * one also exists — additive, doesn't replace the
+							 * topic crumb.
+							 */
+							?>
+							<?php if ( $is_tarjome ) : ?>
+								<span aria-hidden="true"> / </span>
+								<a class="<?php echo $topic ? '' : 'active'; ?>" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></a>
+							<?php endif; ?>
+							<?php if ( $topic ) : ?>
+								<span aria-hidden="true"> / </span>
+								<a class="active" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a>
+							<?php endif; ?>
 						<?php endif; ?>
 					</nav>
 

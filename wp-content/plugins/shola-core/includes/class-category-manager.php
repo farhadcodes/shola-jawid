@@ -52,6 +52,7 @@ class Category_Manager {
 		'party_document_category'  => 'party_document',
 		'report'                    => 'post',
 		'publication'               => 'issue',
+		'editors_pick_category'     => 'editors_pick',
 	);
 
 	/**

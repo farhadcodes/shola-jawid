@@ -1235,10 +1235,21 @@ function shola_get_primary_topic( $post ) {
  * reads as that (its more specific content type) even if also flagged
  * ترجمه.
  *
+ * `editors_pick` checked first of all, added 2026-10-01 alongside that
+ * new CPT reusing card.php (its own archive, archive-editors_pick.php) —
+ * without this, the function's final fallback would mislabel every
+ * گزیده‌ها card as "مقاله", the exact class of bug this function exists
+ * to prevent, just for a content type that didn't exist yet when it was
+ * written.
+ *
  * @param int|WP_Post $post Post ID or object.
  * @return string
  */
 function shola_get_content_type_label( $post ) {
+	if ( 'editors_pick' === get_post_type( $post ) ) {
+		return __( 'گزیده', 'shola-jawid' );
+	}
+
 	if ( has_term( 'reports', 'report', $post ) ) {
 		return __( 'گزارش', 'shola-jawid' );
 	}

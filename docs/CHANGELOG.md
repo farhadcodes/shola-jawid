@@ -13526,3 +13526,118 @@ headings (what this page actually had).
   fallback branch, not just the linked one.
   Theme version bumped 1.47.40 -> 1.47.41 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — New feature: گزیده‌ها (Editor's Picks), resolving spec items A1/A3
+
+Farhad relayed a direct client request after reviewing the live
+homepage: the "پربازدیدترین" (Most Viewed, analytics-ranked) column
+under اطلاعیه‌ها should become "گزیده‌ها" (Editor's Picks) — content the
+editorial committee hand-selects to feature, not a view-count ranking.
+He was explicit on two constraints throughout: (1) don't touch ترجمه
+(translation) at all in this round — that's a separate, later
+conversation; (2) don't remove the Most Viewed *mechanism* — only this
+one homepage slot's content source changes, single.php's article-
+sidebar panel and taxonomy-topic.php's پرخواننده‌ترین sort tab must keep
+working exactly as before.
+
+This resolves spec-audit items **A1** (گزیده vs. ترجمه are confirmed
+two separate things — see SPEC_GAPS_TODO.md) and **A3** (what belongs
+in that homepage slot) together. Clarified with Farhad before building:
+گزیده needs to be "the same as the articles but independent" — a real,
+standalone CPT with its own taxonomy ("all the standard properties of
+the WordPress CMS"), reusing the existing article single template
+(not a new one), plus a full archive page with the same conventions
+every other archive has (breadcrumb, pagination). English URL slug
+("Editor's Picks") confirmed directly with Farhad.
+
+**Plugin (shola-core):**
+- **Added:** `editors_pick` CPT (class-post-types.php) — labels
+  "گزیده‌ها"/"گزیده", `supports => title, editor, thumbnail, excerpt,
+  author` (matching a normal WP article at the standard-fields level,
+  not articles' own custom meta like shcore_subtitle/shcore_byline,
+  none of which this simpler content type inherits), `has_archive =>
+  'editors-picks'`.
+- **Added:** `editors_pick_category` taxonomy (class-taxonomies.php) —
+  same self-managed, zero-starting-terms pattern as
+  `party_document_category` (hierarchical, Categories-style admin UI).
+  Added to `Category_Manager::MANAGED` (class-category-manager.php) so
+  it gets ترتیب ordering and reassign-before-delete like every other
+  managed taxonomy; NOT added to `NO_UNCATEGORIZED_FALLBACK`, so it
+  gets the normal «دسته‌بندی‌نشده» fallback term too — "standard
+  WordPress" behavior, as asked.
+- **Added:** `maybe_flush_rewrite_rules_for_editors_pick()` — a
+  one-time `admin_init` flush (same pattern as the existing
+  party_document equivalent), since this ships as a code-only redeploy
+  to an already-active plugin, which never re-fires the activation
+  hook that would otherwise register /editors-picks/'s rewrite rules.
+- **Added:** `set_editors_pick_archive_posts_per_page()` — caps the new
+  archive at 20/page via `pre_get_posts`, same B12 pattern as the
+  announcement archive's own cap (the archive template runs WordPress's
+  native main query, not its own WP_Query, so this is the only place to
+  set it).
+- **Fixed in passing:** `shola_get_content_type_label()`
+  (inc/template-tags.php) would have mislabeled every گزیده‌ها card as
+  "مقاله" via its final fallback — added an `editors_pick` check first,
+  returning "گزیده" instead. Same class of bug this function was
+  originally built to prevent (2026-09-25), just for a content type
+  that didn't exist yet when it was written.
+
+**Theme:**
+- **Reused** `single.php` for گزیده‌ها's single view, per Farhad's
+  explicit instruction, rather than a new single-editors_pick.php —
+  WordPress's own template hierarchy falls back to it automatically.
+  The one adjustment needed: the breadcrumb's موضوعات (topics) crumb
+  was unconditional, which would have shown a dangling, non-active
+  "موضوعات" link on a گزیده‌ها post (which never has `topic` terms) —
+  now branches on `get_post_type()`, showing an active "گزیده‌ها" crumb
+  instead for this post type. Related-posts rail (`$related_query`,
+  topic-based) simply doesn't render for گزیده‌ها, same as any `post`
+  with no topic assigned — not built out further this round.
+- **Added:** `archive-editors_pick.php` (new) — breadcrumb, grid-cards
+  + card.php (same anatomy as مقالات/گزارش archives, not issue-card.php
+  — this is article-shaped content), pagination. Same structural
+  pattern as archive-announcement.php, the closest existing CPT-archive
+  precedent.
+- **Added:** `template-parts/cards/editors-picks-panel.php` (new) — the
+  homepage panel, visually an exact copy of most-viewed-panel.php's
+  anatomy (featured item with image, 5 plain numbered rows) per
+  Farhad's "keep the same structure... only the function should be
+  different" instruction. Deliberately a **new, independent file**, not
+  a rename or repurposing of most-viewed-panel.php: that file and its
+  two remaining call sites (single.php sidebar, and available for any
+  future Most Viewed use) must keep working completely unmodified.
+- **Changed:** `front-page.php` — `$editors_picks_query`/
+  `$has_editorspicks` (querying the new CPT) replaces
+  `$most_viewed_query`/`$has_mostviewed` in this one slot only; grid
+  modifier classes renamed to match (`grid-cards--with-editorspicks`,
+  `grid-cards--ep-only`). View_Counter itself, its `shcore_view_count`
+  postmeta, and every other place that reads it are completely
+  untouched.
+- **Added:** `.editors-pick-panel`/`.ep-*` CSS (main.css) — a full,
+  independent copy of `.most-viewed-panel`/`.mv-*` under new selectors
+  (same grid placement, same breakpoints, same visual treatment),
+  rather than renaming or sharing the existing classes — reusing
+  `.most-viewed-panel`-named classes for unrelated, editorially-curated
+  content would read as confusing in devtools, and the existing rules
+  must stay exactly as they are for their own remaining use.
+
+**Verification:** created 7 temporary گزیده‌ها test posts (no featured
+images, to also confirm the fallback-image path) and confirmed live at
+desktop, tablet, and mobile: homepage panel shows 1 featured + 5 listed
+(6 total, matching Most Viewed's old count), correct numbers/RTL/
+layout at all three breakpoints, Most Viewed panel confirmed absent
+from the homepage; archive page shows all 7 with the corrected "گزیده"
+type-label, no pagination (under the 20 cap), correct breadcrumb/grid
+at all three breakpoints; single view shows the correct "گزیده‌ها"
+breadcrumb (not a dangling موضوعات link), content/excerpt/featured-
+image all render via the reused article template, and its Most-Viewed
+sidebar panel still renders (showing real site content, unaffected).
+Separately re-verified taxonomy-topic.php's پرخواننده‌ترین sort tab
+still works, confirming View_Counter is untouched. No PHP warnings/
+console errors at any point, including with zero گزیده‌ها content
+(homepage panel correctly renders nothing, no dead space). All 7 test
+posts deleted after verification.
+Theme version bumped 1.47.41 -> 1.48.0 (minor — a new content type and
+archive, not a patch-level fix like this session's other entries).
+Plugin version bumped 1.24.15 -> 1.25.0 (minor, same reasoning).
+Approved by: Farhad, in this session (2026-10-01).

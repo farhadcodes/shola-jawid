@@ -30,25 +30,26 @@ in `CLAUDE.md` §5/§10.
 
 ## Part A — Decide first (conflicts between the spec and an existing client decision)
 
-### A1. گزیده vs. ترجمه — are these one unit or two?
+### ⚠️ A1. گزیده vs. ترجمه — are these one unit or two? — PARTIALLY RESOLVED 2026-10-01
 
-The spec (بخش یکم، ج و د) describes **two separate content units**:
-- گزیده — same fields as گزارش, including multi-author support.
-- ترجمه — its own unit, with original-author, translator, and alias fields.
+**Decided:** yes, two genuinely separate things — confirming the spec's
+original two-unit design, not the 2026-09-27 rename/merge. Farhad
+confirmed گزیده (Editor's Picks) needs its own independent CPT (`editors_pick`,
+new 2026-10-01) with its own real taxonomy, "same as the articles but
+independent." Built and shipped — see the new entry in
+`docs/CHANGELOG.md` 2026-10-01 for the full implementation.
 
-On 2026-09-27 (this session), the old "گزیده‌ها" postmeta flag
-(`shcore_is_selected`) was **renamed in place** to "ترجمه", and the
-translation fields (`shcore_translation_original_author`,
-`shcore_translation_translator`) were added to that same renamed box. A
-separate گزیده unit no longer exists anywhere in the code.
+**Still open:** ترجمه itself — Farhad explicitly said not to touch it in
+this round ("let's not touch the translation as we do not need it").
+The old `shcore_is_selected`/ترجمه mechanism (shola_get_selected_query(),
+page-selected.php, front-page.php's ترجمه homepage section,
+`shcore_translation_original_author`/`shcore_translation_translator`)
+is completely unchanged. Revisit once Farhad is ready to discuss ترجمه
+specifically — this file's original framing (does ترجمه need to be
+pulled back out from the fields it currently shares, into something
+closer to the spec's own ترجمه unit) is still the open question.
 
-**Decide:** was that rename/merge actually what the client wants long-term
-(i.e. the spec's two-unit design is now outdated), or does a real, separate
-گزیده unit need to be rebuilt alongside ترجمه? This affects a lot of
-downstream work (A1 blocks item A3, and parts of B-items on multi-author
-support), so settle this one first.
-
-- Files: `wp-content/plugins/shola-core/includes/class-meta-fields.php`
+- Files (for the ترجمه half, once revisited): `wp-content/plugins/shola-core/includes/class-meta-fields.php`
   (metabox `shcore_selected_field`, function `render_selected_metabox()`),
   `wp-content/themes/shola-jawid/page-selected.php`,
   `wp-content/themes/shola-jawid/front-page.php` (ترجمه homepage section).
@@ -68,20 +69,27 @@ earlier written spec, but confirm rather than assume.
   `posts_per_page => 4`, two places — the query args and the hard-cap
   loop counter just below it).
 
-### A3. What belongs in the column under اطلاعیه‌ها on the homepage?
+### ✅ A3. What belongs in the column under اطلاعیه‌ها on the homepage? — DONE 2026-10-01
 
-Spec wants a گزیده list (title + date) there. The site currently shows
-"پربازدیدترین" (Most Viewed), added 2026-09-15 at the client's own request,
-with a code comment noting a future plan to move Most Viewed to the گزارش
-section instead.
+**Decided and shipped:** گزیده (Editor's Picks), per Farhad's explicit
+request — replacing "پربازدیدترین" (Most Viewed) in this one slot only.
+Most Viewed itself (SholaCore\View_Counter, shcore_view_count) is fully
+intact and untouched everywhere else: single.php's article-sidebar
+panel and taxonomy-topic.php's پرخواننده‌ترین sort tab both still work
+exactly as before — Farhad was explicit about that constraint.
 
-**Decide:** which content actually belongs in that slot — and this is
-downstream of A1 (there's no گزیده unit to pull from right now even if you
-wanted to put it back).
-
-- Files: `wp-content/themes/shola-jawid/front-page.php`
-  (`$most_viewed_query`, `$has_mostviewed`),
-  `wp-content/themes/shola-jawid/template-parts/cards/most-viewed-panel.php`.
+- Files changed: `wp-content/themes/shola-jawid/front-page.php`
+  (`$editors_picks_query`/`$has_editorspicks`, replacing
+  `$most_viewed_query`/`$has_mostviewed`),
+  `wp-content/themes/shola-jawid/template-parts/cards/editors-picks-panel.php`
+  (new — a visual copy of most-viewed-panel.php's exact anatomy, not a
+  shared/renamed file; that file is untouched and still used by its two
+  remaining call sites), `wp-content/plugins/shola-core/includes/class-post-types.php`
+  (new `editors_pick` CPT), `class-taxonomies.php` (new
+  `editors_pick_category` taxonomy), `single.php` (reused for گزیده‌ها's
+  single view; breadcrumb made post-type-aware), new
+  `archive-editors_pick.php`. Full verification in
+  `docs/CHANGELOG.md` 2026-10-01.
 
 ### A4. ترجمه homepage card layout: rows or cards?
 
