@@ -343,38 +343,40 @@ breadcrumb is just "Home / Section Name" navigation, independent of
 whatever those still-open content decisions end up changing about
 گزیده/ترجمه/گزارش's layout or terminology.
 
-### B12. Pagination inconsistency across archives + search page gaps
+### ✅ B12. Pagination inconsistency across archives + search page gaps — DONE 2026-10-01
 
-Current per-page values vary (6, 9, 12, 20, unset) with no stated 20-item
-threshold enforced; search has no 30-per-page override and only
-bottom-side pagination.
+Checked the actual spec text before deciding the "20 items" question:
+it's a general rule ("هرگاه مطالب یک صفحه از ۲۰ مورد بیشتر شد، بقیه به
+صفحات بعدی تقسیم شوند") — a trigger threshold, not a mandate to unify
+every archive to exactly 20. Confirmed every existing explicit per-page
+value already sits at or under 20 (6, 9, 12, 20), so those were left
+untouched, matching this item's own recommendation.
 
-- Files: every `page-*.php`/`taxonomy-*.php`/`archive-*.php` archive
-  template (see the full list in the audit above), plus
-  `wp-content/themes/shola-jawid/search.php`.
-- **Decide first (not a conflict, just undecided):** does the spec's "20
-  items" mean every archive should be unified to exactly 20, or is the
-  20 just a trigger threshold ("don't show more than 20 unpaginated") that
-  different sections can still tune differently (e.g. گزارش's current 6
-  isn't necessarily wrong, it's just a smaller intentional page size)?
-  Recommend treating existing intentional sizes (6 for گزارش section,
-  matching its homepage count) as fine, and only fixing the ones with
-  **no pagination control at all** (اطلاعیه‌ها archive, search) plus
-  adding search's 30-per-page + top-and-bottom pagination explicitly.
-- **Search page specifically:**
-  1. Confirm live whether an empty `/?s=` query currently lists everything
-     (likely, per the audit) — if so, add an early return/empty-state in
-     `search.php` when the query string is blank, matching the pattern
-     other "show nothing until X" templates already use (check `category.php`
-     or similar native templates aren't relied upon elsewhere first — this
-     is `search.php` only, shared by nothing else, so this change is safe
-     and isolated).
-  2. Add `'posts_per_page' => 30` to the search query args.
-  3. Duplicate the existing bottom pagination block above the results too
-     (same `paginate_links()` call, rendered twice) — this is the same
-     "render the same pagination markup twice" pattern already used
-     elsewhere in the codebase (e.g. the sidebar components), not a new
-     technique.
+Also corrected an unsourced number from this gap's own earlier
+description: search's page size is now **20**, not 30 — the "30" had
+no basis anywhere in the actual spec text; 20 is the one number the
+spec actually states.
+
+- **Fixed the two archives with no explicit pagination control**
+  (previously silently inheriting Settings → Reading's global default):
+  `archive-announcement.php` and `search.php`, both now explicitly
+  capped at 20 via two `pre_get_posts` hooks in class-post-types.php
+  (`set_announcement_archive_posts_per_page()`, and a `posts_per_page`
+  line added to the existing `include_cpts_in_search()`).
+- **Confirmed live, then fixed:** an empty `/?s=` query was matching
+  WordPress's own search SQL trivially and listing all 41 posts on the
+  site, not "no results" — `search.php` now shows "برای دیدن نتیجه،
+  عبارتی را در کادر بالا وارد کنید." instead of running the results
+  loop when the query string is blank.
+  Verified via a real browser search returning 41 results for «ا»:
+  capped correctly at 20/page across 3 pages, page 2 confirmed showing
+  the next 20. Top-and-bottom pagination confirmed live at desktop,
+  tablet, and mobile (same computed link set rendered twice, so the two
+  copies can't drift apart), correct RTL, no regressions. Empty-query
+  guard and the announcement archive's new 20-cap both confirmed via a
+  WP-bootstrap script and a live visit (8 published announcements — too
+  few to show pagination either way, but the hook logic itself verified
+  directly).
 
 ### B13. دربارهٔ ما: hard-coded H1 and tab navigation
 

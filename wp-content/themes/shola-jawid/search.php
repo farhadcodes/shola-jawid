@@ -91,8 +91,47 @@ $filters = array(
 			</div>
 		</form>
 
+		<?php
+		/*
+		 * Pagination links computed once, 2026-10-01 (spec-audit gap
+		 * B12) — rendered both above and below the results list below,
+		 * same "build once, echo twice" pattern, so the top copy can't
+		 * silently drift from the bottom one.
+		 */
+		$pagination_links = array();
+		if ( $GLOBALS['wp_query']->max_num_pages > 1 ) {
+			$raw_links = paginate_links(
+				array(
+					'total'     => $GLOBALS['wp_query']->max_num_pages,
+					'current'   => $paged,
+					'type'      => 'array',
+					'prev_text' => '→',
+					'next_text' => '←',
+				)
+			);
+			if ( $raw_links ) {
+				foreach ( $raw_links as $raw_link ) {
+					$raw_link            = shola_persian_digits_pagination_link( $raw_link );
+					$pagination_links[]  = str_replace( 'page-numbers', 'page-num', $raw_link );
+				}
+			}
+		}
+		?>
+
 		<div class="search-results-wrap">
-			<?php if ( have_posts() ) : ?>
+			<?php if ( '' === trim( $search_query ) ) : ?>
+				<?php
+				/*
+				 * Empty-query guard, 2026-10-01 (spec-audit gap B12) —
+				 * confirmed live before fixing: `/?s=` (an empty but
+				 * present query string) matched WordPress's own search
+				 * SQL trivially and listed every single post on the site,
+				 * not "no results". A blank search box submit should ask
+				 * for a term, not dump the whole site.
+				 */
+				?>
+				<p class="dek search-no-results"><?php esc_html_e( 'برای دیدن نتیجه، عبارتی را در کادر بالا وارد کنید.', 'shola-jawid' ); ?></p>
+			<?php elseif ( have_posts() ) : ?>
 				<?php
 				/*
 				 * Bug fix, 2026-09-10: this line was literal hardcoded
@@ -136,6 +175,14 @@ $filters = array(
 					?>
 				</p>
 
+				<?php if ( $pagination_links ) : ?>
+					<div class="pagination pagination--top">
+						<?php foreach ( $pagination_links as $pagination_link ) : ?>
+							<?php echo wp_kses_post( $pagination_link ); ?>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
 				<ul class="stack-lg">
 					<?php
 					while ( have_posts() ) :
@@ -152,26 +199,11 @@ $filters = array(
 					?>
 				</ul>
 
-				<?php if ( $GLOBALS['wp_query']->max_num_pages > 1 ) : ?>
+				<?php if ( $pagination_links ) : ?>
 					<div class="pagination">
-						<?php
-						$links = paginate_links(
-							array(
-								'total'     => $GLOBALS['wp_query']->max_num_pages,
-								'current'   => $paged,
-								'type'      => 'array',
-								'prev_text' => '→',
-								'next_text' => '←',
-							)
-						);
-						if ( $links ) {
-							foreach ( $links as $link ) {
-								$link = shola_persian_digits_pagination_link( $link );
-								$link = str_replace( 'page-numbers', 'page-num', $link );
-								echo wp_kses_post( $link );
-							}
-						}
-						?>
+						<?php foreach ( $pagination_links as $pagination_link ) : ?>
+							<?php echo wp_kses_post( $pagination_link ); ?>
+						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
 			<?php else : ?>

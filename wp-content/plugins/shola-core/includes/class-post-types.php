@@ -36,6 +36,7 @@ class Post_Types {
 		add_filter( 'post_type_link', array( __CLASS__, 'filter_party_document_permalink' ), 10, 2 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_flush_rewrite_rules_for_party_document' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'include_cpts_in_search' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'set_announcement_archive_posts_per_page' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'register_search_type_query_var' ) );
 	}
 
@@ -73,6 +74,19 @@ class Post_Types {
 		if ( is_admin() || ! $query->is_main_query() || ! $query->is_search() ) {
 			return;
 		}
+
+		/*
+		 * Explicit posts-per-page, 2026-10-01 (spec-audit gap B12) — this
+		 * query previously relied on the site's Settings -> Reading
+		 * default (10 currently, but that's an admin-editable global, not
+		 * something this template should silently depend on). 20 matches
+		 * the spec's one stated pagination rule ("هرگاه مطالب یک صفحه از
+		 * ۲۰ مورد بیشتر شد، بقیه به صفحات بعدی تقسیم شوند" — docs' own
+		 * general archive-pagination rule, the same one breadcrumbs sit
+		 * next to in the spec), not the unrelated "30" an earlier pass of
+		 * this project's own gap audit had guessed at with no spec basis.
+		 */
+		$query->set( 'posts_per_page', 20 );
 
 		$type = sanitize_key( (string) $query->get( 'result_type' ) );
 
@@ -120,6 +134,27 @@ class Post_Types {
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Explicit posts-per-page for اطلاعیه‌ها's archive — added 2026-10-01
+	 * (spec-audit gap B12). archive-announcement.php's loop runs the
+	 * native main query directly (no custom WP_Query of its own, unlike
+	 * every other archive template on the site), so it previously
+	 * inherited whatever Settings -> Reading's "Blog pages show at most"
+	 * value happened to be — an admin-editable global this template
+	 * should not silently depend on. 20 matches the same spec pagination
+	 * rule `include_cpts_in_search()` above was just given.
+	 *
+	 * @param \WP_Query $query The query being modified.
+	 * @return void
+	 */
+	public static function set_announcement_archive_posts_per_page( $query ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'announcement' ) ) {
+			return;
+		}
+
+		$query->set( 'posts_per_page', 20 );
 	}
 
 	/**

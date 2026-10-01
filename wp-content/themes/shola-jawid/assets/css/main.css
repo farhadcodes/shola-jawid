@@ -4523,6 +4523,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   gap: .5rem;
   margin-top: 3rem;
 }
+/* .pagination--top (spec-audit gap B12, 2026-10-01): search.php's
+   top-of-results copy of the same pagination controls — sits between
+   the result count and the list, not after a full page of content like
+   every other .pagination use, so it needs a much smaller margin on
+   both sides instead of the 3rem top-only spacing meant for "after a
+   long list". */
+.pagination--top {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
 .page-num {
   display: inline-flex; align-items: center; justify-content: center;
   width: 2.4rem; height: 2.4rem;

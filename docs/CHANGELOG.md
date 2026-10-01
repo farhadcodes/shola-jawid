@@ -13330,3 +13330,53 @@ Approved by: Farhad, in this session (2026-10-01).
   breadcrumbs on unrelated pages (e.g. کتابخانه) confirmed unaffected.
   Theme version bumped 1.47.34 -> 1.47.35 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B12: pagination consistency + search fixes
+
+Re-checked the spec text itself before touching anything: "هرگاه مطالب
+یک صفحه از ۲۰ مورد بیشتر شد، بقیه به صفحات بعدی تقسیم شوند" is a
+general trigger-threshold rule (don't show more than 20 unpaginated),
+not a mandate to unify every archive's page size to exactly 20. Every
+archive template's existing explicit `posts_per_page` (6, 9, 12, 20) was
+already at or under that threshold, so none of them were changed.
+
+- **Corrected an unsourced number from this gap's own earlier
+  description:** search's page size is **20**, matching the spec's one
+  actual stated number — not the "30" an earlier pass of this project's
+  own gap audit had guessed at, which doesn't appear anywhere in the
+  real spec text.
+- **Fixed the two archives that had no explicit pagination control at
+  all** (previously silently inheriting Settings → Reading's "Blog
+  pages show at most" global, currently 10 but admin-editable):
+  `archive-announcement.php` and `search.php`. Both are template files
+  that run WordPress's native main query rather than their own
+  `WP_Query`, so the fix is two `pre_get_posts` hooks in
+  class-post-types.php: a new `set_announcement_archive_posts_per_page()`,
+  and a `$query->set( 'posts_per_page', 20 )` line added to the existing
+  `include_cpts_in_search()`.
+- **Confirmed live, then fixed, a real bug:** `/?s=` (present but empty
+  query string) matched WordPress's own search SQL trivially and listed
+  every post on the site (41) as "search results" — not the "no
+  results" a blank search submit should show. `search.php` now checks
+  `'' === trim( $search_query )` and shows "برای دیدن نتیجه، عبارتی را
+  در کادر بالا وارد کنید." instead of running the results loop.
+- **Added top-of-results pagination** to `search.php`, matching the
+  existing bottom copy — the `paginate_links()` output is computed once
+  into `$pagination_links` and echoed in both places, so the two can't
+  drift out of sync with each other. New `.pagination--top` CSS rule
+  (main.css) gives this copy a much smaller margin than the standard
+  "after a full page of content" `.pagination` spacing, since it sits
+  right after the one-line result count instead.
+  Verified live: searching «ا» returns 41 results, correctly capped at
+  20/page across 3 pages (page 2 confirmed showing the next 20 via
+  direct URL), both pagination copies present and matching at desktop,
+  tablet, and mobile, correct RTL, no regressions. Empty-query guard
+  confirmed live. The announcement archive's new 20-cap confirmed via a
+  WP-bootstrap script exercising the hook directly (only 8 published
+  announcements today — too few to show a visible pagination control
+  either way, so the hook's own logic was verified in isolation rather
+  than relying on a live page showing a 2nd page that doesn't exist
+  yet).
+  Theme version bumped 1.47.35 -> 1.47.36 (patch). Plugin version
+  bumped 1.24.14 -> 1.24.15 (patch).
+  Approved by: Farhad, in this session (2026-10-01).
