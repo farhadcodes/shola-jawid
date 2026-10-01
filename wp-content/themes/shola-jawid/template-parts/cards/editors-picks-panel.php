@@ -21,7 +21,7 @@
  * its two remaining call sites.
  *
  * @param array $args {
- *     @type WP_Post[] $posts Up to 6 گزیده‌ها posts, latest first.
+ *     @type WP_Post[] $posts Up to 5 گزیده‌ها posts, latest first.
  * }
  */
 
@@ -36,7 +36,7 @@ if ( ! $editors_picks ) {
 }
 
 $featured = array_shift( $editors_picks );
-$rest     = array_slice( $editors_picks, 0, 5 );
+$rest     = array_slice( $editors_picks, 0, 4 );
 ?>
 <div class="editors-pick-panel reveal">
 	<p class="ep-title"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></p>

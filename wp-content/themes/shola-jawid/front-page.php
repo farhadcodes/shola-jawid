@@ -526,7 +526,7 @@ $has_spotlight = $announcement_query->have_posts();
 $editors_picks_query = new WP_Query(
 	array(
 		'post_type'           => 'editors_pick',
-		'posts_per_page'      => 6,
+		'posts_per_page'      => 5,
 		'orderby'             => 'date',
 		'order'               => 'DESC',
 		'ignore_sticky_posts' => true,
