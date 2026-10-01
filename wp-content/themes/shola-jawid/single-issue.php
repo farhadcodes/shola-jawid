@@ -129,12 +129,13 @@ while ( have_posts() ) :
 					 * is (and this page only ever renders reached via that
 					 * publication's own archive), so repeating the name here
 					 * was redundant.
+					 *
+					 * shola_get_issue_display_title() (spec-audit gap B7,
+					 * 2026-10-01) centralizes the custom-title-else-"شمارهٔ N"
+					 * priority so every template that shows an issue's title
+					 * agrees, not just this one.
 					 */
-					echo esc_html(
-						$number
-							? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) )
-							: get_the_title()
-					);
+					echo esc_html( shola_get_issue_display_title( get_post() ) );
 					?>
 				</h1>
 				<?php if ( has_excerpt() ) : ?>

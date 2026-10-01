@@ -13070,3 +13070,64 @@ anywhere in the project history. The spec's 3-column requirement
   Theme version bumped 1.47.30 -> 1.47.31 (patch). Plugin version
   bumped 1.24.9 -> 1.24.10 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B7: نشریات optional custom issue title
+
+`single-issue.php`'s H1 unconditionally replaced the real post title
+with a synthesized "شمارهٔ N" whenever `shcore_issue_number` was set,
+with no way for an editor to give a issue a real custom headline (e.g.
+a ویژه‌نامه/special issue). This item was flagged as touching more than
+one template, so before implementing, grepped every place an issue's
+title is displayed to decide consistently rather than fixing
+single-issue.php alone and leaving the others inconsistent:
+
+- `single-issue.php` H1 — was the one true "hard replace" (title: this
+  item's trigger).
+- `taxonomy-publication.php`'s "current issue" panel — H2 had its own
+  separate "شمارهٔ N · جاری" synthesis (same bug, different copy of the
+  logic); H3 right below it already used `get_the_title()` directly, so
+  the two headings could show two different strings for the same issue
+  once a custom title existed.
+- `template-parts/cards/issue-card.php` (the issue archive grid,
+  reused by `taxonomy-publication.php` and `front-page.php`) — already
+  used `get_the_title()` directly, shared with the `document` CPT.
+- `front-page.php`'s نشریات section and the two hero-publication-card
+  helpers in `inc/template-tags.php` — checked and left alone: these
+  show the **publication name** (+ issue number as a separate line/
+  suffix), never the issue's own title, by deliberate design from
+  earlier client-review rounds (extensively documented in this file's
+  2026-09-10/09-24 entries) — not an instance of this bug.
+
+- **Added:** `shcore_issue_custom_title` (class-meta-fields.php) — a
+  new optional text field on the `issue` CPT's "اطلاعات شماره" metabox,
+  directly under شمارهٔ شماره, with its own hint ("در صورت خالی بودن،
+  «شمارهٔ N» به‌جای آن نمایش داده می‌شود"). Registered, added to the
+  save whitelist, same pattern as every other plain-text issue field.
+- **Added:** `shola_get_issue_display_title( $issue )`
+  (inc/template-tags.php) — one shared helper: custom title if set,
+  else the existing "شمارهٔ N" synthesis, else the native post title
+  (an issue with neither field, from before this field existed). Now
+  the single source of truth for every location above that actually
+  displays an issue's title, so they can't drift out of sync with each
+  other again.
+- **Changed:** `single-issue.php` H1, `taxonomy-publication.php`'s H2
+  (keeping its existing "· جاری" suffix, now applied to whichever title
+  wins) and H3, and `issue-card.php` (only for `issue`-type posts —
+  `document` keeps using its own real title, unchanged) all now call
+  the shared helper instead of each keeping its own copy (or lack) of
+  the fallback logic.
+  Verified via a local WP-bootstrap script (helper resolves correctly
+  with/without the custom title set, falls back correctly on removal,
+  field confirmed in `get_registered_meta_keys()`) and live at desktop,
+  tablet, and mobile on a real current issue of each publication
+  (جهان برای فتح's دورهٔ اول #192, شعله جاوید's دورهٔ اول #184): custom
+  title appears correctly in the H1, the taxonomy page's H2+H3 now
+  agree with each other, the issue-card grid still shows the "شمارهٔ N"
+  fallback for every issue that doesn't set one, correct RTL alignment,
+  no regressions. Confirmed the fallback is restored exactly as before
+  once the test custom title is removed. Admin metabox field confirmed
+  present via a direct render of `render_issue_metabox()`. Test meta
+  removed from both issues afterward.
+  Theme version bumped 1.47.31 -> 1.47.32 (patch). Plugin version
+  bumped 1.24.10 -> 1.24.11 (patch).
+  Approved by: Farhad, in this session (2026-10-01).

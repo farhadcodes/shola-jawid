@@ -234,20 +234,19 @@ rejecting a plain page-number field — checked the actual project
 history before implementing rather than assuming a conflict. See
 `docs/CHANGELOG.md` 2026-10-01 for the full reasoning and verification.
 
-### B7. نشریات: no custom/optional issue title — title gets hard-replaced
+### ✅ B7. نشریات: no custom/optional issue title — title gets hard-replaced — DONE 2026-10-01
 
-Spec wants an optional custom title field; currently `single-issue.php`
-unconditionally replaces the post title with "شمارهٔ N".
-
-- Files: `wp-content/plugins/shola-core/includes/class-meta-fields.php`
-  (add an optional `shcore_issue_custom_title` field), `wp-content/themes/shola-jawid/single-issue.php`
-  and anywhere else an issue's title is displayed (front-page.php's
-  نشریات section, taxonomy-publication.php) — **this one does touch
-  shared display logic in more than one template**, so after adding the
-  field, grep for every place an issue's title is printed and decide
-  consistently: custom title if set, else the existing "شمارهٔ N"
-  fallback. Don't change the fallback behavior for issues that don't set
-  a custom title.
+Fixed: added `shcore_issue_custom_title`, an optional text field on the
+issue metabox, plus a new shared helper
+`shola_get_issue_display_title()` (inc/template-tags.php) that every
+template now calls instead of each keeping its own copy of the
+"شمارهٔ N" fallback — single-issue.php's H1, taxonomy-publication.php's
+H2/H3 (which disagreed with each other before this fix), and
+issue-card.php (for `issue`-type posts only). front-page.php's نشریات
+section and the two hero-publication-card helpers were checked and left
+alone — they show the publication name, not the issue's title, by
+deliberate prior design. See `docs/CHANGELOG.md` 2026-10-01 for the
+full per-template reasoning and verification.
 
 ### B8. نشریات: no description field, no topic/دوره classification shown as a real taxonomy pick in one place
 

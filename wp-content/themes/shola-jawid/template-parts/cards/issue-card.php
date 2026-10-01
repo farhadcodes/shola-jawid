@@ -45,6 +45,13 @@ $date_label = shola_get_jalali_month_year_label( $card_post );
 	<div class="issue-card-media">
 		<?php echo shola_get_featured_image( $card_post, 'shola_issue_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</div>
-	<p class="issue-card-title"><?php echo esc_html( get_the_title( $card_post ) ); ?></p>
+	<?php
+	// 'issue' displays its resolved title (custom title if set, else the
+	// "شمارهٔ N" fallback — shola_get_issue_display_title(), spec-audit gap
+	// B7, 2026-10-01); 'document' has no such field, so it keeps showing
+	// its own real post title unchanged.
+	$card_title = 'issue' === get_post_type( $card_post ) ? shola_get_issue_display_title( $card_post ) : get_the_title( $card_post );
+	?>
+	<p class="issue-card-title"><?php echo esc_html( $card_title ); ?></p>
 	<p class="issue-card-date"><?php echo esc_html( $date_label ); ?></p>
 </a>

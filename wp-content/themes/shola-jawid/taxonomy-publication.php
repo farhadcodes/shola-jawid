@@ -204,7 +204,21 @@ $archive_query = new WP_Query(
 					<h2 class="h-section mt-sm mb-lg">
 						<?php
 						$number = get_post_meta( $latest_issue->ID, 'shcore_issue_number', true );
-						echo esc_html( $number ? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s · جاری', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : get_the_title( $latest_issue ) );
+						/*
+						 * shola_get_issue_display_title() (spec-audit gap B7,
+						 * 2026-10-01) replaces the inline "شمارهٔ N" synthesis
+						 * that used to live here — same custom-title priority
+						 * as single-issue.php's H1 now, instead of only this
+						 * panel's own copy of the fallback logic. The "· جاری"
+						 * suffix (this panel only ever shows the publication's
+						 * current issue) is kept exactly as before, now applied
+						 * to whichever title wins.
+						 */
+						echo esc_html(
+							$number
+								? sprintf( /* translators: %s: issue title. */ __( '%s · جاری', 'shola-jawid' ), shola_get_issue_display_title( $latest_issue ) )
+								: shola_get_issue_display_title( $latest_issue )
+						);
 						?>
 					</h2>
 				</div>
@@ -222,7 +236,7 @@ $archive_query = new WP_Query(
 							);
 							?>
 						</p>
-						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="link-quiet"><?php echo esc_html( get_the_title( $latest_issue ) ); ?></a></h3>
+						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="link-quiet"><?php echo esc_html( shola_get_issue_display_title( $latest_issue ) ); ?></a></h3>
 						<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $latest_issue ), 30 ) ); ?></p>
 						<div class="row mt-md">
 							<a class="btn btn-primary" href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>"><?php esc_html_e( 'دریافت PDF', 'shola-jawid' ); ?></a>

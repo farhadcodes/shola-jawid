@@ -203,6 +203,17 @@ class Meta_Fields {
 		);
 		register_post_meta(
 			'issue',
+			'shcore_issue_custom_title',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'issue',
 			'shcore_volume',
 			array(
 				'type'              => 'string',
@@ -821,15 +832,21 @@ class Meta_Fields {
 	 */
 	public static function render_issue_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$number = get_post_meta( $post->ID, 'shcore_issue_number', true );
-		$volume = get_post_meta( $post->ID, 'shcore_volume', true );
-		$rows   = self::get_issue_contents( $post->ID );
+		$number       = get_post_meta( $post->ID, 'shcore_issue_number', true );
+		$custom_title = get_post_meta( $post->ID, 'shcore_issue_custom_title', true );
+		$volume       = get_post_meta( $post->ID, 'shcore_volume', true );
+		$rows         = self::get_issue_contents( $post->ID );
 		?>
 		<p>
 			<label for="shcore_issue_number"><strong><?php esc_html_e( 'شمارهٔ شماره', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_issue_number" name="shcore_issue_number" class="regular-text" value="<?php echo esc_attr( $number ); ?>">
 		</p>
 		<p class="description"><?php esc_html_e( 'شمارهٔ پیاپی این نشریه را وارد کنید؛ مثلاً ۳۱.', 'shola-core' ); ?></p>
+		<p>
+			<label for="shcore_issue_custom_title"><strong><?php esc_html_e( 'عنوان اختصاصی (اختیاری)', 'shola-core' ); ?></strong></label><br>
+			<input type="text" id="shcore_issue_custom_title" name="shcore_issue_custom_title" class="regular-text" value="<?php echo esc_attr( $custom_title ); ?>">
+		</p>
+		<p class="description"><?php esc_html_e( 'در صورت خالی بودن، «شمارهٔ N» به‌جای آن نمایش داده می‌شود.', 'shola-core' ); ?></p>
 		<p>
 			<label for="shcore_volume"><strong><?php esc_html_e( 'دوره / جلد', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_volume" name="shcore_volume" class="regular-text" value="<?php echo esc_attr( $volume ); ?>">
@@ -1294,7 +1311,7 @@ class Meta_Fields {
 		}
 
 		$fields_by_type = array(
-			'issue'             => array( 'shcore_issue_number', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
+			'issue'             => array( 'shcore_issue_number', 'shcore_issue_custom_title', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
 			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),

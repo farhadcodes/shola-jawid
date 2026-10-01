@@ -558,6 +558,39 @@ function shola_publication_status_label( $slug ) {
 }
 
 /**
+ * Resolves an issue's display title — one shared source of truth, added
+ * 2026-10-01 (spec-audit gap B7), for every template that shows an
+ * `issue` post's title. Priority: the optional `shcore_issue_custom_title`
+ * field (shola-core) if an editor filled it in; otherwise the existing
+ * "شمارهٔ N" synthesis from `shcore_issue_number`; otherwise the post's own
+ * native title (an issue with neither field set, before this field
+ * existed). Centralizing this stops the custom title from appearing in
+ * some templates (single-issue.php's H1) but not others (the issue-card
+ * grid, taxonomy-publication.php's "current issue" panel) depending on
+ * which one happened to call get_the_title() directly vs. synthesize its
+ * own "شمارهٔ N" string.
+ *
+ * @param \WP_Post|int $issue Issue post object or ID.
+ * @return string
+ */
+function shola_get_issue_display_title( $issue ) {
+	$issue = get_post( $issue );
+	if ( ! $issue ) {
+		return '';
+	}
+
+	$custom_title = get_post_meta( $issue->ID, 'shcore_issue_custom_title', true );
+	if ( $custom_title ) {
+		return $custom_title;
+	}
+
+	$number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
+	return $number
+		? sprintf( /* translators: %s: issue number. */ __( 'شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) )
+		: get_the_title( $issue );
+}
+
+/**
  * Shared subsection list for اسناد حزب's collection-style subsectioning —
  * added 2026-09-24, per the client's request to bring اسناد حزب to parity
  * with کتابخانه's own collection tiles/nav (page-library.php,
