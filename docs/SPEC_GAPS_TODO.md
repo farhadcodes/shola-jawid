@@ -261,33 +261,22 @@ either. Fixed: added `'editor'` to the `issue` CPT's `supports` array
 this one, unlike the other two description fields. See
 `docs/CHANGELOG.md` 2026-10-01.
 
-### ⚠️ B8b. نشریات: دوره recorded twice, and the two copies genuinely disagree on real content — NEEDS FARHAD'S CALL
+### ✅ B8b. نشریات: دوره recorded twice, and the two copies genuinely disagreed on real content — DONE 2026-10-01
 
-Checked existing data before touching this (per this item's own
-caution): queried all 11 published issues, comparing `shcore_volume`
-(free text) against the issue's actual assigned دوره taxonomy term.
-**5 of 11 issues disagree**, not just cosmetically — e.g. issue #26's
-`shcore_volume` field literally says «دورهٔ سوم» while its real assigned
-term is «دورهٔ اول»; issue #188 has a `shcore_volume` of «۳» but no
-دوره term assigned at all. `front-page.php`'s نشریات section displays
-`shcore_volume` directly, so this is live, visibly wrong data right now
-on 5 issues, not a theoretical risk.
-
-This needs Farhad's decision, not a silent collapse, because fixing it
-changes what's displayed on 5 already-published issues one way or the
-other:
-- Collapse to the real taxonomy term (spec-correct, removes the
-  redundant field) — but this will visibly change the "دوره" text shown
-  for those 5 issues on the homepage, and Farhad should see which 5
-  before that happens, in case any of those 5 values were deliberately
-  set to something other than the term for a reason I don't know.
-- Keep `shcore_volume` as-is and just fix the 5 mismatched values by
-  hand to match their real term (same end result, but as content edits
-  Farhad makes himself, not a code change).
-
-- Files once a direction is chosen: `class-meta-fields.php` (remove or
-  repurpose `shcore_volume`), `front-page.php` (read the term directly
-  instead of the free-text field).
+Found 5 of 11 issues where `shcore_volume` (free text) actively
+disagreed with the issue's real دوره taxonomy term (e.g. issue #26 said
+«دورهٔ سوم» while its real term was «دورهٔ اول») — already-live wrong
+data on the homepage, not a theoretical risk. Presented both fix
+options and the specific issue IDs to Farhad; he chose collapsing to
+the real taxonomy term. Removed `shcore_volume` entirely
+(class-meta-fields.php — registration, admin field, save whitelist);
+the issue metabox now shows the real assigned دوره term read-only
+instead, with a note to change it via the "نشریه" taxonomy box.
+`front-page.php` now reads the real term directly. Verified all 5
+previously-mismatched issues now resolve correctly (including #188,
+which has no دوره term — its row correctly disappears rather than
+showing stale data), live at desktop/tablet/mobile. See
+`docs/CHANGELOG.md` 2026-10-01 for the full per-issue verification.
 
 ### B9. کتابخانه: homepage archive page hard-codes 4 collection slugs
 

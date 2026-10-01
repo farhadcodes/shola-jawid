@@ -214,17 +214,6 @@ class Meta_Fields {
 		);
 		register_post_meta(
 			'issue',
-			'shcore_volume',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'sanitize_text_field',
-				'auth_callback'     => $auth_callback,
-			)
-		);
-		register_post_meta(
-			'issue',
 			'shcore_pdf_id',
 			array(
 				'type'              => 'integer',
@@ -834,8 +823,23 @@ class Meta_Fields {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
 		$number       = get_post_meta( $post->ID, 'shcore_issue_number', true );
 		$custom_title = get_post_meta( $post->ID, 'shcore_issue_custom_title', true );
-		$volume       = get_post_meta( $post->ID, 'shcore_volume', true );
 		$rows         = self::get_issue_contents( $post->ID );
+
+		/*
+		 * شعله جاوید's دوره — read-only, 2026-10-01 (spec-audit gap B8b).
+		 * Used to be a separate free-text `shcore_volume` field that
+		 * duplicated the real `publication` taxonomy term an editor
+		 * already picks in the "نشریه" box — checked all 11 published
+		 * issues before removing it and found 5 where the two had
+		 * silently drifted apart (one said «دورهٔ سوم» while the term
+		 * was «دورهٔ اول»), confirmed as a genuine bug, not a
+		 * hypothetical, and approved by Farhad to collapse to the real
+		 * term. This is shown here only so an editor can see which دوره
+		 * this issue is actually filed under without leaving this
+		 * screen — change it via the "نشریه" box, not here.
+		 */
+		$period_terms = get_the_terms( $post->ID, 'publication' );
+		$period_term  = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
 		?>
 		<p>
 			<label for="shcore_issue_number"><strong><?php esc_html_e( 'شمارهٔ شماره', 'shola-core' ); ?></strong></label><br>
@@ -848,10 +852,10 @@ class Meta_Fields {
 		</p>
 		<p class="description"><?php esc_html_e( 'در صورت خالی بودن، «شمارهٔ N» به‌جای آن نمایش داده می‌شود.', 'shola-core' ); ?></p>
 		<p>
-			<label for="shcore_volume"><strong><?php esc_html_e( 'دوره / جلد', 'shola-core' ); ?></strong></label><br>
-			<input type="text" id="shcore_volume" name="shcore_volume" class="regular-text" value="<?php echo esc_attr( $volume ); ?>">
+			<strong><?php esc_html_e( 'دوره', 'shola-core' ); ?></strong><br>
+			<?php echo esc_html( $period_term ? $period_term->name : __( '(تعیین‌نشده)', 'shola-core' ) ); ?>
 		</p>
-		<p class="description"><?php esc_html_e( 'دورهٔ یا جلد این شماره را بنویسید؛ در صورت نبود، خالی بگذارید.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'برای تغییر دوره، از کادر «نشریه» در همین صفحه استفاده کنید.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 
 		<p><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></p>
@@ -1311,7 +1315,7 @@ class Meta_Fields {
 		}
 
 		$fields_by_type = array(
-			'issue'             => array( 'shcore_issue_number', 'shcore_issue_custom_title', 'shcore_volume', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
+			'issue'             => array( 'shcore_issue_number', 'shcore_issue_custom_title', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
 			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),

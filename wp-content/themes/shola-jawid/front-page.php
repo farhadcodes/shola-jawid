@@ -985,9 +985,24 @@ foreach ( $publication_terms as $pub_term ) {
 					$pub_term     = $current_issue_entry['term'];
 					$issue        = $current_issue_entry['issue'];
 					$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
-					$volume       = get_post_meta( $issue->ID, 'shcore_volume', true );
 					$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
 					$pdf_size     = shola_get_pdf_size( $pdf_id );
+					/*
+					 * Reads the issue's real `publication` term now
+					 * (spec-audit gap B8b, 2026-10-01) instead of the old
+					 * free-text `shcore_volume` field, which had silently
+					 * drifted out of sync with the real term on 5 of 11
+					 * published issues — see docs/CHANGELOG.md for the
+					 * specifics. $period_term->parent check excludes the
+					 * (rare) case where an issue is tagged with the
+					 * top-level publication term itself rather than one of
+					 * its دوره children — that's not a "دوره" to display,
+					 * it'd just repeat $pub_term->name from the heading
+					 * above.
+					 */
+					$period_terms = get_the_terms( $issue->ID, 'publication' );
+					$period_term  = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
+					$volume       = ( $period_term && $period_term->parent ) ? $period_term->name : '';
 					?>
 					<div class="issue-hero issue-hero--embedded">
 

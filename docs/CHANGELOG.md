@@ -13169,3 +13169,39 @@ is: the spec lists all three as separate items.
   displayed text on those 5 issues), this is left open pending his
   call — see `docs/SPEC_GAPS_TODO.md` B8b for the specific issue IDs and
   two options presented.
+
+## 2026-10-01 (later same session) — Spec-audit gap B8b resolved: نشریات دوره field collapsed to the real taxonomy term
+
+Farhad reviewed the 5-issue mismatch table above and chose collapsing
+`shcore_volume` into the real `publication` taxonomy term (over
+hand-fixing the 5 values and keeping the free-text field).
+
+- **Removed:** `shcore_volume` entirely — `register_post_meta()` call,
+  the metabox's text input, and its entry in `save_meta_boxes()`'s
+  per-type field whitelist (class-meta-fields.php). Existing
+  `shcore_volume` postmeta rows on the 11 issues are left alone (orphaned,
+  harmless, no longer read anywhere) rather than scrubbed — deleting
+  historical data wasn't necessary to fix the display bug.
+- **Added:** a read-only "دوره" line in the issue metabox showing the
+  issue's actual assigned `publication` term (`get_the_terms()`), with a
+  note that it's changed via the "نشریه" taxonomy box, not here — so an
+  editor can still see which دوره an issue is filed under without
+  leaving the screen, without a second editable copy of the same fact.
+- **Changed:** `front-page.php`'s نشریات section now reads the issue's
+  real `publication` term directly instead of `shcore_volume`, only
+  displaying it when the term has a parent (i.e. is actually a دوره
+  child term, not the top-level publication term itself — avoids
+  repeating the publication name already shown in the heading above).
+  Verified via a WP-bootstrap script: all 5 previously-mismatched issues
+  (#26, #44, #184, #188, #192) now resolve to their real term — #188
+  (no دوره term assigned) correctly shows nothing instead of its old
+  stale «۳» — and the admin metabox read-only line confirmed showing the
+  correct term, with the old input field confirmed gone from the
+  rendered markup and `shcore_volume` confirmed no longer in
+  `get_registered_meta_keys()`. Verified live at desktop, tablet, and
+  mobile on the homepage: both publications' current-issue cards now
+  show the correct "دورهٔ اول" instead of the previous wrong values,
+  correct RTL, no regressions.
+  Theme version bumped 1.47.32 -> 1.47.33 (patch). Plugin version
+  bumped 1.24.12 -> 1.24.13 (patch).
+  Approved by: Farhad, in this session (2026-10-01).
