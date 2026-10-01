@@ -12946,3 +12946,62 @@ repo at all times so edits here are immediately live locally.
   Theme version bumped 1.47.29 -> 1.47.30 (patch). Plugin version
   bumped 1.24.6 -> 1.24.7 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Local dev environment: the re-link from the previous incident was a one-time copy, not a live link
+
+**Not a code change — a follow-up to the symlink incident logged
+earlier today.**
+
+The fix for that incident used `ln -s` from a Git Bash shell, which on
+Windows silently falls back to copying the target directory instead of
+creating a real link when it lacks permission for a true NTFS symlink
+(no admin rights, Developer Mode not confirmed on). That copy looked
+identical to a working link at the time (it had just been taken,
+so it matched the repo exactly) — the problem only surfaced once new
+edits were made afterward (the B5 admin-hint-text changes below) and
+didn't show up on shola-jawid.local at all, with no error.
+
+Confirmed via `Get-Item ... | Select LinkType` that the path had plain
+`Directory` attributes, not `Junction`/`SymbolicLink`. Fixed properly
+this time with a Windows directory junction (`cmd /c mklink /J`),
+which — unlike a symlink — doesn't require admin rights and is
+confirmed live/tracking (`LinkType: Junction`, re-verified that a
+fresh repo edit immediately appears at the Local path).
+
+**Going forward:** if local ever stops reflecting repo edits again,
+check `Get-Item <path> | Select LinkType` first — `Directory` instead
+of `Junction` means it's silently become a dead copy again, not a
+live link.
+
+## 2026-10-01 (later same session) — Spec-audit gap B5: admin field help text
+
+- **Expanded** several under-15-word hints to the spec's 15–25 word
+  range, with a bit more concrete guidance each time rather than just
+  padding: issue number, دوره/جلد, document نویسنده/منبع, party_document
+  شمارهٔ سریال, article توضیح همکاری, زبان, and the shared PDF-picker
+  field (class-meta-fields.php).
+- **Added, previously missing entirely:** descriptions for ترجمه's
+  نویسنده اصلی and مترجم fields, and a sentence in the issue
+  table-of-contents intro explaining what the «بخش» column actually
+  does.
+- **Added restriction lines** (spec requires restrictions on their own
+  line below the main guidance) to: the shared PDF field (format
+  restriction) and both ترجمه name fields (the existing "not shown
+  publicly yet" rule, now stated explicitly on each field instead of
+  only in code comments).
+- **Deliberately left unchanged:** the longer, already-adequate
+  multi-option explanations (hero/masthead layout pickers, the TOC
+  intro's overview sentence, the ترجمه checkbox's own description,
+  shcore_subtitle's own hint) — these explain several dropdown options
+  in one paragraph and compressing them to a strict word cap would lose
+  real information for no benefit. Also left the still-inactive
+  "شناسهٔ نوشتهٔ ترجمه" field's hint alone (explicitly marked unused).
+  Verified via a local WP-bootstrap script rendering every changed
+  metabox function directly and checking word counts + no PHP
+  warnings/fatals; also confirmed live that the homepage and other
+  pages still render normally (this file's registration logic is
+  shared broadly, so a basic regression check mattered even though the
+  change itself is text-only). Admin-only change, no front-end
+  template touched, so no desktop/tablet/mobile UI check applies.
+  Plugin version bumped 1.24.7 -> 1.24.8 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-10-01).

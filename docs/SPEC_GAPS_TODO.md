@@ -212,17 +212,14 @@ title-size modifier, which was unrelated to this). See
 `docs/CHANGELOG.md` 2026-10-01 for full detail, including the new
 `.article-hero-visual .article-subtitle` legibility override.
 
-### B5. Admin field help text: too short / missing on several fields
+### ✅ B5. Admin field help text: too short / missing on several fields — DONE 2026-10-01
 
-Spec wants 15–25 words per field, restrictions on their own line. Current
-hints run shorter (~10–15 words) and some fields (ترجمه name fields, issue
-TOC rows) have none at all.
-
-- File: `wp-content/plugins/shola-core/includes/class-meta-fields.php` —
-  every `<p class="description">` block.
-- **Low risk, but tedious**: this is a copy-editing pass across many
-  fields, not a structural change. Do it in one focused pass so the tone
-  stays consistent, rather than drifting field-by-field over time.
+Fixed: expanded under-15-word hints into the 15–25 word range, added
+previously-missing descriptions (ترجمه name fields, TOC intro's «بخش»
+explanation), and added explicit restriction lines (PDF format, ترجمه
+names not shown publicly yet). Longer, already-adequate multi-option
+explanations (hero/masthead layout pickers, etc.) deliberately left
+alone. See `docs/CHANGELOG.md` 2026-10-01 for the full list.
 
 ### B6. نشریات: issue table-of-contents missing its page-number column
 
