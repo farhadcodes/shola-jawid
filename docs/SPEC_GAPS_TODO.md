@@ -191,23 +191,18 @@ Fixed: added `shcore_contact_email` option to `SholaCore\Contact_Settings`
 (Settings → موضوعات فرم تماس), `page-contact.php` now reads it via
 `get_email()`. See `docs/CHANGELOG.md` 2026-10-01.
 
-### B3. تراکت: add the missing description field
+### ✅ B3. تراکت: add the missing description field — FIELD DONE 2026-10-01
 
-Spec requires a description field on تراکت; the CPT currently only
-supports title + thumbnail.
+Fixed: `leaflet` CPT now supports `editor`, so the field exists in admin.
+See `docs/CHANGELOG.md` 2026-10-01.
 
-- Files: `wp-content/plugins/shola-core/includes/class-post-types.php`
-  (`leaflet` CPT registration, add `'editor'` or a dedicated meta field to
-  `supports`), `wp-content/themes/shola-jawid/page-leaflets.php` and
-  `front-page.php`'s leaflet teaser (both read from the same post, decide
-  whether the description shows in one place, both, or neither — the spec
-  only explicitly asks for the *field* to exist, not necessarily to
-  display everywhere; confirm display placement is wanted before adding it
-  to templates, but the field itself is safe to add now).
-- **Shared-code note:** the leaflet teaser markup is used in two places
-  (homepage + archive) — if you do add display, use one shared template
-  part rather than duplicating markup, matching how `selected-row.php` and
-  `card.php` are already shared.
+**Still open, deliberately not done yet:** whether/where this
+description should actually *display* on the front end (homepage
+teaser, archive, both, neither) — a separate decision, not part of this
+fix. If display is wanted later, remember the **shared-code note**: the
+leaflet teaser markup/lightbox is shared between `front-page.php` and
+`page-leaflets.php` — add it once, in the shared template part, not
+duplicated in both places.
 
 ### B4. Article subtitle field (عنوان فرعی) missing for `post`
 

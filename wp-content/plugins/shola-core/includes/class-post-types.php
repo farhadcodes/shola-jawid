@@ -388,7 +388,15 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-media-default',
-				'supports'     => array( 'title', 'thumbnail' ),
+				/*
+				 * 'editor' added 2026-10-01 (spec-audit gap B3): the spec
+				 * requires a توضیحات (description) field for تراکت, which
+				 * this CPT never had — the comment below explaining the
+				 * original "image is the content" reasoning predates that
+				 * requirement and is now about the title field only, not
+				 * about why a description is unneeded.
+				 */
+				'supports'     => array( 'title', 'editor', 'thumbnail' ),
 				'rewrite'      => array(
 					'slug'       => 'leaflets',
 					'with_front' => false,

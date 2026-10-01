@@ -12866,3 +12866,21 @@ conflicting decision involved).
   Theme version bumped 1.47.28 -> 1.47.29 (patch). Plugin version
   bumped 1.24.4 -> 1.24.5 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B3: تراکت description field
+
+- **Added:** `editor` to the `leaflet` CPT's `supports` array
+  (class-post-types.php) — تراکت posts never had a description field at
+  all; the spec requires one. Admin-only change: no front-end template
+  reads or displays this field yet, matching the scope already written
+  into `docs/SPEC_GAPS_TODO.md` for this item (display placement is a
+  separate, not-yet-made decision).
+  Verified via a local WP-bootstrap script:
+  `post_type_supports('leaflet','editor')` now true, a scratch
+  leaflet's `post_content` saves and reads back correctly, `title`/
+  `thumbnail` unaffected, `excerpt` correctly still off. No visual
+  change exists to check (admin-only), but confirmed live that the
+  homepage leaflet teaser and the `/leaflets/` archive both still
+  render with no regression.
+  Plugin version bumped 1.24.5 -> 1.24.6 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-10-01).
