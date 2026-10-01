@@ -4706,26 +4706,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 
 /* -------------------------------------------------------------------------
-   ۲۱ · About page tabs
-   ------------------------------------------------------------------------- */
-.about-tabs {
-  display: flex; flex-wrap: wrap; justify-content: center;
-  gap: 1.75rem;
-  padding-block: 1.5rem 2.5rem;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 3rem;
-}
-.about-tabs a {
-  color: var(--stone);
-  font-size: var(--t-small);
-  padding-block: .3rem;
-  border-bottom: 1px solid transparent;
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
-}
-.about-tabs a:hover { color: var(--ink); }
-.about-tabs .active { color: var(--ink); border-color: var(--ink); }
-
-/* -------------------------------------------------------------------------
    ۲۲ · Static page header (WP conversion, Phase 4.2) — the centered
    section-marker + h1 + dek block repeated identically (per
    body-topics/library/announcements/about/contact/search.html) at the top

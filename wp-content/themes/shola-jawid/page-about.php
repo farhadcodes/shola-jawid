@@ -14,18 +14,13 @@
  * `docs/CHANGELOG.md`'s Phase D entry describes that older, now
  * superseded state.
  *
- * The tab nav is structural chrome (fragment links into the sections
- * below) kept in the template, not pulled from admin — checked the
- * spec text directly for this gap: دربارهٔ ما's three listed parts are
- * title, logo, and the content body only, no mention of tabs, so this
- * remains intentional, not another instance of the same gap. The
- * actual prose — mission statement, editorial board, submission
- * guidelines, etc. — lives in the Page's own post_content, edited via
- * the block editor (Heading blocks with an Anchor set to match each
- * tab's #fragment), not hardcoded here. Per Farhad's confirmation
- * (2026-08-06): this is substantive editorial content the client
- * should be able to edit without a code change, unlike the short
- * structural labels elsewhere in this phase.
+ * Tab nav removed, 2026-10-01, per Farhad's explicit ask after reviewing
+ * the B14 logo-centering fix live ("remove the tabs... we do not need
+ * them"). The content body's own headings (mission statement, editorial
+ * board, submission guidelines, etc.) still live in the Page's own
+ * post_content, edited via the block editor, same as always — removing
+ * the tab nav didn't touch that, or the #anchor ids those headings may
+ * still carry from when the tabs linked to them.
  *
  * لوگوی حزب (spec-audit gap B14, 2026-10-01): the spec lists a party
  * logo as this page's other admin-editable part (alongside title and
@@ -50,16 +45,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 $shola_about_logo_id = get_theme_mod( 'custom_logo' );
-
-$tabs = array(
-	'about'      => __( 'دربارهٔ ما', 'shola-jawid' ),
-	'team'       => __( 'هیئت تحریریه', 'shola-jawid' ),
-	'contact'    => __( 'تماس', 'shola-jawid' ),
-	'guidelines' => __( 'راهنمای همکاری', 'shola-jawid' ),
-	'republish'  => __( 'بازنشر', 'shola-jawid' ),
-	'support'    => __( 'حمایت مالی', 'shola-jawid' ),
-	'write'      => __( 'نوشتن برای ما', 'shola-jawid' ),
-);
 ?>
 	<section class="wrap section-top">
 
@@ -83,18 +68,6 @@ $tabs = array(
 				<h1 class="h-page"><?php echo esc_html( get_the_title( get_queried_object_id() ) ); ?></h1>
 			</div>
 		</header>
-
-		<nav class="about-tabs" aria-label="<?php esc_attr_e( 'بخش‌های دربارهٔ ما', 'shola-jawid' ); ?>">
-			<?php
-			$first = true;
-			foreach ( $tabs as $anchor => $label ) :
-				?>
-				<a<?php echo $first ? ' class="active"' : ''; ?> href="#<?php echo esc_attr( $anchor ); ?>"><?php echo esc_html( $label ); ?></a>
-				<?php
-				$first = false;
-			endforeach;
-			?>
-		</nav>
 
 	</section>
 

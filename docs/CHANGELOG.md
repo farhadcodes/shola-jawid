@@ -13471,3 +13471,26 @@ rather than the image being centered on its own.
   disproportion.
   Theme version bumped 1.47.38 -> 1.47.39 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — دربارهٔ ما: tab nav removed entirely
+
+Farhad reviewed the logo-centering fix live and asked for the tab nav
+(دربارهٔ ما / هیئت تحریریه / تماس / راهنمای همکاری / بازنشر / حمایت
+مالی / نوشتن برای ما) to be removed outright — not needed.
+
+- **Removed:** the `<nav class="about-tabs">` block and its `$tabs`
+  array from `page-about.php`, plus the now-dead `.about-tabs` CSS rule
+  set (main.css) rather than leaving it orphaned — nothing else on the
+  site referenced that class.
+- **Left untouched:** the content body's own headings (mission
+  statement, editorial board, submission guidelines, etc.) — still
+  edited via the block editor in the Page's post_content exactly as
+  before. Any #anchor ids those headings carry from when the tabs
+  linked to them are harmless leftovers, not errors — anchors on
+  headings with nothing pointing at them don't do anything visible or
+  broken, so there was nothing there that needed cleaning up.
+  Verified live at desktop, tablet, and mobile: page now flows directly
+  from logo + title into the content body, correct RTL, no regressions,
+  no dead space where the nav used to sit.
+  Theme version bumped 1.47.39 -> 1.47.40 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
