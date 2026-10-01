@@ -15,6 +15,21 @@ get_header();
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						'label' => shola_get_label( 'breadcrumb_topics_label' ),
+						'url'   => home_url( '/topics/' ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

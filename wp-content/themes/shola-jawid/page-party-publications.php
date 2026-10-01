@@ -37,6 +37,21 @@ $party_publications_query = new WP_Query(
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						'label' => __( 'انتشارات حزب', 'shola-jawid' ),
+						'url'   => home_url( '/party-publications/' ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

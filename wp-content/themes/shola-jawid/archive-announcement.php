@@ -32,6 +32,24 @@ $paged = max( 1, get_query_var( 'paged' ) );
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						// Shorter crumb label than the h1 above, to match
+						// single-announcement.php's own breadcrumb, which
+						// already uses this label for the same section.
+						'label' => __( 'اطلاعیه‌ها', 'shola-jawid' ),
+						'url'   => home_url( '/announcements/' ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

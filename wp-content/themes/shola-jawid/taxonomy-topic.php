@@ -50,6 +50,25 @@ $archive_query = new WP_Query( $query_args );
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						'label' => shola_get_label( 'breadcrumb_topics_label' ),
+						'url'   => home_url( '/topics/' ),
+					),
+					array(
+						'label' => $term->name,
+						'url'   => get_term_link( $term ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header page-header--narrow page-header--tight">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

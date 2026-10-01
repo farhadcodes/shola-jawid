@@ -34,6 +34,25 @@ $filters = array(
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						// No 'url': a search results page has no single
+						// fixed canonical address of its own to self-link
+						// to (it's whatever ?s= the visitor typed), so this
+						// crumb renders as inert text, not a link.
+						'label' => __( 'جست‌وجو', 'shola-jawid' ),
+						'url'   => '',
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

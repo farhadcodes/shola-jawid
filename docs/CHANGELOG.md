@@ -13295,3 +13295,38 @@ actually being published — consistent with CLAUDE.md §1's existing
 current phase.
 No code changed, no version bump.
 Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B11: breadcrumbs added to 8 archive pages
+
+- **Added:** `template-parts/breadcrumb.php` — a shared part for the
+  `.article-crumb` nav markup every breadcrumb on the site already
+  uses, so the 8 pages that had none don't each paste a 9th/10th/...
+  hand-copied version of the same markup. Takes an ordered `items`
+  array (label + url); the last item gets the "active" class, same
+  convention as every hand-written breadcrumb already on the site. An
+  item with no `url` renders as inert text instead of a link, for a
+  page with no single fixed canonical address of its own.
+  Pre-existing hand-written breadcrumbs (single.php, single-issue.php,
+  taxonomy-publication.php, etc.) are deliberately left untouched, not
+  migrated to this part — scoped this fix to the pages that actually
+  had the gap, not a site-wide refactor of already-shipped templates.
+- **Added the breadcrumb to:** `taxonomy-topic.php` (3-level: Home /
+  موضوعات / {topic name}, matching single.php's own topic-breadcrumb
+  label via the existing `breadcrumb_topics_label` setting),
+  `page-reports.php`, `page-selected.php`, `page-party-publications.php`,
+  `page-publications.php`, `archive-announcement.php` (crumb label
+  "اطلاعیه‌ها", matching single-announcement.php's shorter crumb rather
+  than this page's own longer h1 "اطلاعیه‌ها و بیانیه‌ها"),
+  `page-leaflets.php`, `page-topics.php`, and `search.php` (inert "Home
+  / جست‌وجو" — no self-link, since a search-results page has no one
+  fixed URL to point back to).
+- Proceeded despite this item's own note to wait for Part A (گزیده/
+  ترجمه/گزارش terminology and layout decisions) to settle first — a
+  breadcrumb's "Home / Section Name" structure doesn't depend on any of
+  those still-open decisions.
+  Verified live at desktop, tablet, and mobile across all 9 pages
+  (including the 3-level topic case and the inert search case) —
+  correct labels, correct active state, correct RTL, existing
+  breadcrumbs on unrelated pages (e.g. کتابخانه) confirmed unaffected.
+  Theme version bumped 1.47.34 -> 1.47.35 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).

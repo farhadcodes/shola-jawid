@@ -15,6 +15,21 @@ get_header();
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						'label' => __( 'نشرات', 'shola-jawid' ),
+						'url'   => home_url( '/publications/' ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

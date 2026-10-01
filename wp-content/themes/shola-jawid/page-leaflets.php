@@ -49,6 +49,21 @@ $leaflets_query = shola_get_leaflets_query(
 ?>
 	<section class="wrap section-top">
 
+		<?php
+		get_template_part(
+			'template-parts/breadcrumb',
+			null,
+			array(
+				'items' => array(
+					array(
+						'label' => __( 'تراکت‌ها', 'shola-jawid' ),
+						'url'   => home_url( '/leaflets/' ),
+					),
+				),
+			)
+		);
+		?>
+
 		<header class="page-header page-header--narrow">
 			<div class="kicker-row">
 				<p class="section-marker"></p>

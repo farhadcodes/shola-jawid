@@ -323,23 +323,25 @@ current phase anyway).
   metadata (file size, date, etc.), matching their existing layout
   pattern.
 
-### B11. Breadcrumbs missing on several archive pages
+### ✅ B11. Breadcrumbs missing on several archive pages — DONE 2026-10-01
 
-Spec requires a breadcrumb on every section that has an archive. Missing
-on: `taxonomy-topic.php`, `page-reports.php`, `page-selected.php`,
-`page-party-publications.php`/`page-publications.php`,
-`archive-announcement.php`, `page-leaflets.php`, `page-topics.php`,
-`search.php`.
+Fixed: built `template-parts/breadcrumb.php`, a shared part (same
+`.article-crumb` markup/classes every existing hand-written breadcrumb
+already uses), and added it to all 8 pages that had none —
+`taxonomy-topic.php` (3-level: Home / موضوعات / {topic}), `page-reports.php`,
+`page-selected.php`, `page-party-publications.php`, `page-publications.php`,
+`archive-announcement.php`, `page-leaflets.php`, `page-topics.php` (all
+2-level: Home / {section}), and `search.php` (Home / جست‌وجو, rendered
+as inert text — search has no single fixed canonical URL to self-link
+to, unlike every other page here). Pre-existing hand-written breadcrumbs
+were deliberately left as-is, not migrated to the new shared part —
+kept this fix scoped to the actually-missing ones rather than touching
+11+ already-shipped, working templates.
 
-- **Reuse the exact breadcrumb markup/classes already used** in
-  `page-library.php` or `single.php` rather than inventing new markup —
-  this is a repetitive, mechanical change across many files, which is
-  exactly where copy-paste drift causes inconsistency, so build it once as
-  a shared template part (e.g. `template-parts/breadcrumb.php`) if one
-  doesn't already exist, and include it from each page, rather than
-  pasting the same markup into 8 files separately.
-- **Do this after** settling A1–A4 above, since some of these archive
-  pages (گزیده/ترجمه, گزارش) may still be in flux.
+Proceeded despite this item's own note to wait for A1–A4 to settle: a
+breadcrumb is just "Home / Section Name" navigation, independent of
+whatever those still-open content decisions end up changing about
+گزیده/ترجمه/گزارش's layout or terminology.
 
 ### B12. Pagination inconsistency across archives + search page gaps
 
