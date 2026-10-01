@@ -399,13 +399,33 @@ Verified live at desktop, tablet, and mobile — tab nav and content body
 (already pulling from `the_content()`, unaffected by this fix) both
 render correctly, correct RTL, no regressions.
 
-### B14. دربارهٔ ما: no party-logo slot in the template
+### ✅ B14. دربارهٔ ما: no party-logo slot in the template — DONE 2026-10-01
 
-- File: `wp-content/themes/shola-jawid/page-about.php`.
-- Fix shape: a small, new image field (theme mod or a `shola-core` option,
-  consistent with how B2's contact-email setting should be built — ideally
-  build both as part of the same small "site settings" admin screen if one
-  doesn't exist yet, rather than two unrelated one-off options).
+Checked the v6 design directly first (body-about.html) — it has no
+logo anywhere on this page at all, so there was no existing placement
+to copy. Asked Farhad to decide both open questions rather than
+guessing: (1) a brand-new upload field vs. reusing the site's existing
+Customizer logo, and (2) where to place it. He chose reusing the
+existing logo (`get_theme_mod( 'custom_logo' )`, already shown in
+header/footer/masthead — a second upload field would just duplicate it
+with no way to keep both in sync) and centered placement above the H1.
+
+This also means B14's own suggested "build a consolidated site-settings
+screen" approach wasn't needed/used — no new settings page at all,
+since the logo already has one (Appearance → Customize → Site
+Identity). The several existing small Settings → X screens already in
+this plugin (Contact Topics, Social Links, Labels, etc.) are this
+project's real established pattern, not a single shared screen; this
+fix needed neither.
+
+Fixed: `page-about.php` now displays the logo (falls back to showing
+nothing, not a broken image, on a site with no logo set yet — same
+fallback convention as the footer's own logo). New `.about-page-logo`
+CSS rule (main.css), centered via `.page-header`'s existing
+`text-align: center`, no new modifier class needed.
+Verified live at desktop, tablet, and mobile — logo renders at a
+reasonable size, correctly centered, no layout shift to the H1/tabs
+below it, correct RTL, no regressions.
 
 ### B15. Contact page: title/description hard-coded; response/privacy note split into two lines instead of one
 

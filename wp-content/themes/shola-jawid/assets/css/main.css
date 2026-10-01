@@ -4741,6 +4741,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .page-header--narrow .dek { max-width: 560px; }
 .page-header--tight { margin-bottom: 1rem; }
 .page-header--muted h1 { color: var(--stone); }
+/* .about-page-logo (spec-audit gap B14, 2026-10-01): دربارهٔ ما's party
+   logo, centered above the H1 — `.page-header` is already
+   text-align:center by default, so this only needs its own size/
+   spacing, same clamp() sizing approach as .footer-logo. */
+.about-page-logo {
+  display: inline-block;
+  height: clamp(56px, 10vw, 88px);
+  width: auto;
+  margin-bottom: 1rem;
+}
 .row-tight { gap: .5rem; }
 
 /* -------------------------------------------------------------------------

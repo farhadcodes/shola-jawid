@@ -13406,3 +13406,41 @@ tab nav stays intentional structural chrome; this gap is just the H1.
   no regressions.
   Theme version bumped 1.47.36 -> 1.47.37 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B14: دربارهٔ ما party logo
+
+Checked the v6 design directly before implementing: body-about.html has
+no logo anywhere on this page, so there was no existing visual
+placement to follow — unlike most gaps so far, this one genuinely
+needed two decisions from Farhad rather than one answerable from the
+spec text alone. Asked both before writing any code:
+
+1. **Logo source** — a brand-new upload field, or reuse the site's
+   existing Customizer logo (already shown in header/footer/masthead)?
+   Farhad chose reusing the existing one: there is only ever one "party
+   logo" for this site, already admin-editable via Appearance →
+   Customize → Site Identity, so a separate field would just duplicate
+   it with no way to keep the two in sync. This also means B14's own
+   suggested "consolidated site-settings screen" wasn't needed — the
+   several existing small Settings → X screens in this plugin (Contact
+   Topics, Social Links, Labels, etc.) are this project's real,
+   established pattern, not a single shared screen, and this fix needed
+   neither a new field nor a new screen.
+2. **Placement** — centered above the H1 in the page-header block, vs.
+   inline at the top of the prose. Farhad picked the header-block
+   option.
+
+- **Added:** `page-about.php` now displays `get_theme_mod( 'custom_logo' )`
+  centered above the H1, same `wp_get_attachment_image()` pattern
+  footer.php/two-tier.php already use. Falls back to showing nothing
+  (not a broken image) if no logo has been uploaded yet — same
+  fallback convention as the footer's own logo.
+- **Added:** `.about-page-logo` (main.css) — size/spacing only;
+  `.page-header` is already `text-align: center` by default (every
+  other page-header H1 on the site already relies on this), so no new
+  centering modifier class was needed.
+  Verified live at desktop, tablet, and mobile: logo renders at a
+  reasonable size, correctly centered, no layout shift to the H1/tab
+  nav below it, correct RTL, no regressions.
+  Theme version bumped 1.47.37 -> 1.47.38 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
