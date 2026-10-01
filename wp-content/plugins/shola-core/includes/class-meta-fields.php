@@ -267,9 +267,29 @@ class Meta_Fields {
 		 * Optional, plain text, no markup — admins now split a long title
 		 * into "main title" (native Title field, still required) and
 		 * "subtitle" (this field, optional) instead of one long string.
-		 * Not added to `issue` or `post` — Farhad's explicit scope was
-		 * "just the library, publications, and documents sections."
+		 * Not added to `issue` — the hero_section overlays already give
+		 * نشریات issues their own compact title treatment.
+		 *
+		 * Added to `post` 2026-10-01 (spec-audit gap B4): the spec requires
+		 * an optional عنوان فرعی (subtitle) for articles too, shown below
+		 * the title at a smaller size — same field, same sanitize
+		 * callback, same render_subtitle_field() helper as the three types
+		 * above, just without their `--doc` title-size modifier (that
+		 * modifier was a fix for a specific oversized-PDF-title complaint,
+		 * unrelated to articles — single.php's own `.article-title` keeps
+		 * its normal fluid size).
 		 */
+		register_post_meta(
+			'post',
+			'shcore_subtitle',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 		// document.
 		register_post_meta(
 			'document',
@@ -993,11 +1013,13 @@ class Meta_Fields {
 	 */
 	public static function render_article_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$subtitle       = get_post_meta( $post->ID, 'shcore_subtitle', true );
 		$byline         = get_post_meta( $post->ID, 'shcore_byline', true );
 		$author_note    = get_post_meta( $post->ID, 'shcore_author_note', true );
 		$language       = get_post_meta( $post->ID, 'shcore_language', true );
 		$translation_id = get_post_meta( $post->ID, 'shcore_translation_id', true );
 		?>
+		<?php self::render_subtitle_field( $subtitle ); ?>
 		<p>
 			<label for="shcore_byline"><strong><?php esc_html_e( 'نام مستعار نویسنده', 'shola-core' ); ?></strong></label><br>
 			<input type="text" id="shcore_byline" name="shcore_byline" class="regular-text" value="<?php echo esc_attr( $byline ); ?>">
@@ -1261,7 +1283,7 @@ class Meta_Fields {
 			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
 			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
 			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
-			'post'              => array( 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected', 'shcore_translation_original_author', 'shcore_translation_translator' ),
+			'post'              => array( 'shcore_subtitle', 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected', 'shcore_translation_original_author', 'shcore_translation_translator' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
 		);

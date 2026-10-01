@@ -12884,3 +12884,65 @@ conflicting decision involved).
   render with no regression.
   Plugin version bumped 1.24.5 -> 1.24.6 (patch). No theme change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Local dev environment: plugin symlink got replaced by a real folder
+
+**Not a code change — a local dev-environment incident, recorded here so
+it isn't mysteriously re-investigated later.**
+
+Between delivering the B3 zip and starting B4, `wp-content/plugins/
+shola-core` inside the Local by Flywheel site stopped being a symlink
+to this repo's `wp-content/plugins/shola-core/` and became an
+independent, real copy of the folder instead (the theme's own symlink
+was unaffected — only the plugin's). Best working theory: uploading
+the plugin zip through wp-admin's own "Add New Plugin → Upload" on the
+**local** site (rather than only on production) made WordPress delete
+the existing plugin directory before extracting the new one — and
+since that directory was a symlink, the delete followed it and wiped
+the real target (this repo's files) before replacing the path with a
+fresh, disconnected folder from the uploaded zip.
+
+Symptom: new code edits to `class-meta-fields.php` (the B4 subtitle
+field) weren't taking effect on shola-jawid.local at all, with no
+error — `register_post_meta()` for the new field silently never ran,
+because local was executing a completely different, frozen copy of the
+file. Confirmed via a direct diff that the disconnected copy was
+otherwise byte-identical to this repo (no unique local edits lost) and
+matched the already-shipped v1.24.6 state exactly.
+
+Fixed by re-linking: removed the disconnected copy, recreated the
+link from `wp-content/plugins/shola-core` (Local site) back to this
+repo's plugin folder, matching the theme's existing link. Verified via
+a WP-bootstrap script that the live site now reflects repo edits again
+before continuing any further work.
+
+**Going forward:** only use wp-admin's plugin/theme uploader against
+**production** (sholajawid.com), never against the local dev site —
+local's theme and plugin folders are meant to stay symlinked to this
+repo at all times so edits here are immediately live locally.
+
+## 2026-10-01 (later same session) — Spec-audit gap B4: article subtitle field
+
+- **Added:** `shcore_subtitle` registered for `post` (previously only
+  `document`/`party_publication`/`party_document`), reusing the exact
+  same shared field, sanitize callback, and `render_subtitle_field()`
+  admin helper as those three types — added to `render_article_metabox()`
+  and the `post` save-fields whitelist (class-meta-fields.php).
+  single.php now displays it below the title via the same
+  `.article-subtitle` class the PDF single templates already use —
+  deliberately without their `--doc` title-size modifier, since that
+  was a fix for a specific oversized-PDF-title complaint unrelated to
+  articles; single.php's title keeps its normal fluid size.
+  Added one new CSS override, `.article-hero-visual .article-subtitle`
+  (main.css), matching the existing `.article-dek` legibility fix —
+  needed because this class is new to the photo-hero context here
+  (its default color is a dark gray, meant for the PDF templates'
+  plain-background pages).
+  Verified via a local WP-bootstrap script (field registration,
+  save/read round-trip) and live at desktop, tablet, and mobile on a
+  real post with a test subtitle: correct text, correct 25px size,
+  correct legible white color over the hero photo, correct RTL
+  alignment at all three breakpoints. Test data removed afterward.
+  Theme version bumped 1.47.29 -> 1.47.30 (patch). Plugin version
+  bumped 1.24.6 -> 1.24.7 (patch).
+  Approved by: Farhad, in this session (2026-10-01).

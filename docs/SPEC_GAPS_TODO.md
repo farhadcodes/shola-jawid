@@ -204,23 +204,13 @@ leaflet teaser markup/lightbox is shared between `front-page.php` and
 `page-leaflets.php` — add it once, in the shared template part, not
 duplicated in both places.
 
-### B4. Article subtitle field (عنوان فرعی) missing for `post`
+### ✅ B4. Article subtitle field (عنوان فرعی) missing for `post` — DONE 2026-10-01
 
-Exists for PDF content types already (`shcore_subtitle`), just never added
-to `post`. The display rule (subtitle below title, smaller font) also
-already exists in CSS for the PDF types — reuse that pattern's sizing
-intent, but note the spec says "3 units smaller" while the existing PDF
-implementation is a fixed 10px smaller; pick one consistent approach and
-apply it to both rather than inventing a third ratio just for articles.
-
-- Files: `wp-content/plugins/shola-core/includes/class-meta-fields.php`
-  (extend `shcore_subtitle` registration to `post`, add the field to
-  `render_article_metabox()`), `wp-content/themes/shola-jawid/single.php`
-  (render the subtitle below the title, matching the existing subtitle
-  display pattern already used in `single-document.php`/
-  `single-issue.php` — **reuse that existing CSS class**, don't invent a
-  new one, to keep the "3 units smaller" rule consistent everywhere it
-  appears).
+Fixed: `shcore_subtitle` extended to `post`, displayed in single.php via
+the existing `.article-subtitle` class (not the PDF types' `--doc`
+title-size modifier, which was unrelated to this). See
+`docs/CHANGELOG.md` 2026-10-01 for full detail, including the new
+`.article-hero-visual .article-subtitle` legibility override.
 
 ### B5. Admin field help text: too short / missing on several fields
 

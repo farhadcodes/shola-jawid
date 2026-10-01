@@ -3707,6 +3707,12 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .article-hero-visual .article-crumb a:hover,
 .article-hero-visual .article-crumb .active { color: var(--paper); }
 .article-hero-visual .article-title { color: var(--paper); max-width: 900px; text-shadow: 0 2px 20px rgba(0, 0, 0, .85), 0 1px 3px rgba(0, 0, 0, .9); }
+/* .article-subtitle override added 2026-10-01 (spec-audit gap B4): this
+   class is new to the photo-hero context here (previously only used on
+   the plain-background PDF single templates) — same legibility fix as
+   .article-dek just below, since .article-subtitle's own default color
+   (--ink-soft, a dark gray) would be unreadable over a photo. */
+.article-hero-visual .article-subtitle { color: rgba(255, 255, 255, .96); text-shadow: 0 2px 14px rgba(0, 0, 0, .8), 0 1px 2px rgba(0, 0, 0, .9); }
 .article-hero-visual .article-dek { color: rgba(255, 255, 255, .96); text-shadow: 0 2px 14px rgba(0, 0, 0, .8), 0 1px 2px rgba(0, 0, 0, .9); }
 @media (max-width: 720px) {
   /* Mobile article hero (2026-08-08, Farhad): .article-hero-media's

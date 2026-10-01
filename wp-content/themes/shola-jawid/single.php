@@ -21,6 +21,10 @@ while ( have_posts() ) :
 	$terms       = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
 	$topic       = shola_get_primary_topic( get_the_ID() );
 	$is_tarjome  = (bool) get_post_meta( get_the_ID(), 'shcore_is_selected', true );
+	// Optional (2026-10-01, spec-audit gap B4) — see class-meta-fields.php's
+	// shcore_subtitle docblock: long titles split into title + subtitle,
+	// same .article-subtitle class already used by the PDF single templates.
+	$subtitle    = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
 	$stats       = shola_get_reading_stats();
 	$post_tags   = get_the_tags();
 	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
@@ -96,6 +100,9 @@ while ( have_posts() ) :
 					</nav>
 
 					<h1 class="article-title"><?php the_title(); ?></h1>
+					<?php if ( $subtitle ) : ?>
+						<p class="article-subtitle"><?php echo esc_html( $subtitle ); ?></p>
+					<?php endif; ?>
 					<?php if ( has_excerpt() ) : ?>
 						<p class="article-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 					<?php endif; ?>
