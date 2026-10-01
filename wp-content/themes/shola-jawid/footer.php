@@ -117,7 +117,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="footer-base">
-			<p><?php echo esc_html( sprintf( /* translators: %s: site name. */ __( '© ۱۴۰۵ · %s · بازنشر با ذکر منبع آزاد است', 'shola-jawid' ), get_bloginfo( 'name' ) ) ); ?></p>
+			<?php
+			/*
+			 * Jalali year computed live via wp_date('Y') — not hardcoded —
+			 * same wp_date()-for-Jalali-year pattern already used in
+			 * inc/template-tags.php. Added 2026-10-01, spec-audit gap B1.
+			 */
+			?>
+			<p><?php echo esc_html( sprintf( /* translators: 1: Jalali year, 2: site name. */ __( '© %1$s · %2$s · بازنشر با ذکر منبع آزاد است', 'shola-jawid' ), wp_date( 'Y' ), get_bloginfo( 'name' ) ) ); ?></p>
 		</div>
 	</div>
 </footer>

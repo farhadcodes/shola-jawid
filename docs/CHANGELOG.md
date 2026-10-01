@@ -12826,3 +12826,18 @@ already got its ترجمه label fixed earlier this session.
   "صفحهٔ اصلی / موضوعات / اقتصاد".
   Theme version bumped 1.47.26 -> 1.47.27 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-09-27).
+
+## 2026-10-01 — Spec-audit gap B1: footer copyright year no longer hardcoded
+
+First fix from `docs/SPEC_GAPS_TODO.md`'s Part B (clear-cut, no
+conflicting decision involved).
+
+- **Changed:** footer.php's copyright line printed a literal "۱۴۰۵"
+  string. Replaced with `wp_date( 'Y' )`, the same wp_date()-for-
+  Jalali-year pattern already used in inc/template-tags.php — computed
+  live on every page load instead of needing a manual yearly edit.
+  Verified live at desktop, tablet, and mobile: value unchanged today
+  (۱۴۰۵, correctly computed), RTL layout/wrapping unaffected at all
+  three breakpoints.
+  Theme version bumped 1.47.27 -> 1.47.28 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
