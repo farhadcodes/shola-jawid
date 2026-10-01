@@ -301,14 +301,27 @@ dek text still says "چهار مجموعه... اسناد رسمی حزب" (four 
 naming the one that doesn't exist) — a copy fix, not a code fix, left
 for his decision on the wording.
 
-### B10. Language field (`shcore_language`) stored but never displayed
+### ⏸️ B10. Language field (`shcore_language`) stored but never displayed — DEFERRED 2026-10-01
 
-Affects both انتشارات حزب and کتابخانه.
+Checked actual data before implementing: queried every post of all 4
+types that carry this field (document, party_publication,
+party_document, post) — 30 items total, **100% marked «fa»**, 0 marked
+«en». Displaying "زبان: فارسی" would be pure redundant noise on every
+single page site-wide right now, not a useful addition — flagged this
+to Farhad rather than implementing the literal spec line as-is.
+Presented three options (display now anyway / defer until real English
+content exists / display only when non-default); Farhad chose to defer.
 
-- Files: `wp-content/themes/shola-jawid/single-party_publication.php`,
+No code changed — the field itself is untouched and still saved
+normally in the admin; this is purely about not adding a front-end
+display for it yet. Revisit once bilingual content is actually being
+published (per CLAUDE.md §1, that's explicitly out of scope for the
+current phase anyway).
+
+- Files, once revisited: `wp-content/themes/shola-jawid/single-party_publication.php`,
   `single-document.php` — add a simple display row next to the existing
   metadata (file size, date, etc.), matching their existing layout
-  pattern. Zero risk, purely additive, no shared code.
+  pattern.
 
 ### B11. Breadcrumbs missing on several archive pages
 

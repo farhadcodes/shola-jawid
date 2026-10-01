@@ -13273,3 +13273,25 @@ should read "همهٔ کتاب‌ها" / "افزودن کتاب جدید".
   no desktop/tablet/mobile UI to check.
   Plugin version bumped 1.24.13 -> 1.24.14 (patch). No theme change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B10 deferred: نمایش not added for shcore_language
+
+Before implementing "add a display row for the language field" as
+originally scoped, queried the actual data across every post type that
+carries `shcore_language` (document, party_publication, party_document,
+post) — 30 published items total, **100% set to «fa», 0 set to «en»**.
+Displaying "زبان: فارسی" on every single page site-wide right now would
+be redundant noise, not a useful addition, since there is currently no
+content the reader would need to distinguish it from.
+
+Presented three options to Farhad (display now anyway / defer until
+real English content exists / display only when the value is non-
+default) rather than silently implementing the literal gap description.
+Farhad chose to defer — no front-end change made. The field itself is
+untouched: still saved normally in every relevant admin metabox, just
+not yet surfaced on the front end. Revisit once bilingual content is
+actually being published — consistent with CLAUDE.md §1's existing
+"any future English rollout is explicitly out of scope" stance for the
+current phase.
+No code changed, no version bump.
+Approved by: Farhad, in this session (2026-10-01).
