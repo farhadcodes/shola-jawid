@@ -13444,3 +13444,30 @@ spec text alone. Asked both before writing any code:
   nav below it, correct RTL, no regressions.
   Theme version bumped 1.47.37 -> 1.47.38 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Fix: B14's party logo wasn't actually centered live
+
+Farhad caught this live, screenshot attached: the logo rendered
+visibly off-center, shifted right, instead of centered above the title
+as intended. Root cause: `.about-page-logo` used
+`display: inline-block`, which put the `<img>` on the same inline
+formatting line as `.kicker-row` (also inline-level) right after it in
+the markup — `.page-header`'s `text-align: center` centers inline
+content as one combined run per line, not each inline item
+independently, so the image + kicker-row were centered as a unit
+rather than the image being centered on its own.
+
+- **Fixed:** `display: block` + `margin-inline: auto` instead of
+  `inline-block` — forces the image onto its own line, which
+  `text-align: center` then centers correctly by itself. Same approach
+  `.footer-logo` already uses, for the same underlying reason; should
+  have matched it from the start instead of introducing a different
+  pattern for this new rule.
+  Verified live at desktop, tablet, and mobile via exact pixel-center
+  measurement (image center vs. `.page-header`'s own center, both in
+  JS) before and after — confirmed off by ~139px before the fix,
+  centered to sub-pixel precision after. Visually confirmed via
+  screenshots at all three viewports: no lag, no distortion, no
+  disproportion.
+  Theme version bumped 1.47.38 -> 1.47.39 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
