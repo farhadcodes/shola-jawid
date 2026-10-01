@@ -684,6 +684,68 @@ function shola_get_party_document_subsections() {
 }
 
 /**
+ * کتابخانه's collection list — added 2026-10-01 (spec-audit gap B9),
+ * same shared-helper pattern as shola_get_party_document_subsections()
+ * right above (which this project's own 2026-09-24 docblock already
+ * flagged کتابخانه's `$collection_slugs` hardcoded arrays in
+ * page-library.php/taxonomy-collection.php as needing — never
+ * actually done at the time). A real `get_terms()` query, not a
+ * hardcoded slug list, so a new `collection` term created in wp-admin
+ * appears here automatically.
+ *
+ * Fixing this surfaced a real, already-live bug: the old hardcoded list
+ * included `party-documents`, a slug with no matching term — اسناد حزب
+ * was split out into its own CPT/taxonomy (`party_document`/
+ * `party_document_category`) at some point, and کتابخانه's hardcoded
+ * list was never updated. `get_term_by()` silently returned false for
+ * it and the loop skipped it, so the public site was already only ever
+ * showing 3 collection tiles, not 4 — this fix doesn't change that
+ * (it still only returns the 3 real terms), it just stops silently
+ * depending on a slug happening to not exist.
+ *
+ * Same `hide_empty => false` / uncategorized-exclusion / shcore_term_order
+ * sort as the party-document helper, for the same reasons.
+ *
+ * @return \WP_Term[]
+ */
+function shola_get_library_collections() {
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'collection',
+			'hide_empty' => false,
+		)
+	);
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+
+	$uncategorized_id = class_exists( '\SholaCore\Category_Manager' )
+		? \SholaCore\Category_Manager::get_uncategorized_term_id( 'collection' )
+		: 0;
+
+	$ordinary = array();
+	foreach ( $terms as $term ) {
+		if ( $uncategorized_id && $uncategorized_id === (int) $term->term_id ) {
+			continue;
+		}
+		$ordinary[] = $term;
+	}
+
+	usort(
+		$ordinary,
+		function ( $a, $b ) {
+			$order_a = get_term_meta( $a->term_id, 'shcore_term_order', true );
+			$order_b = get_term_meta( $b->term_id, 'shcore_term_order', true );
+			$order_a = ( '' === $order_a ) ? PHP_INT_MAX : (int) $order_a;
+			$order_b = ( '' === $order_b ) ? PHP_INT_MAX : (int) $order_b;
+			return $order_a <=> $order_b;
+		}
+	);
+
+	return $ordinary;
+}
+
+/**
  * Fixed Latin brand-code used in the masthead runner's mono/lang="en"
  * context ("SHOLA JAWID · شماره ۳۲ · سرطان ۱۴۰۵" in v6) — a running-head
  * mark, not a translation of the site name (`get_bloginfo('name')`

@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$collection_slugs = array( 'classics', 'international-movement', 'party-documents', 'critique-polemic' );
+$collections = shola_get_library_collections();
 ?>
 	<section class="wrap section-top">
 
@@ -49,13 +49,7 @@ $collection_slugs = array( 'classics', 'international-movement', 'party-document
 		</header>
 
 		<ul class="topic-list">
-			<?php foreach ( $collection_slugs as $slug ) : ?>
-				<?php
-				$term = get_term_by( 'slug', $slug, 'collection' );
-				if ( ! $term ) {
-					continue;
-				}
-				?>
+			<?php foreach ( $collections as $term ) : ?>
 				<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 					<span class="name"><?php echo esc_html( $term->name ); ?></span>
 					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>

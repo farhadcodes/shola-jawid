@@ -43,7 +43,7 @@ get_header();
 $term  = get_queried_object();
 $paged = max( 1, get_query_var( 'paged' ) );
 
-$collection_slugs = array( 'classics', 'international-movement', 'party-documents', 'critique-polemic' );
+$collections = shola_get_library_collections();
 
 $archive_query = new WP_Query(
 	array(
@@ -83,13 +83,7 @@ $archive_query = new WP_Query(
 		</header>
 
 		<nav class="topic-nav" aria-label="<?php esc_attr_e( 'پیمایش مجموعه‌ها', 'shola-jawid' ); ?>">
-			<?php foreach ( $collection_slugs as $slug ) : ?>
-				<?php
-				$nav_term = get_term_by( 'slug', $slug, 'collection' );
-				if ( ! $nav_term ) {
-					continue;
-				}
-				?>
+			<?php foreach ( $collections as $nav_term ) : ?>
 				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( get_term_link( $nav_term ) ); ?>"><?php echo esc_html( $nav_term->name ); ?></a>
 			<?php endforeach; ?>
 		</nav>

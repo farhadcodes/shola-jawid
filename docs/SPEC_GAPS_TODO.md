@@ -278,19 +278,28 @@ which has no دوره term — its row correctly disappears rather than
 showing stale data), live at desktop/tablet/mobile. See
 `docs/CHANGELOG.md` 2026-10-01 for the full per-issue verification.
 
-### B9. کتابخانه: homepage archive page hard-codes 4 collection slugs
+### ✅ B9. کتابخانه: homepage archive page hard-codes 4 collection slugs — DONE 2026-10-01
 
-`page-library.php` lists 4 specific collection slugs by name — a new
-collection added in admin won't show up there automatically.
+Fixed: added `shola_get_library_collections()` (inc/template-tags.php),
+a real `get_terms()` query against the `collection` taxonomy, same
+shared-helper pattern as `shola_get_party_document_subsections()`.
+Replaces the hard-coded slug array in both `page-library.php` (tile
+list) and `taxonomy-collection.php` (cross-collection nav strip) — the
+second file had its own independent copy of the same hardcoded list,
+not mentioned in the original gap description, found while grepping
+for every usage before fixing just one.
 
-- File: `wp-content/themes/shola-jawid/page-library.php`.
-- Fix shape: replace the hard-coded slug list with a real `get_terms()`
-  query against the `collection` taxonomy (same pattern already used for
-  نشریات's publication terms in `front-page.php`, or اسناد حزب's group
-  listing) — low risk, but **test with the existing 4 collections first**
-  to confirm the dynamic query returns them in the same order/grouping
-  before relying on it, since collection ordering may currently depend on
-  the hard-coded list's order.
+Testing the existing collections first (per this item's own caution)
+surfaced a real, already-live bug: the old list included `party-documents`,
+a slug with no matching term (اسناد حزب was split into its own CPT/
+taxonomy at some point; this list was never updated). `get_term_by()`
+silently returned false for it and the loop skipped it — the public
+site was already only ever rendering 3 tiles, not 4. This fix doesn't
+change that (still 3 real terms), it just stops silently depending on a
+slug that doesn't exist. **Flagged separately to Farhad:** the page's
+dek text still says "چهار مجموعه... اسناد رسمی حزب" (four collections,
+naming the one that doesn't exist) — a copy fix, not a code fix, left
+for his decision on the wording.
 
 ### B10. Language field (`shcore_language`) stored but never displayed
 

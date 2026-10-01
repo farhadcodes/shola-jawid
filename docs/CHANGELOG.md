@@ -13205,3 +13205,44 @@ hand-fixing the 5 values and keeping the free-text field).
   Theme version bumped 1.47.32 -> 1.47.33 (patch). Plugin version
   bumped 1.24.12 -> 1.24.13 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B9: کتابخانه collection list dynamicized
+
+- **Added:** `shola_get_library_collections()` (inc/template-tags.php) —
+  a real `get_terms()` query against the `collection` taxonomy, same
+  shared-helper shape as `shola_get_party_document_subsections()`
+  (hide_empty => false so a brand-new empty term shows immediately,
+  excludes the system "دسته‌بندی‌نشده" fallback term, sorted by
+  `shcore_term_order` with a stable fallback to `get_terms()`'s own
+  order). Replaces the `$collection_slugs` hard-coded array in
+  `page-library.php` (the tile list) — the one this gap named — and
+  `taxonomy-collection.php` (the cross-collection nav strip), which
+  turned out to have its own, separate copy of the exact same hard-coded
+  list; found by grepping for every usage before fixing only the one
+  file the gap description mentioned.
+- **Found while testing (per this item's own instruction to test
+  against the existing collections before relying on the dynamic
+  query):** the old hard-coded list included `party-documents`, a slug
+  with no matching `collection` term at all — اسناد حزب was split out
+  into its own CPT/taxonomy (`party_document`/`party_document_category`)
+  at some point, and this list was simply never updated after that.
+  `get_term_by( 'slug', 'party-documents', 'collection' )` silently
+  returned false and the old `continue;` skipped it, so **the public
+  site has already only ever been showing 3 collection tiles, not
+  4** — this fix doesn't change that outcome (confirmed via a
+  WP-bootstrap script: the new helper returns exactly the same 3 terms,
+  in the same order, as the old hard-coded list did), it just stops
+  silently depending on a slug that doesn't exist, so a real 4th
+  `collection` term created in wp-admin will now actually appear.
+  Verified live at desktop, tablet, and mobile on both
+  `/library/` (tile list, counts correct) and `/library/classics/`
+  (nav strip, correct active state, document grid unaffected) — no
+  regressions, correct RTL.
+  Theme version bumped 1.47.33 -> 1.47.34 (patch). No plugin change.
+  Approved by: Farhad, in this session (2026-10-01).
+- **Flagged, not fixed (copy, not code):** `page-library.php`'s dek
+  text still reads "چهار مجموعه از اسناد PDF: ...، اسناد رسمی حزب، ..."
+  — both the count ("four") and the named collection ("اسناد رسمی حزب")
+  are stale relative to the real data uncovered above. Left for Farhad
+  to decide the replacement wording rather than guessing at copy on his
+  behalf.
