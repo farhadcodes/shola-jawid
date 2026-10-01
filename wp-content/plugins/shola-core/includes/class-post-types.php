@@ -183,7 +183,17 @@ class Post_Types {
 				'show_in_rest' => true,
 				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-media-document',
-				'supports'     => array( 'title', 'thumbnail', 'excerpt' ),
+				/*
+				 * 'editor' added 2026-10-01 (spec-audit gap B8) for the
+				 * spec's «توضیحات» issue field ("space for a description
+				 * about this issue") — a distinct field from 'excerpt'
+				 * (چکیده) and shcore_hero_pub_description (the homepage
+				 * card's one-sentence blurb), both of which already existed.
+				 * Admin-only for now, same as B3's leaflet 'editor' support
+				 * — no front-end display spot is specified for it in the
+				 * spec, unlike the other two description fields.
+				 */
+				'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
 				'taxonomies'   => array( 'publication' ),
 				'rewrite'      => array(
 					'slug'       => 'publications/%publication%',

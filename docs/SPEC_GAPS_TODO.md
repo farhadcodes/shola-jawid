@@ -248,20 +248,46 @@ alone — they show the publication name, not the issue's title, by
 deliberate prior design. See `docs/CHANGELOG.md` 2026-10-01 for the
 full per-template reasoning and verification.
 
-### B8. نشریات: no description field, no topic/دوره classification shown as a real taxonomy pick in one place
+### ⚠️ B8a. نشریات: no description field — EDITOR SUPPORT DONE 2026-10-01, 8b still open
 
-The `issue` CPT has no `editor` support (so no description), and دوره is
-recorded twice — once as a real taxonomy child term, once as a free-text
-field (`shcore_volume`) that doesn't actually read from the term.
+Checked the actual spec text (09_documentation docx) before implementing:
+the issue has 13 fields, and «توضیحات» ("space for a description about
+this issue") is a genuinely separate field from «چکیده» (excerpt,
+already native `post_excerpt`) and «توضیح کارت صفحهٔ اصلی» (the homepage
+card blurb, already `shcore_hero_pub_description`) — not a duplicate of
+either. Fixed: added `'editor'` to the `issue` CPT's `supports` array
+(class-post-types.php), same admin-only pattern as B3's leaflet
+`'editor'` support — the spec doesn't name a front-end display spot for
+this one, unlike the other two description fields. See
+`docs/CHANGELOG.md` 2026-10-01.
 
-- Files: `wp-content/plugins/shola-core/includes/class-post-types.php`
-  (`issue` CPT `supports` array, add `'editor'`), `class-meta-fields.php`
-  (consider whether `shcore_volume` should become a read-only display of
-  the actual assigned دوره term instead of a separate free-text field —
-  this removes the redundancy the audit flagged, but confirm with Farhad
-  whether any existing issues rely on `shcore_volume` having a value that
-  doesn't match their actual term before collapsing the two, since that
-  could silently change displayed text on existing content).
+### ⚠️ B8b. نشریات: دوره recorded twice, and the two copies genuinely disagree on real content — NEEDS FARHAD'S CALL
+
+Checked existing data before touching this (per this item's own
+caution): queried all 11 published issues, comparing `shcore_volume`
+(free text) against the issue's actual assigned دوره taxonomy term.
+**5 of 11 issues disagree**, not just cosmetically — e.g. issue #26's
+`shcore_volume` field literally says «دورهٔ سوم» while its real assigned
+term is «دورهٔ اول»; issue #188 has a `shcore_volume` of «۳» but no
+دوره term assigned at all. `front-page.php`'s نشریات section displays
+`shcore_volume` directly, so this is live, visibly wrong data right now
+on 5 issues, not a theoretical risk.
+
+This needs Farhad's decision, not a silent collapse, because fixing it
+changes what's displayed on 5 already-published issues one way or the
+other:
+- Collapse to the real taxonomy term (spec-correct, removes the
+  redundant field) — but this will visibly change the "دوره" text shown
+  for those 5 issues on the homepage, and Farhad should see which 5
+  before that happens, in case any of those 5 values were deliberately
+  set to something other than the term for a reason I don't know.
+- Keep `shcore_volume` as-is and just fix the 5 mismatched values by
+  hand to match their real term (same end result, but as content edits
+  Farhad makes himself, not a code change).
+
+- Files once a direction is chosen: `class-meta-fields.php` (remove or
+  repurpose `shcore_volume`), `front-page.php` (read the term directly
+  instead of the free-text field).
 
 ### B9. کتابخانه: homepage archive page hard-codes 4 collection slugs
 

@@ -13131,3 +13131,41 @@ single-issue.php alone and leaving the others inconsistent:
   Theme version bumped 1.47.31 -> 1.47.32 (patch). Plugin version
   bumped 1.24.10 -> 1.24.11 (patch).
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B8a: نشریات description field (editor support)
+
+Before implementing, read the actual spec text (09_documentation's
+approved docx, not just the earlier audit's paraphrase) to confirm
+«توضیحات» ("space for a description about this issue") is a real,
+distinct 13th issue field — not a duplicate of «چکیده» (already native
+`post_excerpt`) or «توضیح کارت صفحهٔ اصلی» (already
+`shcore_hero_pub_description`, the homepage card's one-line blurb). It
+is: the spec lists all three as separate items.
+
+- **Added:** `'editor'` to the `issue` CPT's `supports` array
+  (class-post-types.php) — same admin-only pattern as this session's
+  earlier B3 fix (تراکت's `'editor'` support): the spec doesn't name a
+  front-end display location for this field, unlike the other two
+  description-shaped fields, so it's admin-only for now, no template
+  touched.
+  Verified via `post_type_supports( 'issue', 'editor' )` (and
+  `excerpt`/`title`/`thumbnail`, to confirm nothing already there was
+  dropped) returning true/true/true/true. Admin-only change, no
+  desktop/tablet/mobile UI to check (same reasoning as B3).
+  Plugin version bumped 1.24.11 -> 1.24.12 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-10-01).
+
+- **Deferred (B8b):** the other half of this gap — `shcore_volume`
+  (free-text) vs. the issue's real دوره taxonomy term being recorded
+  twice — turned out to be a genuine, already-live data problem, not
+  just a redundancy: checked all 11 published issues, and 5 have a
+  `shcore_volume` value that actively disagrees with their real
+  assigned term (one says «دورهٔ سوم» while its real term is «دورهٔ
+  اول»; another has a volume value with no term assigned at all).
+  `front-page.php` displays `shcore_volume` directly, so this is
+  already-wrong live content, not a hypothetical. Per this item's own
+  explicit instruction not to collapse the two fields without
+  confirming with Farhad first (since either fix direction changes
+  displayed text on those 5 issues), this is left open pending his
+  call — see `docs/SPEC_GAPS_TODO.md` B8b for the specific issue IDs and
+  two options presented.
