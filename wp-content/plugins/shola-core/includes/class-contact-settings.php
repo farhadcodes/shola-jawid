@@ -28,6 +28,25 @@ class Contact_Settings {
 	const OPTION_NAME = 'shcore_contact_topics';
 
 	/**
+	 * Option name storing the official contact email shown on the contact
+	 * page — added 2026-10-01 (spec-audit gap B2): this was previously a
+	 * literal address hardcoded in page-contact.php, not editable from
+	 * admin at all.
+	 *
+	 * @var string
+	 */
+	const EMAIL_OPTION_NAME = 'shcore_contact_email';
+
+	/**
+	 * Default/fallback email — the same address page-contact.php had
+	 * hardcoded before this setting existed, so an un-configured site
+	 * keeps showing the same real address rather than a placeholder.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_EMAIL = 'info.sholajawid@gmail.com';
+
+	/**
 	 * Hook registration.
 	 *
 	 * @return void
@@ -35,6 +54,7 @@ class Contact_Settings {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_email_setting' ) );
 		add_filter( 'wpcf7_form_tag_data_option', array( __CLASS__, 'filter_data_option' ), 10, 2 );
 	}
 
@@ -68,6 +88,49 @@ class Contact_Settings {
 		}
 
 		return $topics;
+	}
+
+	/**
+	 * Read the current official contact email, falling back to
+	 * DEFAULT_EMAIL if the option is empty or invalid.
+	 *
+	 * @return string
+	 */
+	public static function get_email() {
+		$email = get_option( self::EMAIL_OPTION_NAME, self::DEFAULT_EMAIL );
+
+		return is_email( $email ) ? $email : self::DEFAULT_EMAIL;
+	}
+
+	/**
+	 * Register the email option and its sanitize callback.
+	 *
+	 * @return void
+	 */
+	public static function register_email_setting() {
+		register_setting(
+			'shcore_contact_settings',
+			self::EMAIL_OPTION_NAME,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_email_setting' ),
+				'default'           => self::DEFAULT_EMAIL,
+			)
+		);
+	}
+
+	/**
+	 * Sanitize the submitted email — falls back to DEFAULT_EMAIL rather
+	 * than saving an invalid address, same "never save garbage" approach
+	 * as sanitize_topics() below.
+	 *
+	 * @param string $raw Raw email value from the settings form.
+	 * @return string
+	 */
+	public static function sanitize_email_setting( $raw ) {
+		$email = sanitize_email( trim( (string) $raw ) );
+
+		return is_email( $email ) ? $email : self::DEFAULT_EMAIL;
 	}
 
 	/**
@@ -154,12 +217,23 @@ class Contact_Settings {
 		}
 
 		$topics = self::get_topics();
+		$email  = self::get_email();
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'موضوعات فرم تماس', 'shola-core' ); ?></h1>
-			<p><?php esc_html_e( 'هر سطر یک گزینه برای فهرست کشویی «موضوع پیام» در فرم تماس است. سطرهای خالی نادیده گرفته می‌شوند.', 'shola-core' ); ?></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'shcore_contact_settings' ); ?>
+				<h2><?php esc_html_e( 'ایمیل رسمی حزب', 'shola-core' ); ?></h2>
+				<p><?php esc_html_e( 'نشانی ایمیلی که در پایین فرم تماس، برای پاسخگویی مستقیم مخاطبان، نمایش داده می‌شود.', 'shola-core' ); ?></p>
+				<input
+					type="email"
+					name="<?php echo esc_attr( self::EMAIL_OPTION_NAME ); ?>"
+					value="<?php echo esc_attr( $email ); ?>"
+					class="regular-text"
+					dir="ltr"
+				>
+				<h2><?php esc_html_e( 'موضوعات فرم تماس', 'shola-core' ); ?></h2>
+				<p><?php esc_html_e( 'هر سطر یک گزینه برای فهرست کشویی «موضوع پیام» در فرم تماس است. سطرهای خالی نادیده گرفته می‌شوند.', 'shola-core' ); ?></p>
 				<textarea
 					name="<?php echo esc_attr( self::OPTION_NAME ); ?>"
 					rows="8"

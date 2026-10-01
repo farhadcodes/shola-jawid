@@ -180,28 +180,16 @@ get backwards in RTL. No code change expected here unless the answer is
 Ordered roughly cheapest/lowest-risk first. Each one names the exact file
 and flags shared-code impact.
 
-### B1. Footer copyright year is hard-coded
+### ✅ B1. Footer copyright year is hard-coded — DONE 2026-10-01
 
-Currently prints a literal "۱۴۰۵" instead of computing the current Jalali
-year. Trivial, zero risk, zero shared-code impact (one file, used once).
+Fixed: `footer.php` now computes the year live via `wp_date('Y')`. See
+`docs/CHANGELOG.md` 2026-10-01.
 
-- File: `wp-content/themes/shola-jawid/footer.php`, `.footer-base` area
-  (search for the literal year string).
-- Fix shape: compute from `shola_get_jalali_date()`/equivalent helper
-  already used elsewhere in the theme, not a new hardcoded literal.
+### ✅ B2. Contact page email is hard-coded, not admin-editable — DONE 2026-10-01
 
-### B2. Contact page email is hard-coded, not admin-editable
-
-Spec requires the official email shown on `ارتباط با ما` to be editable
-from the admin side, not baked into the template.
-
-- File: `wp-content/themes/shola-jawid/page-contact.php` (or wherever
-  `info.sholajawid@gmail.com` is literally written — grep for it).
-- Fix shape: a new, single theme-mod or option field (Customizer setting or
-  a simple options-page field in `shola-core`, matching how other
-  site-wide settings like `shcore_hero_rail_publication` defaults are
-  handled) — this is new, small, additive plumbing, not a rebuild. Low
-  risk: touches one template only.
+Fixed: added `shcore_contact_email` option to `SholaCore\Contact_Settings`
+(Settings → موضوعات فرم تماس), `page-contact.php` now reads it via
+`get_email()`. See `docs/CHANGELOG.md` 2026-10-01.
 
 ### B3. تراکت: add the missing description field
 

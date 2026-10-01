@@ -12841,3 +12841,28 @@ conflicting decision involved).
   three breakpoints.
   Theme version bumped 1.47.27 -> 1.47.28 (patch). No plugin change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B2: contact email now admin-editable
+
+- **Added:** `shcore_contact_email` option in `SholaCore\Contact_Settings`
+  (same small-option-plus-one-settings-page shape already used by that
+  class for the contact-topics list) — a new field on the existing
+  Settings → موضوعات فرم تماس page, validated with `is_email()`,
+  falling back to the real address (`info.sholajawid@gmail.com`) if
+  ever left empty or invalid, so the site never shows a broken mailto
+  link.
+  page-contact.php now calls `Contact_Settings::get_email()` instead
+  of a hardcoded address, guarded by `class_exists()` so the page still
+  degrades gracefully (to the same real address) if shola-core is ever
+  inactive — same pattern already used for every other theme call into
+  a plugin class.
+  Verified: default value unchanged on the front end; a direct save/
+  sanitize test confirmed a new valid address saves and reads back
+  correctly, an invalid address safely falls back instead of saving
+  garbage, and the site was left restored to its original value.
+  Verified live at desktop, tablet, and mobile — no markup/layout
+  changed by this fix, only the data source, so RTL presentation is
+  unaffected.
+  Theme version bumped 1.47.28 -> 1.47.29 (patch). Plugin version
+  bumped 1.24.4 -> 1.24.5 (patch).
+  Approved by: Farhad, in this session (2026-10-01).

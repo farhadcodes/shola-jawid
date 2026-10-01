@@ -8,8 +8,10 @@
  * form #71) rendered with the theme's own markup/CSS (wpcf7_load_css
  * filtered off in inc/enqueue.php), not CF7's default stylesheet.
  *
- * Contact email is a placeholder pending the real address — see
- * docs/CHANGELOG.md 2026-08-06 for the decision record.
+ * Contact email is admin-editable (Settings → موضوعات فرم تماس) via
+ * SholaCore\Contact_Settings::get_email() — added 2026-10-01, spec-audit
+ * gap B2. See docs/CHANGELOG.md 2026-08-06 for the original placeholder
+ * decision this replaces.
  *
  * @package shola-jawid
  */
@@ -35,9 +37,16 @@ get_header();
 
 				<?php echo do_shortcode( '[contact-form-7 id="71"]' ); ?>
 
+				<?php
+				// shola-core is inactive — degrade to the same real address
+				// this field used to hardcode, instead of a dead mailto link.
+				$contact_email = class_exists( '\SholaCore\Contact_Settings' )
+					? \SholaCore\Contact_Settings::get_email()
+					: 'info.sholajawid@gmail.com';
+				?>
 				<aside class="contact-aside">
 					<p class="meta-mono"><?php esc_html_e( 'ایمیل', 'shola-jawid' ); ?></p>
-					<p class="contact-aside-value"><a class="link" href="mailto:info.sholajawid@gmail.com" dir="ltr">info.sholajawid@gmail.com</a></p>
+					<p class="contact-aside-value"><a class="link" href="<?php echo esc_url( 'mailto:' . $contact_email ); ?>" dir="ltr"><?php echo esc_html( $contact_email ); ?></a></p>
 					<p class="meta-mono"><?php esc_html_e( 'زمان پاسخ‌دهی', 'shola-jawid' ); ?></p>
 					<p class="contact-aside-value"><?php esc_html_e( 'پیام‌ها معمولاً ظرف یک هفته پاسخ داده می‌شوند.', 'shola-jawid' ); ?></p>
 					<p class="meta-mono"><?php esc_html_e( 'حریم خصوصی', 'shola-jawid' ); ?></p>
