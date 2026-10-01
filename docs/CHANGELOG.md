@@ -13246,3 +13246,30 @@ hand-fixing the 5 values and keeping the free-text field).
   are stale relative to the real data uncovered above. Left for Farhad
   to decide the replacement wording rather than guessing at copy on his
   behalf.
+
+## 2026-10-01 (later same session) — کتابخانه admin labels: «سند» → «کتاب»
+
+Farhad flagged two admin submenu entries under کتابخانه — "همهٔ اسناد"
+(All Documents) and "افزودن سند جدید" (Add New Document) — as the wrong
+word: this CPT is a library of books, not generic documents, so it
+should read "همهٔ کتاب‌ها" / "افزودن کتاب جدید".
+
+- **Changed:** every label in the `document` CPT's `register_post_type()`
+  call (class-post-types.php) from «سند» to «کتاب» — not just the two he
+  pointed at (`all_items`, `add_new_item`), but `name`, `singular_name`,
+  `add_new`, `edit_item`, `new_item`, `view_item`, `search_items`,
+  `not_found`, and `not_found_in_trash` too, so the admin UI doesn't mix
+  both words for the same post type (e.g. the list screen already said
+  "ویرایش سند" per-row — leaving that as "سند" while the menu said
+  "کتاب" would've just moved the inconsistency, not fixed it).
+  `menu_name` ("کتابخانه") was already correct and is unchanged.
+  Deliberately scoped to admin labels only — front-end template copy
+  (e.g. any "سند" wording in single-document.php or elsewhere) is a
+  separate decision, not touched here.
+  Verified via `get_post_type_object( 'document' )->labels`: every
+  label resolves with the new «کتاب» wording, `all_items` reads "همهٔ
+  کتاب‌ها" and `add_new_item` reads "افزودن کتاب جدید" exactly as
+  Farhad asked. Admin-only label change, no front-end template touched,
+  no desktop/tablet/mobile UI to check.
+  Plugin version bumped 1.24.13 -> 1.24.14 (patch). No theme change.
+  Approved by: Farhad, in this session (2026-10-01).

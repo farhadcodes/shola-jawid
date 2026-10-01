@@ -205,18 +205,28 @@ class Post_Types {
 		register_post_type(
 			'document',
 			array(
+				/*
+				 * Labels changed from «سند» (document) to «کتاب» (book)
+				 * throughout, 2026-10-01, per Farhad flagging the admin
+				 * menu's "همهٔ اسناد"/"افزودن سند جدید" as wrong — this is
+				 * کتابخانه (Library), so its items are books, not generic
+				 * documents. Changed every label in this array, not just
+				 * the two he pointed at, so the admin UI doesn't mix both
+				 * words for the same CPT. Front-end copy (templates, not
+				 * admin labels) is a separate decision, left untouched.
+				 */
 				'labels'       => array(
-					'name'               => __( 'اسناد کتابخانه', 'shola-core' ),
-					'singular_name'      => __( 'سند کتابخانه', 'shola-core' ),
-					'add_new'            => __( 'افزودن سند', 'shola-core' ),
-					'add_new_item'       => __( 'افزودن سند جدید', 'shola-core' ),
-					'edit_item'          => __( 'ویرایش سند', 'shola-core' ),
-					'new_item'           => __( 'سند جدید', 'shola-core' ),
-					'view_item'          => __( 'مشاهدهٔ سند', 'shola-core' ),
-					'search_items'       => __( 'جست‌وجوی اسناد', 'shola-core' ),
-					'not_found'          => __( 'سندی یافت نشد', 'shola-core' ),
-					'not_found_in_trash' => __( 'سندی در زباله‌دان یافت نشد', 'shola-core' ),
-					'all_items'          => __( 'همهٔ اسناد', 'shola-core' ),
+					'name'               => __( 'کتاب‌های کتابخانه', 'shola-core' ),
+					'singular_name'      => __( 'کتاب کتابخانه', 'shola-core' ),
+					'add_new'            => __( 'افزودن کتاب', 'shola-core' ),
+					'add_new_item'       => __( 'افزودن کتاب جدید', 'shola-core' ),
+					'edit_item'          => __( 'ویرایش کتاب', 'shola-core' ),
+					'new_item'           => __( 'کتاب جدید', 'shola-core' ),
+					'view_item'          => __( 'مشاهدهٔ کتاب', 'shola-core' ),
+					'search_items'       => __( 'جست‌وجوی کتاب‌ها', 'shola-core' ),
+					'not_found'          => __( 'کتابی یافت نشد', 'shola-core' ),
+					'not_found_in_trash' => __( 'کتابی در زباله‌دان یافت نشد', 'shola-core' ),
+					'all_items'          => __( 'همهٔ کتاب‌ها', 'shola-core' ),
 					'menu_name'          => __( 'کتابخانه', 'shola-core' ),
 				),
 				'public'       => true,
