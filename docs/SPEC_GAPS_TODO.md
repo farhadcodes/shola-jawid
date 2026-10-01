@@ -224,22 +224,15 @@ passes are in `docs/CHANGELOG.md` 2026-10-01. Longer, pre-existing
 multi-option explanations (hero/masthead layout pickers, etc.)
 deliberately left alone throughout.
 
-### B6. نشریات: issue table-of-contents missing its page-number column
+### ✅ B6. نشریات: issue table-of-contents missing its page-number column — DONE 2026-10-01
 
-Spec wants a 3-column TOC (title, author, page number); currently only
-title+author (`shcore_contents` repeater).
-
-- Files: `wp-content/plugins/shola-core/includes/class-meta-fields.php`
-  (the `shcore_contents` repeater fields and its save logic — search for
-  `shcore_contents`), `wp-content/plugins/shola-core/admin/js/meta-boxes.js`
-  (the repeater's JS, if the row template is built there), and wherever
-  the TOC renders publicly on `single-issue.php` (add the new column to
-  the display table too).
-- **Shared-code note:** `shcore_contents` is stored as JSON
-  (`wp_json_encode`) — adding a new key to each row is additive and safe
-  for existing data (old rows simply won't have the new key; handle a
-  missing page-number gracefully on display, don't assume it's always
-  set).
+Fixed: added a `page` field to the `shcore_contents` repeater (admin
+column/input, get/sanitize functions) and a "صفحهٔ N" display line on
+single-issue.php. Turned out the old "no per-entry page count" code
+comment was about not faking a WP permalink for TOC entries, not about
+rejecting a plain page-number field — checked the actual project
+history before implementing rather than assuming a conflict. See
+`docs/CHANGELOG.md` 2026-10-01 for the full reasoning and verification.
 
 ### B7. نشریات: no custom/optional issue title — title gets hard-replaced
 

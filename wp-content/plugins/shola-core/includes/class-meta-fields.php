@@ -849,6 +849,7 @@ class Meta_Fields {
 						<th><?php esc_html_e( 'بخش', 'shola-core' ); ?></th>
 						<th><?php esc_html_e( 'عنوان', 'shola-core' ); ?></th>
 						<th><?php esc_html_e( 'نویسنده', 'shola-core' ); ?></th>
+						<th><?php esc_html_e( 'شمارهٔ صفحه', 'shola-core' ); ?></th>
 						<th></th>
 					</tr>
 				</thead>
@@ -900,13 +901,14 @@ class Meta_Fields {
 	 * change to show up here.
 	 *
 	 * @param int|string                                  $index Row index (or '__INDEX__' for the template).
-	 * @param array{section?: string, title?: string, byline?: string} $row Row values.
+	 * @param array{section?: string, title?: string, byline?: string, page?: string} $row Row values.
 	 * @return void
 	 */
 	private static function render_toc_row( $index, $row ) {
 		$section = isset( $row['section'] ) ? $row['section'] : '';
 		$title   = isset( $row['title'] ) ? $row['title'] : '';
 		$byline  = isset( $row['byline'] ) ? $row['byline'] : '';
+		$page    = isset( $row['page'] ) ? $row['page'] : '';
 		$topics  = get_terms(
 			array(
 				'taxonomy'   => 'topic',
@@ -931,6 +933,7 @@ class Meta_Fields {
 			</td>
 			<td><input type="text" class="regular-text" name="shcore_contents[<?php echo esc_attr( $index ); ?>][title]" value="<?php echo esc_attr( $title ); ?>"></td>
 			<td><input type="text" class="regular-text" name="shcore_contents[<?php echo esc_attr( $index ); ?>][byline]" value="<?php echo esc_attr( $byline ); ?>"></td>
+			<td><input type="text" class="small-text" name="shcore_contents[<?php echo esc_attr( $index ); ?>][page]" value="<?php echo esc_attr( $page ); ?>" placeholder="<?php esc_attr_e( 'مثلاً ۱۲', 'shola-core' ); ?>"></td>
 			<td><button type="button" class="button-link shcore-toc-remove-row" aria-label="<?php esc_attr_e( 'حذف ردیف', 'shola-core' ); ?>">✕</button></td>
 		</tr>
 		<?php
@@ -1673,13 +1676,16 @@ class Meta_Fields {
 	 * data (e.g. pre-migration content that was never converted) decodes
 	 * to an empty array rather than erroring.
 	 *
-	 * Deliberately no per-entry page count or link to a real article: per
+	 * Deliberately still no link to a real article: per
 	 * docs/EXECUTION_PLAN.md's Phase 0.3 resolved assumption, issues are
 	 * PDF-only — a table-of-contents entry describes what's in the PDF,
-	 * it isn't a real WP post with its own permalink.
+	 * it isn't a real WP post with its own permalink. A page NUMBER
+	 * (`page`, added 2026-10-01, spec-audit gap B6) is different from a
+	 * link — it's plain text, not a reference to a WP entity, matching
+	 * the spec's 3-column TOC requirement (title/author/page number).
 	 *
 	 * @param int $post_id Issue post ID.
-	 * @return array<int, array{section: string, title: string, byline: string}>
+	 * @return array<int, array{section: string, title: string, byline: string, page: string}>
 	 */
 	public static function get_issue_contents( $post_id ) {
 		$raw = get_post_meta( $post_id, 'shcore_contents', true );
@@ -1701,6 +1707,7 @@ class Meta_Fields {
 				'section' => isset( $row['section'] ) ? (string) $row['section'] : '',
 				'title'   => isset( $row['title'] ) ? (string) $row['title'] : '',
 				'byline'  => isset( $row['byline'] ) ? (string) $row['byline'] : '',
+				'page'    => isset( $row['page'] ) ? (string) $row['page'] : '',
 			);
 		}
 
@@ -1747,8 +1754,9 @@ class Meta_Fields {
 			$section = isset( $row['section'] ) ? sanitize_text_field( $row['section'] ) : '';
 			$title   = isset( $row['title'] ) ? sanitize_text_field( $row['title'] ) : '';
 			$byline  = isset( $row['byline'] ) ? sanitize_text_field( $row['byline'] ) : '';
+			$page    = isset( $row['page'] ) ? sanitize_text_field( $row['page'] ) : '';
 
-			if ( '' === $section && '' === $title && '' === $byline ) {
+			if ( '' === $section && '' === $title && '' === $byline && '' === $page ) {
 				continue; // Fully empty row — nothing to keep.
 			}
 
@@ -1756,6 +1764,7 @@ class Meta_Fields {
 				'section' => $section,
 				'title'   => $title,
 				'byline'  => $byline,
+				'page'    => $page,
 			);
 		}
 

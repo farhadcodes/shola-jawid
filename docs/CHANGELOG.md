@@ -13034,3 +13034,39 @@ and asked for true one-liners instead.
   touched.
   Plugin version bumped 1.24.8 -> 1.24.9 (patch). No theme change.
   Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-01 (later same session) — Spec-audit gap B6: نشریات TOC page-number column
+
+A pre-existing code comment on `get_issue_contents()` said "deliberately
+no per-entry page count," citing the PDF-only/no-real-permalink
+decision from `docs/EXECUTION_PLAN.md` Phase 0.3. Checked that decision
+before implementing rather than overriding it silently: that decision
+was actually about *not linking* a TOC entry to a fake WP permalink (a
+TOC line isn't a real post) — a plain page-number string is a different
+thing entirely, not a link, and was never actually rejected by Farhad
+anywhere in the project history. The spec's 3-column requirement
+(title/author/page number) was simply never built, not overruled.
+
+- **Added:** a 4th `page` field to the `shcore_contents` repeater
+  (class-meta-fields.php): new table column + input in
+  `render_toc_row()` (plain text, not numeric-only, so a range like
+  "۱۲–۱۵" is a valid entry, matching every other TOC field's free-text
+  convention), `get_issue_contents()` and `sanitize_issue_contents()`
+  both updated to carry it through, consistent with how `section`/
+  `title`/`byline` already work (independently optional; a row is only
+  dropped if literally all four fields are empty). No changes needed to
+  the save logic or the repeater's add/remove-row JS — both are already
+  field-name-agnostic.
+- **Added display:** single-issue.php now shows "صفحهٔ N" (Persian
+  digits) as a new line per TOC entry when set, plain text (not a
+  link) — consistent with the existing section/byline lines and the
+  still-valid "not a real WP entity" reasoning above.
+  Verified via a local WP-bootstrap script (sanitize with a page value,
+  a row kept when page is the *only* non-empty field, full save/read
+  round-trip on a real issue) and live at desktop, tablet, and mobile:
+  correct Persian-digit page number, correct line order, correct RTL
+  alignment, no regressions. Test TOC data removed and the issue's
+  original (empty) `shcore_contents` restored afterward.
+  Theme version bumped 1.47.30 -> 1.47.31 (patch). Plugin version
+  bumped 1.24.9 -> 1.24.10 (patch).
+  Approved by: Farhad, in this session (2026-10-01).

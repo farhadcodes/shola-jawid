@@ -227,6 +227,17 @@ while ( have_posts() ) :
 							<?php if ( $entry['byline'] ) : ?>
 								<p class="meta mt-sm"><?php echo esc_html( $entry['byline'] ); ?></p>
 							<?php endif; ?>
+							<?php if ( ! empty( $entry['page'] ) ) : ?>
+								<?php
+								/*
+								 * Page number — added 2026-10-01 (spec-audit gap B6).
+								 * Plain text, not a link: a TOC entry still isn't a
+								 * real WP post (see get_issue_contents()'s own
+								 * docblock), this just states where it sits in the PDF.
+								 */
+								?>
+								<p class="meta mt-sm"><?php echo esc_html( sprintf( /* translators: %s: page number. */ __( 'صفحهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $entry['page'] ) ) ); ?></p>
+							<?php endif; ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>
