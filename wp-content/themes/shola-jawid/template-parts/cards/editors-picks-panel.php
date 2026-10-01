@@ -8,14 +8,17 @@
  * untouched and still used elsewhere (single.php's article sidebar,
  * taxonomy-topic.php's پرخواننده‌ترین sort tab).
  *
- * Visual anatomy deliberately copied from most-viewed-panel.php exactly
- * (same "keep the same structure... only the function should be
- * different" instruction) — item #1 featured with an image, items #2-6
- * plain number + title rows. A new set of CSS classes (.editors-pick-
- * panel, .ep-*) was written rather than reusing most-viewed-panel.php's
- * .mv-* classes or editing that file: the two panels now have
- * independent content sources and histories, and most-viewed-panel.php
- * must keep working unmodified for its two remaining call sites.
+ * Visual anatomy based on most-viewed-panel.php (same "keep the same
+ * structure... only the function should be different" instruction),
+ * with two deliberate deviations requested 2026-10-01: the #1 featured
+ * item has no thumbnail (title/number only, like items #2-6), and a
+ * `.link-more` archive link (the same pattern as the leaflets teaser on
+ * this page) is appended at the bottom, linking to /editors-picks/. A
+ * new set of CSS classes (.editors-pick-panel, .ep-*) was written rather
+ * than reusing most-viewed-panel.php's .mv-* classes or editing that
+ * file: the two panels now have independent content sources and
+ * histories, and most-viewed-panel.php must keep working unmodified for
+ * its two remaining call sites.
  *
  * @param array $args {
  *     @type WP_Post[] $posts Up to 6 گزیده‌ها posts, latest first.
@@ -39,7 +42,6 @@ $rest     = array_slice( $editors_picks, 0, 5 );
 	<p class="ep-title"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></p>
 
 	<a class="ep-item ep-item--featured" href="<?php echo esc_url( get_permalink( $featured ) ); ?>">
-		<span class="ep-thumb"><?php echo shola_get_featured_image( $featured, 'shola_card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?></span>
 		<span class="ep-item-body">
 			<span class="ep-num" aria-hidden="true"><?php echo esc_html( shola_to_persian_digits( 1 ) ); ?></span>
 			<span class="ep-item-title"><?php echo esc_html( get_the_title( $featured ) ); ?></span>
@@ -58,4 +60,6 @@ $rest     = array_slice( $editors_picks, 0, 5 );
 			<?php endforeach; ?>
 		</ol>
 	<?php endif; ?>
+
+	<a class="link-more" href="<?php echo esc_url( home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو گزیده‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
 </div>
