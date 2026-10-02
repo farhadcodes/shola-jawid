@@ -1770,6 +1770,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 @media (min-width: 1000px) {
   .reports-carousel-track > .card { flex-basis: calc((100% - 3rem) / 3); }
 }
+/*
+ * Fixed title/excerpt height, added 2026-10-02 per Farhad's live report:
+ * clicking the nav arrows made the whole row visibly jump up/down,
+ * because .h-card has no clamp at all (1-3 lines depending on title
+ * length) and .card-dek's clamp (main.css §09) only sets a ceiling (up
+ * to 5 lines) — short text still collapses to fewer lines, so each
+ * card's real height varied with its own content. Shortening the
+ * excerpt alone (Farhad's own suggested fix) would shrink the *range*
+ * but not eliminate it, since even a short excerpt can be 1 or 2 lines;
+ * reserving a fixed height for both elements (clamped to exactly 2
+ * lines each) removes the jump entirely regardless of content length —
+ * a short title/excerpt just leaves quiet blank space instead of a
+ * shorter card. `calc(<line-height>em * 2)` keys off each element's own
+ * line-height/font-size rather than a hardcoded px figure, so it stays
+ * correct if either's type scale ever changes.
+ */
+.reports-carousel-track .h-card {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  height: calc(1.45em * 2);
+}
+.reports-carousel-track .card-dek {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  height: calc(1.7em * 2);
+}
 
 .section-head-actions { display: flex; align-items: center; gap: 1.25rem; }
 .carousel-nav { display: flex; gap: .5rem; }
