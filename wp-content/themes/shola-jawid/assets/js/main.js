@@ -481,6 +481,82 @@
     });
   }
 
+  /* گزارش (Reports) homepage carousel — added 2026-10-02, client-requested
+     via Farhad ("all the article sections feel the same, give گزارش
+     something creative"). Native-scroll + scroll-snap track (not a
+     transform/clone-based slider), same family of technique as
+     .library-shelf-track above, but driven via `Element.scrollIntoView()`
+     on a target card rather than manual `scrollLeft`/`scrollBy` math:
+     confirmed live that this track's `dir="rtl"` overflow doesn't
+     initially rest with the first (newest) card visible — the browser's
+     default scrollLeft=0 position showed cards 2-4, with the newest card
+     pushed out of view — and the library-shelf's own scrollLeft-sign-
+     detection dance (built for a different, always-starts-at-the-first-
+     item track) doesn't correct for that. `scrollIntoView({inline:
+     "start"})` sidesteps the whole sign/initial-position problem: the
+     browser itself resolves "start" correctly for RTL (the right edge
+     here), for both the initial alignment and every subsequent step.
+     Slower-paced than the library shelf (5.5s vs 4s) — a گزارش
+     title+excerpt needs more time to read than a single book cover.
+     Farhad's explicit ask was for "smooth, not overwhelming" motion
+     rather than a specific speed, so both the interval and the native
+     `behavior: "smooth"` scroll were picked for a calm pace, not tuned
+     to his original 100-200ms figure, which he confirmed was only a
+     rough reference, not a literal spec. */
+  var reportsTrack = document.querySelector("[data-reports-carousel]");
+  if (reportsTrack) {
+    var reportsCards = Array.prototype.slice.call(reportsTrack.querySelectorAll(".card"));
+    if (reportsCards.length > 1) {
+      var reportsIndex = 0;
+
+      function reportsGoTo(index, smooth) {
+        reportsIndex = ((index % reportsCards.length) + reportsCards.length) % reportsCards.length;
+        reportsCards[reportsIndex].scrollIntoView({
+          behavior: smooth ? "smooth" : "auto",
+          block: "nearest",
+          inline: "start",
+        });
+      }
+
+      // Align to the newest (first) card immediately — see this block's
+      // own comment above on why this can't be left to the browser's
+      // own default scroll position.
+      reportsGoTo(0, false);
+
+      var reportsNavButtons = document.querySelectorAll("[data-reports-dir]");
+      reportsNavButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var dir = parseFloat(btn.getAttribute("data-reports-dir")) || 1;
+          reportsGoTo(reportsIndex + dir, true);
+          resumeReportsSoon();
+        });
+      });
+
+      var reportsPaused = false;
+      var reportsResumeTimer = null;
+      var pauseReports = function () {
+        reportsPaused = true;
+        if (reportsResumeTimer) { clearTimeout(reportsResumeTimer); }
+      };
+      var resumeReportsSoon = function () {
+        if (reportsResumeTimer) { clearTimeout(reportsResumeTimer); }
+        reportsResumeTimer = setTimeout(function () { reportsPaused = false; }, 2000);
+      };
+      ["mouseenter", "focusin", "touchstart", "pointerdown"].forEach(function (evt) {
+        reportsTrack.addEventListener(evt, pauseReports, { passive: true });
+      });
+      ["mouseleave", "focusout", "touchend", "pointerup"].forEach(function (evt) {
+        reportsTrack.addEventListener(evt, resumeReportsSoon, { passive: true });
+      });
+
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        window.setInterval(function () {
+          if (!reportsPaused) { reportsGoTo(reportsIndex + 1, true); }
+        }, 5500);
+      }
+    }
+  }
+
   /* ---------- گالری تمام‌صفحهٔ تراکت (page-leaflets.php, front-page.php,
      2026-09-17) ----------
      A native <dialog>, not a hand-built overlay: .showModal() natively

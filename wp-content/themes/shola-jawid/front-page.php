@@ -816,9 +816,49 @@ $has_reports = $reports_query->have_posts();
 				<p class="section-marker"></p>
 				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_reports_heading' ) ); ?></h2>
 			</div>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			<?php
+			/*
+			 * Carousel nav arrows, added 2026-10-02 — client-requested
+			 * "creative" treatment for گزارش specifically (relayed by
+			 * Farhad: all the article-shaped homepage sections felt too
+			 * similar). Sits beside the existing «همهٔ گزارش‌ها» link, per
+			 * Farhad's explicit placement ask. Plain <button>s with
+			 * data-reports-dir, wired up in main.js
+			 * (reportsCarouselTrack) — inert without JS, same as the
+			 * library-shelf/filmstrip arrows elsewhere on this site; the
+			 * track itself is a native horizontally-scrollable row
+			 * (assets/css/main.css, .reports-carousel-track), so it's
+			 * fully usable by touch/trackpad/keyboard with JS disabled,
+			 * just without the auto-advance and these two buttons.
+			 */
+			?>
+			<div class="section-head-actions">
+				<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<div class="carousel-nav" role="group" aria-label="<?php esc_attr_e( 'پیمایش گزارش‌ها', 'shola-jawid' ); ?>">
+					<button type="button" class="carousel-nav-btn" data-reports-dir="1" aria-label="<?php esc_attr_e( 'گزارش‌های قدیمی‌تر', 'shola-jawid' ); ?>">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+					</button>
+					<button type="button" class="carousel-nav-btn" data-reports-dir="-1" aria-label="<?php esc_attr_e( 'گزارش‌های جدیدتر', 'shola-jawid' ); ?>">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+					</button>
+				</div>
+			</div>
 		</div>
-		<div class="grid-cards">
+		<?php
+		/*
+		 * .reports-carousel-track replaces .grid-cards here specifically
+		 * (every other homepage section keeps its plain grid untouched) —
+		 * a native `overflow-x: auto` + `scroll-snap-type` row, not a
+		 * transform/clone-based slider: same technique already proven on
+		 * this site for .library-shelf-track and the تراکت filmstrip
+		 * (main.js), chosen again here for consistency and because it's
+		 * usable with JS disabled (plain touch/trackpad scroll) without
+		 * needing two separate layouts gated behind a JS-added class.
+		 * main.js only adds the auto-advance timer, pause-on-hover/focus,
+		 * and the two nav buttons above — all pure enhancement.
+		 */
+		?>
+		<div class="reports-carousel-track" data-reports-carousel>
 			<?php
 			/*
 			 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها's own

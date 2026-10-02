@@ -1719,6 +1719,77 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 @media (min-width: 1000px) { .grid-cards { grid-template-columns: repeat(3, 1fr); } }
 
 /*
+ * گزارش (Reports) carousel — added 2026-10-02, client-requested via
+ * Farhad ("all the article sections feel the same, give گزارش something
+ * creative"). A native horizontally-scrollable row with CSS scroll-snap,
+ * not a transform/clone-based slider: the same technique already proven
+ * on this site for .library-shelf-track and the تراکت filmstrip
+ * (assets/js/main.js) — chosen again here deliberately, for consistency
+ * with those and because it's fully usable with JS disabled (plain
+ * touch/trackpad/keyboard scroll shows the same 4 reports, just without
+ * the auto-advance and the two nav buttons, which main.js wires up).
+ * Same 1/2/3-visible-card breakpoints as `.grid-cards` above, so this
+ * section still reads as "the same site" at a glance despite the new
+ * behavior, just a single scrollable row instead of a wrapped grid.
+ */
+.reports-carousel-track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline-start: 0;
+  /* Scrollbar hidden — a snap-scrolled row with visible nav buttons and
+     touch/trackpad support doesn't need a visible native scrollbar too;
+     matches .library-shelf-track's own treatment. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.reports-carousel-track::-webkit-scrollbar { display: none; }
+.reports-carousel-track > .card {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  /*
+   * Hover lift — the "pop" treatment Farhad asked for (inspired by a
+   * reference carousel's card depth), rendered in this site's own
+   * language instead of the reference's rounded-corner/pill-badge
+   * style, which conflicts with this design system's sharp-corners,
+   * no-rounded-elements rule (main.css §09 "no borders, whitespace
+   * only"). Layered on top of .card's own existing image zoom/darken
+   * hover (untouched) rather than replacing it.
+   */
+  transition: transform .3s var(--ease);
+}
+.reports-carousel-track > .card:hover { transform: translateY(-.4rem); }
+@media (prefers-reduced-motion: reduce) {
+  .reports-carousel-track > .card { transition: none; }
+}
+@media (min-width: 720px) {
+  .reports-carousel-track > .card { flex-basis: calc((100% - 1.5rem) / 2); }
+}
+@media (min-width: 1000px) {
+  .reports-carousel-track > .card { flex-basis: calc((100% - 3rem) / 3); }
+}
+
+.section-head-actions { display: flex; align-items: center; gap: 1.25rem; }
+.carousel-nav { display: flex; gap: .5rem; }
+.carousel-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.carousel-nav-btn svg { width: 16px; height: 16px; }
+.carousel-nav-btn:hover { border-color: var(--winston-red); color: var(--winston-red); }
+
+/*
  * اطلاعیه spotlight tile (Phase 11, 2026-09-07, client-requested — see
  * docs/CHANGELOG.md) — a solid accent block inside .grid-cards, the
  * first fully-saturated background this design system uses anywhere
