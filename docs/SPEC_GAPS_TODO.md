@@ -448,51 +448,65 @@ regressions.
 
 ## Part C — Full traceability (every spec item, for reference)
 
-Status key: ✅ done · ⚠️ partial (see Part B/A for the specific gap) ·
-❌ missing (see Part B) · 🔶 conflict (see Part A).
+Status key: ✅ done/decided · ⚠️ genuine open gap, never actioned ·
+❌ feature not built (decision no longer blocking it, but nobody has
+built it) · 🔶 conflict (see Part A).
+
+Refreshed 2026-10-02 once every Part A/B item was resolved — most rows
+flip to ✅ accordingly, but a few don't: resolving the *decision* behind
+an item isn't the same as building the *feature*, and a couple of rows
+were never picked up by any A/B item at all. Both kinds are called out
+below rather than silently marked done.
 
 | # | Spec item | Status | See |
 |---|---|---|---|
-| 1 | مقاله core fields | ⚠️ | B4 |
+| 1 | مقاله core fields | ✅ | B4 |
 | 2 | موضوع اصلی + breadcrumb | ✅ | — |
-| 3 | Subtitle display rule | ❌ | B4 |
-| 4 | Author/alias hidden publicly | ✅ (verify REST) | A8 |
-| 5 | گزارش multi-author | ❌ | A1 |
-| 6 | گزیده multi-author | ❌ | A1 |
-| 7 | ترجمه multi-value author/translator + alias | ❌ | A1 |
-| 8 | ترجمه fields hidden publicly, exist in admin | ⚠️ (verify REST) | A8 |
-| 9 | ترجمه single- vs multi-value | ❌ | A1 |
-| 10 | نشریات 2 parents, شعله جاوید has 4 دوره only | ⚠️ | A5 |
-| 11 | Issue fields (13) | ⚠️ | B6, B7, B8 |
-| 12 | نشریات taxonomy structural rules | ⚠️ | — (fallback-term caveat, low priority) |
-| 13 | انتشارات حزب fields | ⚠️ | B10 |
-| 14 | کتابخانه fields incl. ویراستار | ⚠️ | A6, B10 |
-| 15 | کتابخانه taxonomy/archive | ⚠️ | B9 |
+| 3 | Subtitle display rule | ✅ | B4 |
+| 4 | Author/alias hidden publicly | ✅ | A8 (confirmed live + fixed) |
+| 5 | گزارش multi-author | ❌ | A1 decided (two independent units); multi-author itself was never built — not blocked anymore, just not done |
+| 6 | گزیده multi-author | ❌ | same as #5 |
+| 7 | ترجمه multi-value author/translator + alias | ✅ decided, won't-build | Farhad reviewed ترجمه live 2026-10-02 and confirmed no changes needed — single-value stays as-is |
+| 8 | ترجمه fields hidden publicly, exist in admin | ✅ | A8 (confirmed live + fixed) |
+| 9 | ترجمه single- vs multi-value | ✅ decided, won't-build | same 2026-10-02 ترجمه confirmation as #7 |
+| 10 | نشریات 2 parents, شعله جاوید has 4 دوره only | ✅ decided | A5 — both publications intentionally support دوره; which one uses it is a content choice |
+| 11 | Issue fields (13) | ✅ | B6, B7, B8a, B8b |
+| 12 | نشریات taxonomy structural rules | ⚠️ still open | fallback-term caveat — never picked up by any A/B item |
+| 13 | انتشارات حزب fields | ⚠️ still open | B10 (deferred by explicit prior decision, not forgotten) |
+| 14 | کتابخانه fields incl. ویراستار | ✅ ویراستار · ⚠️ language field | A6 (decided, fixed name stays) · B10 (deferred) |
+| 15 | کتابخانه taxonomy/archive | ✅ | B9 |
 | 16 | اسناد حزب fields | ✅ | — |
 | 17 | اسناد حزب groups | ✅ | — |
 | 18 | اطلاعیه‌ها fields | ✅ | — |
-| 19 | تراکت fields | ❌ | B3 |
-| 20 | تراکت display rules | ⚠️ | A7, B12 (archive pagination) |
-| 21 | Admin hint text length | ⚠️ | B5 |
-| 22 | Breadcrumbs everywhere | ⚠️ | B11 |
-| 23 | Pagination threshold | ⚠️ | B12 |
-| 24 | Search behavior | ❌ | B12 |
+| 19 | تراکت fields | ✅ | B3 |
+| 20 | تراکت display rules | ✅ | A7, B12 |
+| 21 | Admin hint text length | ✅ | B5 |
+| 22 | Breadcrumbs everywhere | ✅ | B11 |
+| 23 | Pagination threshold | ✅ | B12 |
+| 24 | Search behavior | ✅ | B12 |
 | 25 | Jalali calendar everywhere | ✅ | — |
 | 26 | پست ویژه | ✅ | — |
-| 27 | پست نشریه | ⚠️ | — (caption-field scope mismatch, low priority) |
-| 28 | مقالات section | ⚠️ | — (excerpt ellipsis character, low priority) |
+| 27 | پست نشریه | ⚠️ still open | caption-field scope mismatch — never picked up by any A/B item |
+| 28 | مقالات section | ⚠️ still open | excerpt ellipsis character — never picked up by any A/B item |
 | 29 | اطلاعیه‌ها column | ✅ | — |
-| 30 | گزیده under اطلاعیه‌ها | 🔶 | A3 |
+| 30 | گزیده under اطلاعیه‌ها | ✅ | A3 |
 | 31 | تراکت section | ✅ | — |
-| 32 | گزارش section count | 🔶 | A2 |
-| 33 | نشریات section | ⚠️ | B7 (heading/title), download-link target |
-| 34 | ترجمه section layout | 🔶 | A4 |
+| 32 | گزارش section count | ✅ | A2 |
+| 33 | نشریات section | ✅ heading/title · ⚠️ download link | B7 · download-link target never picked up by any A/B item |
+| 34 | ترجمه section layout | ✅ decided | A4 — current row layout confirmed fine as-is, 2026-10-02 |
 | 35 | انتشارات حزب section | ✅ | — |
 | 36 | کتابخانه section | ✅ | — |
 | 37 | اسناد حزب section | ✅ | — |
-| 38 | همه موضوعات | ✅ | — (nav-menu dependency noted, low priority) |
-| 39 | Footer/copyright | ⚠️ | B1 |
+| 38 | همه موضوعات | ⚠️ still open | nav-menu dependency — never picked up by any A/B item |
+| 39 | Footer/copyright | ✅ | B1 |
 | 40 | Header | ✅ | — |
-| 41 | دربارهٔ ما | ⚠️ | B13, B14 |
-| 42 | ارتباط با ما | ⚠️ | B2, B15 |
-| 43 | جست‌وجو | ❌ | B12 |
+| 41 | دربارهٔ ما | ✅ | B13, B14 |
+| 42 | ارتباط با ما | ✅ | B2, B15 |
+| 43 | جست‌وجو | ✅ | B12 |
+
+**Genuinely still open after this refresh** (never resolved by any Part
+A/B item, not just "decided to defer"): #5/#6 (گزارش/گزیده multi-author
+— a real feature gap, not just a blocked decision), #12 (نشریات taxonomy
+fallback-term caveat), #27 (پست نشریه caption-field scope), #28 (مقالات
+excerpt ellipsis character), #33's download-link target, #38 (همه
+موضوعات nav-menu dependency).
