@@ -129,7 +129,7 @@ if ( 'document' === $card_type ) {
 		 * the block visibly shorter than its new 5-line ceiling.
 		 */
 		?>
-		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $card_post ), 90 ) ); ?></p>
+		<p class="card-dek"><?php echo esc_html( shola_trim_excerpt( $card_post, 90 ) ); ?></p>
 		<?php
 		/*
 		 * Byline (author/username) removed site-wide, 2026-09-02, per the

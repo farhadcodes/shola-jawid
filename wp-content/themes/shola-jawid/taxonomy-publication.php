@@ -237,7 +237,7 @@ $archive_query = new WP_Query(
 							?>
 						</p>
 						<h3 class="h-page mt-sm"><a href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>" class="link-quiet"><?php echo esc_html( shola_get_issue_display_title( $latest_issue ) ); ?></a></h3>
-						<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $latest_issue ), 30 ) ); ?></p>
+						<p class="dek mt-sm"><?php echo esc_html( shola_trim_excerpt( $latest_issue, 30 ) ); ?></p>
 						<div class="row mt-md">
 							<a class="btn btn-primary" href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>"><?php esc_html_e( 'دریافت PDF', 'shola-jawid' ); ?></a>
 							<a class="btn btn-ghost" href="<?php echo esc_url( get_permalink( $latest_issue ) ); ?>"><?php esc_html_e( 'فهرست شماره', 'shola-jawid' ); ?></a>

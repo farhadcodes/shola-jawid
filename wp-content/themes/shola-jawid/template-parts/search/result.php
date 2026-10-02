@@ -72,7 +72,7 @@ $term_name = $term ? $term->name : '';
 $term_link = $term ? get_term_link( $term ) : '';
 $permalink = get_permalink( $result );
 $title     = shola_highlight_search_term( esc_html( get_the_title( $result ) ), $query );
-$dek       = shola_highlight_search_term( esc_html( wp_trim_words( get_the_excerpt( $result ), 24 ) ), $query );
+$dek       = shola_highlight_search_term( esc_html( shola_trim_excerpt( $result, 24 ) ), $query );
 ?>
 <li>
 	<p class="type-label">

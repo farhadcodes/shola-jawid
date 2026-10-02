@@ -68,7 +68,7 @@ $rest     = array_slice( $announcements, 0, 4 );
 			<span class="card-spotlight-index" aria-hidden="true"><?php echo esc_html( shola_to_persian_digits( 1 ) ); ?></span>
 			<div>
 				<h3 class="h-card"><a href="<?php echo esc_url( get_permalink( $featured ) ); ?>"><?php echo esc_html( get_the_title( $featured ) ); ?></a></h3>
-				<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $featured ), 16 ) ); ?></p>
+				<p class="card-dek"><?php echo esc_html( shola_trim_excerpt( $featured, 16 ) ); ?></p>
 				<p class="card-byline">
 					<?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
 					<time datetime="<?php echo esc_attr( shola_get_iso_datetime( $featured ) ); ?>"><?php echo esc_html( get_the_date( '', $featured ) ); ?></time>

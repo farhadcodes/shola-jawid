@@ -1049,6 +1049,7 @@ foreach ( $publication_terms as $pub_term ) {
 					$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 					$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
 					$pdf_size     = shola_get_pdf_size( $pdf_id );
+					$pdf_url      = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 					/*
 					 * Reads the issue's real `publication` term now
 					 * (spec-audit gap B8b, 2026-10-01) instead of the old
@@ -1074,7 +1075,7 @@ foreach ( $publication_terms as $pub_term ) {
 
 						<div class="reveal">
 							<h3 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?></a></h3>
-							<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 30 ) ); ?></p>
+							<p class="dek mt-sm"><?php echo esc_html( shola_trim_excerpt( $issue, 30 ) ); ?></p>
 							<dl class="issue-meta">
 								<?php if ( $issue_number ) : ?>
 									<dt><?php esc_html_e( 'شماره', 'shola-jawid' ); ?></dt>
@@ -1092,7 +1093,22 @@ foreach ( $publication_terms as $pub_term ) {
 								<?php endif; ?>
 							</dl>
 							<div class="row mt-sm">
-								<a class="btn btn-sm btn-primary" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+								<?php
+								/*
+								 * href fixed 2026-10-02 (spec-audit gap #33): this
+								 * button's own label ("دریافت" = "get/download")
+								 * promised a download but linked to the issue's
+								 * permalink — the same destination the cover image
+								 * and title right above it already go to, not the
+								 * PDF. Now points straight at the real PDF file
+								 * with `download`, matching the working "دریافت
+								 * PDF" button on single-issue.php itself. Falls
+								 * back to the permalink (not a dead `#`) on the
+								 * rare issue with no PDF attached yet, since this
+								 * button sits beside otherwise-working content.
+								 */
+								?>
+								<a class="btn btn-sm btn-primary" <?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="' . esc_url( get_permalink( $issue ) ) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied in both branches; the rest is a static string, not user input. ?>><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
 								<a class="btn btn-sm btn-ghost" href="<?php echo esc_url( get_term_link( $pub_term ) ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?></a>
 							</div>
 						</div>

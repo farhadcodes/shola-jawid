@@ -471,7 +471,7 @@ below rather than silently marked done.
 | 9 | ترجمه single- vs multi-value | ✅ decided, won't-build | same 2026-10-02 ترجمه confirmation as #7 |
 | 10 | نشریات 2 parents, شعله جاوید has 4 دوره only | ✅ decided | A5 — both publications intentionally support دوره; which one uses it is a content choice |
 | 11 | Issue fields (13) | ✅ | B6, B7, B8a, B8b |
-| 12 | نشریات taxonomy structural rules | ⚠️ still open | fallback-term caveat — never picked up by any A/B item |
+| 12 | نشریات taxonomy structural rules | ✅ | Fixed 2026-10-02 — `publication` added to `Category_Manager::NO_UNCATEGORIZED_FALLBACK`, same precedent as `party_document_category`; the already-seeded empty «دسته‌بندی‌نشده» term auto-cleaned on next admin_init |
 | 13 | انتشارات حزب fields | ⚠️ still open | B10 (deferred by explicit prior decision, not forgotten) |
 | 14 | کتابخانه fields incl. ویراستار | ✅ ویراستار · ⚠️ language field | A6 (decided, fixed name stays) · B10 (deferred) |
 | 15 | کتابخانه taxonomy/archive | ✅ | B9 |
@@ -486,27 +486,30 @@ below rather than silently marked done.
 | 24 | Search behavior | ✅ | B12 |
 | 25 | Jalali calendar everywhere | ✅ | — |
 | 26 | پست ویژه | ✅ | — |
-| 27 | پست نشریه | ⚠️ still open | caption-field scope mismatch — never picked up by any A/B item |
-| 28 | مقالات section | ⚠️ still open | excerpt ellipsis character — never picked up by any A/B item |
+| 27 | پست نشریه | ✅ | Fixed 2026-10-02 — `single-issue.php` now reads/shows the cover image's media caption, same `wp_get_attachment_caption()` pattern single.php already used for articles |
+| 28 | مقالات section | ✅ | Fixed 2026-10-02 — new `shola_trim_excerpt()` helper (inc/template-tags.php) always passes a real "…" to `wp_trim_words()`; every one of the ~15 excerpt-trimming call sites site-wide switched to it, replacing the broken literal "&hellip;" `esc_html()` was producing |
 | 29 | اطلاعیه‌ها column | ✅ | — |
 | 30 | گزیده under اطلاعیه‌ها | ✅ | A3 |
 | 31 | تراکت section | ✅ | — |
 | 32 | گزارش section count | ✅ | A2 |
-| 33 | نشریات section | ✅ heading/title · ⚠️ download link | B7 · download-link target never picked up by any A/B item |
+| 33 | نشریات section | ✅ | B7 (heading/title) · download-link fixed 2026-10-02 — homepage "دریافت شماره" buttons (front-page.php, `shola_render_hero_publication_card()`) now link straight to the real PDF with `download`, instead of duplicating the cover/title's own link to the issue permalink |
 | 34 | ترجمه section layout | ✅ decided | A4 — current row layout confirmed fine as-is, 2026-10-02 |
 | 35 | انتشارات حزب section | ✅ | — |
 | 36 | کتابخانه section | ✅ | — |
 | 37 | اسناد حزب section | ✅ | — |
-| 38 | همه موضوعات | ⚠️ still open | nav-menu dependency — never picked up by any A/B item |
+| 38 | همه موضوعات | ✅ | Fixed 2026-10-02 — added `shola_maybe_seed_topics_page()` (inc/setup.php), same self-healing pattern as the existing leaflets/selected page seeders. The page already existed live (confirmed before changing anything), so this is a safety net against future deletion, not a live-bug fix |
 | 39 | Footer/copyright | ✅ | B1 |
 | 40 | Header | ✅ | — |
 | 41 | دربارهٔ ما | ✅ | B13, B14 |
 | 42 | ارتباط با ما | ✅ | B2, B15 |
 | 43 | جست‌وجو | ✅ | B12 |
 
-**Genuinely still open after this refresh** (never resolved by any Part
-A/B item, not just "decided to defer"): #5/#6 (گزارش/گزیده multi-author
-— a real feature gap, not just a blocked decision), #12 (نشریات taxonomy
-fallback-term caveat), #27 (پست نشریه caption-field scope), #28 (مقالات
-excerpt ellipsis character), #33's download-link target, #38 (همه
-موضوعات nav-menu dependency).
+**Genuinely still open** (2026-10-02 — #12/#27/#28/#33/#38 all fixed the
+same day they were surfaced; see each row above): **#5/#6, گزارش/گزیده
+multi-author.** Confirmed there is no multi-author mechanism anywhere in
+this codebase for any post type — every "author" field found
+(`shcore_byline`, `shcore_author_source`, `shcore_translation_*`) is a
+single plain-text string. Building this means designing a new data model
+from nothing (free-text list vs. multiple real WP users; display format),
+which is a scope/product decision, not a mechanical fix — needs Farhad's
+input on what he actually wants before any code gets written.

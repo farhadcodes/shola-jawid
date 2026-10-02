@@ -380,6 +380,26 @@ foreach ( array( 'date_i18n', 'wp_date', 'get_comment_date', 'get_comment_time',
 unset( $shola_jalali_hook );
 
 /**
+ * Site-wide excerpt-trim helper (spec-audit gap #28, 2026-10-02):
+ * wp_trim_words()'s own default `$more` value is the HTML entity string
+ * "&hellip;", not a literal "…" character — every call site across this
+ * theme was passing that default through esc_html(), which escapes the
+ * "&" and renders the literal text "&hellip;" on the page instead of an
+ * ellipsis glyph, on any excerpt that actually gets truncated. Fixed by
+ * always passing a real "…" (U+2026) explicitly, centralized here so no
+ * call site can regress back to the broken default. Use this everywhere
+ * an excerpt is trimmed for display — never call wp_trim_words() on an
+ * excerpt directly in a new template.
+ *
+ * @param int|WP_Post|null $post      Post ID/object. Defaults to the current post.
+ * @param int              $num_words Word count to trim to, same meaning as wp_trim_words()'s own second argument.
+ * @return string Plain-text trimmed excerpt (caller still escapes it, same as a raw get_the_excerpt() call would).
+ */
+function shola_trim_excerpt( $post = null, $num_words = 55 ) {
+	return wp_trim_words( get_the_excerpt( $post ), $num_words, '…' );
+}
+
+/**
  * Site-wide featured-image fallback (Phase 4.2, logged in
  * docs/CHANGELOG.md and CLAUDE.md 2026-08-06): drop-in replacement for
  * get_the_post_thumbnail() — same signature, same return type (an <img>
@@ -1434,6 +1454,10 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
 	$issue_number = get_post_meta( $issue->ID, 'shcore_issue_number', true );
 	$show_title   = isset( $args['show_title'] ) ? (bool) $args['show_title'] : true;
 	$show_button  = isset( $args['show_button'] ) ? (bool) $args['show_button'] : true;
+	// href fixed 2026-10-02 (spec-audit gap #33) — see front-page.php's
+	// matching "دریافت شماره" button comment for the full reasoning.
+	$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
+	$pdf_url      = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	/*
 	 * .hero-pub-card-kicker ("شمارهٔ جاری") removed site-wide, 2026-09-15,
 	 * per the client's explicit ask (relayed by Farhad) — this was the
@@ -1462,9 +1486,9 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
 	 * four hero layouts, not just rail_full.
 	 */
 	?>
-	<p class="dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt( $issue ), 12 ) ); ?></p>
+	<p class="dek mt-sm"><?php echo esc_html( shola_trim_excerpt( $issue, 12 ) ); ?></p>
 	<?php if ( $show_button ) : ?>
-		<a class="btn btn-sm btn-primary mt-sm" href="<?php echo esc_url( get_permalink( $issue ) ); ?>"><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
+		<a class="btn btn-sm btn-primary mt-sm" <?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="' . esc_url( get_permalink( $issue ) ) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied in both branches; the rest is a static string, not user input. ?>><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
 	<?php endif; ?>
 	<?php
 }

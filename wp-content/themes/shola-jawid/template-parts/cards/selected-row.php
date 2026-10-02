@@ -60,7 +60,7 @@ $term      = shola_get_primary_topic( $row_post );
 		 * elsewhere on the site (card.php, main.css §09).
 		 */
 		?>
-		<p class="card-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt( $row_post ), 20 ) ); ?></p>
+		<p class="card-dek"><?php echo esc_html( shola_trim_excerpt( $row_post, 20 ) ); ?></p>
 		<p class="card-byline">
 			<?php echo shola_date_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG, not user input. ?>
 			<time datetime="<?php echo esc_attr( shola_get_iso_datetime( $row_post ) ); ?>"><?php echo esc_html( get_the_date( '', $row_post ) ); ?></time>

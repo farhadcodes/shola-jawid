@@ -68,7 +68,7 @@ while ( have_posts() ) :
 						<time datetime="<?php echo esc_attr( shola_get_iso_datetime() ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 						<div>
 							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-							<p class="meta mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 30 ) ); ?></p>
+							<p class="meta mt-sm"><?php echo esc_html( shola_trim_excerpt( null, 30 ) ); ?></p>
 						</div>
 					</li>
 				<?php endwhile; ?>

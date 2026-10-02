@@ -4425,6 +4425,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   box-shadow: 0 30px 60px -30px rgba(15,15,15,.35), 0 6px 20px -8px rgba(15,15,15,.15);
 }
 .issue-cover img { width: 100%; height: 100%; object-fit: cover; }
+/*
+ * .issue-cover-col — added 2026-10-02 (spec-audit gap #27), wrapping
+ * .issue-cover so an optional caption can sit directly under it without
+ * changing .issue-hero's own grid structure (still exactly 2 direct
+ * children: this wrapper, then the info column). .issue-cover-caption
+ * mirrors .article-hero-caption's text treatment (single.php) minus
+ * that class's full-bleed-width assumptions, which don't apply inside
+ * this narrow grid column.
+ */
+.issue-cover-col { display: flex; flex-direction: column; gap: .5rem; }
+.issue-cover-caption {
+  color: var(--stone);
+  font-family: var(--font-nav);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
 
 .issue-meta {
   display: grid; grid-template-columns: max-content 1fr;

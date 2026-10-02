@@ -109,7 +109,7 @@ else :
 					<p class="article-subtitle"><?php echo esc_html( $subtitle ); ?></p>
 				<?php endif; ?>
 				<?php if ( has_excerpt() ) : ?>
-					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
+					<p class="article-dek mt-sm"><?php echo esc_html( shola_trim_excerpt( null, 34 ) ); ?></p>
 				<?php endif; ?>
 
 				<dl class="issue-meta">

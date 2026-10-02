@@ -13663,3 +13663,57 @@ Approved by: Farhad, in this session (2026-10-01).
   keys now fully absent from the REST response.
   Approved by: Farhad, in this session (2026-10-02) — this was spec-gaps
   audit item A8, an action item rather than a decision to confirm.
+
+- **Fixed:** five small items surfaced while refreshing the spec-gaps
+  Part C traceability table (items #12, #27, #28, #33, #38) — each was a
+  genuine gap never picked up by any Part A/B item, investigated
+  read-only first, then fixed directly since each was mechanical and
+  low-risk:
+  - **#12** — `publication` taxonomy added to
+    `Category_Manager::NO_UNCATEGORIZED_FALLBACK` (class-category-manager.php),
+    same precedent as `party_document_category`: this taxonomy is a
+    fixed, closed vocabulary (two publications, 4 دوره children each),
+    not an open category list, so an auto-created «دسته‌بندی‌نشده»
+    sibling term broke that structure. Added a one-time
+    `maybe_cleanup_publication_uncategorized()` to remove the
+    already-seeded (confirmed empty, 0 issues attached) term.
+  - **#27** — `single-issue.php` now reads/shows the cover image's native
+    WP media caption, the same `wp_get_attachment_caption()` pattern
+    single.php already used for articles; the field existed and was
+    settable in wp-admin but no template for `issue` ever read it.
+  - **#28** — `wp_trim_words()`'s default `$more` value is the HTML
+    entity string `&hellip;`, not a literal "…" — every excerpt call
+    site wrapped it in `esc_html()`, which escaped the `&` and rendered
+    the literal text `&hellip;` on any genuinely-truncated excerpt,
+    site-wide. New shared `shola_trim_excerpt()` helper
+    (inc/template-tags.php) always passes a real "…" explicitly; all
+    ~15 call sites across the theme switched to it.
+  - **#33** — the homepage "دریافت شماره" buttons (front-page.php,
+    `shola_render_hero_publication_card()`) linked to the issue's own
+    permalink — the same destination the cover/title right above already
+    go to — despite the label promising a download. Now link straight to
+    the real PDF with `download`, matching the working button on
+    single-issue.php itself; falls back to the permalink only if an
+    issue has no PDF yet.
+  - **#38** — added `shola_maybe_seed_topics_page()` (inc/setup.php),
+    same self-healing admin_init + options-flag pattern as the existing
+    leaflets/selected page seeders. Confirmed live first: a `topics`
+    page already existed and already worked (WordPress's native
+    page-{slug}.php template hierarchy resolves it regardless of the
+    `_wp_page_template` meta value), so this is a safety net against
+    future accidental deletion, not a live-bug fix.
+
+  **Left open, not fixed:** #5/#6 (گزارش/گزیده multi-author) — confirmed
+  there is no multi-author mechanism anywhere in this codebase for any
+  post type (every "author" field is a single plain-text string).
+  Building one means designing a new data model from nothing, a scope
+  decision for Farhad, not a mechanical fix.
+
+  All fixes verified live: PHP lint-clean, zero console errors, zero
+  PHP warnings/fatals across every affected template (homepage, کتابخانه
+  archive, ترجمه archive, single issue, search, announcements), a real
+  test caption rendering correctly at desktop and mobile, and both
+  "دریافت شماره" buttons confirmed linking to their real PDF files with
+  `download` set.
+  Approved by: Farhad, in this session (2026-10-02) — "do the A, the B,
+  and the C," after reviewing the refreshed Part C table.

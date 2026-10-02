@@ -133,7 +133,7 @@ while ( have_posts() ) :
 						<p class="article-subtitle"><?php echo esc_html( $subtitle ); ?></p>
 					<?php endif; ?>
 					<?php if ( has_excerpt() ) : ?>
-						<p class="article-dek"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
+						<p class="article-dek"><?php echo esc_html( shola_trim_excerpt( null, 34 ) ); ?></p>
 					<?php endif; ?>
 				</header>
 			</div>

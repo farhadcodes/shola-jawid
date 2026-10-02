@@ -38,6 +38,18 @@ while ( have_posts() ) :
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	$pdf_size = shola_get_pdf_size( $pdf_id );
 
+	/*
+	 * Cover caption — added 2026-10-02 (spec-audit gap #27). The native WP
+	 * media-caption field on the cover image upload was always settable
+	 * in wp-admin, but no template ever read it for `issue` — only
+	 * single.php (articles) did, via the identical
+	 * `wp_get_attachment_caption( $thumb_id )` pattern reused here. An
+	 * editor filling in a cover caption was being silently ignored on
+	 * the front end.
+	 */
+	$cover_thumb_id = get_post_thumbnail_id();
+	$cover_caption  = $cover_thumb_id ? wp_get_attachment_caption( $cover_thumb_id ) : '';
+
 	// Guarded per CLAUDE.md §2: the theme must not fatal-error if
 	// shola-core is inactive — degrade to an empty TOC instead.
 	$toc = class_exists( '\SholaCore\Meta_Fields' ) ? \SholaCore\Meta_Fields::get_issue_contents( get_the_ID() ) : array();
@@ -90,13 +102,18 @@ while ( have_posts() ) :
 
 		<div class="issue-hero">
 
-			<a
-				<?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="#"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied; the surrounding markup is a static string, not user input. ?>
-				class="issue-cover"
-				aria-label="<?php echo esc_attr( $number ? sprintf( /* translators: %s: issue number. */ __( 'دریافت PDF شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : __( 'دریافت PDF', 'shola-jawid' ) ); ?>"
-			>
-				<?php echo shola_get_featured_image( get_post(), 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
-			</a>
+			<div class="issue-cover-col">
+				<a
+					<?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="#"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied; the surrounding markup is a static string, not user input. ?>
+					class="issue-cover"
+					aria-label="<?php echo esc_attr( $number ? sprintf( /* translators: %s: issue number. */ __( 'دریافت PDF شمارهٔ %s', 'shola-jawid' ), shola_to_persian_digits( $number ) ) : __( 'دریافت PDF', 'shola-jawid' ) ); ?>"
+				>
+					<?php echo shola_get_featured_image( get_post(), 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
+				</a>
+				<?php if ( $cover_caption ) : ?>
+					<p class="issue-cover-caption"><?php echo esc_html( $cover_caption ); ?></p>
+				<?php endif; ?>
+			</div>
 
 			<?php
 			/*
@@ -139,7 +156,7 @@ while ( have_posts() ) :
 					?>
 				</h1>
 				<?php if ( has_excerpt() ) : ?>
-					<p class="article-dek mt-sm"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
+					<p class="article-dek mt-sm"><?php echo esc_html( shola_trim_excerpt( null, 34 ) ); ?></p>
 				<?php endif; ?>
 
 				<dl class="issue-meta">

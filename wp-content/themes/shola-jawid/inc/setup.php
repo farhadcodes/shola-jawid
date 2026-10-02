@@ -371,6 +371,49 @@ function shola_maybe_seed_leaflets_page() {
 add_action( 'admin_init', 'shola_maybe_seed_leaflets_page' );
 
 /**
+ * One-time seed for the موضوعات (Topics) listing page — added 2026-10-02
+ * (spec-audit gap #38), same pattern as shola_maybe_seed_selected_page()/
+ * shola_maybe_seed_leaflets_page() above. page-topics.php's own docblock
+ * has always said "Applies to the Page with slug `topics`," but unlike
+ * those two, nothing ever actually created that Page — every "همهٔ
+ * موضوعات" link sitewide (inc/setup.php's own menu_sections seed,
+ * shola_fallback_menu_sections(), shola_fallback_footer_topics()) has
+ * been pointing at a page nothing in code ever creates, since this
+ * seeder was simply never written alongside the other two.
+ *
+ * @return void
+ */
+function shola_maybe_seed_topics_page() {
+	if ( get_option( 'shola_seeded_topics_page' ) ) {
+		return;
+	}
+
+	$existing = get_page_by_path( 'topics' );
+	if ( $existing ) {
+		update_option( 'shola_seeded_topics_page', true );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_title'   => __( 'موضوعات', 'shola-jawid' ),
+			'post_name'    => 'topics',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => '',
+		)
+	);
+
+	if ( is_wp_error( $page_id ) || ! $page_id ) {
+		return;
+	}
+
+	update_post_meta( $page_id, '_wp_page_template', 'page-topics.php' );
+	update_option( 'shola_seeded_topics_page', true );
+}
+add_action( 'admin_init', 'shola_maybe_seed_topics_page' );
+
+/**
  * Adds an اسناد حزب item to the already-seeded «بخش‌ها» (menu_sections)
  * popup-menu location — added 2026-09-04 alongside the new
  * `party_document` CPT. shola_maybe_seed_nav_menus() above only ever

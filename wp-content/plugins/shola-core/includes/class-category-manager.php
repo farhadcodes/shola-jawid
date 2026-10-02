@@ -77,7 +77,17 @@ class Category_Manager {
 	 *
 	 * @var string[]
 	 */
-	const NO_UNCATEGORIZED_FALLBACK = array( 'party_document_category' );
+	/*
+	 * 'publication' added 2026-10-02 (spec-audit gap #12): this taxonomy
+	 * is a deliberately fixed, closed vocabulary (exactly two top-level
+	 * terms, each with exactly 4 دوره children, seeded by
+	 * Taxonomies::seed_publication_periods()), not an open category list
+	 * an editor adds to — an auto-created "دسته‌بندی‌نشده" sibling broke
+	 * that closed structure. Same precedent as party_document_category
+	 * above: a termless issue is already a normal, handled state
+	 * elsewhere (spec-audit gap B8b).
+	 */
+	const NO_UNCATEGORIZED_FALLBACK = array( 'party_document_category', 'publication' );
 
 	/**
 	 * Every real, non-trashed post status this plugin's reassign/delete
@@ -114,6 +124,7 @@ class Category_Manager {
 	 */
 	public static function init() {
 		add_action( 'admin_init', array( __CLASS__, 'seed_uncategorized_terms' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_cleanup_publication_uncategorized' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'register_page' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'render_admin_notice' ) );
 		add_action( 'delete_term', array( __CLASS__, 'recreate_uncategorized_if_deleted' ), 10, 5 );
@@ -360,6 +371,35 @@ class Category_Manager {
 			array( 'slug' => self::uncategorized_slug( $taxonomy ) )
 		);
 		return is_wp_error( $result ) ? 0 : (int) $result['term_id'];
+	}
+
+	/**
+	 * One-time cleanup for `publication`'s Uncategorized term — added
+	 * 2026-10-02 (spec-audit gap #12), the day `publication` joined
+	 * NO_UNCATEGORIZED_FALLBACK above. That exclusion only stops a *new*
+	 * term from being created going forward; it does nothing about the
+	 * one `seed_uncategorized_terms()` already created before this fix.
+	 * Self-healing admin_init + options-flag pattern, same as everywhere
+	 * else in this plugin. Only deletes the term if it's genuinely empty
+	 * (0 issues attached) — if an issue somehow got assigned to it before
+	 * this fix shipped, this leaves it alone rather than silently
+	 * orphaning real content, and the flag is still set so this doesn't
+	 * keep checking on every admin page load either way.
+	 *
+	 * @return void
+	 */
+	public static function maybe_cleanup_publication_uncategorized() {
+		if ( get_option( 'shcore_publication_uncategorized_cleaned' ) ) {
+			return;
+		}
+		$term_id = self::get_uncategorized_term_id( 'publication' );
+		if ( $term_id ) {
+			$term = get_term( $term_id, 'publication' );
+			if ( $term && ! is_wp_error( $term ) && 0 === (int) $term->count ) {
+				wp_delete_term( $term_id, 'publication' );
+			}
+		}
+		update_option( 'shcore_publication_uncategorized_cleaned', true );
 	}
 
 	/**
