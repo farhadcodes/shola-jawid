@@ -550,9 +550,32 @@
         reportsTrack.addEventListener(evt, resumeReportsSoon, { passive: true });
       });
 
+      /* Caught live by Farhad: scrolling the page away from this section
+         and leaving it to auto-advance yanked the whole page back down
+         to گزارش every 4s. Cause: scrollIntoView() moves EVERY ancestor
+         scroll container needed to bring the target into view, not just
+         this track's own horizontal one — `block: "nearest"` stops it
+         from re-centering the page when the section is already visible,
+         but does nothing once the section has scrolled fully out of the
+         viewport, since then "nearest" still means "scroll the page
+         until it's on screen." An IntersectionObserver gates the
+         auto-advance timer so it simply does nothing while the section
+         isn't visible — manual clicks are unaffected (clicking the
+         button already means the visitor is looking at it). */
+      var reportsInView = false;
+      if ("IntersectionObserver" in window) {
+        var reportsSection = reportsTrack.closest("section") || reportsTrack;
+        var reportsObserver = new IntersectionObserver(function (entries) {
+          reportsInView = entries[0].isIntersecting;
+        });
+        reportsObserver.observe(reportsSection);
+      } else {
+        reportsInView = true; // no IO support — fall back to always-on, same as before this fix
+      }
+
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         window.setInterval(function () {
-          if (!reportsPaused) { reportsGoTo(reportsIndex + 1, true); }
+          if (!reportsPaused && reportsInView) { reportsGoTo(reportsIndex + 1, true); }
         }, 4000);
       }
     }
