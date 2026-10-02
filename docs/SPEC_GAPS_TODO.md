@@ -30,29 +30,20 @@ in `CLAUDE.md` §5/§10.
 
 ## Part A — Decide first (conflicts between the spec and an existing client decision)
 
-### ⚠️ A1. گزیده vs. ترجمه — are these one unit or two? — PARTIALLY RESOLVED 2026-10-01
+### ✅ A1. گزیده vs. ترجمه — are these one unit or two? — DONE 2026-10-02
 
-**Decided:** yes, two genuinely separate things — confirming the spec's
-original two-unit design, not the 2026-09-27 rename/merge. Farhad
-confirmed گزیده (Editor's Picks) needs its own independent CPT (`editors_pick`,
-new 2026-10-01) with its own real taxonomy, "same as the articles but
-independent." Built and shipped — see the new entry in
-`docs/CHANGELOG.md` 2026-10-01 for the full implementation.
+**گزیده half (2026-10-01):** confirmed two genuinely separate things —
+the spec's original two-unit design, not the 2026-09-27 rename/merge.
+گزیده (Editor's Picks) got its own independent CPT (`editors_pick`) with
+its own real taxonomy, "same as the articles but independent." Built and
+shipped — see `docs/CHANGELOG.md` 2026-10-01.
 
-**Still open:** ترجمه itself — Farhad explicitly said not to touch it in
-this round ("let's not touch the translation as we do not need it").
-The old `shcore_is_selected`/ترجمه mechanism (shola_get_selected_query(),
+**ترجمه half (2026-10-02):** Farhad reviewed the ترجمه section live and
+confirmed it's "completely fine, we do not need any changes" — the
+existing `shcore_is_selected`/ترجمه mechanism (`shola_get_selected_query()`,
 page-selected.php, front-page.php's ترجمه homepage section,
 `shcore_translation_original_author`/`shcore_translation_translator`)
-is completely unchanged. Revisit once Farhad is ready to discuss ترجمه
-specifically — this file's original framing (does ترجمه need to be
-pulled back out from the fields it currently shares, into something
-closer to the spec's own ترجمه unit) is still the open question.
-
-- Files (for the ترجمه half, once revisited): `wp-content/plugins/shola-core/includes/class-meta-fields.php`
-  (metabox `shcore_selected_field`, function `render_selected_metabox()`),
-  `wp-content/themes/shola-jawid/page-selected.php`,
-  `wp-content/themes/shola-jawid/front-page.php` (ترجمه homepage section).
+stays exactly as it is; no restructuring needed. No code changed.
 
 ### ✅ A2. گزارش homepage count: spec says 6, site shows 4 — DONE 2026-10-02
 
@@ -91,20 +82,12 @@ exactly as before — Farhad was explicit about that constraint.
   `archive-editors_pick.php`. Full verification in
   `docs/CHANGELOG.md` 2026-10-01.
 
-### A4. ترجمه homepage card layout: rows or cards?
+### ✅ A4. ترجمه homepage card layout: rows or cards? — DONE 2026-10-02
 
-Spec describes image-on-top vertical cards. The current implementation
-(`selected-row.php`) renders horizontal rows — image beside the text, not
-above it.
-
-**Decide:** is the current row layout an acceptable interpretation, or does
-it need to become vertical cards like the مقالات/گزارش grids? This is a
-visible design change, not just a content fix — get a design-level
-confirmation, not just a yes/no, before touching it.
-
-- Files: `wp-content/themes/shola-jawid/template-parts/cards/selected-row.php`,
-  `wp-content/themes/shola-jawid/assets/css/main.css` (`.selected-row`,
-  `.selected-list` rules, search for `selected-row`).
+Resolved: Farhad reviewed the ترجمه section live and confirmed it's
+"completely fine, we do not need any changes" — the current horizontal
+row layout (`selected-row.php`) is accepted as-is; the spec's image-on-
+top vertical card description is not being pursued. No code change.
 
 ### ✅ A5. جهان برای فتح has 4 دوره sub-terms — DONE 2026-10-02
 
@@ -259,7 +242,7 @@ alone — they show the publication name, not the issue's title, by
 deliberate prior design. See `docs/CHANGELOG.md` 2026-10-01 for the
 full per-template reasoning and verification.
 
-### ⚠️ B8a. نشریات: no description field — EDITOR SUPPORT DONE 2026-10-01, 8b still open
+### ✅ B8a. نشریات: no description field — DONE 2026-10-01
 
 Checked the actual spec text (09_documentation docx) before implementing:
 the issue has 13 fields, and «توضیحات» ("space for a description about
