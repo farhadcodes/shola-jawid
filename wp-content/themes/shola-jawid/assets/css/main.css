@@ -2136,6 +2136,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  */
 @media (max-width: 719px) {
   .card-spotlight { order: 2; }
+  /*
+   * Extra top margin, added 2026-10-02 — Farhad caught this live on a
+   * real phone: whichever panel ends up immediately before this tile
+   * in the mobile stack (گزیده‌ها, or Most Viewed on a day it's shown
+   * instead) was visually colliding with the "اطلاعیه‌ها و بیانیه‌ها"
+   * ribbon tag above. That ribbon (.card-spotlight .type-label) sits
+   * entirely above this tile's own top edge via `translateY(-100%)`
+   * (see that rule's own comment) — its rendered height (~35px) is
+   * taller than `.grid-cards`'s normal 2rem row-gap (32px) alone can
+   * clear, so on mobile specifically the ribbon ate into the previous
+   * panel's bottom content instead of just touching this tile's edge
+   * as designed. This margin only adds the missing breathing room
+   * between the two stacked blocks; desktop/tablet (where this tile
+   * sits in its own grid column, not stacked under another panel) are
+   * untouched.
+   */
+  .card-spotlight { margin-top: 1.5rem; }
 }
 
 /*
