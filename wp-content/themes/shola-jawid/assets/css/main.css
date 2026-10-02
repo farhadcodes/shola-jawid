@@ -2272,38 +2272,67 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * گزیده‌ها (Editor's Picks) panel — added 2026-10-01, replacing
  * پربازدیدترین (Most Viewed) in this one homepage slot per Farhad's
  * explicit request (see template-parts/cards/editors-picks-panel.php's
- * own docblock). A full, independent copy of the .most-viewed-panel/
- * .mv-* rules just above under new .editors-pick-panel/.ep-* selectors,
- * not a rename or a shared-class reuse: most-viewed-panel.php and its
- * CSS must keep working completely unmodified for its two remaining
- * call sites (single.php's sidebar, and a future one, should Most
- * Viewed ever return elsewhere), and reusing the same CSS classes for
- * two now-unrelated content sources would read as confusing in
- * devtools ("most-viewed-panel" showing editorially curated content).
- * Every rule below is a deliberate, identical copy of its .mv-*
- * counterpart — same grid placement, same breakpoints, same visual
- * treatment — so this panel behaves exactly like Most Viewed did in
- * this slot, per the "keep the same structure" instruction.
+ * own docblock). Originally a full, independent copy of the
+ * .most-viewed-panel/.mv-* rules just above under new .editors-pick-
+ * panel/.ep-* selectors, not a rename or a shared-class reuse: most-
+ * viewed-panel.php and its CSS must keep working completely unmodified
+ * for its two remaining call sites (single.php's sidebar, taxonomy-
+ * topic.php's sort tab).
+ *
+ * Reworked 2026-10-02 per a design critique Farhad asked for directly
+ * ("wear your designer hat"): next to its two photo-card neighbors in
+ * the same row, the panel read as flat/empty despite being the
+ * editorially curated column. Three changes address that without
+ * adding height (client's hard constraint — the column must not grow
+ * taller than its row neighbors, or it creates blank space beside it):
+ *   1. .ep-title now matches the weight of the page's other section
+ *      headings (red, larger, bottom rule) instead of a small plain
+ *      paragraph that read as a lesser heading than "گزارش" etc.
+ *   2. .ep-item--featured gets a white mini-card + red accent border,
+ *      restoring a "this one is featured" signal now that it has no
+ *      thumbnail to carry that job.
+ *   3. Vertical rhythm (panel padding/gap, list row padding) was
+ *      tightened to offset the header/card additions, so total panel
+ *      height stays roughly flat rather than growing.
  */
 .grid-cards--with-editorspicks { grid-auto-flow: dense; }
 .editors-pick-panel { align-self: start; }
 .editors-pick-panel {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: .65rem;
   min-width: 0;
   background: var(--stone-tint);
   color: var(--ink);
-  padding: 1.75rem;
+  padding: 1.35rem;
 }
 .ep-title {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  color: var(--winston-red);
+  padding-bottom: .3rem;
+  border-bottom: 1px solid rgba(204, 0, 0, .4);
 }
-.ep-item { display: flex; flex-direction: column; gap: .65rem; text-decoration: none; }
-.ep-item-body { display: flex; align-items: flex-start; gap: .85rem; }
+.ep-item { display: flex; flex-direction: column; text-decoration: none; }
+.ep-item--featured {
+  background: var(--paper);
+  border-inline-start: 4px solid var(--winston-red);
+  border-radius: 2px;
+  padding: .55rem .75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+}
+.ep-item-body { display: flex; align-items: flex-start; gap: .75rem; }
+.ep-item-text { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.ep-kicker {
+  font-family: var(--font-nav);
+  font-weight: 600;
+  font-size: .6875rem;
+  letter-spacing: .06em;
+  color: var(--winston-red);
+  text-transform: uppercase;
+}
 .ep-num {
   flex-shrink: 0;
   font-family: var(--font-display);
@@ -2329,25 +2358,32 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .ep-list li { border-top: 1px solid rgba(0, 0, 0, .08); }
 .ep-list a {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: .85rem;
-  padding-block: .65rem;
+  padding-block: .3rem;
   text-decoration: none;
 }
+/*
+ * The 2.25rem number (kept for .ep-num generally, including the
+ * featured item) was the actual height bottleneck in the compact list
+ * rows below it — row height was being driven by the oversized digit,
+ * not the single-line title text next to it. Scaled down for list rows
+ * only, where it's one of several equal rows rather than a lone hero
+ * number.
+ */
+.ep-list .ep-num { font-size: 1.5rem; }
 .ep-list .ep-item-title {
   color: var(--ink);
   font-family: var(--font-fa);
   font-weight: 700;
   font-size: .875rem;
   line-height: 1.6;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ep-list a:hover .ep-item-title { color: var(--winston-red); }
-.editors-pick-panel > .link-more { align-self: flex-start; margin-top: .25rem; }
+.editors-pick-panel > .link-more { align-self: flex-start; margin-top: 0; }
 @media (min-width: 720px) {
   .editors-pick-panel { grid-column: 1 / -1; order: 1; }
 }
