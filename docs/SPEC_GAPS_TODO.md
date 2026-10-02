@@ -172,14 +172,17 @@ these fields are saved via a classic meta box + `save_post` hook, never
 through the REST API, so disabling REST exposure doesn't touch editing
 at all.
 
-### A9. کتابخانه auto-scroll direction — confirm, don't just trust the literal translation
+### ✅ A9. کتابخانه auto-scroll direction — DONE 2026-10-02
 
-Spec says "left to right" for the library shelf's auto-advance. The
-current implementation does move that direction in this RTL layout, but
-it's worth getting an explicit "yes, that's what I meant" rather than
-trusting a possibly-ambiguous translated phrase, given how easy this is to
-get backwards in RTL. No code change expected here unless the answer is
-"no."
+Resolved: Farhad confirmed this section (the homepage کتابخانه shelf's
+existing continuous auto-scroll, `.library-shelf-track` / `main.js`) is
+accepted as-is — not a request for a new carousel/manual-nav feature,
+which he explicitly doesn't want here (that pattern was built separately
+for گزارش, per Farhad's own distinction). No code change made, per this
+item's own original scope ("no code change expected unless the answer is
+'no'").
+
+This closes out every item in Part A (A1–A9).
 
 ---
 
