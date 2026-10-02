@@ -120,20 +120,16 @@ own choice; the seed code in
 (`seed_publication_periods()`) is correct as-is and does not need to
 change.
 
-### A6. کتابخانه "ویراستار" (editor) — one fixed name, or per-book?
+### ✅ A6. کتابخانه "ویراستار" (editor) — one fixed name, or per-book? — DONE 2026-10-02
 
-Spec wants a per-book editor field. The site currently hard-codes one name
-("م. صالح") via `shola_get_managing_editor()`, shown on every book.
+Resolved: Farhad originally requested the per-book field, but confirmed
+2026-10-02 it's no longer needed — the single fixed name
+("م. صالح" via `shola_get_managing_editor()`, shown on every book) stays
+as-is. No per-book admin field will be built; the spec's "per-book"
+description is superseded by this explicit decision.
 
-**Decide:** make it a real per-book admin field. **Also decide:** since the
-spec's security rule says author/translator names shouldn't show publicly
-yet, does "ویراستار" count as the same kind of name, and should it also be
-hidden, or is it intentionally exempt (it's currently shown)? Don't assume
-either way — ask.
-
-- Files: `wp-content/themes/shola-jawid/inc/template-tags.php`
-  (`shola_get_managing_editor()`), `wp-content/plugins/shola-core/includes/class-meta-fields.php`
-  (`document` post type fields), `wp-content/themes/shola-jawid/single-document.php`.
+- Files (unchanged, reference only): `wp-content/themes/shola-jawid/inc/template-tags.php`
+  (`shola_get_managing_editor()`), `wp-content/themes/shola-jawid/single-document.php`.
 
 ### A7. تراکت info-panel side: same on both, or mirrored?
 
