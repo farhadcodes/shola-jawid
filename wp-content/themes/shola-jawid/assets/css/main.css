@@ -2279,21 +2279,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * for its two remaining call sites (single.php's sidebar, taxonomy-
  * topic.php's sort tab).
  *
- * Reworked 2026-10-02 per a design critique Farhad asked for directly
- * ("wear your designer hat"): next to its two photo-card neighbors in
- * the same row, the panel read as flat/empty despite being the
- * editorially curated column. Three changes address that without
- * adding height (client's hard constraint — the column must not grow
- * taller than its row neighbors, or it creates blank space beside it):
- *   1. .ep-title now matches the weight of the page's other section
- *      headings (red, larger, bottom rule) instead of a small plain
- *      paragraph that read as a lesser heading than "گزارش" etc.
- *   2. .ep-item--featured gets a white mini-card + red accent border,
- *      restoring a "this one is featured" signal now that it has no
- *      thumbnail to carry that job.
- *   3. Vertical rhythm (panel padding/gap, list row padding) was
- *      tightened to offset the header/card additions, so total panel
- *      height stays roughly flat rather than growing.
+ * Visual history (see editors-picks-panel.php's own docblock for the
+ * full back-and-forth): a 2026-10-02 critique round gave item #1 a
+ * distinct "featured" mini-card/kicker and truncated items #2-5 to one
+ * line, to keep the column's total height matched to its row
+ * neighbors. Farhad explicitly reverted both of those the same day —
+ * all 5 items must look equal ("all of them are important at the same
+ * time") and show their full, untruncated title. .ep-title keeps the
+ * larger/red/bottom-rule header treatment from that round (that part
+ * wasn't objected to); everything else below is back to one uniform
+ * row style for all 5 items, now taller than before by design.
  */
 .grid-cards--with-editorspicks { grid-auto-flow: dense; }
 .editors-pick-panel { align-self: start; }
@@ -2315,24 +2310,6 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-bottom: .3rem;
   border-bottom: 1px solid rgba(204, 0, 0, .4);
 }
-.ep-item { display: flex; flex-direction: column; text-decoration: none; }
-.ep-item--featured {
-  background: var(--paper);
-  border-inline-start: 4px solid var(--winston-red);
-  border-radius: 2px;
-  padding: .55rem .75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
-}
-.ep-item-body { display: flex; align-items: flex-start; gap: .75rem; }
-.ep-item-text { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
-.ep-kicker {
-  font-family: var(--font-nav);
-  font-weight: 600;
-  font-size: .6875rem;
-  letter-spacing: .06em;
-  color: var(--winston-red);
-  text-transform: uppercase;
-}
 .ep-num {
   flex-shrink: 0;
   font-family: var(--font-display);
@@ -2341,49 +2318,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   line-height: 1;
   color: var(--winston-red);
 }
-.ep-item--featured .ep-item-title {
-  font-family: var(--font-fa);
-  color: var(--ink);
-  font-weight: 800;
-  font-size: .875rem;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-}
-.ep-item--featured:hover .ep-item-title { color: var(--winston-red); }
+.ep-item-text { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
 .ep-list { list-style: none; display: flex; flex-direction: column; }
 .ep-list li { border-top: 1px solid rgba(0, 0, 0, .08); }
 .ep-list a {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: .85rem;
-  padding-block: .3rem;
+  padding-block: .65rem;
   text-decoration: none;
 }
 /*
- * The 2.25rem number (kept for .ep-num generally, including the
- * featured item) was the actual height bottleneck in the compact list
- * rows below it — row height was being driven by the oversized digit,
- * not the single-line title text next to it. Scaled down for list rows
- * only, where it's one of several equal rows rather than a lone hero
- * number.
+ * 12px/"better line spacing" and "show the full title" were explicit,
+ * literal asks (2026-10-02) — no line-clamp, no truncation, a taller
+ * line-height than the panel's other 12-14px text elsewhere on the
+ * site so a wrapped 2-3 line title stays comfortably readable at this
+ * small size.
  */
-.ep-list .ep-num { font-size: 1.5rem; }
 .ep-list .ep-item-title {
   color: var(--ink);
   font-family: var(--font-fa);
   font-weight: 700;
-  font-size: .875rem;
-  line-height: 1.6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: .75rem;
+  line-height: 1.8;
 }
 .ep-list a:hover .ep-item-title { color: var(--winston-red); }
-.editors-pick-panel > .link-more { align-self: flex-start; margin-top: 0; }
+/*
+ * Publication date per item, added back 2026-10-02 per Farhad's ask —
+ * reuses the site's existing .card-byline date treatment (icon + Jalali
+ * date) instead of a one-off element, at the same 10px size that
+ * treatment already uses elsewhere for small/secondary metadata
+ * contexts (see .selected-row-body .card-byline, same file).
+ */
+.ep-list .card-byline { margin-top: 0; font-size: .625rem; }
+.editors-pick-panel > .link-more { align-self: flex-start; margin-top: .25rem; }
 @media (min-width: 720px) {
   .editors-pick-panel { grid-column: 1 / -1; order: 1; }
 }
