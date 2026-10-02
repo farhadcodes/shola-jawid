@@ -148,24 +148,29 @@ item trigger), `wp-content/themes/shola-jawid/assets/js/main.js`
 (`leafletRender()` and the single-trigger open path), `assets/css/main.css`
 (`.leaflet-lightbox-description`).
 
-### A8. Possible REST API leak of hidden names — verify live before trusting the "hidden" status
+### ✅ A8. REST API leak of hidden names — confirmed live, FIXED 2026-10-02
 
-All the "must not show publicly" fields (`shcore_byline`,
-`shcore_translation_original_author`, `shcore_translation_translator`) are
-registered with `show_in_rest => true`. They're confirmed absent from every
-theme template, but WordPress's default REST API
-(`/wp-json/wp/v2/posts/<id>`) may still expose them to anyone, logged in or
-not — a template-level hide doesn't block the REST endpoint.
+Checked live against production (`https://sholajawid.com/wp-json/wp/v2/posts`)
+before touching anything, per this item's own instruction: the leak was
+real, not speculative. `auth_callback` on `register_post_meta()` only
+gates REST *writes* (edit_post_meta capability checks) — it does nothing
+for reads. With `show_in_rest => true`, all three fields were exposed in
+the public `meta` object of every post, logged in or not. Confirmed
+actual names leaking, not just empty keys — e.g. post 1292's
+`shcore_translation_original_author` publicly returned "حزب کمونیست
+انقلابی کانادا" and `shcore_translation_translator` returned "هیت تحریر
+شعله جاوید", despite both being correctly absent from every theme
+template.
 
-**Action, not really a decision:** check this live — visit
-`https://sholajawid.com/wp-json/wp/v2/posts?per_page=1` (or a specific
-post's `/posts/<id>`) in a browser and look for these fields in the `meta`
-object of the JSON response. If present, the fix is to set
-`show_in_rest => false` on those three `register_post_meta()` calls (or
-add an explicit `auth_callback` that denies read access to logged-out
-users) in `class-meta-fields.php` — this is a small, low-risk fix once
-confirmed, but confirm first rather than changing REST visibility
-speculatively.
+**Fix shipped:** `show_in_rest => false` on all three
+`register_post_meta()` calls (`shcore_byline`,
+`shcore_translation_original_author`, `shcore_translation_translator`)
+in `wp-content/plugins/shola-core/includes/class-meta-fields.php`.
+Confirmed locally post-fix: all three keys are now completely absent
+from the REST `meta` object. Safe with no admin-side side effects —
+these fields are saved via a classic meta box + `save_post` hook, never
+through the REST API, so disabling REST exposure doesn't touch editing
+at all.
 
 ### A9. کتابخانه auto-scroll direction — confirm, don't just trust the literal translation
 

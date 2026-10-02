@@ -13641,3 +13641,25 @@ Theme version bumped 1.47.41 -> 1.48.0 (minor — a new content type and
 archive, not a patch-level fix like this session's other entries).
 Plugin version bumped 1.24.15 -> 1.25.0 (minor, same reasoning).
 Approved by: Farhad, in this session (2026-10-01).
+
+## 2026-10-02
+- **Fixed (security, §6):** REST API publicly exposed three fields
+  CLAUDE.md's own security posture requires hidden — `shcore_byline`,
+  `shcore_translation_original_author`, `shcore_translation_translator`
+  — despite them being correctly absent from every theme template.
+  Confirmed live against production before changing anything (per the
+  spec-gaps audit's own instruction not to fix speculatively): real
+  names were leaking, not just empty keys — e.g. a live ترجمه post
+  publicly returned its original-author and translator names in
+  `/wp-json/wp/v2/posts/<id>`'s `meta` object to any visitor, logged in
+  or not. Root cause: `register_post_meta()`'s `auth_callback` only
+  gates REST *writes* (edit_post_meta capability checks); it does
+  nothing for reads. `show_in_rest => true` on these three fields was
+  the actual (and only) read-visibility gate, and it was wide open.
+  Fix: `show_in_rest => false` on all three `register_post_meta()`
+  calls in `wp-content/plugins/shola-core/includes/class-meta-fields.php`.
+  No admin-side effect — these fields save via a classic meta box +
+  `save_post`, never the REST API. Confirmed locally post-fix: all three
+  keys now fully absent from the REST response.
+  Approved by: Farhad, in this session (2026-10-02) — this was spec-gaps
+  audit item A8, an action item rather than a decision to confirm.

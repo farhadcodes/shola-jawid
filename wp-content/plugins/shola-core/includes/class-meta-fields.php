@@ -514,7 +514,22 @@ class Meta_Fields {
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'show_in_rest'      => true,
+				/*
+				 * show_in_rest: false — confirmed live 2026-10-02
+				 * (docs/SPEC_GAPS_TODO.md, A8): `auth_callback` only
+				 * gates REST *writes* (edit_post_meta capability
+				 * checks), not reads — with show_in_rest true, WP's
+				 * REST API exposed this value in the `meta` object of
+				 * `/wp-json/wp/v2/posts/<id>` to every visitor, logged
+				 * in or not, for any published post, the same as every
+				 * other public field. This name is confirmed absent
+				 * from every theme template (the spec's "must not show
+				 * publicly" rule), so it has no legitimate REST reader;
+				 * admin editing uses a classic meta box + `save_post`
+				 * (add_meta_boxes()/save_meta_boxes() below), never the
+				 * REST API, so this doesn't touch that at all.
+				 */
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'auth_callback'     => $auth_callback,
 			)
@@ -593,13 +608,22 @@ class Meta_Fields {
 		 * not this one (crediting who originally wrote vs. translated a
 		 * single post already shown in ترجمه).
 		 */
+		/*
+		 * show_in_rest: false on both of these — same live-confirmed REST
+		 * leak and fix as 'shcore_byline' above (2026-10-02,
+		 * docs/SPEC_GAPS_TODO.md A8): `auth_callback` doesn't gate REST
+		 * reads, only writes, so these two names (confirmed absent from
+		 * every theme template) were publicly readable in
+		 * `/wp-json/wp/v2/posts/<id>`'s `meta` object for any published
+		 * ترجمه post, despite being hidden everywhere on the front end.
+		 */
 		register_post_meta(
 			'post',
 			'shcore_translation_original_author',
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'auth_callback'     => $auth_callback,
 			)
@@ -610,7 +634,7 @@ class Meta_Fields {
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'auth_callback'     => $auth_callback,
 			)
