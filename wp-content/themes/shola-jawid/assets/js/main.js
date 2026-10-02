@@ -689,6 +689,17 @@
         titleEl.textContent = item.caption;
         leafletCaption.appendChild(titleEl);
       }
+      /* توضیحات — added 2026-10-02 per Farhad's ask: the panel only ever
+         showed the title + date, never the leaflet's own description
+         (its post content, already an existing, previously-unused field
+         on the `leaflet` CPT). Same conditional-creation pattern as the
+         title above — only appended when that entry actually has one. */
+      if (item.description) {
+        var descEl = document.createElement("p");
+        descEl.className = "leaflet-lightbox-description";
+        descEl.textContent = item.description;
+        leafletCaption.appendChild(descEl);
+      }
       var dateEl = document.createElement("p");
       dateEl.className = "leaflet-lightbox-date";
       dateEl.textContent = item.date || "";
@@ -858,6 +869,7 @@
         leafletOpen(trigger, 0, {
           image: trigger.getAttribute("data-leaflet-image") || "",
           caption: trigger.getAttribute("data-leaflet-caption") || "",
+          description: trigger.getAttribute("data-leaflet-description") || "",
           date: trigger.getAttribute("data-leaflet-date") || "",
           alt: trigger.getAttribute("data-leaflet-alt") || ""
         });

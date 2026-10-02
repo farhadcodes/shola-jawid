@@ -5463,6 +5463,19 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   color: var(--ink);
   margin: 0;
 }
+/*
+ * توضیحات — added 2026-10-02, per Farhad's ask to show the leaflet's own
+ * description text (its post content) in this panel, not just the
+ * title/date. Sits between them — .leaflet-lightbox-caption's own `gap`
+ * already spaces every child evenly, so no extra margin is needed here.
+ */
+.leaflet-lightbox-description {
+  font-family: var(--font-fa);
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+}
 .leaflet-lightbox-date {
   font-family: var(--font-nav);
   font-size: var(--t-caption);

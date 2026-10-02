@@ -107,6 +107,19 @@ $leaflets_query = shola_get_leaflets_query(
 					if ( '' !== $leaflet_caption ) {
 						$leaflet_entry['caption'] = $leaflet_caption;
 					}
+					/*
+					 * توضیحات، added 2026-10-02 per Farhad's ask — the leaflet
+					 * CPT's own post content/editor field (`supports`
+					 * includes 'editor', class-post-types.php), previously
+					 * entered in wp-admin but never shown anywhere on the
+					 * front end. Same conditional-key pattern as 'caption'
+					 * just above: only present when there's real text, so
+					 * main.js never creates an empty paragraph for it.
+					 */
+					$leaflet_description = trim( wp_strip_all_tags( $leaflet_post_obj->post_content ) );
+					if ( '' !== $leaflet_description ) {
+						$leaflet_entry['description'] = $leaflet_description;
+					}
 					$leaflet_lightbox_data[] = $leaflet_entry;
 					++$leaflet_i;
 				endwhile;

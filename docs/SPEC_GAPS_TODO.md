@@ -131,20 +131,22 @@ description is superseded by this explicit decision.
 - Files (unchanged, reference only): `wp-content/themes/shola-jawid/inc/template-tags.php`
   (`shola_get_managing_editor()`), `wp-content/themes/shola-jawid/single-document.php`.
 
-### A7. تراکت info-panel side: same on both, or mirrored?
+### ✅ A7. تراکت info-panel side: same on both — DONE 2026-10-02
 
-Spec wants the info panel on the right for the homepage lightbox and on the
-left for the archive gallery. Both currently use the same CSS rule and
-render on the right in both places.
+Resolved: Farhad confirmed "same on both" is correct — panel on the
+right, image on the left, in both the homepage lightbox and the full
+archive gallery, matching this RTL site's reading flow throughout. No
+CSS change was needed; the existing shared rule
+(`.leaflet-lightbox-body`, `row-reverse`, main.css) was already correct.
 
-**Decide:** confirm this is actually wanted (easy to misjudge "left/right"
-from a text spec in an RTL site) before changing it — low risk either way,
-but a 5-minute confirmation avoids a wasted CSS change.
-
-- File: `wp-content/themes/shola-jawid/assets/css/main.css`, search for the
-  shared leaflet lightbox rule (`row-reverse`, near the leaflet/lightbox
-  section, roughly line 5160+ as of this audit — re-check the line number
-  before editing since the file has moved since).
+Same round: added the leaflet's own description text (its post content
+— an existing `leaflet` CPT field, previously entered in wp-admin but
+never shown anywhere) to the lightbox panel, below the title. Files:
+`wp-content/themes/shola-jawid/page-leaflets.php` (archive gallery JSON
+data), `wp-content/themes/shola-jawid/front-page.php` (homepage single-
+item trigger), `wp-content/themes/shola-jawid/assets/js/main.js`
+(`leafletRender()` and the single-trigger open path), `assets/css/main.css`
+(`.leaflet-lightbox-description`).
 
 ### A8. Possible REST API leak of hidden names — verify live before trusting the "hidden" status
 

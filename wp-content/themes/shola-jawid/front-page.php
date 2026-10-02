@@ -707,8 +707,10 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 	$leaflet_teaser_query->the_post();
 	$leaflet_teaser_thumb_id = get_post_thumbnail_id();
 	$leaflet_teaser_full     = wp_get_attachment_image_url( $leaflet_teaser_thumb_id, 'full' );
-	$leaflet_teaser_caption  = get_the_title();
-	$leaflet_teaser_alt      = get_post_meta( $leaflet_teaser_thumb_id, '_wp_attachment_image_alt', true ) ?: $leaflet_teaser_caption;
+	$leaflet_teaser_caption     = get_the_title();
+	$leaflet_teaser_alt         = get_post_meta( $leaflet_teaser_thumb_id, '_wp_attachment_image_alt', true ) ?: $leaflet_teaser_caption;
+	// توضیحات — see page-leaflets.php's matching comment on $leaflet_description.
+	$leaflet_teaser_description = trim( wp_strip_all_tags( get_the_content() ) );
 	?>
 	<section class="sect-leaflet-teaser sect" aria-label="<?php esc_attr_e( 'تراکت', 'shola-jawid' ); ?>">
 		<div class="wrap leaflet-teaser">
@@ -732,7 +734,7 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 			 * archive page.
 			 */
 			?>
-			<a href="<?php echo esc_url( $leaflet_teaser_full ); ?>" class="leaflet-teaser-media" data-leaflet-trigger data-leaflet-image="<?php echo esc_url( $leaflet_teaser_full ); ?>" data-leaflet-date="<?php echo esc_attr( get_the_date() ); ?>" data-leaflet-caption="<?php echo esc_attr( $leaflet_teaser_caption ); ?>" data-leaflet-alt="<?php echo esc_attr( $leaflet_teaser_alt ); ?>">
+			<a href="<?php echo esc_url( $leaflet_teaser_full ); ?>" class="leaflet-teaser-media" data-leaflet-trigger data-leaflet-image="<?php echo esc_url( $leaflet_teaser_full ); ?>" data-leaflet-date="<?php echo esc_attr( get_the_date() ); ?>" data-leaflet-caption="<?php echo esc_attr( $leaflet_teaser_caption ); ?>" data-leaflet-description="<?php echo esc_attr( $leaflet_teaser_description ); ?>" data-leaflet-alt="<?php echo esc_attr( $leaflet_teaser_alt ); ?>">
 				<?php
 				// See template-parts/leaflets/leaflet-item.php's own comment:
 				// shola_get_leaflets_query() already excludes leaflets with no
