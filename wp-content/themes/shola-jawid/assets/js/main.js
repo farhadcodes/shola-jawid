@@ -496,11 +496,12 @@
      "start"})` sidesteps the whole sign/initial-position problem: the
      browser itself resolves "start" correctly for RTL (the right edge
      here), for both the initial alignment and every subsequent step.
-     Slower-paced than the library shelf (5.5s vs 4s) — a گزارش
-     title+excerpt needs more time to read than a single book cover.
-     Farhad's explicit ask was for "smooth, not overwhelming" motion
-     rather than a specific speed, so both the interval and the native
-     `behavior: "smooth"` scroll were picked for a calm pace, not tuned
+     4s interval, same pace as the library shelf — originally 5.5s, but
+     Farhad's live follow-up (2026-10-02) called that too slow and asked
+     for it faster; 4s keeps the "smooth, not overwhelming" motion he
+     asked for first, just brisker, and matches a pace already proven
+     elsewhere on this page rather than picking a new number blind. The
+     native `behavior: "smooth"` scroll itself is unchanged — not tuned
      to his original 100-200ms figure, which he confirmed was only a
      rough reference, not a literal spec. */
   var reportsTrack = document.querySelector("[data-reports-carousel]");
@@ -552,7 +553,7 @@
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         window.setInterval(function () {
           if (!reportsPaused) { reportsGoTo(reportsIndex + 1, true); }
-        }, 5500);
+        }, 4000);
       }
     }
   }

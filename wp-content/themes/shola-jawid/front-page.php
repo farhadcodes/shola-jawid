@@ -784,17 +784,20 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
  * whichever case is actually true, instead of a background hardcoded
  * for only one of the two.
  *
- * `posts_per_page` lowered 6 -> 4, 2026-09-18: Farhad's explicit ask —
- * this section stays capped at 4, deliberately smaller than مقالات's
- * and گزیده‌ها's 6, so it never grows past a hard maximum regardless of
- * how many reports exist; anything beyond the cap is only reachable via
- * «همهٔ گزارش‌ها» to the archive, same overflow pattern as every other
- * capped homepage section.
+ * `posts_per_page`: 6 -> 4 (2026-09-18) -> 6 (2026-10-02). Originally
+ * lowered to 4 at Farhad's explicit ask, back when this section was a
+ * static grid and a hard cap kept it from growing taller than its
+ * neighbors. Raised back to 6 — matching مقالات's and گزیده‌ها's own
+ * cap, and the original spec doc's number (docs/SPEC_GAPS_TODO.md, A2)
+ * — once this became a carousel (2026-10-02): extra items now scroll
+ * instead of wrapping into extra grid rows, so the original height
+ * concern no longer applies, and Farhad asked directly for at least 6
+ * cards in the rotation.
  */
 $reports_query = new WP_Query(
 	array(
 		'post_type'           => 'post',
-		'posts_per_page'      => 4,
+		'posts_per_page'      => 6,
 		'orderby'             => 'date',
 		'order'               => 'DESC',
 		'ignore_sticky_posts' => true, // See $articles_query's own comment above for why.
@@ -810,80 +813,108 @@ $reports_query = new WP_Query(
 $has_reports = $reports_query->have_posts();
 ?>
 <?php if ( $has_reports ) : ?>
-	<section class="wrap sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_reports_heading' ) ); ?>">
-		<div class="section-head row-between">
-			<div class="kicker-row">
-				<p class="section-marker"></p>
-				<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_reports_heading' ) ); ?></h2>
-			</div>
-			<?php
-			/*
-			 * Carousel nav arrows, added 2026-10-02 — client-requested
-			 * "creative" treatment for گزارش specifically (relayed by
-			 * Farhad: all the article-shaped homepage sections felt too
-			 * similar). Sits beside the existing «همهٔ گزارش‌ها» link, per
-			 * Farhad's explicit placement ask. Plain <button>s with
-			 * data-reports-dir, wired up in main.js
-			 * (reportsCarouselTrack) — inert without JS, same as the
-			 * library-shelf/filmstrip arrows elsewhere on this site; the
-			 * track itself is a native horizontally-scrollable row
-			 * (assets/css/main.css, .reports-carousel-track), so it's
-			 * fully usable by touch/trackpad/keyboard with JS disabled,
-			 * just without the auto-advance and these two buttons.
-			 */
-			?>
-			<div class="section-head-actions">
-				<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
-				<div class="carousel-nav" role="group" aria-label="<?php esc_attr_e( 'پیمایش گزارش‌ها', 'shola-jawid' ); ?>">
-					<button type="button" class="carousel-nav-btn" data-reports-dir="1" aria-label="<?php esc_attr_e( 'گزارش‌های قدیمی‌تر', 'shola-jawid' ); ?>">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-					</button>
-					<button type="button" class="carousel-nav-btn" data-reports-dir="-1" aria-label="<?php esc_attr_e( 'گزارش‌های جدیدتر', 'shola-jawid' ); ?>">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-					</button>
+	<?php
+	/*
+	 * Full-bleed .sect-cream, not the plain/paper background this
+	 * section used before — Farhad's explicit ask (2026-10-02) for "a
+	 * slightly creamier background" once he saw the carousel live on
+	 * plain white. Same class/pattern تازه‌ترین مقاله‌ها already uses
+	 * (.sect-cream + an inner .wrap for the actual content), so this is
+	 * a structural change, not just a color swap: the <section> itself
+	 * is now full-bleed with its own wrap div, matching that section's
+	 * markup shape instead of wrap+sect combined directly on the
+	 * <section> as before.
+	 *
+	 * نشریات right after this one (front-page.php, further down) picks
+	 * its own background via `$has_reports ? 'sect-cream' : ''` — that
+	 * ternary existed specifically so two cream sections never sit back
+	 * to back; it still does exactly that job now that گزارش itself is
+	 * cream (نشریات flips to plain whenever گزارش has content, same as
+	 * before, just inverted from this section's new default).
+	 */
+	?>
+	<section class="sect-cream sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_reports_heading' ) ); ?>">
+		<div class="wrap">
+			<div class="section-head row-between">
+				<div class="kicker-row">
+					<p class="section-marker"></p>
+					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_reports_heading' ) ); ?></h2>
+				</div>
+				<?php
+				/*
+				 * Carousel nav arrows, added 2026-10-02 — client-requested
+				 * "creative" treatment for گزارش specifically (relayed by
+				 * Farhad: all the article-shaped homepage sections felt too
+				 * similar). Sits beside the existing «همهٔ گزارش‌ها» link, per
+				 * Farhad's explicit placement ask. Plain <button>s with
+				 * data-reports-dir, wired up in main.js
+				 * (reportsCarouselTrack) — inert without JS, same as the
+				 * library-shelf/filmstrip arrows elsewhere on this site; the
+				 * track itself is a native horizontally-scrollable row
+				 * (assets/css/main.css, .reports-carousel-track), so it's
+				 * fully usable by touch/trackpad/keyboard with JS disabled,
+				 * just without the auto-advance and these two buttons.
+				 *
+				 * Icon directions swapped 2026-10-02 — Farhad caught live
+				 * that the two chevrons pointed at each other instead of
+				 * outward (a visual mistake independent of which button
+				 * does what; data-reports-dir/aria-label on each button are
+				 * unchanged, only the glyph each one shows).
+				 */
+				?>
+				<div class="section-head-actions">
+					<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+					<div class="carousel-nav" role="group" aria-label="<?php esc_attr_e( 'پیمایش گزارش‌ها', 'shola-jawid' ); ?>">
+						<button type="button" class="carousel-nav-btn" data-reports-dir="1" aria-label="<?php esc_attr_e( 'گزارش‌های قدیمی‌تر', 'shola-jawid' ); ?>">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+						</button>
+						<button type="button" class="carousel-nav-btn" data-reports-dir="-1" aria-label="<?php esc_attr_e( 'گزارش‌های جدیدتر', 'shola-jawid' ); ?>">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
-		<?php
-		/*
-		 * .reports-carousel-track replaces .grid-cards here specifically
-		 * (every other homepage section keeps its plain grid untouched) —
-		 * a native `overflow-x: auto` + `scroll-snap-type` row, not a
-		 * transform/clone-based slider: same technique already proven on
-		 * this site for .library-shelf-track and the تراکت filmstrip
-		 * (main.js), chosen again here for consistency and because it's
-		 * usable with JS disabled (plain touch/trackpad scroll) without
-		 * needing two separate layouts gated behind a JS-added class.
-		 * main.js only adds the auto-advance timer, pause-on-hover/focus,
-		 * and the two nav buttons above — all pure enhancement.
-		 */
-		?>
-		<div class="reports-carousel-track" data-reports-carousel>
 			<?php
 			/*
-			 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها's own
-			 * loop above (added 2026-09-19) and گزیده‌ها's `$selected_shown`
-			 * (2026-09-16) — this section shares the identical
-			 * WP_Query-with-a-SQL-LIMIT pattern that has twice now shown
-			 * more rows than `posts_per_page` on the live production site,
-			 * so it gets the same belt-and-suspenders fix pre-emptively
-			 * rather than waiting for Farhad to hit the same bug here too.
+			 * .reports-carousel-track replaces .grid-cards here specifically
+			 * (every other homepage section keeps its plain grid untouched) —
+			 * a native `overflow-x: auto` + `scroll-snap-type` row, not a
+			 * transform/clone-based slider: same technique already proven on
+			 * this site for .library-shelf-track and the تراکت filmstrip
+			 * (main.js), chosen again here for consistency and because it's
+			 * usable with JS disabled (plain touch/trackpad scroll) without
+			 * needing two separate layouts gated behind a JS-added class.
+			 * main.js only adds the auto-advance timer, pause-on-hover/focus,
+			 * and the two nav buttons above — all pure enhancement.
 			 */
-			$reports_shown = 0;
-			while ( $reports_query->have_posts() && $reports_shown < 4 ) :
-				$reports_query->the_post();
-				get_template_part(
-					'template-parts/cards/card',
-					null,
-					array(
-						'post' => get_post(),
-						'type' => 'article',
-					)
-				);
-				++$reports_shown;
-			endwhile;
-			wp_reset_postdata();
 			?>
+			<div class="reports-carousel-track" data-reports-carousel>
+				<?php
+				/*
+				 * Same defensive hard-cap counter as تازه‌ترین مقاله‌ها's own
+				 * loop above (added 2026-09-19) and گزیده‌ها's `$selected_shown`
+				 * (2026-09-16) — this section shares the identical
+				 * WP_Query-with-a-SQL-LIMIT pattern that has twice now shown
+				 * more rows than `posts_per_page` on the live production site,
+				 * so it gets the same belt-and-suspenders fix pre-emptively
+				 * rather than waiting for Farhad to hit the same bug here too.
+				 */
+				$reports_shown = 0;
+				while ( $reports_query->have_posts() && $reports_shown < 6 ) :
+					$reports_query->the_post();
+					get_template_part(
+						'template-parts/cards/card',
+						null,
+						array(
+							'post' => get_post(),
+							'type' => 'article',
+						)
+					);
+					++$reports_shown;
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</div>
 		</div>
 	</section>
 <?php endif; ?>
@@ -987,22 +1018,19 @@ foreach ( $publication_terms as $pub_term ) {
 	 * Background made dynamic, 2026-09-08 (Phase 16, اسناد حزب reorder —
 	 * see this file's top docblock and docs/CHANGELOG.md): this section's
 	 * background has always been chosen based on whichever section sits
-	 * directly above it — plain worked from 2026-08-24 because گزارش's
-	 * own paper band always sat there. Now that اسناد حزب moved further
-	 * down the page, this section's real neighbor above depends on
-	 * whether گزارش actually has content: when it does, گزارش (plain)
-	 * sits directly above and this section needs to differ (cream); when
-	 * گزارش is empty and hides (its own have_posts() guard), تازه‌ترین
-	 * مقالات's cream band becomes the real neighbor instead, and cream
-	 * here would clash with it — plain is what's needed in that case.
-	 * `$has_reports` (captured above, before گزارش's own loop consumes
-	 * it) picks correctly for whichever is actually true, rather than a
-	 * background hardcoded for only one of the two — found live: with
-	 * zero reports currently published, a hardcoded-cream version
-	 * clashed with تازه‌ترین مقالات's cream directly above it.
+	 * directly above it, so two cream bands never sit back to back.
+	 * Originally: plain when گزارش (itself plain) has content, cream when
+	 * گزارش is empty and تازه‌ترین مقالات's cream band becomes the real
+	 * neighbor instead. Inverted 2026-10-02 when گزارش itself switched to
+	 * `.sect-cream` (Farhad's "creamier background" ask for the new
+	 * carousel) — the two outcomes are the same logic as always, just
+	 * swapped, since the neighbor's own color flipped. `$has_reports`
+	 * (captured above, before گزارش's own loop consumes it) still picks
+	 * correctly for whichever is actually true, rather than a background
+	 * hardcoded for only one of the two.
 	 */
 	?>
-	<section class="<?php echo $has_reports ? 'sect-cream' : ''; ?> sect" aria-label="<?php esc_attr_e( 'نشریات', 'shola-jawid' ); ?>">
+	<section class="<?php echo $has_reports ? '' : 'sect-cream'; ?> sect" aria-label="<?php esc_attr_e( 'نشریات', 'shola-jawid' ); ?>">
 		<div class="wrap">
 			<div class="section-head">
 				<div class="kicker-row">

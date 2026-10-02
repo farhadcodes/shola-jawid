@@ -54,19 +54,19 @@ closer to the spec's own ترجمه unit) is still the open question.
   `wp-content/themes/shola-jawid/page-selected.php`,
   `wp-content/themes/shola-jawid/front-page.php` (ترجمه homepage section).
 
-### A2. گزارش homepage count: spec says 6, site shows 4
+### ✅ A2. گزارش homepage count: spec says 6, site shows 4 — DONE 2026-10-02
 
-Changed explicitly on 2026-09-18 at the client's own request (see
-`docs/CHANGELOG.md`, that date). The spec document predates or wasn't
-updated after that conversation.
-
-**Decide:** keep 4 (client's explicit later instruction) or revert to 6 to
-match the written spec. Recommend keeping 4 unless the client says
-otherwise — a later, explicit verbal decision normally supersedes an
-earlier written spec, but confirm rather than assume.
+Lowered to 4 on 2026-09-18 at the client's own request. Raised back to 6
+on 2026-10-02, alongside turning this section into a carousel (same
+round, client-requested) — the client explicitly asked for "at least
+six" cards in the rotation, matching the original written spec's number.
+The earlier "stay at 4" instruction no longer applies: it was motivated
+by the section being a static grid where a hard cap kept it from growing
+taller than its neighbors, which stopped being a concern once extra
+items scroll in a carousel instead of wrapping into new grid rows.
 
 - File: `wp-content/themes/shola-jawid/front-page.php` (`$reports_query`,
-  `posts_per_page => 4`, two places — the query args and the hard-cap
+  `posts_per_page => 6`, two places — the query args and the hard-cap
   loop counter just below it).
 
 ### ✅ A3. What belongs in the column under اطلاعیه‌ها on the homepage? — DONE 2026-10-01
