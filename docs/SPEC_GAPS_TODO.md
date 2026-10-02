@@ -106,22 +106,19 @@ confirmation, not just a yes/no, before touching it.
   `wp-content/themes/shola-jawid/assets/css/main.css` (`.selected-row`,
   `.selected-list` rules, search for `selected-row`).
 
-### A5. جهان برای فتح has 4 دوره sub-terms it shouldn't have
+### ✅ A5. جهان برای فتح has 4 دوره sub-terms — DONE 2026-10-02
 
-The spec says only شعله جاوید has sub-collections (4 دوره); جهان برای فتح
-has none. The seed code currently creates all 4 دوره terms under **both**
-publications.
-
-**Decide:** delete the 4 دوره terms under جهان برای فتح (a content/taxonomy
-change, not a code change — do this via wp-admin, not by editing the seed
-function, since the seed only runs once and editing it won't retroactively
-fix already-seeded terms). **Before deleting:** check whether any issue is
-currently assigned to one of those terms and reassign it first (the
-category-move-before-delete flow already exists in admin for this).
-
-- Reference: `wp-content/plugins/shola-core/includes/class-taxonomies.php`
-  function `seed_publication_periods()` — fix this too, so a fresh install
-  doesn't repeat the mistake, but that alone won't fix the live site.
+Resolved as a content decision, not a code issue: Farhad confirmed the
+دوره (period) sub-term functionality is deliberately built to work for
+both publications — this was a client request for the underlying
+capability, not a spec gap. Whether a given publication actually uses it
+is managed per-publication via wp-admin (removing/keeping the seeded
+terms there), not by restricting the feature in code. جهان برای فتح's
+دوره terms have already been removed on the live site by the client's
+own choice; the seed code in
+`wp-content/plugins/shola-core/includes/class-taxonomies.php`
+(`seed_publication_periods()`) is correct as-is and does not need to
+change.
 
 ### A6. کتابخانه "ویراستار" (editor) — one fixed name, or per-book?
 
