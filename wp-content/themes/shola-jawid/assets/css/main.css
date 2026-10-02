@@ -2310,11 +2310,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-bottom: .3rem;
   border-bottom: 1px solid rgba(204, 0, 0, .4);
 }
+/*
+ * Fixed width + text-align:center, added 2026-10-02 — Farhad flagged
+ * titles as misaligned (circled proof: item 1/2's title text started
+ * further right than items 3-5's). Root cause: ۱٬۲٬۳٬۴٬۵ don't all
+ * render at the same glyph width, so with no fixed width here each
+ * row's title column (the flex sibling after this one) started at a
+ * slightly different x position. A fixed width makes every row's
+ * number column identical regardless of which digit it holds, so every
+ * title starts at the same edge — the actual ask, not just a cosmetic
+ * centering choice.
+ */
 .ep-num {
   flex-shrink: 0;
+  width: 1.875rem;
+  text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 2.25rem;
+  font-size: 1.875rem;
   line-height: 1;
   color: var(--winston-red);
 }
@@ -2329,7 +2342,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   text-decoration: none;
 }
 /*
- * 12px/"better line spacing" and "show the full title" were explicit,
+ * 13px/"better line spacing" and "show the full title" were explicit,
  * literal asks (2026-10-02) — no line-clamp, no truncation, a taller
  * line-height than the panel's other 12-14px text elsewhere on the
  * site so a wrapped 2-3 line title stays comfortably readable at this
@@ -2339,7 +2352,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   color: var(--ink);
   font-family: var(--font-fa);
   font-weight: 700;
-  font-size: .75rem;
+  font-size: .8125rem;
   line-height: 1.8;
 }
 .ep-list a:hover .ep-item-title { color: var(--winston-red); }
