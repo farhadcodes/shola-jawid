@@ -485,17 +485,7 @@
      via Farhad ("all the article sections feel the same, give گزارش
      something creative"). Native-scroll + scroll-snap track (not a
      transform/clone-based slider), same family of technique as
-     .library-shelf-track above, but driven via `Element.scrollIntoView()`
-     on a target card rather than manual `scrollLeft`/`scrollBy` math:
-     confirmed live that this track's `dir="rtl"` overflow doesn't
-     initially rest with the first (newest) card visible — the browser's
-     default scrollLeft=0 position showed cards 2-4, with the newest card
-     pushed out of view — and the library-shelf's own scrollLeft-sign-
-     detection dance (built for a different, always-starts-at-the-first-
-     item track) doesn't correct for that. `scrollIntoView({inline:
-     "start"})` sidesteps the whole sign/initial-position problem: the
-     browser itself resolves "start" correctly for RTL (the right edge
-     here), for both the initial alignment and every subsequent step.
+     .library-shelf-track above.
      4s interval, same pace as the library shelf — originally 5.5s, but
      Farhad's live follow-up (2026-10-02) called that too slow and asked
      for it faster; 4s keeps the "smooth, not overwhelming" motion he
@@ -503,7 +493,39 @@
      elsewhere on this page rather than picking a new number blind. The
      native `behavior: "smooth"` scroll itself is unchanged — not tuned
      to his original 100-200ms figure, which he confirmed was only a
-     rough reference, not a literal spec. */
+     rough reference, not a literal spec.
+
+     Navigation was originally driven by `Element.scrollIntoView()` on the
+     target card, to sidestep this track's `dir="rtl"` overflow not
+     resting with the newest card visible by default. That created a
+     worse bug, caught live: scrollIntoView() scrolls *every* scrollable
+     ancestor needed to satisfy its alignment, not just this track's own
+     horizontal one — `block: "nearest"` only skips re-scrolling when the
+     target is *already fully* visible; the moment گزارش was only
+     partially on screen (its own IntersectionObserver still reports
+     that as "in view," so the auto-advance timer still fired), "nearest"
+     would vertically scroll the whole page to make the target card
+     fully visible again. Gating the timer by visibility (an earlier
+     attempt) only fixed the fully-off-screen case, not this one.
+
+     Replaced with scrolling `reportsTrack.scrollLeft` directly instead —
+     a property of the track element itself, which (unlike
+     scrollIntoView) can never move any ancestor's scroll position,
+     vertical or horizontal, so the page can no longer be dragged around
+     no matter how گزارش is scrolled into view. The target's exact pixel
+     gap from the track edge (via getBoundingClientRect(), both already
+     in the same viewport-space coordinates) is handed straight to
+     scrollBy() — confirmed live that `Element.scrollBy({left})`'s sign
+     already matches plain viewport-space delta on this track directly
+     (no RTL sign flip needed here, unlike .library-shelf-track's own
+     scrollBy(+step)-convention self-test above, which doesn't apply to
+     a geometrically-derived delta like this one); an earlier version of
+     this fix multiplied in that same self-test's result anyway and it
+     silently cancelled the delta back out, which is why the nav buttons
+     stopped moving the carousel at all until this was caught live and
+     removed. `scroll-snap-type: x mandatory` on this track (main.css)
+     also means the exact delta only has to be close — the browser snaps
+     the rest of the way to the nearest card boundary regardless. */
   var reportsTrack = document.querySelector("[data-reports-carousel]");
   if (reportsTrack) {
     var reportsCards = Array.prototype.slice.call(reportsTrack.querySelectorAll(".card"));
@@ -512,11 +534,13 @@
 
       function reportsGoTo(index, smooth) {
         reportsIndex = ((index % reportsCards.length) + reportsCards.length) % reportsCards.length;
-        reportsCards[reportsIndex].scrollIntoView({
-          behavior: smooth ? "smooth" : "auto",
-          block: "nearest",
-          inline: "start",
-        });
+        var target = reportsCards[reportsIndex];
+        var trackRect = reportsTrack.getBoundingClientRect();
+        var targetRect = target.getBoundingClientRect();
+        var delta = targetRect.right - trackRect.right;
+        if (Math.abs(delta) > 0.5) {
+          reportsTrack.scrollBy({ left: delta, behavior: smooth ? "smooth" : "auto" });
+        }
       }
 
       // Align to the newest (first) card immediately — see this block's
@@ -550,18 +574,12 @@
         reportsTrack.addEventListener(evt, resumeReportsSoon, { passive: true });
       });
 
-      /* Caught live by Farhad: scrolling the page away from this section
-         and leaving it to auto-advance yanked the whole page back down
-         to گزارش every 4s. Cause: scrollIntoView() moves EVERY ancestor
-         scroll container needed to bring the target into view, not just
-         this track's own horizontal one — `block: "nearest"` stops it
-         from re-centering the page when the section is already visible,
-         but does nothing once the section has scrolled fully out of the
-         viewport, since then "nearest" still means "scroll the page
-         until it's on screen." An IntersectionObserver gates the
-         auto-advance timer so it simply does nothing while the section
-         isn't visible — manual clicks are unaffected (clicking the
-         button already means the visitor is looking at it). */
+      /* Pauses the auto-advance timer while گزارش isn't on screen at all —
+         pure savings (no point animating a carousel nobody can see), not
+         a correctness fix: now that reportsGoTo() only ever touches
+         reportsTrack.scrollLeft (see that function's own comment above),
+         it's no longer possible for this timer to move the page itself,
+         fully or partially visible or not. */
       var reportsInView = false;
       if ("IntersectionObserver" in window) {
         var reportsSection = reportsTrack.closest("section") || reportsTrack;
