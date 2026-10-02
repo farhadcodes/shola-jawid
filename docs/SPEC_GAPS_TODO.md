@@ -464,8 +464,8 @@ below rather than silently marked done.
 | 2 | موضوع اصلی + breadcrumb | ✅ | — |
 | 3 | Subtitle display rule | ✅ | B4 |
 | 4 | Author/alias hidden publicly | ✅ | A8 (confirmed live + fixed) |
-| 5 | گزارش multi-author | ❌ | A1 decided (two independent units); multi-author itself was never built — not blocked anymore, just not done |
-| 6 | گزیده multi-author | ❌ | same as #5 |
+| 5 | گزارش multi-author | ✅ decided, won't-build | Farhad confirmed 2026-10-03 — not needed |
+| 6 | گزیده multi-author | ✅ decided, won't-build | same as #5 |
 | 7 | ترجمه multi-value author/translator + alias | ✅ decided, won't-build | Farhad reviewed ترجمه live 2026-10-02 and confirmed no changes needed — single-value stays as-is |
 | 8 | ترجمه fields hidden publicly, exist in admin | ✅ | A8 (confirmed live + fixed) |
 | 9 | ترجمه single- vs multi-value | ✅ decided, won't-build | same 2026-10-02 ترجمه confirmation as #7 |
@@ -504,12 +504,8 @@ below rather than silently marked done.
 | 42 | ارتباط با ما | ✅ | B2, B15 |
 | 43 | جست‌وجو | ✅ | B12 |
 
-**Genuinely still open** (2026-10-02 — #12/#27/#28/#33/#38 all fixed the
-same day they were surfaced; see each row above): **#5/#6, گزارش/گزیده
-multi-author.** Confirmed there is no multi-author mechanism anywhere in
-this codebase for any post type — every "author" field found
-(`shcore_byline`, `shcore_author_source`, `shcore_translation_*`) is a
-single plain-text string. Building this means designing a new data model
-from nothing (free-text list vs. multiple real WP users; display format),
-which is a scope/product decision, not a mechanical fix — needs Farhad's
-input on what he actually wants before any code gets written.
+**Nothing left open.** #12/#27/#28/#33/#38 were fixed 2026-10-02; #5/#6
+(گزارش/گزیده multi-author) was the last open item — Farhad decided
+2026-10-03 it's not needed, no multi-author mechanism will be built.
+Part A, Part B, and Part C are now fully resolved except B10 (intentionally
+deferred by prior explicit client decision).
