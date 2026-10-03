@@ -1,0 +1,310 @@
+/* =========================================================================
+   شعله جاوید — wp-login.php custom branding (2026-10-03)
+   Loaded only on the login screen (inc/login-screen.php, login_enqueue_scripts).
+   Re-skins WordPress core's own markup in place — see that file's docblock
+   for why no core markup is replaced, only laid out via CSS Grid.
+   Uses this theme's own design tokens (main.css) throughout — no new colors.
+   ========================================================================= */
+
+:root {
+  --ink:            #0F0F0F;
+  --paper:          #FFFFFF;
+  --cream:          #FAF8F3;
+  --stone:          #6E6E6A;
+  --line:           #E6E5E1;
+  --winston-red:      #CC0000;
+  --winston-red-deep: #a30000;
+  --font-fa:        "Farhang2", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display:   "Farhang2", serif;
+}
+
+/*
+ * This stylesheet is loaded standalone on wp-login.php (never alongside
+ * main.css), so it needs its own copy of the same universal box-sizing
+ * reset main.css applies site-wide (main.css §01) — without it, `width:
+ * 100%` plus `padding-inline` on the same element (several rules below)
+ * literally overflows by 2x the padding, which main.css's border-box
+ * reset is exactly what normally prevents. Found live (2026-10-03) as a
+ * real horizontal-scroll bug on a phone-width screen, not assumed.
+ */
+*, *::before, *::after { box-sizing: border-box; }
+
+/*
+ * `html` centers `body` as a flex item rather than `body.login` itself
+ * trying to be both the full-page background AND a centered card — that
+ * split (html = page/backdrop, body = the card once two-column) avoids
+ * needing a separate wrapper element or a background pseudo-element just
+ * to get the box-shadowed card look behind both grid columns at once.
+ *
+ * Grid container is `body.login` itself, not `#login` — verified live
+ * (2026-10-03) rather than assumed: this WP version's own wp-login.php
+ * markup separates the h1 logo, `#login`, and the language switcher into
+ * three independent direct children of `<body>` (a core markup change
+ * from older WordPress versions, where all three used to nest inside one
+ * `#login` wrapper). `do_action( 'login_header' )` — the hook
+ * `.shola-login-brand` is injected through — also fires at the very top
+ * of `<body>`, before any of them, not inside `#login`. Explicit
+ * grid-column assignment on each of the three (below) places them all
+ * into one visual column regardless of this flatter structure.
+ *
+ * Mobile-first: single column (the brand panel stacks as a compact
+ * header above the form) is the default; the two-column card treatment
+ * only applies from 783px up (main.css's own tablet/desktop breakpoint
+ * convention), matching how every other split layout on the public site
+ * collapses on a phone.
+ */
+html {
+  min-height: 100vh;
+  display: flex;
+  background: var(--cream);
+}
+body.login {
+  flex: 1;
+  min-width: 0; /* same flex-item overflow fix as the grid items below */
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+  font-family: var(--font-fa);
+}
+
+@media (min-width: 783px) {
+  html {
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(15, 15, 15, .06) 1px, transparent 0) 0 0 / 28px 28px,
+      var(--cream);
+  }
+  body.login {
+    flex: none;
+    grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.15fr);
+    width: min(880px, calc(100% - 4rem));
+    margin: 2rem auto;
+    background: var(--paper);
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .35);
+  }
+}
+
+/*
+ * Two separate default h1s found live (2026-10-03), not one: an outer
+ * `h1.screen-reader-text` ("ورود") directly under `<body>` — already
+ * invisible via its own core class, for the page's accessible heading —
+ * and a second, genuinely visible `h1.wp-login-logo` *inside* `#login`,
+ * which is what actually rendered the WordPress/site-icon badge image
+ * over the form. Both get the same visually-hidden (not `display:none`)
+ * treatment: `.shola-login-brand`'s own logo is `aria-hidden` and
+ * decorative-only (see inc/login-screen.php), so this inner h1's home
+ * link is kept as the page's one real accessible "go to homepage" link
+ * for screen-reader/keyboard users, just not shown visually since the
+ * brand panel already shows the logo.
+ */
+body.login > h1,
+#login > h1.wp-login-logo {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The h1 (invisible, see above), `#login` (message/error markup,
+   #loginform, #nav, #backtoblog), and `.language-switcher` are each
+   independent direct children of `<body>` — placed into the same visual
+   column (the second one, once the grid is two columns) regardless of
+   DOM order relative to the brand panel. On mobile (one column) this
+   placement is a no-op; they simply stack in normal document order. */
+body.login > #login,
+body.login > .language-switcher {
+  width: 100%;
+  /*
+   * min-width: 0 — a grid item's default `min-width: auto` means it
+   * won't shrink below its content's intrinsic min-content width, which
+   * on a narrow phone viewport was forcing `#login` (and the whole grid
+   * track with it) wider than the screen — found live (2026-10-03) via
+   * an actual horizontal-scroll check, not assumed. Standard fix for
+   * exactly this CSS Grid behavior.
+   */
+  min-width: 0;
+  padding-inline: 1.75rem;
+  grid-column: 1;
+}
+body.login > #login { padding-block: 2rem 1rem; }
+body.login > .language-switcher { padding-bottom: 1.5rem; }
+
+@media (min-width: 783px) {
+  body.login > h1,
+  body.login > #login,
+  body.login > .language-switcher {
+    grid-column: 2;
+    max-width: none;
+    padding-inline: clamp(1.75rem, 4vw, 3.25rem);
+  }
+  body.login > #login { padding-block: clamp(2rem, 5vw, 3.25rem) 1rem; }
+}
+
+.shola-login-brand {
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  padding: 2.5rem 1.75rem 2rem;
+}
+@media (min-width: 783px) {
+  .shola-login-brand {
+    grid-row: 1 / -1;
+    padding: 2.5rem;
+  }
+}
+.shola-login-brand-inner { max-width: 320px; }
+.shola-login-brand-logo {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+.shola-login-brand-logo img {
+  max-width: 56px;
+  height: auto;
+  display: block;
+}
+@media (min-width: 783px) {
+  .shola-login-brand-logo img { max-width: 72px; }
+}
+.shola-login-brand-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 0 0 .85rem;
+  color: var(--paper);
+}
+@media (min-width: 783px) {
+  .shola-login-brand-name { font-size: 1.5rem; }
+}
+.shola-login-brand-tagline {
+  font-size: .9375rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, .75);
+  margin: 0;
+  padding-inline-start: .75rem;
+  border-inline-start: 2px solid var(--winston-red);
+}
+
+/* Error/notice messages WordPress core prints above the form (e.g.
+   "ERROR: incorrect password") — restyled in place, not rebuilt. */
+#login_error,
+.login .message {
+  margin: 0 0 1.25rem;
+  padding: .85rem 1rem;
+  font-size: .875rem;
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--winston-red);
+  background: var(--cream);
+  color: var(--ink);
+}
+.login .message { border-inline-start-color: var(--stone); }
+
+#loginform {
+  padding-bottom: 1.5rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#loginform p.login-username,
+#loginform p.login-password,
+#loginform .user-pass-wrap {
+  margin-bottom: 1.1rem;
+}
+#loginform label {
+  display: block;
+  margin-bottom: .4rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+#loginform input[type="text"],
+#loginform input[type="password"] {
+  display: block;
+  width: 100%;
+  padding: .85rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-fa);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  transition: border-color .18s ease;
+}
+#loginform input[type="text"]:focus,
+#loginform input[type="password"]:focus {
+  border-color: var(--winston-red);
+  outline: none;
+  box-shadow: none;
+}
+.wp-pwd { position: relative; display: block; }
+.wp-pwd .button.wp-hide-pw {
+  position: absolute;
+  inset-inline-end: 2px;
+  top: 2px;
+  bottom: 2px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.forgetmenot { margin-bottom: 1.5rem; font-size: .875rem; color: var(--stone); }
+.forgetmenot label { display: inline; font-weight: 400; margin: 0; }
+
+p.submit { margin: 0; }
+#wp-submit {
+  display: block;
+  width: 100%;
+  padding: .9rem 1.5rem;
+  font-family: var(--font-fa);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--winston-red);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  cursor: pointer;
+  transition: background .18s ease;
+}
+#wp-submit:hover,
+#wp-submit:focus {
+  background: var(--winston-red-deep);
+  color: var(--paper);
+}
+
+#nav,
+#backtoblog {
+  margin: 0 0 .5rem;
+  text-align: center;
+  font-size: .8125rem;
+}
+#nav a,
+#backtoblog a {
+  color: var(--stone);
+  text-decoration: none;
+  transition: color .18s ease;
+}
+#nav a:hover,
+#backtoblog a:hover { color: var(--winston-red); }
+
+.language-switcher {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.language-switcher select {
+  border: 1px solid var(--line);
+  border-radius: 0;
+}

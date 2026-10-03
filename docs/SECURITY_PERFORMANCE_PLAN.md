@@ -56,7 +56,7 @@ marked **Decision needed** must not be built silently.
 | **B3** | Put the site behind **Cloudflare** (or equivalent) in front of the origin server — free tier is sufficient. Provides DDoS absorption, hides the real server IP, and allows bot/geo challenge rules without touching WordPress itself. High value for a politically exposed site specifically because server-level DDoS cannot be stopped by WordPress hardening alone. | P1 | 2–3 hrs | **Decision needed** — confirm with Farhad before proceeding (changes DNS) |
 | **B4** | Disable **application-password REST authentication** (`application_passwords_enabled` filter) if the REST API is not used by any external application — removes an unused credential-based attack surface. | P1 | 30 min | Not started |
 | **B5** | Confirm Wordfence **file-integrity monitoring** alerts (core/theme/plugin file changes) are actually reaching an inbox/phone, not just sitting unread in wp-admin. | P1 | 15 min | Not started |
-| **B6** | Build the **custom login URL** feature — full specification in Section 4 below. | P1 | ~1 day | **Decision needed** — Farhad confirmed wants this built; scheduling only |
+| **B6** | Build the **custom login URL** feature — full specification in Section 4 below. | P1 | ~1 day | ✅ Done 2026-10-03 — theme v1.49.20 / plugin v1.25.3, see docs/CHANGELOG.md. Also includes a full branded login-page redesign beyond the original L1-L7 scope, per Farhad's follow-up ask. |
 
 ---
 

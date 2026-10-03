@@ -14010,3 +14010,98 @@ Approved by: Farhad, in this session (2026-10-01).
   `.mast-two-tier-brand .mast-nameplate` elsewhere on the site, not a new
   ad-hoc choice. Verified live: computed font-weight 900, visibly bold
   against the regular-weight links below it.
+
+## 2026-10-03 (continued) — Branded login page + admin-changeable login URL
+
+Builds the two-part feature scoped in a written plan earlier the same
+day (approved by Farhad, no changes) and the security plan drafted
+2026-10-03 (B6/L1-L7, docs/SECURITY_PERFORMANCE_PLAN.md): a fully
+re-skinned wp-login.php matching this site's own branding, plus an
+admin-changeable login URL that replaces /wp-login.php as the only
+working login path. Theme owns the visual redesign (presentation);
+shola-core owns the URL-interception logic (business/security logic) —
+per CLAUDE.md §2.
+
+**New theme files:**
+- `inc/login-screen.php` — hooks the login screen's branding: enqueues
+  `assets/css/login.css` (`login_enqueue_scripts`), points the default
+  (now visually hidden) logo link at the home page (`login_headerurl`/
+  `login_headertext`), and injects the brand panel markup
+  (`login_header` action) using the same `get_theme_mod('custom_logo')`
+  + fallback pattern footer.php's own logo already uses.
+- `assets/css/login.css` — re-skins WordPress core's existing login
+  markup in place via CSS Grid; no core markup (the actual `#loginform`
+  fields, nonce, error messages, lost-password/register links, language
+  switcher) is replaced or rebuilt, so Wordfence's own 2FA field (which
+  hooks into this same `#loginform`) and every other login-related
+  plugin behavior keeps working untouched.
+
+**New plugin files/changes:**
+- `includes/class-login-security-settings.php` — new Settings → "ورود
+  امن" page (same WP Settings API shape as the existing
+  `Loader_Settings`/`Contact_Settings` classes), one field: the custom
+  login slug. Validates against WordPress's reserved paths and any
+  existing real page before saving; empty is always valid (how the
+  feature is turned off).
+- `includes/class-security.php` — new interception logic, added
+  alongside the existing XML-RPC/version-string hardening in the same
+  class: `block_real_login_urls()` (`plugins_loaded`) 404s the real,
+  un-rewritten `/wp-login.php` and `/wp-admin` (excluding
+  `admin-ajax.php`/`admin-post.php`/`async-upload.php`, which have their
+  own independent auth handling) for logged-out visitors;
+  `serve_custom_login()` (`template_redirect`) serves the real
+  `wp-login.php` in place when the custom slug is requested as a normal
+  front-end path, so the URL never changes in the browser.
+  `rewrite_login_related_url()` rewrites `wp-login.php` to the custom
+  slug across `login_url`, `logout_url`, `lostpassword_url`,
+  `register_url`, `wp_auth_check_html`, `site_url`, and
+  `network_site_url`, so every core-generated link/redirect/form-action
+  that touches the login page correctly points at the real, working URL.
+  `shola-core.php` registers the new settings class alongside the
+  existing ones.
+
+**Three real bugs found and fixed during live testing, not assumed
+correct from the design alone:**
+
+1. A fatal error (`Undefined constant "AUTOSAVE_INTERVAL"`) the first
+   time the custom slug was actually visited: the original design
+   `require`d wp-login.php from a `plugins_loaded` callback, but
+   WordPress's own bootstrap (wp-settings.php) only finishes defining
+   certain late constants *after* `plugins_loaded` — fine when
+   wp-login.php runs as its own fresh top-level script, fatal when
+   nested mid-bootstrap. Fixed by splitting the logic: blocking the real
+   `wp-login.php`/`wp-admin` stays on `plugins_loaded` (no nested
+   `require` there), serving the custom slug moved to `template_redirect`
+   (late enough that bootstrap has fully finished).
+2. A horizontal-scroll bug on phone-width screens: `width: 100%` plus
+   `padding-inline` on the same elements overflowed by 2x the padding,
+   because this standalone login stylesheet never got main.css's own
+   sitewide `box-sizing: border-box` reset (it's never loaded alongside
+   main.css on wp-login.php). Fixed by adding the same universal reset
+   to the top of login.css.
+3. The actual end-to-end login flow through the custom slug silently
+   failed (redirected to a 404 instead of logging in) — traced to
+   wp-login.php's own login/register/lost-password/reset-password form
+   `action` attributes being built with raw `site_url()`/
+   `network_site_url()` calls deep in WordPress core, never through the
+   already-filtered `wp_login_url()` — so the form a visitor actually
+   saw and submitted still pointed at the real, blocked path regardless
+   of every other filter already in place. `curl`, where I could pick
+   the POST target manually, masked this bug entirely; only testing with
+   an actual browser submitting the form's real `action` attribute
+   reproduced it. Fixed by also filtering `site_url`/`network_site_url`.
+
+**Verified live, end to end, before shipping:** the restyled login page
+on desktop (1440px), tablet (820px), and mobile (375px) — no horizontal
+overflow at any width, error-message styling correct, "forgot password"
+link correctly rewritten. A disposable test user (created and deleted
+via a WP-bootstrap script, never a real account) confirmed: full login
+through the custom slug succeeds and lands on the real wp-admin profile
+page; logout (via the admin-bar link, confirmed pointing at the custom
+slug) correctly ends the session and returns to the branded login page;
+the real `/wp-login.php` and `/wp-admin` both 404 while the slug is
+active; clearing the slug option instantly restores stock WordPress
+behavior on both paths, with the branding still applied regardless
+(the redesign is unconditional; the custom URL is opt-in). The slug is
+left empty (feature off) after testing — Farhad opts in himself via the
+new settings page whenever he's ready.
