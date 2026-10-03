@@ -13836,3 +13836,24 @@ Approved by: Farhad, in this session (2026-10-01).
   it. Verified live via DOM measurement: label and date confirmed on the
   same line (top within 1.3px of each other) with the label positioned
   at the reading-start side (before the date in RTL).
+
+- **Changed:** base `.article-title` (main.css) — size reduced 52px
+  (`clamp(2.1rem, 4.5vw, 3.25rem)`) to a 32px max
+  (`clamp(1.625rem, 2.5vw, 2rem)`), per Farhad's live testing on a real
+  translated article (single.php, photo-hero context): at 52px, an
+  unusually long title risked overwhelming the photo banner and reading
+  as unprofessional — the exact same "oversized/ugly large titles" issue
+  a 2026-09-19 fix already addressed for the three document-style
+  templates via the separate `.article-title--doc` modifier class, which
+  deliberately left this shared base class untouched at the time (see
+  that rule's own docblock). This closes that same gap for single.php,
+  single-issue.php, and single-announcement.php, which all share this
+  base class — `.article-title--doc` and its own two size overrides are
+  untouched, confirmed live (28px on a کتابخانه document page,
+  unaffected by this change). Line-height loosened 1.15 -> 1.3 and the
+  tight negative letter-spacing (tuned for the old 52px size) removed,
+  both per Farhad's ask for "better kerning, line spacing, and overall
+  experience" at the new smaller size.
+  Verified live via computed-style checks at desktop width (1440px):
+  32px/41.6px line-height on single.php's photo-hero title, confirmed
+  distinct from and non-regressive to the document-template sizes.
