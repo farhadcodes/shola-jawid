@@ -120,7 +120,14 @@ body.login {
     flex: 1;
     grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.15fr);
     margin: 0;
-    background: var(--paper);
+    /*
+     * --paper -> --cream, 2026-10-04, per Farhad's explicit ask: now
+     * that the form no longer fills this whole column (compacted into
+     * its own box above), the space around it should read as the
+     * site's own footer color (main.css `.footer` also uses --cream),
+     * not plain white.
+     */
+    background: var(--cream);
   }
 }
 
@@ -177,8 +184,18 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   body.login > #login,
   body.login > .language-switcher {
     grid-column: 2;
-    max-width: none;
-    padding-inline: clamp(1.75rem, 4vw, 3.25rem);
+    /*
+     * max-width: none -> 400px + margin-inline: auto, 2026-10-04 — per
+     * Farhad's explicit ask (a marked-up screenshot): the form side had
+     * been stretching edge-to-edge of its own column since the
+     * full-bleed change, reading as "too extended/shallow." Compacting
+     * it back into a centered box, roughly the size Farhad circled,
+     * inside the now-full-width column rather than reverting the
+     * full-bleed layout itself.
+     */
+    max-width: 400px;
+    margin-inline: auto;
+    padding-inline: 0;
   }
   body.login > #login { padding-block: clamp(2rem, 5vw, 3.25rem) 1rem; }
 }

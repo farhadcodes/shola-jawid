@@ -14333,3 +14333,29 @@ well-known products (Stripe, Linear, Notion) use for login/auth
 screens. Mobile layout (<783px) untouched. Verified live at 375px
 (unaffected), 1024px, and 1440px; confirmed the login form itself
 still functions. Theme bumped to v1.49.30.
+
+## 2026-10-04 (continued) — Login form: compact box, cream surround
+
+Farhad reviewed v1.49.30 (full-bleed) and marked up a screenshot: the
+form side itself had been stretching edge-to-edge of its own column,
+reading as "too extended and shallow." Asked for the form content
+compacted into roughly the box he circled, with the leftover space
+around it colored like the site's own footer rather than left white.
+
+`assets/css/login.css`, 783px+ breakpoint:
+- `body.login > h1`, `> #login`, `> .language-switcher`:
+  `max-width: none` -> `max-width: 400px; margin-inline: auto`,
+  `padding-inline` dropped to 0 (the 400px cap plus the elements' own
+  internal spacing is enough; the old clamp()-based padding was sized
+  for a column-filling box, not a compact one). Centers a fixed-width
+  login box inside the now-full-width column instead of letting it
+  fill the column.
+- `body.login` background `--paper` -> `--cream`, matching
+  `.footer`'s own background (main.css) — per Farhad's explicit ask,
+  now that there's visible space around the compact box for that
+  color to show.
+
+Mobile (<783px) untouched — the compact-box ask was specifically
+about the desktop/tablet column reading too wide. Verified live at
+375px (unaffected), 1024px, and 1440px; confirmed the login form
+itself still functions. Theme bumped to v1.49.31.
