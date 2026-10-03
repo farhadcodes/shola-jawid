@@ -4203,6 +4203,55 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    * proportion again.
    */
 }
+/*
+ * Most-viewed panel re-scaled + simplified, single.php sidebar only —
+ * 2026-10-03, per Farhad's live screenshot with the whole panel circled.
+ * Scoped to `.article-most-viewed` (both the desktop and mobile DOM
+ * copies share this wrapper class — see the big comment above this rule
+ * block — so one set of overrides here covers every screen size, not
+ * just desktop), deliberately NOT touching the shared `.mv-*` base rules
+ * used by the homepage's own copy of this same panel.
+ *
+ * Note for future reference: the list-item title size specifically
+ * (`.mv-list .mv-item-title`) was shrunk to 14px once before, in this
+ * exact sidebar context, then reverted back to 16px on 2026-09-16 after
+ * Farhad reviewed it live and called 14px too small to read comfortably
+ * (see that rule's own comment above). Today's ask is 14px again — not a
+ * mistake being repeated, this is after several other size reductions
+ * already shipped this same session (article title 52->32px, body text
+ * 20->18px), so the panel is likely reading proportionate now in a way
+ * it didn't back in September reviewed in isolation. Flagging this history
+ * here so it isn't silently re-litigated a third time without context.
+ */
+.article-most-viewed .mv-title { font-size: 1.125rem; /* 18px, was 20px */ }
+.article-most-viewed .mv-num { font-size: 1.625rem; /* 26px, was 36px */ }
+/*
+ * Featured item's image removed and its title normalized to match the
+ * plain list items below it — Farhad's explicit ask ("remove the
+ * feature image... everything should look quite the same, should not
+ * have any images"). `display: none` on `.mv-thumb` alone is enough:
+ * it's a flex child of `.mv-item`, so hiding it doesn't leave a gap
+ * behind. A top border and matching padding are added to the featured
+ * item to match `.mv-list li`'s own divider/spacing, so item #1 reads as
+ * just the first row of one consistent list, not a visually distinct
+ * element above it.
+ */
+.article-most-viewed .mv-thumb { display: none; }
+.article-most-viewed .mv-item--featured {
+  padding-block: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, .08);
+}
+.article-most-viewed .mv-item--featured .mv-item-title,
+.article-most-viewed .mv-list .mv-item-title {
+  font-size: 0.875rem; /* 14px, was 18px (featured) / 16px (list) */
+  font-weight: 700;
+}
+/*
+ * Background changed from the gray `--stone-tint` to `--cream` — the
+ * same background the site footer (`.footer`, main.css) already uses —
+ * per Farhad's explicit ask to match this panel to the footer.
+ */
+.article-most-viewed .most-viewed-panel { background: var(--cream); }
 
 /*
  * Long-form prose — size reduced 20px -> 18px, line-height loosened-but-

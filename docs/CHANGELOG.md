@@ -13909,3 +13909,39 @@ Approved by: Farhad, in this session (2026-10-01).
   the sidebar (no awkward floating gap introduced — the freed-up width
   lands on the outer margin instead), paragraph margin-top 32px; mobile
   (375px) confirmed max-width: none and full-width content, unaffected.
+
+- **Changed:** single.php's پربازدیدترین (most-viewed) panel re-scaled
+  and simplified, 2026-10-03, per Farhad's live screenshot with the panel
+  circled. Scoped entirely to `.article-most-viewed` (the shared wrapper
+  class both the desktop-sidebar and mobile full-width DOM copies already
+  use — see that rule's own big comment, main.css), so the homepage's own
+  separate copy of this same panel/partial is untouched. Five changes:
+  1. Panel heading (`.mv-title`) 20px -> 18px.
+  2. Rank numbers (`.mv-num`) 36px -> 26px.
+  3. Item titles — both the featured item's (was 18px/800-weight) and the
+     plain-list items' (was 16px/700-weight) — unified to 14px/700-weight,
+     so every item reads as one consistent size, not two different ones.
+  4. Featured item's image (`.mv-thumb`) removed entirely (`display:
+     none` — it's a flex child, so hiding it leaves no gap behind), per
+     Farhad's explicit "should not have any images there." A top border +
+     matching padding were added to the (now image-less) featured item to
+     match the plain list items' own row dividers, so item #1 reads as
+     the first row of one consistent list rather than a visually distinct
+     element above it.
+  5. Panel background changed from `--stone-tint` to `--cream` — the same
+     token the site footer (`.footer`) already uses — per Farhad's
+     explicit ask to match this panel to the footer.
+  Noted inline in the CSS for future reference: the list-item title size
+  specifically was shrunk to 14px once before in this exact context, then
+  reverted back to 16px on 2026-09-16 after Farhad called it too small in
+  isolation. Today's 14px ask isn't a repeat of that mistake — it comes
+  after several other size reductions already shipped this same session
+  (article title 52->32px, body text 20->18px), so the panel likely reads
+  proportionate now in a way it didn't when reviewed on its own in
+  September.
+  Verified live via computed-style checks at both a 1440px desktop width
+  and the mobile preset (375px): identical values at both (18px title,
+  26px number, 14px item titles, thumb display:none, background
+  rgb(250,248,243) = #FAF8F3 = --cream, confirmed matching the footer's
+  own color exactly) — one set of overrides correctly covers every screen
+  size via the shared wrapper class.
