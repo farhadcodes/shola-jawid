@@ -13740,3 +13740,29 @@ Approved by: Farhad, in this session (2026-10-01).
   the original afterward with no data loss.
   Reported by: Farhad, live screenshots of the production 404 vs. working
   local page, 2026-10-03.
+
+- **Fixed:** a second, previously-undetected excerpt bug distinct from
+  #28 above — a bracketed "[&hellip;]" marker appearing in truncated
+  excerpts site-wide (homepage مقالات/گزارش grids, `/reports/` archive,
+  topic archives, announcements archive), spotted by Farhad in live
+  screenshots with a pointer to the exact spot. Root cause: for any post
+  with no manual excerpt, `get_the_excerpt()` generates one from content
+  via WordPress core's `wp_trim_excerpt()`, which auto-truncates at 55
+  words and bakes in its own `' [&hellip;]'` marker *before*
+  `shola_trim_excerpt()` ever runs its own `wp_trim_words()` on the
+  result. Call sites asking for more than 55 words (card.php's 90, used
+  by every مقالات/گزارش grid card) got a no-op second trim, letting
+  core's bracketed marker leak straight through. Fixed inside
+  `shola_trim_excerpt()` itself (inc/template-tags.php) by raising the
+  `excerpt_length` filter to 9999 for the duration of the
+  `get_the_excerpt()` call, so core never truncates and never adds its
+  own marker — `shola_trim_excerpt()`'s own `wp_trim_words()` call is now
+  the single, only place truncation and the ellipsis happen, for every
+  post, everywhere, with no per-template changes needed since every call
+  site already goes through this one shared helper.
+  Verified live across every area Farhad asked to be checked: homepage
+  (مقالات, گزارش, ترجمه sections), `/reports/` archive, `/selected/`
+  (ترجمه) archive, a topic archive, the announcements archive, and
+  search results — all show a clean single "…" with no bracket.
+  Reported by: Farhad, live screenshots with a pointer to the bug,
+  2026-10-03.

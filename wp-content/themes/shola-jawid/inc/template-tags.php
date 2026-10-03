@@ -391,12 +391,45 @@ unset( $shola_jalali_hook );
  * an excerpt is trimmed for display — never call wp_trim_words() on an
  * excerpt directly in a new template.
  *
+ * Second bug fixed here 2026-10-03 (Farhad, live screenshots — a
+ * bracketed "[&hellip;]" showing up in excerpts site-wide, independent
+ * of the one above): for any post with no manual excerpt set,
+ * `get_the_excerpt()` generates one from the post content via WordPress
+ * core's own `wp_trim_excerpt()`, which auto-truncates at 55 words
+ * (the `excerpt_length` filter default) and bakes in its own
+ * `' [&hellip;]'` marker (the `excerpt_more` filter default) *before*
+ * this function ever runs `wp_trim_words()` on it. Whenever this
+ * function's own `$num_words` is at or above that first, already-marked
+ * 55-word cut (e.g. card.php's 90), the second `wp_trim_words()` call
+ * here is a no-op and core's bracketed marker leaks straight through to
+ * the page. Fixed by raising `excerpt_length` to a number no real post
+ * body will ever reach while generating the excerpt, so core never
+ * truncates (and never adds its own marker) — this function's own
+ * `wp_trim_words()` call below is left as the single, only place
+ * truncation and the ellipsis actually happen, for every post
+ * regardless of whether it has a manual excerpt.
+ *
  * @param int|WP_Post|null $post      Post ID/object. Defaults to the current post.
  * @param int              $num_words Word count to trim to, same meaning as wp_trim_words()'s own second argument.
  * @return string Plain-text trimmed excerpt (caller still escapes it, same as a raw get_the_excerpt() call would).
  */
 function shola_trim_excerpt( $post = null, $num_words = 55 ) {
-	return wp_trim_words( get_the_excerpt( $post ), $num_words, '…' );
+	add_filter( 'excerpt_length', 'shola_excerpt_length_passthrough', 999 );
+	$excerpt = get_the_excerpt( $post );
+	remove_filter( 'excerpt_length', 'shola_excerpt_length_passthrough', 999 );
+
+	return wp_trim_words( $excerpt, $num_words, '…' );
+}
+
+/**
+ * `excerpt_length` filter callback used only inside shola_trim_excerpt()
+ * above — see that function's docblock for why. Not meant to be hooked
+ * anywhere else.
+ *
+ * @return int
+ */
+function shola_excerpt_length_passthrough() {
+	return 9999;
 }
 
 /**
