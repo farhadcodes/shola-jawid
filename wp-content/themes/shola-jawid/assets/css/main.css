@@ -5032,9 +5032,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * Farhad's explicit ask that the space between the header text and the
  * line read as too wide.
  */
+/*
+ * font-weight: 900 added — 2026-10-03, same session, per Farhad's
+ * follow-up ask for "extra bold or black, if available." No weight was
+ * ever set here before (h3 elements get `font-weight: inherit` from the
+ * sitewide heading reset, main.css §01, so this was actually rendering
+ * at regular/400 the whole time) — part of why the header never read as
+ * a heading on its own. ModamPro (var(--font-nav)'s first font, already
+ * self-hosted with every weight 100-900, main.css §01) is loaded at 900
+ * ("Black"), the heaviest available — same weight/naming already used
+ * for `.mast-two-tier-brand .mast-nameplate` elsewhere on this site, not
+ * a new ad-hoc choice.
+ */
 .footer-col h3 {
   font-family: var(--font-nav);
   font-size: var(--t-small); /* 14px, was 13px */
+  font-weight: 900;
   letter-spacing: .14em;
   color: var(--ink);
   text-transform: uppercase;

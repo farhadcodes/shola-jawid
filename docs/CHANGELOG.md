@@ -13997,3 +13997,16 @@ Approved by: Farhad, in this session (2026-10-01).
   rendered live on the homepage footer in place of the hardcoded text,
   then removed the mod and confirmed the page correctly fell back to the
   exact original default sentence.
+
+- **Changed:** `.footer-col h3` given an explicit `font-weight: 900`,
+  2026-10-03, same session, per Farhad's follow-up: "extra bold or black,
+  if available." No weight had ever been set on this rule — h3 elements
+  get `font-weight: inherit` from the sitewide heading reset (main.css
+  §01), so it had actually been rendering at regular/400 the whole time,
+  part of why it never read as a real heading despite the size/color/
+  divider fixes above. 900 ("Black") is loaded for ModamPro
+  (`var(--font-nav)`'s first font, self-hosted with every weight 100-900)
+  and is the same weight/naming already used for
+  `.mast-two-tier-brand .mast-nameplate` elsewhere on the site, not a new
+  ad-hoc choice. Verified live: computed font-weight 900, visibly bold
+  against the regular-weight links below it.
