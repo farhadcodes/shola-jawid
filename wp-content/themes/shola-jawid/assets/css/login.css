@@ -259,7 +259,10 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   height: 96%;
   width: auto;
   max-width: none;
-  transform: translate(-18%, -50%) rotate(-60deg);
+  /* rotate(-60deg) -> rotate(-45deg), per Farhad's explicit ask;
+     checked again at 375px, 1024px, and 1440px — crop and star
+     position still read correctly at this angle. */
+  transform: translate(-18%, -50%) rotate(-45deg);
   transform-origin: center;
   pointer-events: none;
   z-index: 0;

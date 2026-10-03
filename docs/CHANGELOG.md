@@ -14305,3 +14305,11 @@ the glow stays sized to the now-smaller star rather than ballooning
 around it. Position/rotation values untouched. Verified live at
 375px, 1024px, and 1440px before committing to the CSS file. Theme
 bumped to v1.49.28.
+
+## 2026-10-03 (continued) — Login flag: rotation 60deg -> 45deg
+
+Farhad asked for a shallower tilt on the flag — `rotate(-60deg)` ->
+`rotate(-45deg)` on `.shola-login-brand-logo`. Glow untouched (it's a
+plain radial gradient, not rotated). Re-verified live at 375px,
+1024px, and 1440px that the crop and star-near-left-edge position
+still read correctly at the new angle. Theme bumped to v1.49.29.
