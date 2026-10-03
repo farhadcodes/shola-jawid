@@ -61,7 +61,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					?>
 				</a>
 				<p class="footer-tagline">
-					<?php esc_html_e( 'پلتفرم نشر دوزبانه برای مقالات، یادداشت‌ها و اسناد؛ با آرشیو کامل نشرات «شعله جاوید» و «جهان برای فتح».', 'shola-jawid' ); ?>
+					<?php
+					/*
+					 * Editable via Appearance -> Customize -> Site Identity
+					 * (inc/customizer.php, 2026-10-03, Farhad's ask) — no
+					 * longer a hardcoded string, so changing the party
+					 * description here doesn't require a code deploy.
+					 */
+					echo esc_html( get_theme_mod( 'shola_footer_tagline', shola_get_default_footer_tagline() ) );
+					?>
 				</p>
 				<ul class="footer-social" aria-label="<?php esc_attr_e( 'شبکه‌های اجتماعی', 'shola-jawid' ); ?>">
 					<?php foreach ( shola_get_social_links() as $social ) : ?>

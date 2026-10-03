@@ -5013,15 +5013,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .footer-social a:hover { color: var(--winston-red); }
 /*
  * Size bumped 13px -> 14px and color darkened --stone -> --ink, plus a
- * new bottom divider — 2026-10-03, per Farhad's live screenshot: with no
+ * bottom divider — 2026-10-03, per Farhad's live screenshot: with no
  * visual separation between a column's header and its own link list
  * below, and the header actually lighter in color than the (var(--ink))
  * links under it, it was hard to tell "which part is the heading and
- * which part is the menu" at a glance. The divider reuses `--line` at
- * 1px — the exact same color/weight this footer's own `.footer`/
- * `.footer-grid` borders already use elsewhere, per Farhad's explicit
- * ask to match "the same principle... color, size, everything" rather
- * than inventing a new divider style.
+ * which part is the menu" at a glance.
+ *
+ * Divider color corrected same day, same session, after Farhad's live
+ * follow-up: `var(--line)` (#E6E5E1) against this footer's `--cream`
+ * background (#FAF8F3) was almost invisible — only a ~9% tonal
+ * difference between the two very-light colors. Switched to
+ * `rgba(0, 0, 0, .12)`, matching the opacity-based "subtle but actually
+ * visible" divider convention already used elsewhere on light backgrounds
+ * in this codebase (e.g. `.mv-list li`'s `rgba(0, 0, 0, .08)`), rather
+ * than a second light hex token that would have the same problem.
+ *
+ * Gap to the divider halved `.85rem` -> `.425rem`, same follow-up —
+ * Farhad's explicit ask that the space between the header text and the
+ * line read as too wide.
  */
 .footer-col h3 {
   font-family: var(--font-nav);
@@ -5029,9 +5038,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   letter-spacing: .14em;
   color: var(--ink);
   text-transform: uppercase;
-  padding-bottom: .85rem;
+  padding-bottom: .425rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(0, 0, 0, .12);
 }
 .footer-col ul { display: flex; flex-direction: column; gap: .55rem; }
 .footer-col a {

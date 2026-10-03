@@ -13964,3 +13964,36 @@ Approved by: Farhad, in this session (2026-10-01).
   Verified live via computed-style checks at both desktop (1440px) and
   mobile (375px): identical 14px / rgb(15,15,15) [#0F0F0F = --ink] /
   0.8px solid rgb(230,229,225) [#E6E5E1 = --line] at both widths.
+
+- **Fixed:** the footer-header divider added above was corrected same
+  session, same day, after Farhad's live follow-up on two points:
+  (1) `var(--line)` (#E6E5E1) against this footer's `--cream` background
+  (#FAF8F3) was nearly invisible — only ~9% tonal difference between two
+  very light colors — switched to `rgba(0, 0, 0, .12)`, matching the
+  opacity-based divider convention already used elsewhere on light
+  backgrounds in this codebase (e.g. `.mv-list li`'s `rgba(0, 0, 0, .08)`)
+  rather than trying a second light hex token with the same problem; and
+  (2) the gap between the header text and the divider read as too wide —
+  halved `padding-bottom` from `.85rem` to `.425rem`.
+
+- **Added:** `shola_footer_tagline` Customizer setting (inc/customizer.php)
+  — the party-description text under the footer logo (`.footer-tagline`,
+  footer.php) was a hardcoded string; changing it meant editing code and
+  redeploying. Per Farhad's ask ("should be a variable that can be
+  changed through the CMS"), added a `textarea` theme_mod control to the
+  native Appearance -> Customize -> Site Identity section (same section
+  the logo control already lives in, from the existing
+  `shola_customize_register()` hook) rather than building a new admin
+  page or settings screen for one field. Default value matches the
+  original hardcoded sentence exactly (pulled from a new
+  `shola_get_default_footer_tagline()` helper, shared by both the
+  Customizer setting's own `default` and footer.php's `get_theme_mod()`
+  fallback, so the two can never drift apart), so nothing changes for
+  site visitors until an editor actually sets a new value.
+  `sanitize_textarea_field` on input — plain text only, no HTML/links,
+  matching what this field actually is.
+  Verified end-to-end without needing wp-admin login: set the theme_mod
+  directly via a WP-bootstrap script to a test string, confirmed it
+  rendered live on the homepage footer in place of the hardcoded text,
+  then removed the mod and confirmed the page correctly fell back to the
+  exact original default sentence.
