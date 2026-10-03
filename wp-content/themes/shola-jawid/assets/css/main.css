@@ -3523,7 +3523,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   position: absolute;
   z-index: 2;
   inset-inline-start: 2rem;
-  bottom: 2rem;
+  bottom: 0;
   max-width: min(483px, calc(100% - 4rem));
   background: var(--paper);
   box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
@@ -3540,37 +3540,33 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * title scale (this is a compact card, not a full masthead headline).
  */
 /*
- * .type-label pulled onto the photo, above the box — added 2026-09-26,
- * per Farhad relaying the client's UI critique (with a reference
- * screenshot showing category tags sitting directly on the photo, above
- * a compact title/byline card, not inside it): the label was previously
- * a normal-flow child at the top of this box, adding to its height for
- * no real benefit (it's taxonomy metadata, not article content) and
- * leaving less of the photo visible. `position: absolute; bottom: 100%`
- * takes it out of the box's normal flow entirely (no longer adds to the
- * box's height) and anchors it directly above the box's own top edge,
- * still aligned to the same inline-start edge. Color switched from
- * `--winston-red` (only legible against this box's white background) to
- * the same white-text-with-shadow treatment `.hero-body .type-label`
- * (main.css §10.1) already uses for every other layout's on-photo kicker
- * — reusing an already-established site pattern for "text sitting
- * directly on an unpredictable photo," not inventing a new one.
+ * .type-label moved back into the box's own normal flow — reverted
+ * 2026-10-03, per Farhad's explicit design ask: pulling it onto the photo
+ * (`position: absolute; bottom: 100%`, added 2026-09-26, see git history
+ * for that reasoning) left a visible sliver of photo between the label
+ * and the box. Farhad asked for the two backgrounds to connect with zero
+ * gap instead, favoring a single compact white card over showing that
+ * extra sliver of photo. Back in normal flow, the label simply inherits
+ * `.hero-feature-card-box`'s own solid white background (same element,
+ * no separate background needed), so there is no seam to connect in the
+ * first place. Text color switched from white-on-photo to dark ink (the
+ * same `--winston-red` glyph/link + dark text convention every other
+ * white-background `.type-label` on this site already uses, e.g.
+ * card.php) now that it sits on white, not on the photo.
  */
 .hero-feature-card-box .type-label {
-  position: absolute;
-  bottom: 100%;
-  inset-inline-start: 0;
-  margin-bottom: .75rem;
+  margin-bottom: .5rem;
   font-size: 0.7rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, .9);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+  color: var(--ink);
 }
-.hero-feature-card-box .type-label .glyph { color: var(--paper); }
-.hero-feature-card-box .type-label a { color: var(--paper); }
+.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
+.hero-feature-card-box .type-label a { color: var(--stone); }
+.hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
 .hero-feature-card-box .h-display {
   margin-top: 0;
-  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  font-size: clamp(1.25rem, 1.8vw, 1.375rem);
+  line-height: 1.35;
   color: var(--ink);
   text-shadow: none;
 }
@@ -3596,7 +3592,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   line-clamp: 2;
   overflow: hidden;
 }
-.hero-feature-card-box .card-byline { margin-top: .6375rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .card-byline { margin-top: .6375rem; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-feature-card-inner { flex-direction: column; }

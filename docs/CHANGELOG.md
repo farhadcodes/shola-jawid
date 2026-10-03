@@ -13766,3 +13766,37 @@ Approved by: Farhad, in this session (2026-10-01).
   search results — all show a clean single "…" with no bracket.
   Reported by: Farhad, live screenshots with a pointer to the bug,
   2026-10-03.
+
+- **Changed:** homepage "feature_card" hero layout (main.css
+  `.hero-feature-card-box` and related rules) — three design refinements
+  per Farhad's live review, 2026-10-03:
+  1. Title (`.h-display`) reduced 24px → 22px (desktop clamp max), with
+     line-height loosened 1.15 → 1.35 for better spacing between wrapped
+     lines on this compact card.
+  2. The white card's `bottom` offset changed from `2rem` to `0` so it
+     sits flush against the photo's bottom edge instead of floating with
+     a visible gap below it (desktop only — Farhad asked to leave mobile
+     untouched for now).
+  3. Date/byline (`.card-byline`) font-size reduced 14px → 12px, scoped
+     to this hero box only (`.hero-feature-card-box .card-byline`) — the
+     site-wide `.card-byline` rule used by every other card/archive
+     listing is untouched.
+  4. The `.type-label` ("ترجمه" etc.) moved back into the box's own
+     normal flow instead of floating separately above it on the photo
+     (`position: absolute`, added 2026-09-26). Farhad's ask: connect the
+     label's and the box's backgrounds with zero gap rather than showing
+     a sliver of photo between them. Back in normal flow it simply
+     inherits the box's own white background — no separate background or
+     seam to manage — with its text color switched from white-on-photo to
+     the same dark-ink + `--winston-red` convention every other
+     white-background `.type-label` on the site already uses. Tradeoff
+     flagged to and accepted by Farhad before implementing: this
+     increases the box's total opaque footprint on the photo slightly
+     versus the floating-label version, trading back part of the "show
+     more photo" goal that floating version was built for in September.
+  Verified live via direct DOM measurement (computed font-size/line-height
+  and bounding-box edges), not just a screenshot, at both the pane's
+  default width and 1440px, confirming the clamp hits its new 22px max,
+  the box sits with zero gap to the photo's bottom edge, and the label
+  shares one continuous background with the box.
+  Approved by: Farhad, live in this session, 2026-10-03.
