@@ -3540,22 +3540,31 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * title scale (this is a compact card, not a full masthead headline).
  */
 /*
- * .type-label moved back into the box's own normal flow — reverted
- * 2026-10-03, per Farhad's explicit design ask: pulling it onto the photo
- * (`position: absolute; bottom: 100%`, added 2026-09-26, see git history
- * for that reasoning) left a visible sliver of photo between the label
- * and the box. Farhad asked for the two backgrounds to connect with zero
- * gap instead, favoring a single compact white card over showing that
- * extra sliver of photo. Back in normal flow, the label simply inherits
- * `.hero-feature-card-box`'s own solid white background (same element,
- * no separate background needed), so there is no seam to connect in the
- * first place. Text color switched from white-on-photo to dark ink (the
- * same `--winston-red` glyph/link + dark text convention every other
- * white-background `.type-label` on this site already uses, e.g.
- * card.php) now that it sits on white, not on the photo.
+ * .type-label kept out of normal flow, still anchored above the box's
+ * own top edge — corrected 2026-10-03 (same session): a first attempt
+ * put the label fully in-flow as a full-width row sharing the box's own
+ * padding, but Farhad's actual ask was a small, compact pill sized to
+ * its own content (icon + text only) with zero gap to the box below it,
+ * not a second full-width row stacked on top of the title. Back to
+ * `position: absolute; bottom: 100%` (same positioning the
+ * white-text-on-photo version used, added 2026-09-26), just with
+ * `margin-bottom: 0` so it touches the box's top edge directly instead
+ * of floating 12px above it, and its own solid white background + small
+ * padding so it reads as a compact tab, not full-width. Text color dark
+ * ink + `--winston-red` glyph/link — the same convention every other
+ * white-background `.type-label` on this site already uses (e.g.
+ * card.php) — now that it's on its own white background instead of the
+ * photo.
  */
 .hero-feature-card-box .type-label {
-  margin-bottom: .5rem;
+  position: absolute;
+  bottom: 100%;
+  inset-inline-start: 0;
+  margin-bottom: 0;
+  background: var(--paper);
+  box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
+  padding-block: .375rem;
+  padding-inline: .75rem;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--ink);

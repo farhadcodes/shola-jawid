@@ -13800,3 +13800,20 @@ Approved by: Farhad, in this session (2026-10-01).
   the box sits with zero gap to the photo's bottom edge, and the label
   shares one continuous background with the box.
   Approved by: Farhad, live in this session, 2026-10-03.
+
+- **Fixed:** corrected a misread of Farhad's `.type-label` request from
+  the entry directly above, same session, 2026-10-03. The first
+  implementation put the label fully in-flow as a second full-width row
+  stacked above the title, sharing the box's own padding edge-to-edge.
+  Farhad's actual ask, per his follow-up screenshot with a highlighted
+  region: a small, compact pill sized to its own content (icon + text
+  only), still touching the box with zero gap, not a full-width row.
+  Reverted to `position: absolute; bottom: 100%` (the same positioning
+  the pre-10-03 white-text-on-photo version used) with `margin-bottom: 0`
+  so it touches the box directly, plus its own solid white background,
+  small padding, and a matching box-shadow — reading as a compact tab
+  anchored to the box's top-right corner (inline-end edge in this RTL
+  site), not a second row. Verified via direct DOM measurement: label
+  width 69px vs. the box's 483px (confirms content-sized, not
+  full-width), zero-pixel gap to the box's top edge, right edge aligned
+  with the box's own right edge.
