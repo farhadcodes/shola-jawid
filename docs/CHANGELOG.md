@@ -14313,3 +14313,23 @@ Farhad asked for a shallower tilt on the flag — `rotate(-60deg)` ->
 plain radial gradient, not rotated). Re-verified live at 375px,
 1024px, and 1440px that the crop and star-near-left-edge position
 still read correctly at the new angle. Theme bumped to v1.49.29.
+
+## 2026-10-04 — Login page: full-bleed, drops the centered card
+
+Farhad asked for a design opinion on extending the brand column all
+the way to the browser's right edge. Recommended going full-bleed
+entirely (both sides flush with the viewport, dropping the centered-
+card/shadow/gutter treatment) rather than stretching only the red
+side, since a half-change would leave the layout visibly lopsided —
+Farhad agreed and asked to implement it.
+
+`assets/css/login.css`, 783px+ breakpoint: `body.login` changed from
+a fixed-width (`min(880px, calc(100% - 4rem))`), auto-margined,
+drop-shadowed card to `flex: 1; margin: 0`, filling the full viewport
+width the same way it already does on mobile. `html`'s
+`align-items`/`justify-content: center` (only ever needed to center
+that card) removed along with it. Same split-screen pattern several
+well-known products (Stripe, Linear, Notion) use for login/auth
+screens. Mobile layout (<783px) untouched. Verified live at 375px
+(unaffected), 1024px, and 1440px; confirmed the login form itself
+still functions. Theme bumped to v1.49.30.

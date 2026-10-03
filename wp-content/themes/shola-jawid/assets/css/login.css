@@ -103,17 +103,24 @@ body.login {
 }
 
 @media (min-width: 783px) {
-  html {
-    align-items: center;
-    justify-content: center;
-  }
+  /*
+   * Full-bleed, 2026-10-03 — per Farhad's explicit ask, replacing the
+   * earlier centered-card treatment (fixed max-width, margin, drop
+   * shadow) entirely. Same split-screen pattern several well-known
+   * products use for login/auth screens: the form sits flush at one
+   * edge and the brand panel runs flush to the other, edge-to-edge
+   * with the browser window, rather than floating as a boxed widget
+   * with visible page margin on both sides. `html`'s own
+   * `align-items`/`justify-content: center` (only ever needed to
+   * center that boxed card) are dropped along with it — `body.login`
+   * now fills the full viewport via `flex: 1` the same way it already
+   * does on mobile, just with the two-column grid layered on top.
+   */
   body.login {
-    flex: none;
+    flex: 1;
     grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.15fr);
-    width: min(880px, calc(100% - 4rem));
-    margin: 2rem auto;
+    margin: 0;
     background: var(--paper);
-    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .35);
   }
 }
 
