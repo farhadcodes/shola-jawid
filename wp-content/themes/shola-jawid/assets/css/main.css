@@ -3529,6 +3529,25 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
   padding-block: 1.125rem;
   padding-inline: 1.75rem;
+  /*
+   * display:flex + flex-wrap + order — added 2026-10-03, third pass on
+   * this same element, per Farhad's live feedback that a separate pill
+   * floating above the title (the second attempt, same day) still read
+   * as its own distracting element. Farhad's actual ask: put the label
+   * beside the date instead, on the same line. shola_render_hero_body()
+   * (inc/template-tags.php) is shared by every hero layout and always
+   * outputs .type-label, then the h1, then .card-byline, in that DOM
+   * order — reordering the markup itself would change every other hero
+   * layout too. `order` lets this layout alone re-sequence its own
+   * children purely in CSS: the h1 is forced onto its own full-width
+   * line (`flex: 1 1 100%`), and .type-label + .card-byline (left at
+   * their natural content width, no forced basis) wrap onto the next
+   * line together, side by side, in that order — see the two rules
+   * below.
+   */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
 }
 /*
  * shola_render_hero_body() is reused unchanged for this box's content
@@ -3540,31 +3559,23 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * title scale (this is a compact card, not a full masthead headline).
  */
 /*
- * .type-label kept out of normal flow, still anchored above the box's
- * own top edge — corrected 2026-10-03 (same session): a first attempt
- * put the label fully in-flow as a full-width row sharing the box's own
- * padding, but Farhad's actual ask was a small, compact pill sized to
- * its own content (icon + text only) with zero gap to the box below it,
- * not a second full-width row stacked on top of the title. Back to
- * `position: absolute; bottom: 100%` (same positioning the
- * white-text-on-photo version used, added 2026-09-26), just with
- * `margin-bottom: 0` so it touches the box's top edge directly instead
- * of floating 12px above it, and its own solid white background + small
- * padding so it reads as a compact tab, not full-width. Text color dark
- * ink + `--winston-red` glyph/link — the same convention every other
- * white-background `.type-label` on this site already uses (e.g.
- * card.php) — now that it's on its own white background instead of the
- * photo.
+ * .type-label placed on the same line as the date — corrected 2026-10-03
+ * (third pass, same session): the first attempt put it in-flow as a
+ * full-width row above the title; the second made it a separate pill
+ * touching the box's top edge. Farhad's actual ask, after seeing the
+ * pill live: move it down next to/before the date instead of sitting as
+ * its own element near the top. `order: 2` (with .card-byline at
+ * `order: 3` below, and the box's own `flex-wrap` above) puts it right
+ * before the date on their shared line — no background/padding of its
+ * own needed any more, it's plain text sharing the box's existing white
+ * background. Text stays dark ink + `--winston-red` glyph/link, the same
+ * convention every other white-background `.type-label` on this site
+ * uses (e.g. card.php).
  */
 .hero-feature-card-box .type-label {
-  position: absolute;
-  bottom: 100%;
-  inset-inline-start: 0;
-  margin-bottom: 0;
-  background: var(--paper);
-  box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
-  padding-block: .375rem;
-  padding-inline: .75rem;
+  order: 2;
+  margin-top: .6375rem;
+  margin-inline-end: .5rem;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--ink);
@@ -3573,6 +3584,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .hero-feature-card-box .type-label a { color: var(--stone); }
 .hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
 .hero-feature-card-box .h-display {
+  order: 1;
+  flex: 1 1 100%;
   margin-top: 0;
   font-size: clamp(1.25rem, 1.8vw, 1.375rem);
   line-height: 1.35;
@@ -3601,7 +3614,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   line-clamp: 2;
   overflow: hidden;
 }
-.hero-feature-card-box .card-byline { margin-top: .6375rem; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .card-byline { order: 3; margin-top: .6375rem; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-feature-card-inner { flex-direction: column; }

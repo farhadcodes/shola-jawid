@@ -13817,3 +13817,22 @@ Approved by: Farhad, in this session (2026-10-01).
   width 69px vs. the box's 483px (confirms content-sized, not
   full-width), zero-pixel gap to the box's top edge, right edge aligned
   with the box's own right edge.
+
+- **Changed:** moved `.hero-feature-card-box`'s `.type-label` again, same
+  session, 2026-10-03 — third and final pass. Farhad's live feedback on
+  the compact pill (the fix directly above): it still read as its own
+  distracting element near the top of the card. Actual ask: put it
+  beside/before the date instead. `shola_render_hero_body()`
+  (inc/template-tags.php) is shared by every hero layout and always
+  outputs `.type-label`, the `<h1>`, then `.card-byline` in that DOM
+  order — reordering the markup itself would affect every other hero
+  layout, not just this one. Solved in CSS only, scoped to this layout:
+  `.hero-feature-card-box` is now `display: flex; flex-wrap: wrap`, the
+  `<h1>` is forced onto its own full-width line (`flex: 1 1 100%`,
+  `order: 1`), and `.type-label` (`order: 2`) + `.card-byline`
+  (`order: 3`) wrap onto the next line together, side by side, label
+  before date. No background/padding on the label any more — it's plain
+  text sharing the box's own white background, same as the date next to
+  it. Verified live via DOM measurement: label and date confirmed on the
+  same line (top within 1.3px of each other) with the label positioned
+  at the reading-start side (before the date in RTL).
