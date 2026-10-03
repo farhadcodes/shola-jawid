@@ -14294,3 +14294,14 @@ screenshots; confirmed the login form itself (username/password
 fields, submit, lost-password/register links, language switcher) is
 unaffected — only the decorative flag/glow markup moved, no core
 `#loginform` markup touched. Theme bumped to v1.49.27.
+
+## 2026-10-03 (continued) — Login flag: 40% smaller
+
+Farhad reviewed v1.49.27 and found the flag "extremely large," asked
+for 40% smaller; everything else (tilt, crop, star position, glow)
+confirmed as correct. `.shola-login-brand-logo` height 160% -> 96%,
+`.shola-login-brand-flag-glow` scaled proportionally (55% -> 33%) so
+the glow stays sized to the now-smaller star rather than ballooning
+around it. Position/rotation values untouched. Verified live at
+375px, 1024px, and 1440px before committing to the CSS file. Theme
+bumped to v1.49.28.
