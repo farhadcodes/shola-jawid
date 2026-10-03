@@ -14,6 +14,7 @@
   --line:           #E6E5E1;
   --winston-red:      #CC0000;
   --winston-red-deep: #a30000;
+  --maroon:           #4A0E0E;
   --font-fa:        "Farhang2", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display:   "Farhang2", serif;
 }
@@ -149,7 +150,21 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
 .shola-login-brand {
   grid-column: 1;
   grid-row: 1;
-  background: var(--ink);
+  /*
+   * Changed from --ink (black) to --maroon, 2026-10-03, per Farhad's
+   * explicit ask: "a darker shade of the same Winston red... at least
+   * 30% dark[er]." Reuses --maroon (#4A0E0E) — one of the site's original
+   * eleven locked brand tokens, not a new color — which main.css already
+   * established (2026-09-21, same live-feedback pattern) as the "reads
+   * as a deliberately dark red, not near-black" shade specifically
+   * because a different very-dark-red token (--cinder-red, #330A0A) was
+   * tried first in that same spot and Farhad called it "near-black" —
+   * applying that same lesson here rather than re-testing it.
+   * Luminance check: --maroon is ~39% darker than --winston-red by
+   * relative luminance (0.2126R+0.7152G+0.0722B), comfortably past the
+   * "at least 30%" ask.
+   */
+  background: var(--maroon);
   color: var(--paper);
   display: flex;
   align-items: center;
@@ -157,7 +172,20 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
 }
 @media (min-width: 783px) {
   .shola-login-brand {
-    grid-row: 1 / -1;
+    /*
+     * `grid-row: 1 / -1` (tried first, same session) left a visible gap
+     * of the page's cream background below the panel — `-1` resolves
+     * against the implicit row count *at the time this spanning item is
+     * placed*, which doesn't reliably account for further auto-placed
+     * items (`#login`, then `.language-switcher`, each auto-flowing into
+     * their own new row in column 2) still to come. `span 999` is a
+     * count-based span, not a line-number lookup: CSS Grid's spec
+     * guarantees an over-large span simply clamps to however many rows
+     * actually end up existing, which is exactly "span to the bottom,
+     * whatever that turns out to be" without depending on row-count
+     * timing the way `-1` does.
+     */
+    grid-row: 1 / span 999;
     padding: 2.5rem;
   }
 }

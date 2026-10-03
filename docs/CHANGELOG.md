@@ -14105,3 +14105,31 @@ behavior on both paths, with the branding still applied regardless
 (the redesign is unconditional; the custom URL is opt-in). The slug is
 left empty (feature off) after testing — Farhad opts in himself via the
 new settings page whenever he's ready.
+
+- **Changed:** login page brand panel (`.shola-login-brand`, login.css) —
+  two fixes per Farhad's live follow-up, same session:
+  1. Background `--ink` (black) -> `--maroon` (#4A0E0E), per his explicit
+     "a darker shade of the same Winston red... at least 30% dark[er]."
+     Reuses `--maroon` — one of the site's original eleven locked brand
+     tokens, not a new color — which main.css already established
+     (2026-09-21) as the "reads as dark red, not near-black" shade,
+     specifically because a different very-dark-red token
+     (`--cinder-red`, #330A0A) was tried in that same spot first and
+     Farhad called it "near-black" — applying that same prior lesson
+     here rather than re-testing it. Relative-luminance check: `--maroon`
+     is ~39% darker than `--winston-red`, comfortably past the "at least
+     30%" ask.
+  2. Fixed a real gap of the page's cream background visible below the
+     panel at desktop/tablet widths: the previous `grid-row: 1 / -1`
+     resolves the `-1` line against the grid's implicit row count *at
+     the time that spanning item is placed*, which doesn't reliably
+     account for further auto-placed items (`#login`, then
+     `.language-switcher`) each flowing into their own later-created row
+     — a known CSS Grid auto-placement edge case. Switched to
+     `grid-row: 1 / span 999`, a count-based span CSS Grid's spec
+     guarantees clamps to however many rows actually end up existing,
+     regardless of placement timing.
+  Verified live: computed background `rgb(74, 14, 14)` = `#4A0E0E`
+  confirmed at both desktop and mobile; brand panel's bottom edge
+  measured exactly equal to the card's own bottom edge (no gap) at
+  1440px.
