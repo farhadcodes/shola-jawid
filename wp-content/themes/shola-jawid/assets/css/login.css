@@ -54,10 +54,33 @@
  * convention), matching how every other split layout on the public site
  * collapses on a phone.
  */
+/*
+ * Repeating medallion-tile texture — added 2026-10-03, per Farhad's
+ * reference image (a dense, dark linework mandala pattern) with the ask
+ * to texturize "the whole login page." Built as an inline SVG data URI
+ * (four overlapping circles per 100x100 tile, each tile's corner circles
+ * completing the adjoining tile's center motif so it repeats seamlessly)
+ * rather than importing/adapting the actual reference image — keeps this
+ * entirely in code with no new binary asset to host, and lets the motif
+ * be tinted in this site's own brand colors instead of the reference's
+ * unrelated navy. Same SVG, two tints: `--shola-login-texture-light`
+ * (dark ink lines at low opacity, for the cream page background) and
+ * `--shola-login-texture-dark` (a lighter coral-red, #FF5252 — not the
+ * base --winston-red itself, which tested too close in tone to sit
+ * legibly on top of the --maroon panel; a lighter tint reads clearly as
+ * a deliberate pattern instead of disappearing into the background it's
+ * drawn on) — one shared motif gives the whole page one consistent
+ * textured language instead of two unrelated patterns.
+ */
+:root {
+  --shola-login-texture-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%230F0F0F' stroke-opacity='0.05' stroke-width='1'%3E%3Ccircle cx='50' cy='50' r='42'/%3E%3Ccircle cx='50' cy='50' r='30'/%3E%3Ccircle cx='50' cy='50' r='18'/%3E%3Ccircle cx='50' cy='50' r='6'/%3E%3Ccircle cx='0' cy='0' r='42'/%3E%3Ccircle cx='100' cy='0' r='42'/%3E%3Ccircle cx='0' cy='100' r='42'/%3E%3Ccircle cx='100' cy='100' r='42'/%3E%3C/g%3E%3C/svg%3E");
+  --shola-login-texture-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23FF5252' stroke-opacity='0.3' stroke-width='1.1'%3E%3Ccircle cx='50' cy='50' r='42'/%3E%3Ccircle cx='50' cy='50' r='30'/%3E%3Ccircle cx='50' cy='50' r='18'/%3E%3Ccircle cx='50' cy='50' r='6'/%3E%3Ccircle cx='0' cy='0' r='42'/%3E%3Ccircle cx='100' cy='0' r='42'/%3E%3Ccircle cx='0' cy='100' r='42'/%3E%3Ccircle cx='100' cy='100' r='42'/%3E%3C/g%3E%3C/svg%3E");
+}
+
 html {
   min-height: 100vh;
   display: flex;
-  background: var(--cream);
+  background: var(--shola-login-texture-light) 0 0 / 100px 100px, var(--cream);
 }
 body.login {
   flex: 1;
@@ -66,7 +89,16 @@ body.login {
   grid-template-columns: 1fr;
   margin: 0;
   padding: 0;
-  background: var(--cream);
+  /*
+   * Textured on mobile (where `body` itself fills the whole visible
+   * page, so `html`'s own textured background below is entirely
+   * covered and never shows) — same `--shola-login-texture-light` as
+   * `html`, so the texture is visible at every width, not only desktop.
+   * Switches to a plain `--paper` (no texture) at 783px+ below, once
+   * `body` becomes the white card rather than the page itself and the
+   * texture is more fitting on the surrounding page (`html`) instead.
+   */
+  background: var(--shola-login-texture-light) 0 0 / 100px 100px, var(--cream);
   font-family: var(--font-fa);
 }
 
@@ -74,9 +106,6 @@ body.login {
   html {
     align-items: center;
     justify-content: center;
-    background:
-      radial-gradient(circle at 1px 1px, rgba(15, 15, 15, .06) 1px, transparent 0) 0 0 / 28px 28px,
-      var(--cream);
   }
   body.login {
     flex: none;
@@ -163,8 +192,15 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
    * Luminance check: --maroon is ~39% darker than --winston-red by
    * relative luminance (0.2126R+0.7152G+0.0722B), comfortably past the
    * "at least 30%" ask.
+   *
+   * `--shola-login-texture-dark` layered on top, 2026-10-03, per Farhad's
+   * reference image/ask for a textured feel — same medallion motif as
+   * the page background (see that custom property's own comment), just
+   * the warm-red tint tuned for this dark panel instead of the light
+   * page behind it, so the whole login screen reads as one consistent
+   * textured surface rather than two unrelated treatments.
    */
-  background: var(--maroon);
+  background: var(--shola-login-texture-dark) 0 0 / 100px 100px, var(--maroon);
   color: var(--paper);
   display: flex;
   align-items: center;

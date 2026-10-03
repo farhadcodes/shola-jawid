@@ -14133,3 +14133,24 @@ new settings page whenever he's ready.
   confirmed at both desktop and mobile; brand panel's bottom edge
   measured exactly equal to the card's own bottom edge (no gap) at
   1440px.
+
+- **Added:** repeating medallion-tile texture across the whole login
+  page (login.css), per Farhad's reference image (a dense, dark linework
+  mandala pattern) and ask to "texturize the whole login page." Built as
+  an inline SVG data URI (four overlapping circles per 100x100 tile,
+  corner circles completing the adjoining tile's center motif so it
+  repeats seamlessly) rather than adapting the actual reference image —
+  no new binary asset to host, and the motif is tinted in this site's own
+  brand colors instead of the reference's unrelated navy. One shared SVG,
+  two tints via new `--shola-login-texture-light`/`-dark` custom
+  properties: dark-ink lines at low opacity on the cream page background
+  (`html`, and `body.login` itself at mobile widths where `body` fills
+  the whole visible page), and a lighter coral-red (`#FF5252`) on the
+  maroon brand panel — the base `--winston-red` was tried there first and
+  read too close in tone to the `--maroon` background to stay legible as
+  a pattern; a lighter tint was needed to actually read as a deliberate
+  texture rather than disappearing.
+  Verified live: visually confirmed the pattern renders clearly on both
+  the cream background and the maroon panel at desktop (1440px) and
+  mobile (375px), text remains fully legible over it, and no horizontal
+  overflow introduced at mobile width.
