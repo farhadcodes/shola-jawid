@@ -204,6 +204,7 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   color: var(--paper);
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 2.5rem 1.75rem 2rem;
 }
 @media (min-width: 783px) {
@@ -227,14 +228,15 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
 }
 .shola-login-brand-inner { max-width: 320px; }
 .shola-login-brand-logo {
-  display: inline-block;
-  margin-bottom: 1.5rem;
+  display: block;
+  margin-block-end: 1.5rem;
 }
 .shola-login-brand-logo img {
   /* +50% from the original 56px, per Farhad's explicit ask. */
   max-width: 84px;
   height: auto;
   display: block;
+  margin-inline: auto;
 }
 @media (min-width: 783px) {
   /* +50% from the original 72px. */

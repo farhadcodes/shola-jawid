@@ -14180,3 +14180,38 @@ new settings page whenever he's ready.
   Verified live via computed-style checks at both desktop (1440px) and
   mobile (375px): font-weight 900 confirmed at both, logo width 108px/
   84px respectively, no horizontal overflow.
+
+## 2026-10-03 (continued) — Login page: font override bug, flag centering
+
+Farhad reported the login page's title was rendering in a different
+font than the rest of the site (Vazirmatn instead of Farhang2) and
+asked for the flag to be horizontally centered in the brand panel.
+
+**Root cause (not assumed, found via computed-style/DOM inspection):**
+the already-whitelisted Persian Calendar plugin (§3) enqueues its own
+`assets/css/dashboard-font.css` on `login_enqueue_scripts` too (not
+just `admin_enqueue_scripts`), which force-applies `VazirmatnVF,
+sans-serif` to nearly every element on any RTL admin/login screen via
+`html[dir="rtl"] * { font-family: ... !important }`. This silently
+overrode `var(--font-display)` on `.shola-login-brand-name` regardless
+of the specificity fix from the previous entry, since `!important`
+beats any non-important rule outright. Fixed in
+`inc/login-screen.php` by dequeuing just that one stylesheet
+(`wp_dequeue_style('persian-calendar-dashboard-font')`) on a later
+priority of the same `login_enqueue_scripts` hook, so it runs after
+Persian Calendar's own enqueue call — the plugin itself is untouched
+everywhere else (dashboard, admin, etc.), only this one screen is
+exempted. This is a theme-side workaround for an overly broad
+plugin behavior, not a rules-change to §3.
+
+**Flag centering:** `.shola-login-brand-logo img` previously sat at
+its container's inline-start edge (the anchor/inner wrapper spans the
+panel's full available width, so a start-aligned image looked
+off-center rather than centered in the column). Added
+`margin-inline: auto` directly on the `img` (the actual sized box),
+not the wrapping `<a>` (which is `display:block` and already
+full-width, so centering it has no visible effect). Verified live via
+`getBoundingClientRect()` at desktop width: image center and panel
+center now match exactly; also re-checked at 375px mobile.
+
+Theme bumped to v1.49.24.

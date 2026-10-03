@@ -45,6 +45,20 @@ function shola_login_enqueue_assets() {
 add_action( 'login_enqueue_scripts', 'shola_login_enqueue_assets' );
 
 /**
+ * Persian Calendar also hooks `login_enqueue_scripts` and force-applies
+ * VazirmatnVF to every element via `* { font-family: ... !important }`,
+ * silently replacing Farhang2 on this one screen. Dequeued here, at a
+ * late priority so it runs after Persian Calendar's own enqueue call —
+ * the plugin itself is untouched, only this one stylesheet is removed.
+ *
+ * @return void
+ */
+function shola_login_dequeue_dashboard_font() {
+	wp_dequeue_style( 'persian-calendar-dashboard-font' );
+}
+add_action( 'login_enqueue_scripts', 'shola_login_dequeue_dashboard_font', 20 );
+
+/**
  * `login_headerurl`/`login_headertext` — the default h1 logo link is
  * hidden visually (login.css), but core still renders it (and a
  * password manager or screen reader may still use its link text/href),
