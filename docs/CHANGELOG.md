@@ -13945,3 +13945,22 @@ Approved by: Farhad, in this session (2026-10-01).
   rgb(250,248,243) = #FAF8F3 = --cream, confirmed matching the footer's
   own color exactly) — one set of overrides correctly covers every screen
   size via the shared wrapper class.
+
+- **Changed:** `.footer-col h3` (the "سایت"/"موضوعات"/"نشرات" column
+  headers) — 2026-10-03, per Farhad's live screenshot: with no visual
+  divider between a column's header and its own link list, and the
+  header actually lighter (`--stone`) than the `--ink`-colored links
+  below it, it was hard to tell heading from menu at a glance. Three
+  changes: size 13px -> 14px (`var(--t-small)`, reusing the existing
+  token rather than a new value), color `--stone` -> `--ink` (darker, per
+  Farhad's explicit ask), and a new `border-bottom: 1px solid var(--line)`
+  divider under the header — reusing the exact same color/weight this
+  footer's own `.footer`/`.footer-grid` borders already use, per Farhad's
+  explicit "same principle... color, size, everything," not a new
+  divider style. Side effect: the mobile-only `.footer-col h3` font-size
+  override (a 2026-08-08 fix that bumped mobile up to this same
+  `var(--t-small)` value) became a no-op now that the desktop default is
+  already that value — removed rather than left as dead CSS.
+  Verified live via computed-style checks at both desktop (1440px) and
+  mobile (375px): identical 14px / rgb(15,15,15) [#0F0F0F = --ink] /
+  0.8px solid rgb(230,229,225) [#E6E5E1 = --line] at both widths.

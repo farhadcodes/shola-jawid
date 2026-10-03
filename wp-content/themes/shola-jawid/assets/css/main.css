@@ -5011,13 +5011,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   transition: color var(--dur) var(--ease);
 }
 .footer-social a:hover { color: var(--winston-red); }
+/*
+ * Size bumped 13px -> 14px and color darkened --stone -> --ink, plus a
+ * new bottom divider — 2026-10-03, per Farhad's live screenshot: with no
+ * visual separation between a column's header and its own link list
+ * below, and the header actually lighter in color than the (var(--ink))
+ * links under it, it was hard to tell "which part is the heading and
+ * which part is the menu" at a glance. The divider reuses `--line` at
+ * 1px — the exact same color/weight this footer's own `.footer`/
+ * `.footer-grid` borders already use elsewhere, per Farhad's explicit
+ * ask to match "the same principle... color, size, everything" rather
+ * than inventing a new divider style.
+ */
 .footer-col h3 {
   font-family: var(--font-nav);
-  font-size: 0.8125rem;
+  font-size: var(--t-small); /* 14px, was 13px */
   letter-spacing: .14em;
-  color: var(--stone);
+  color: var(--ink);
   text-transform: uppercase;
+  padding-bottom: .85rem;
   margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
 }
 .footer-col ul { display: flex; flex-direction: column; gap: .55rem; }
 .footer-col a {
@@ -5047,7 +5061,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 @media (max-width: 720px) {
   .footer-tagline,
   .footer-col a { font-size: var(--t-body); }
-  .footer-col h3 { font-size: var(--t-small); }
+  /* .footer-col h3's own mobile bump removed 2026-10-03 — its desktop
+     size (just above) is now var(--t-small) already, the same value this
+     used to raise it to, so the override became a no-op. */
 }
 
 /* -------------------------------------------------------------------------
