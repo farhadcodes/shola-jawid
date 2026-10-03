@@ -414,6 +414,51 @@ function shola_maybe_seed_topics_page() {
 add_action( 'admin_init', 'shola_maybe_seed_topics_page' );
 
 /**
+ * One-time seed for the گزارش (Reports) full-archive page — added
+ * 2026-10-03, after Farhad reported `/reports/` 404ing on production
+ * while working fine locally. Confirmed live on the local DB: the Page
+ * exists there (ID 200, created manually at some point, not by any
+ * seeder) but — unlike shola_maybe_seed_selected_page()/
+ * shola_maybe_seed_leaflets_page()/shola_maybe_seed_topics_page() above —
+ * no seeder for this one was ever written, so the Page genuinely never
+ * existed on production. Unlike #38 (topics), this was a real, currently
+ * live 404 for site visitors, not a safety net for a hypothetical future
+ * deletion. page-reports.php's own docblock has always said "Applies to
+ * the Page with slug `reports`."
+ *
+ * @return void
+ */
+function shola_maybe_seed_reports_page() {
+	if ( get_option( 'shola_seeded_reports_page' ) ) {
+		return;
+	}
+
+	$existing = get_page_by_path( 'reports' );
+	if ( $existing ) {
+		update_option( 'shola_seeded_reports_page', true );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_title'   => __( 'گزارش', 'shola-jawid' ),
+			'post_name'    => 'reports',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => '',
+		)
+	);
+
+	if ( is_wp_error( $page_id ) || ! $page_id ) {
+		return;
+	}
+
+	update_post_meta( $page_id, '_wp_page_template', 'page-reports.php' );
+	update_option( 'shola_seeded_reports_page', true );
+}
+add_action( 'admin_init', 'shola_maybe_seed_reports_page' );
+
+/**
  * Adds an اسناد حزب item to the already-seeded «بخش‌ها» (menu_sections)
  * popup-menu location — added 2026-09-04 alongside the new
  * `party_document` CPT. shola_maybe_seed_nav_menus() above only ever

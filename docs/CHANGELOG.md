@@ -13717,3 +13717,26 @@ Approved by: Farhad, in this session (2026-10-01).
   `download` set.
   Approved by: Farhad, in this session (2026-10-02) — "do the A, the B,
   and the C," after reviewing the refreshed Part C table.
+
+## 2026-10-03
+
+- **Fixed:** `/reports/` (گزارش full archive) 404ing on production
+  (`sholajawid.com`) while working correctly on local dev. Root cause:
+  the page is a real WordPress **Page** (database content, not a
+  template file) that existed locally — created manually at some point —
+  but, unlike `/topics/`, `/selected/`, and `/leaflets/`, no seeder
+  function was ever written for it, so it never existed on production at
+  all. This was a real, currently-live 404 for site visitors, not a
+  safety-net situation like spec-gap #38 (topics) was.
+  Fix: added `shola_maybe_seed_reports_page()` (inc/setup.php), same
+  self-healing `admin_init` + options-flag pattern as the three existing
+  page seeders — auto-creates the Page (slug `reports`, template
+  `page-reports.php`) the next time an admin visits wp-admin after this
+  update ships, no manual page creation needed on production.
+  Verified: simulated the production condition locally (temporarily
+  renamed the real page out of the way, deleted the seeder's
+  options-flag, ran the seeder) and confirmed it correctly recreates the
+  page with the right template; cleaned up the test page and restored
+  the original afterward with no data loss.
+  Reported by: Farhad, live screenshots of the production 404 vs. working
+  local page, 2026-10-03.
