@@ -13882,3 +13882,30 @@ Approved by: Farhad, in this session (2026-10-01).
   that larger size specifically). No separate breakpoint override existed
   for this rule, so the change applies uniformly at every screen size.
   Verified live via computed-style check: 18px / 33.3px line-height.
+
+- **Changed:** `.prose` reading width capped + paragraph spacing
+  increased, 2026-10-03, per Farhad's side-by-side comparison against a
+  reference site he reads regularly (nebesht.com), with an explicit
+  request for a written proposal before implementing — approved as
+  written, no changes. Two changes:
+  1. `max-width: var(--wrap-read)` (680px) added, scoped to
+     `min-width: 940px` (the same breakpoint `.article-body`'s own
+     sidebar layout already uses). `.prose` previously had no width limit
+     of its own and stretched to fill its full ~750px+ 7fr grid track,
+     wider than the standard ~60-75-character comfortable reading
+     measure. Reuses `--wrap-read` — already defined as this site's own
+     "ideal reading width" token, just never applied here before — rather
+     than a new arbitrary value. Below 940px the layout is already a
+     single full-width column on a viewport already narrower than 680px,
+     so the cap has no effect there.
+  2. Paragraph spacing (`.prose > * + *`) increased `1.4rem` -> `2rem`,
+     at every screen size, matching the airier paragraph rhythm in the
+     reference site.
+  Line-height and heading spacing were flagged as "worth a live look, not
+  necessarily changing" in the proposal — checked live after both changes
+  landed and left as-is; neither read as off at the new narrower width.
+  Verified live via DOM measurement: prose width 680px exactly (desktop,
+  1440px), right edge flush against the existing 4rem grid gap next to
+  the sidebar (no awkward floating gap introduced — the freed-up width
+  lands on the outer margin instead), paragraph margin-top 32px; mobile
+  (375px) confirmed max-width: none and full-width content, unaffected.

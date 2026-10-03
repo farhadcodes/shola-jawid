@@ -4221,7 +4221,30 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   font-size: 1.125rem; /* 18px */
   line-height: 1.85;
 }
-.prose > * + * { margin-block-start: 1.4rem; }
+/*
+ * Reading-width cap added 2026-10-03, per Farhad's side-by-side
+ * comparison against a reference site he reads regularly: `.prose` had
+ * no width limit of its own, so it stretched to fill the full width of
+ * its 7fr grid track inside `.article-body` (main.css §"Article
+ * single"), noticeably wider than the standard ~60-75-character
+ * comfortable reading measure. Reuses `--wrap-read` (680px) — already
+ * defined as this site's own "ideal reading width" token, just never
+ * applied to the article body text itself, rather than inventing a new
+ * arbitrary value. Scoped to the same `min-width: 940px` breakpoint
+ * `.article-body`'s own sidebar layout already uses: below that, the
+ * layout is already a single, full-width column on a viewport already
+ * narrower than 680px, so the cap has no effect there and mobile/tablet
+ * are unchanged.
+ */
+@media (min-width: 940px) {
+  .prose { max-width: var(--wrap-read); }
+}
+/*
+ * Paragraph spacing loosened 1.4rem -> 2rem, same change, same reasoning
+ * — the reference site's paragraph breaks read noticeably airier than
+ * this site's. Applies at every screen size, not just desktop.
+ */
+.prose > * + * { margin-block-start: 2rem; }
 
 .prose h2 {
   font-family: var(--font-fa);
