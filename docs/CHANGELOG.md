@@ -14359,3 +14359,33 @@ Mobile (<783px) untouched — the compact-box ask was specifically
 about the desktop/tablet column reading too wide. Verified live at
 375px (unaffected), 1024px, and 1440px; confirmed the login form
 itself still functions. Theme bumped to v1.49.31.
+
+## 2026-10-04 (continued) — Login form: pushed right, white card, tighter rhythm
+
+Farhad marked up another screenshot: wanted the compact box pushed
+toward the right (the edge adjacent to the brand panel, so it reads
+as emerging from beside/under it rather than floating centered), a
+white background on the form itself (distinct from the cream
+surrounding it), and the internal spacing tightened — "a lot of wide
+spaces around each element."
+
+`assets/css/login.css`, 783px+ breakpoint:
+- `body.login > h1`/`#login`/`.language-switcher`: `margin-inline:
+  auto` -> `margin-inline-start: 0; margin-inline-end: auto` — pins
+  the box to this column's start edge (adjacent to grid-column 1, the
+  brand panel) instead of centering it.
+- `body.login > #login` gained its own white (`--paper`) background,
+  padding, and a soft shadow — a real card now, not just a
+  transparent region of the cream column.
+- Tightened, scoped to this breakpoint only (not mobile, which wasn't
+  what Farhad was reviewing): `#loginform` bottom padding removed;
+  username/password/user-pass-wrap margin-bottom 1.1rem -> .75rem;
+  label margin-bottom .4rem -> .3rem; input padding .85rem/1rem ->
+  .65rem/.85rem; `.forgetmenot` margin-bottom 1.5rem -> 1rem;
+  `#wp-submit` padding .9rem -> .7rem block.
+
+Language switcher intentionally left outside the white card/tightened
+rhythm — matches the area Farhad actually circled, which stopped
+above it. Verified live at 375px (unaffected), 1024px, and 1440px;
+confirmed the login form itself still functions. Theme bumped to
+v1.49.32.

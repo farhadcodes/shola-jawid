@@ -184,20 +184,52 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   body.login > #login,
   body.login > .language-switcher {
     grid-column: 2;
-    /*
-     * max-width: none -> 400px + margin-inline: auto, 2026-10-04 — per
-     * Farhad's explicit ask (a marked-up screenshot): the form side had
-     * been stretching edge-to-edge of its own column since the
-     * full-bleed change, reading as "too extended/shallow." Compacting
-     * it back into a centered box, roughly the size Farhad circled,
-     * inside the now-full-width column rather than reverting the
-     * full-bleed layout itself.
-     */
     max-width: 400px;
-    margin-inline: auto;
+    /*
+     * margin-inline: auto (centered) -> margin-inline-start: 0 +
+     * margin-inline-end: auto, 2026-10-04 — per Farhad's explicit ask
+     * (a marked-up screenshot) to push the form toward this column's
+     * own start edge, the one adjacent to the brand panel (grid-column
+     * 1, the right-hand column under this site's permanent RTL), so it
+     * reads as emerging from under/beside that panel rather than
+     * floating centered in open space.
+     */
+    margin-inline-start: 0;
+    margin-inline-end: auto;
     padding-inline: 0;
   }
-  body.login > #login { padding-block: clamp(2rem, 5vw, 3.25rem) 1rem; }
+  /*
+   * Compact card: padding-block tightened (was a wide clamp() sized
+   * for a column-filling box) and a white background + soft shadow
+   * added, per Farhad's explicit ask — "a lot of wide spaces around
+   * each element," wanted compact, and a white card distinct from the
+   * cream page behind it. Scoped to `#login` only (not the language
+   * switcher below it, which stays unstyled/outside the card, matching
+   * the area Farhad actually circled in his screenshot).
+   */
+  body.login > #login {
+    padding: 1.75rem 2rem;
+    background: var(--paper);
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .18);
+  }
+  /*
+   * Tighter form rhythm, 2026-10-04, per Farhad's explicit ask — scoped
+   * to this breakpoint only, not a change to the mobile form (which
+   * wasn't what he was looking at/flagging).
+   */
+  #loginform { padding-bottom: 0; }
+  #loginform p.login-username,
+  #loginform p.login-password,
+  #loginform .user-pass-wrap {
+    margin-bottom: .75rem;
+  }
+  #loginform label { margin-bottom: .3rem; }
+  #loginform input[type="text"],
+  #loginform input[type="password"] {
+    padding: .65rem .85rem;
+  }
+  .forgetmenot { margin-bottom: 1rem; }
+  #wp-submit { padding: .7rem 1.5rem; }
 }
 
 .shola-login-brand {
