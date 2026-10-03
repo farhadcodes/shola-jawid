@@ -13857,3 +13857,16 @@ Approved by: Farhad, in this session (2026-10-01).
   Verified live via computed-style checks at desktop width (1440px):
   32px/41.6px line-height on single.php's photo-hero title, confirmed
   distinct from and non-regressive to the document-template sizes.
+
+- **Changed:** `.article-hero-visual .article-header`'s bottom padding
+  raised, same session, 2026-10-03, directly following the title-size
+  reduction above — Farhad's live follow-up: with the smaller title, the
+  overlaid text block (crumb/title/subtitle/dek) read as sitting too
+  close to the photo's bottom edge, and asked for more breathing room
+  below it. Desktop: 3rem -> 4.5rem. Mobile (`max-width: 720px`): its own
+  new override, 3.5rem — scaled down from the desktop bump rather than
+  matching it exactly, since a phone's `top: 42%` text area has much less
+  vertical room to give up than desktop's viewport-height hero. Verified
+  live via DOM measurement at both a 1440px desktop width and the mobile
+  preset (375px): confirmed 56px (3.5rem) of clear space between the
+  text block's bottom edge and the photo's bottom edge on mobile.

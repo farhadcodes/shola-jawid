@@ -3936,12 +3936,20 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   pointer-events: none;
   z-index: 2;
 }
+/*
+ * Bottom padding raised 3rem -> 4.5rem, 2026-10-03, per Farhad's live
+ * feedback (same session as the 52px -> 32px title reduction just
+ * above): with the smaller title, the overlaid text block read as sitting
+ * too close to the photo's bottom edge. More breathing room below it —
+ * a standard editorial photo-hero treatment — gives the block a more
+ * deliberate, settled position instead of looking glued to the edge.
+ */
 .article-hero-visual .article-header {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   z-index: 3;
-  padding-block: 0 3rem;
+  padding-block: 0 4.5rem;
   margin-bottom: 0;
   border-bottom: 0;
 }
@@ -3974,6 +3982,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    /*
+     * Bottom padding scaled down from the desktop 4.5rem bump above —
+     * added 2026-10-03, per Farhad's explicit ask to keep this change
+     * "flowing better" on mobile too. A phone screen has much less
+     * vertical room than desktop's viewport-height hero, so the full
+     * desktop increase would eat too much of the already-tight `top:42%`
+     * text area; a smaller 3.5rem still lifts the text off the bottom
+     * edge without crowding it on a short screen.
+     */
+    padding-block: 0 3.5rem;
   }
 }
 .article-hero-caption {
