@@ -13870,3 +13870,15 @@ Approved by: Farhad, in this session (2026-10-01).
   live via DOM measurement at both a 1440px desktop width and the mobile
   preset (375px): confirmed 56px (3.5rem) of clear space between the
   text block's bottom edge and the photo's bottom edge on mobile.
+
+- **Changed:** `.prose` (long-form article body text) — size reduced
+  20px -> 18px, line-height 1.95 -> 1.85, 2026-10-03, per Farhad's live
+  testing on a real article page. 20px was the v6 prototype's own
+  original choice ("bumped up from --t-body (17px) for reading comfort"
+  per the rule's own prior comment), not a bug — 18px is still well
+  inside the standard 16-20px long-form reading-comfort range, just not
+  at its upper edge. Line-height brought down in step so the paragraph
+  block doesn't read as airier than it did at 20px (1.95 was tuned for
+  that larger size specifically). No separate breakpoint override existed
+  for this rule, so the change applies uniformly at every screen size.
+  Verified live via computed-style check: 18px / 33.3px line-height.

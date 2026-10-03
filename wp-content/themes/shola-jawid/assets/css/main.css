@@ -4204,11 +4204,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    */
 }
 
-/* Long-form prose */
+/*
+ * Long-form prose — size reduced 20px -> 18px, line-height loosened-but-
+ * tightened-back 1.95 -> 1.85, 2026-10-03, per Farhad's live testing on a
+ * real article: 20px (the v6 prototype's original "bumped up from
+ * --t-body for reading comfort" choice) read as a little large. 18px is
+ * still comfortably inside the standard 16-20px long-form reading-comfort
+ * range, just no longer at its upper edge; line-height brought down
+ * slightly in step so the paragraph block doesn't read as airier than
+ * before at the smaller size (1.95 was tuned for 20px text specifically).
+ * No separate breakpoint override existed for this rule, so the change
+ * applies uniformly at every screen size, not just desktop.
+ */
 .prose {
   color: var(--ink);
-  font-size: 1.25rem; /* 20px — bumped up from --t-body (17px) for reading comfort */
-  line-height: 1.95;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.85;
 }
 .prose > * + * { margin-block-start: 1.4rem; }
 
