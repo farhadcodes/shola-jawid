@@ -14154,3 +14154,29 @@ new settings page whenever he's ready.
   the cream background and the maroon panel at desktop (1440px) and
   mobile (375px), text remains fully legible over it, and no horizontal
   overflow introduced at mobile width.
+
+- **Changed:** three more login-page refinements per Farhad's live
+  follow-up, same session:
+  1. Texture opacity halved on both tints (`--shola-login-texture-light`
+     0.05 -> 0.025, `--shola-login-texture-dark` 0.3 -> 0.15) — the
+     previous pass read as too visible/busy.
+  2. Brand panel logo (`.shola-login-brand-logo img`) +50%: 56px -> 84px
+     (mobile), 72px -> 108px (desktop).
+  3. Brand name (`.shola-login-brand-name`) bumped to font-weight 900
+     ("Black") — Farhang2 (`var(--font-display)`) ships a real Black
+     weight, confirmed via its own woff2 already loading on this page, so
+     this renders actual Black glyphs, not a synthesized bold.
+  **Real bug found and fixed while verifying #3 live:** the weight change
+  had no visible effect at first — traced to wp-admin's own
+  `l10n-rtl.min.css`, which ships `.rtl h1, .rtl h2, ... h6 {
+  font-weight: 600; font-family: Arial, sans-serif; }`. Since the brand
+  name is an `<h2>` on an RTL page, that compound selector's specificity
+  (one class + one type) beat this stylesheet's original bare
+  `.shola-login-brand-name` (one class), silently overriding the
+  font-weight back to 600 regardless of what was declared here. Fixed by
+  scoping the selector to `.shola-login-brand .shola-login-brand-name`
+  (two classes), which reliably outranks it. Caught via computed-style
+  inspection, not assumed fixed just because the rule compiled.
+  Verified live via computed-style checks at both desktop (1440px) and
+  mobile (375px): font-weight 900 confirmed at both, logo width 108px/
+  84px respectively, no horizontal overflow.
