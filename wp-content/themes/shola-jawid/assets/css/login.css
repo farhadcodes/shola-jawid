@@ -180,27 +180,14 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   grid-column: 1;
   grid-row: 1;
   /*
-   * Changed from --ink (black) to --maroon, 2026-10-03, per Farhad's
-   * explicit ask: "a darker shade of the same Winston red... at least
-   * 30% dark[er]." Reuses --maroon (#4A0E0E) — one of the site's original
-   * eleven locked brand tokens, not a new color — which main.css already
-   * established (2026-09-21, same live-feedback pattern) as the "reads
-   * as a deliberately dark red, not near-black" shade specifically
-   * because a different very-dark-red token (--cinder-red, #330A0A) was
-   * tried first in that same spot and Farhad called it "near-black" —
-   * applying that same lesson here rather than re-testing it.
-   * Luminance check: --maroon is ~39% darker than --winston-red by
-   * relative luminance (0.2126R+0.7152G+0.0722B), comfortably past the
-   * "at least 30%" ask.
-   *
-   * `--shola-login-texture-dark` layered on top, 2026-10-03, per Farhad's
-   * reference image/ask for a textured feel — same medallion motif as
-   * the page background (see that custom property's own comment), just
-   * the warm-red tint tuned for this dark panel instead of the light
-   * page behind it, so the whole login screen reads as one consistent
-   * textured surface rather than two unrelated treatments.
+   * --maroon -> var(--winston-red), 2026-10-03, per Farhad's explicit
+   * ask to match the panel to the site's own masthead color (also
+   * --winston-red, see main.css .masthead) so the login screen feels
+   * connected to the rest of the site rather than a separate dark-red
+   * treatment. Superseds the earlier --maroon choice (see prior
+   * CHANGELOG entry for that reasoning, now moot).
    */
-  background: var(--shola-login-texture-dark) 0 0 / 100px 100px, var(--maroon);
+  background: var(--shola-login-texture-dark) 0 0 / 100px 100px, var(--winston-red);
   color: var(--paper);
   display: flex;
   align-items: center;
@@ -228,8 +215,23 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
 }
 .shola-login-brand-inner { max-width: 320px; }
 .shola-login-brand-logo {
+  position: relative;
   display: block;
   margin-block-end: 1.5rem;
+}
+/*
+ * Subtle radial gradient behind the flag, 2026-10-03 — now that the
+ * panel background is --winston-red (same family as the flag's own
+ * red), the flag was losing definition against it. A soft darkening
+ * directly behind the flag (not the whole panel) restores separation
+ * without touching the brand's background color everywhere else.
+ */
+.shola-login-brand-logo::before {
+  content: "";
+  position: absolute;
+  inset: -1.25rem;
+  background: radial-gradient(circle, rgba(0, 0, 0, .28) 0%, rgba(0, 0, 0, 0) 70%);
+  z-index: 0;
 }
 .shola-login-brand-logo img {
   /* +50% from the original 56px, per Farhad's explicit ask. */
@@ -237,6 +239,8 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   height: auto;
   display: block;
   margin-inline: auto;
+  position: relative;
+  z-index: 1;
 }
 @media (min-width: 783px) {
   /* +50% from the original 72px. */
@@ -266,7 +270,16 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   color: var(--paper);
 }
 @media (min-width: 783px) {
-  .shola-login-brand .shola-login-brand-name { font-size: 1.5rem; }
+  /*
+   * 1.5rem -> 2rem (32px), 2026-10-03, per Farhad's explicit ask,
+   * paired with a 240px max-width (narrower than the 320px inner
+   * column) so the party name reliably wraps to three lines at this
+   * size instead of two — verified live at 783px, 800px, and 1440px
+   * viewport widths. Intentionally only from this breakpoint up
+   * (tablet + desktop); mobile keeps the smaller 1.25rem/no max-width
+   * set above, per Farhad's explicit ask not to force three lines there.
+   */
+  .shola-login-brand .shola-login-brand-name { font-size: 2rem; max-width: 240px; }
 }
 .shola-login-brand-tagline {
   font-size: .9375rem;

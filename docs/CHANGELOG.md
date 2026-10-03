@@ -14215,3 +14215,35 @@ full-width, so centering it has no visible effect). Verified live via
 center now match exactly; also re-checked at 375px mobile.
 
 Theme bumped to v1.49.24.
+
+## 2026-10-03 (continued) — Login page: masthead color, larger 3-line title
+
+Three more live-feedback changes to the login brand panel:
+
+- **Title size:** `.shola-login-brand-name` font-size 1.5rem -> 2rem
+  (32px) at the existing 783px+ breakpoint only, per Farhad's explicit
+  ask that this only happen on tablet/desktop, not mobile. Paired with
+  a 240px `max-width` on the heading (narrower than the 320px inner
+  column) specifically so the party name reliably wraps to three lines
+  at this size instead of two — confirmed by testing line-count
+  programmatically (element height ÷ line-height) at 783px, 800px, and
+  1440px viewport widths before picking 240px, rather than eyeballing
+  one screenshot and hoping it holds at other widths.
+- **Panel background:** `--maroon` -> `var(--winston-red)`, per
+  Farhad's ask to match the site's own masthead color (main.css
+  `.masthead` also uses `--winston-red`) so the login screen reads as
+  connected to the rest of the site. Supersedes the `--maroon` choice
+  from earlier today (that CHANGELOG entry's reasoning no longer
+  applies now that the panel is intentionally the *same* red as the
+  header, not a deliberately darker one).
+- **Flag definition fix:** since the flag's own red is now close in
+  hue to the panel background, added a subtle radial gradient
+  (`rgba(0,0,0,.28)` fading to transparent) directly behind the flag
+  image only (`.shola-login-brand-logo::before`) — not the whole
+  panel — to restore visual separation without touching the panel's
+  background color anywhere else. Kept intentionally subtle per
+  Farhad's explicit ask.
+
+Verified live at 375px (mobile, unaffected — stays 1.25rem/2 lines),
+783px, 800px, and 1440px widths via screenshots + computed-style/
+bounding-rect checks. Theme bumped to v1.49.25.
