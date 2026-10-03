@@ -230,7 +230,29 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   }
   .forgetmenot { margin-bottom: 1rem; }
   #wp-submit { padding: .7rem 1.5rem; }
+  /*
+   * Vertically center the form card, 2026-10-04, per Farhad's explicit
+   * ask — now that the language switcher (below) is hidden, `#login`
+   * is the only real item left in this column's grid track, so there's
+   * open space above/below it to center into. `grid-template-rows: 1fr`
+   * makes that single row fill the column's full height (matching the
+   * brand panel, which still spans it via `grid-row: 1 / span 999` and
+   * stretches by the grid's default `align-items: stretch` — untouched
+   * here); `align-self: center` then centers just `#login` within that
+   * full-height row, without affecting the brand panel's own stretch.
+   */
+  body.login { grid-template-rows: 1fr; }
+  body.login > #login { align-self: center; }
 }
+
+/*
+ * Hidden entirely, 2026-10-04, per Farhad's explicit ask — this is
+ * WordPress core's own admin-only language dropdown on wp-login.php,
+ * unrelated to the main site's inert header language toggle (CLAUDE.md
+ * §1); removing it here doesn't touch that. All breakpoints, not just
+ * desktop — Farhad didn't want it on mobile either.
+ */
+.language-switcher { display: none; }
 
 .shola-login-brand {
   grid-column: 1;

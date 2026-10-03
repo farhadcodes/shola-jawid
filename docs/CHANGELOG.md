@@ -14389,3 +14389,27 @@ rhythm — matches the area Farhad actually circled, which stopped
 above it. Verified live at 375px (unaffected), 1024px, and 1440px;
 confirmed the login form itself still functions. Theme bumped to
 v1.49.32.
+
+## 2026-10-04 (continued) — Login page: language switcher removed, form centered vertically
+
+Farhad asked to remove the language dropdown from the bottom of the
+login page entirely and vertically center the form in its place.
+
+`assets/css/login.css`:
+- `.language-switcher { display: none; }` — hides WordPress core's
+  own admin-only language dropdown on wp-login.php at all
+  breakpoints (not just desktop). Unrelated to the main site's inert
+  header language toggle (CLAUDE.md §1) — that element is untouched.
+- 783px+ breakpoint: `body.login` gained `grid-template-rows: 1fr` so
+  its single remaining row (now that the switcher's gone, `#login` is
+  the only item left in the column's grid flow — the hidden `h1` is
+  `position: absolute` and doesn't count) fills the column's full
+  height; `body.login > #login` gained `align-self: center` to center
+  within that row. The brand panel (`grid-row: 1 / span 999`) keeps
+  filling the same full height via the grid's untouched default
+  `align-items: stretch` — only the form card's own position changed.
+
+Verified live at 375px (switcher gone, layout otherwise unaffected),
+1024px, and 1440px (form vertically centered, brand panel still full
+height); confirmed the login form itself still functions. Theme
+bumped to v1.49.33.
