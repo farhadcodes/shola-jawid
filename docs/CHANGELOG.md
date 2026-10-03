@@ -14247,3 +14247,50 @@ Three more live-feedback changes to the login brand panel:
 Verified live at 375px (mobile, unaffected — stays 1.25rem/2 lines),
 783px, 800px, and 1440px widths via screenshots + computed-style/
 bounding-rect checks. Theme bumped to v1.49.25.
+
+## 2026-10-03 (continued) — Login panel: masthead-style large tilted flag
+
+Farhad reviewed v1.49.25 and asked for a different composition
+entirely for the login brand panel's flag: not a small centered icon,
+but the same large-tilted-background-graphic idea main.css already
+uses for the site's own masthead flag
+(`.mast-two-tier-flag`/`.mast-two-tier-flag-glow`,
+`template-parts/masthead/two-tier.php`). Farhad reviewed a first pass
+and gave explicit sign-off to implement without further check-ins
+once the approach was confirmed in words.
+
+**Markup (`inc/login-screen.php`):** the flag `<a>`/`<img>` and a new
+decorative `<span class="shola-login-brand-flag-glow" aria-hidden>`
+moved out of `.shola-login-brand-inner` to be direct children of
+`.shola-login-brand`, alongside it (not nested inside) — mirrors the
+masthead's own flag/glow being siblings of the text block, not
+children of it, so the flag can be sized/positioned against the whole
+panel rather than the text column's own narrower box.
+
+**CSS (`assets/css/login.css`):**
+- `.shola-login-brand` gained `position: relative; overflow: hidden`
+  — the crop boundary for the oversized flag, same role
+  `.masthead--two-tier`'s own `overflow: hidden` plays.
+- `.shola-login-brand-logo` (now the flag, not a small icon):
+  `position: absolute`, `height: 160%` (taller than the panel itself),
+  `rotate(-60deg)` (steeper than the masthead's own ~16° — Farhad's
+  explicit ask for *this* panel specifically), positioned via
+  `inset-inline-end: -10%` plus `translate(-18%, -50%)`. The extra
+  translate was necessary, not decorative: the rotation+inset alone
+  left the star nearer the panel's right/center, and Farhad's ask was
+  specifically for the star to land near the column's left edge —
+  found the right offset by testing several values live at 783px,
+  1024px, and 1440px widths rather than eyeballing one screenshot.
+- `.shola-login-brand-flag-glow` — same radial-gradient technique as
+  `.mast-two-tier-flag-glow`, resized (55% of panel) and anchored with
+  the same offset/translate as the flag so the glow centers on the
+  star specifically, not the flag's own geometric center.
+- Removed the previous round's small subtle glow
+  (`.shola-login-brand-logo::before`) and fixed 84px/108px sizing —
+  superseded entirely by this treatment.
+
+Verified live at 375px, 783px, 1024px, and 1440px widths via
+screenshots; confirmed the login form itself (username/password
+fields, submit, lost-password/register links, language switcher) is
+unaffected — only the decorative flag/glow markup moved, no core
+`#loginform` markup touched. Theme bumped to v1.49.27.

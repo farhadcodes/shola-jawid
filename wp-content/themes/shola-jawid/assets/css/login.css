@@ -193,6 +193,15 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   align-items: center;
   justify-content: center;
   padding: 2.5rem 1.75rem 2rem;
+  /*
+   * position: relative + overflow: hidden, 2026-10-03 — needed so the
+   * large tilted flag graphic below (`.shola-login-brand-logo`) has a
+   * positioning container and gets cropped to this column's own box,
+   * same role `.masthead--two-tier { overflow: hidden }` plays for the
+   * masthead's own tilted flag treatment this is deliberately copying.
+   */
+  position: relative;
+  overflow: hidden;
 }
 @media (min-width: 783px) {
   .shola-login-brand {
@@ -213,38 +222,71 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
     padding: 2.5rem;
   }
 }
-.shola-login-brand-inner { max-width: 320px; }
-.shola-login-brand-logo {
-  position: relative;
-  display: block;
-  margin-block-end: 1.5rem;
-}
+.shola-login-brand-inner { max-width: 320px; position: relative; z-index: 2; }
 /*
- * Subtle radial gradient behind the flag, 2026-10-03 — now that the
- * panel background is --winston-red (same family as the flag's own
- * red), the flag was losing definition against it. A soft darkening
- * directly behind the flag (not the whole panel) restores separation
- * without touching the brand's background color everywhere else.
+ * Large tilted background flag, 2026-10-03 — replaces the earlier
+ * small, centered logo-above-title treatment entirely, per Farhad's
+ * explicit ask to reuse the exact idea main.css already uses for the
+ * masthead's own flag (.mast-two-tier-flag/-glow,
+ * template-parts/masthead/two-tier.php): one oversized graphic, tilted,
+ * absolutely positioned behind the text, cropped by the panel's own
+ * edge (`overflow: hidden` on `.shola-login-brand` above) rather than
+ * shown whole. `height` far larger than the panel itself + `rotate` is
+ * what makes most of the image run off-panel and get cropped; `width:
+ * auto` keeps the source image's own aspect ratio so it doesn't
+ * distort under the rotation. `pointer-events: none` + decorative only
+ * (the real "go to homepage" link is the hidden h1, see the rule
+ * above) since this is purely a background graphic now, not a clickable
+ * logo. Sized/positioned by eye against the live column, same as the
+ * masthead's own flag was tuned — not a formula ported from there,
+ * since the two containers are completely different shapes.
+ *
+ * `translate(-18%, ...)` on top of the `inset-inline-end: -10%`
+ * anchor — found live by testing several values at 783px, 1024px, and
+ * 1440px widths — is what pulls the star specifically (not just the
+ * flag generally) in from the panel's edge toward its left side, per
+ * Farhad's explicit ask ("star should be close to the left side of
+ * the column"); the anchor alone left the star nearer the panel's
+ * right/center.
  */
-.shola-login-brand-logo::before {
-  content: "";
+.shola-login-brand-logo {
   position: absolute;
-  inset: -1.25rem;
-  background: radial-gradient(circle, rgba(0, 0, 0, .28) 0%, rgba(0, 0, 0, 0) 70%);
+  top: 50%;
+  inset-inline-end: -10%;
+  height: 160%;
+  width: auto;
+  max-width: none;
+  transform: translate(-18%, -50%) rotate(-60deg);
+  transform-origin: center;
+  pointer-events: none;
   z-index: 0;
 }
 .shola-login-brand-logo img {
-  /* +50% from the original 56px, per Farhad's explicit ask. */
-  max-width: 84px;
-  height: auto;
+  height: 100%;
+  width: auto;
+  max-width: none;
   display: block;
-  margin-inline: auto;
-  position: relative;
-  z-index: 1;
 }
-@media (min-width: 783px) {
-  /* +50% from the original 72px. */
-  .shola-login-brand-logo img { max-width: 108px; }
+/*
+ * Glow — same radial-gradient "pop" technique as
+ * `.mast-two-tier-flag-glow`, repositioned/resized behind this flag's
+ * own much larger scale and placement instead of ported with the same
+ * numbers (the masthead's flag is a small fraction of this panel's
+ * size, so its glow's px values don't translate directly). Centered on
+ * the star specifically (same anchor + translate as the flag image
+ * above, tuned to the star's own position, not the flag's geometric
+ * center) so the "pop" lands where the eye actually goes.
+ */
+.shola-login-brand-flag-glow {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: -10%;
+  width: 55%;
+  height: 55%;
+  transform: translate(-18%, -50%);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, .35) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
 }
 /*
  * Selector scoped as `.shola-login-brand .shola-login-brand-name`

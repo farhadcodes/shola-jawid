@@ -84,27 +84,34 @@ add_filter( 'login_headertext', function () {
  * already used by footer.php's own logo — same Customizer field, same
  * fallback behavior, no new place to manage the logo.
  *
+ * Flag/glow markup mirrors main.css's own masthead treatment
+ * (template-parts/masthead/two-tier.php + .mast-two-tier-flag/-glow):
+ * a large tilted flag graphic plus a radial-gradient glow, both
+ * absolutely positioned and sized/placed entirely via login.css —
+ * 2026-10-03, per Farhad's explicit ask to reuse that exact idea here.
+ *
  * @return void
  */
 function shola_login_render_brand_panel() {
 	$logo_id = get_theme_mod( 'custom_logo' );
 	?>
 	<div class="shola-login-brand" aria-hidden="true">
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="shola-login-brand-logo" tabindex="-1">
+			<?php
+			if ( $logo_id ) {
+				echo wp_get_attachment_image(
+					$logo_id,
+					'full',
+					false,
+					array( 'loading' => 'eager' )
+				);
+			} else {
+				bloginfo( 'name' );
+			}
+			?>
+		</a>
+		<span class="shola-login-brand-flag-glow" aria-hidden="true"></span>
 		<div class="shola-login-brand-inner">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="shola-login-brand-logo" tabindex="-1">
-				<?php
-				if ( $logo_id ) {
-					echo wp_get_attachment_image(
-						$logo_id,
-						'full',
-						false,
-						array( 'loading' => 'eager' )
-					);
-				} else {
-					bloginfo( 'name' );
-				}
-				?>
-			</a>
 			<h2 class="shola-login-brand-name"><?php bloginfo( 'name' ); ?></h2>
 			<p class="shola-login-brand-tagline">
 				<?php esc_html_e( 'ورود ویژهٔ اعضای هیئت تحریریه و مدیریت سایت.', 'shola-jawid' ); ?>
