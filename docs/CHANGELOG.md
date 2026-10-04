@@ -14413,3 +14413,20 @@ Verified live at 375px (switcher gone, layout otherwise unaffected),
 1024px, and 1440px (form vertically centered, brand panel still full
 height); confirmed the login form itself still functions. Theme
 bumped to v1.49.33.
+
+## 2026-10-04 (continued) — Login flag: 30deg tilt, more of it visible
+
+Farhad reviewed v1.49.33 live and asked for two more adjustments: the
+45deg tilt was "too much rotated," and the -18% horizontal offset
+(from the earlier "star near the left edge" round) was now hiding
+too much of the flag's left side — he wanted a fuller, better-centered
+view of the whole flag, not just the star poking out at the column's
+edge.
+
+`.shola-login-brand-logo`: `rotate(-45deg)` -> `rotate(-30deg)`,
+`translate(-18%, ...)` -> `translate(-6%, ...)`. `.shola-login-brand-
+flag-glow` translateX updated to match (-18% -> -6%) so the glow still
+centers on the star at its new position. Re-verified live at 375px,
+1024px, and 1440px that the whole flag (pole, fabric, and star) now
+reads clearly rather than being mostly cropped. Theme bumped to
+v1.49.34.
