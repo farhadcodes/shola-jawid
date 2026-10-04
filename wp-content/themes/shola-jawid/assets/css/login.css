@@ -398,7 +398,8 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
      own woff2 file loading on this exact page), so this renders with
      actual Black glyphs, not a browser-synthesized bold. */
   font-weight: 900;
-  font-size: 1.25rem;
+  /* 1.25rem -> 1.5rem (+20%), per Farhad's explicit ask. */
+  font-size: 1.5rem;
   line-height: 1.4;
   margin: 0 0 .85rem;
   color: var(--paper);
@@ -413,7 +414,9 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
    * (tablet + desktop); mobile keeps the smaller 1.25rem/no max-width
    * set above, per Farhad's explicit ask not to force three lines there.
    */
-  .shola-login-brand .shola-login-brand-name { font-size: 2rem; max-width: 240px; }
+  /* 2rem -> 2.4rem (+20%), per Farhad's explicit ask; still wraps to
+     three lines within the existing 240px max-width, checked live. */
+  .shola-login-brand .shola-login-brand-name { font-size: 2.4rem; max-width: 240px; }
 }
 .shola-login-brand-tagline {
   font-size: .9375rem;

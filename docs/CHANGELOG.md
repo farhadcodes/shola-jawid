@@ -14479,3 +14479,12 @@ pattern with a `::before` circle.
 Verified live at 375px, 1024px, and 1440px that the flag now sits
 visibly behind/around the title text at every width; confirmed the
 login form itself still functions. Theme bumped to v1.49.36.
+
+## 2026-10-04 (continued) — Login title: 20% larger
+
+Farhad asked for the party name text 20% bigger. `.shola-login-brand
+.shola-login-brand-name` font-size: 1.25rem -> 1.5rem (mobile),
+2rem -> 2.4rem (783px+) — both breakpoints, scaled by the same
+factor. Checked live that the existing 240px max-width (desktop/
+tablet) still wraps to three lines at the larger size, and that
+mobile's two-line wrap is unaffected. Theme bumped to v1.49.37.
