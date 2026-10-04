@@ -14430,3 +14430,21 @@ centers on the star at its new position. Re-verified live at 375px,
 1024px, and 1440px that the whole flag (pole, fabric, and star) now
 reads clearly rather than being mostly cropped. Theme bumped to
 v1.49.34.
+
+## 2026-10-04 (continued) — Login flag: moved up, 25deg, 30% smaller
+
+Farhad asked for three more adjustments: the flag still sat "a little
+to the bottom," the 30deg tilt should come down to 25deg, and the
+flag should be 30% smaller — at its then-current size the source
+image was visibly pixelating.
+
+`.shola-login-brand-logo`/`.shola-login-brand-flag-glow`: this round's
+changes (`top: 50% -> 35%`, `height: 96% -> 67%` / `33% -> 23%`,
+`rotate(-30deg) -> rotate(-25deg)`) were scoped inside the existing
+783px+ media query rather than the shared base rule, specifically
+because testing live at 375px first showed the same upward shift
+pushing the flag mostly out of frame on mobile's much shorter banner
+— mobile keeps the prior (v1.49.34) top/height/rotation values.
+Desktop/tablet re-verified at 1024px and 1440px.
+
+Theme bumped to v1.49.35.

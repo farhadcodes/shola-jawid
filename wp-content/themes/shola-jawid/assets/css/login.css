@@ -382,6 +382,28 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
   z-index: -1;
   pointer-events: none;
 }
+@media (min-width: 783px) {
+  /*
+   * Further tuning, 2026-10-04, per Farhad's explicit ask — "still a
+   * little to the bottom," tilt down to 25deg, and 30% smaller since
+   * the larger size was visibly pixelating the source image. Scoped to
+   * this breakpoint only: at mobile's much shorter banner height, the
+   * same upward shift pushed the flag mostly out of frame (checked
+   * live, not assumed) — mobile keeps the prior top/height/rotation
+   * values above instead.
+   */
+  .shola-login-brand-logo {
+    top: 35%;
+    height: 67%;
+    transform: translate(-6%, -50%) rotate(-25deg);
+  }
+  .shola-login-brand-flag-glow {
+    top: 35%;
+    width: 23%;
+    height: 23%;
+    transform: translate(-6%, -50%);
+  }
+}
 /*
  * Selector scoped as `.shola-login-brand .shola-login-brand-name`
  * (two classes), not just the plain class — found live (2026-10-03):
