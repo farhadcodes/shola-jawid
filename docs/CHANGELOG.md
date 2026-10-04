@@ -14448,3 +14448,34 @@ pushing the flag mostly out of frame on mobile's much shorter banner
 Desktop/tablet re-verified at 1024px and 1440px.
 
 Theme bumped to v1.49.35.
+
+## 2026-10-04 (continued) — Login flag: re-anchored behind the title text
+
+Farhad flagged the result as "unprofessional... behind the column...
+cropped" and marked up a screenshot with the exact area the flag
+should occupy — directly behind the title/tagline text block, not
+drifted toward a corner.
+
+Root cause: every prior round had been tuning an edge-anchored
+position (`inset-inline-end` + a hand-picked `translate`) as one more
+offset on top of the last, which is why it kept drifting further from
+the text with each unrelated size/angle change — the anchor was never
+actually tied to the text's own position, just approximating it.
+
+Replaced the whole positioning approach in `assets/css/login.css`:
+`.shola-login-brand-logo` and `.shola-login-brand-flag-glow` are now
+each `position: absolute; inset: 0` wrappers that center their content
+with flexbox — the identical centering mechanism `.shola-login-brand`
+already uses for `.shola-login-brand-inner` (the text block). Because
+both now share that same centering parent/technique, the flag's center
+point is structurally guaranteed to match the text block's center
+point, not a separately-tuned approximation of it. Rotation
+(`-25deg`) moved onto the `img` itself (the wrapper's only job now is
+centering); sized via the `img`'s own `height` (85% desktop/tablet,
+65% on mobile via a `max-width: 782px` override, matching the
+shorter/wider mobile banner shape). The glow uses the same wrapper
+pattern with a `::before` circle.
+
+Verified live at 375px, 1024px, and 1440px that the flag now sits
+visibly behind/around the title text at every width; confirmed the
+login form itself still functions. Theme bumped to v1.49.36.

@@ -319,90 +319,66 @@ body.login > .language-switcher { padding-bottom: 1.5rem; }
  * masthead's own flag was tuned — not a formula ported from there,
  * since the two containers are completely different shapes.
  *
- * `translate(-18%, ...)` on top of the `inset-inline-end: -10%`
- * anchor — found live by testing several values at 783px, 1024px, and
- * 1440px widths — is what pulls the star specifically (not just the
- * flag generally) in from the panel's edge toward its left side, per
- * Farhad's explicit ask ("star should be close to the left side of
- * the column"); the anchor alone left the star nearer the panel's
- * right/center.
+ * Re-anchored entirely, 2026-10-04, per Farhad's explicit ask (a
+ * marked-up screenshot): the previous edge-anchored positioning
+ * (`inset-inline-end` + a hand-tuned `translate`) kept drifting away
+ * from the title text with every size/angle change, ending up
+ * "unprofessional... behind the column... cropped" — disconnected
+ * from the text it's meant to sit behind. Replaced with a wrapper that
+ * fills the panel (`inset: 0`) and centers its content with flexbox,
+ * the exact same centering mechanism `.shola-login-brand` already
+ * uses for `.shola-login-brand-inner` — so the flag's center point is
+ * now guaranteed to be the text block's own center point, not a
+ * separately-tuned approximation of it. Rotation lives on the `img`
+ * itself now, not the wrapper, since the wrapper's job is purely
+ * centering.
  */
 .shola-login-brand-logo {
   position: absolute;
-  top: 50%;
-  inset-inline-end: -10%;
-  /* 160% -> 96% (-40%), per Farhad's explicit ask that the first pass
-     was "extremely large"; position/rotation untouched, still reads
-     correctly at 375px, 1024px, and 1440px. */
-  height: 96%;
-  width: auto;
-  max-width: none;
-  /*
-   * rotate(-45deg) -> rotate(-30deg) and translateX -18% -> -6%,
-   * 2026-10-04, per Farhad's explicit ask: the 45deg tilt was "too
-   * much" and the -18% offset was hiding most of the flag's left side
-   * — he wanted a fuller, more centered view of it, not just the star
-   * poking out at the edge. Re-verified at 375px, 1024px, and 1440px
-   * that the whole flag (not just the star) now reads clearly within
-   * the column.
-   */
-  transform: translate(-6%, -50%) rotate(-30deg);
-  transform-origin: center;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 0;
 }
 .shola-login-brand-logo img {
-  height: 100%;
+  height: 85%;
   width: auto;
   max-width: none;
   display: block;
+  transform: rotate(-25deg);
 }
 /*
  * Glow — same radial-gradient "pop" technique as
- * `.mast-two-tier-flag-glow`, repositioned/resized behind this flag's
- * own much larger scale and placement instead of ported with the same
- * numbers (the masthead's flag is a small fraction of this panel's
- * size, so its glow's px values don't translate directly). Centered on
- * the star specifically (same anchor + translate as the flag image
- * above, tuned to the star's own position, not the flag's geometric
- * center) so the "pop" lands where the eye actually goes.
+ * `.mast-two-tier-flag-glow`, re-centered the same way as the flag
+ * above (a filling, flex-centering wrapper) so it still lands behind
+ * the star/title regardless of the flag's own size.
  */
 .shola-login-brand-flag-glow {
   position: absolute;
-  top: 50%;
-  inset-inline-end: -10%;
-  /* 55% -> 33%, scaled down with the flag above (-40%) so the glow
-     stays proportional to the now-smaller star. */
-  width: 33%;
-  height: 33%;
-  /* translateX -18% -> -6%, matching the flag's own repositioning
-     above, so the glow still centers on the star at its new spot. */
-  transform: translate(-6%, -50%);
-  background-image: radial-gradient(circle, rgba(0, 0, 0, .35) 0%, transparent 70%);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: -1;
   pointer-events: none;
 }
-@media (min-width: 783px) {
+.shola-login-brand-flag-glow::before {
+  content: "";
+  display: block;
+  width: 45%;
+  aspect-ratio: 1;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, .35) 0%, transparent 70%);
+}
+@media (max-width: 782px) {
   /*
-   * Further tuning, 2026-10-04, per Farhad's explicit ask — "still a
-   * little to the bottom," tilt down to 25deg, and 30% smaller since
-   * the larger size was visibly pixelating the source image. Scoped to
-   * this breakpoint only: at mobile's much shorter banner height, the
-   * same upward shift pushed the flag mostly out of frame (checked
-   * live, not assumed) — mobile keeps the prior top/height/rotation
-   * values above instead.
+   * Smaller on mobile, matching this breakpoint's shorter, wider
+   * banner shape (not the taller desktop/tablet column) — checked
+   * live, not assumed.
    */
-  .shola-login-brand-logo {
-    top: 35%;
-    height: 67%;
-    transform: translate(-6%, -50%) rotate(-25deg);
-  }
-  .shola-login-brand-flag-glow {
-    top: 35%;
-    width: 23%;
-    height: 23%;
-    transform: translate(-6%, -50%);
-  }
+  .shola-login-brand-logo img { height: 65%; }
+  .shola-login-brand-flag-glow::before { width: 35%; }
 }
 /*
  * Selector scoped as `.shola-login-brand .shola-login-brand-name`
