@@ -3279,7 +3279,16 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .hero-lead--feature-card { background: var(--cream); }
 .hero-feature-card-inner {
   display: flex;
-  align-items: flex-start;
+  /*
+   * flex-start -> stretch, 2026-10-07 — per Farhad's live report after
+   * uploading: a short title left the photo+text card shorter than the
+   * rail card, so their bottoms didn't line up (the rail hung lower).
+   * `stretch` makes both columns always match the taller one's height;
+   * see `.hero-feature-card-box`/`.hero-pub-card-minimal-cover` below
+   * for how each column's own flexible element absorbs the extra
+   * height without leaving a dead gap.
+   */
+  align-items: stretch;
   gap: 2.5rem;
   max-width: var(--wrap-wide);
   margin-inline: auto;
@@ -3303,11 +3312,21 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   min-width: 0;
   background: var(--paper);
   border: 1px solid var(--line);
+  /*
+   * display: flex column, 2026-10-07 — lets `.hero-feature-card-box`
+   * (the text block) grow to absorb whatever extra height `align-items:
+   * stretch` above gives this card when the rail is the taller column,
+   * instead of the card's own border just stretching around a fixed-
+   * height photo + fixed-height text block and leaving blank space.
+   */
+  display: flex;
+  flex-direction: column;
 }
 .hero-lead--feature-card .hero-media {
   display: block;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
   height: 210px;
   /*
    * min-height: 0 — the bare `.hero-media` base rule (main.css §10.1)
@@ -3340,6 +3359,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 1.25rem 1.25rem 1.5rem;
+  /* base .hero-rail centers its content vertically (justify-content:
+     center) — wrong here now that the rail can be stretched taller
+     than its own content: flex-start keeps the description chip at
+     the top, with the cover (flex: 1 below) filling the rest. */
+  justify-content: flex-start;
+}
+/*
+ * flex: 1 + aspect-ratio: unset — restores the cover-image-fills-
+ * available-height behavior (2026-10-07): with `align-items: stretch`
+ * back on `.hero-feature-card-inner`, the rail can be stretched taller
+ * than its own natural content height (desc chip + 2/3-ratio cover) by
+ * a taller photo+title card; letting the cover grow and crop
+ * (object-fit: cover, already set on its own base rule) to fill that
+ * extra height, instead of the fixed 2/3 ratio leaving blank space
+ * below it, is the same fix `.hero-feature-card-box` above uses on the
+ * other column.
+ */
+.hero-feature-card-rail .hero-pub-card-minimal-cover {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: unset;
 }
 .hero-feature-card-rail .hero-pub-card-minimal-desc {
   background: var(--winston-red);
@@ -3359,7 +3399,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
  * Farhad's explicit ask after reviewing the mockup at its default
  * (much larger) .h-display size.
  */
-.hero-feature-card-box { padding: 1.5rem 1.75rem 1.75rem; }
+/* flex: 1 — grows to fill any extra height `align-items: stretch`
+   (above) gives this card, so a short title still ends flush with a
+   taller rail card instead of leaving blank space below it. */
+.hero-feature-card-box { flex: 1; padding: 1.5rem 1.75rem 1.75rem; }
 .hero-feature-card-box .type-label { margin: 0 0 .75rem; font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
 .hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
 .hero-feature-card-box .type-label a { color: var(--stone); }

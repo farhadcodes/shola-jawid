@@ -14550,3 +14550,37 @@ rail card is proportioned independently as expected, and the
 column-stacking breakpoint (max-width: 900px) still stacks cleanly
 (behavior carried over unchanged from the original layout). Theme
 bumped to v1.50.1.
+
+## 2026-10-07 (continued) — Feature-card hero: bottom-alignment fix
+
+Farhad reported from the live site (sholajawid.com, after uploading
+v1.50.1): with a short title, the photo+text card ended up shorter
+than the rail card, so their bottoms didn't line up — exactly the
+trade-off flagged before building v1.50.1's redesign, which Farhad
+had accepted at the time but didn't like once seen live with real
+(shorter) content. Ask: both columns should share a floor height and
+always bottom-align, growing together when content needs more room.
+
+Fix, `main.css` §10.6: `.hero-feature-card-inner`'s `align-items`
+reverted `flex-start` -> `stretch`, so both columns always match the
+taller one's height (this is also what naturally gives them a shared
+"minimum" — whichever column's own natural content is taller sets the
+floor the other stretches up to). Unlike before the redesign, neither
+column reacts to that extra stretched height by leaving a dead gap:
+- `.hero-feature-main` is now `display: flex; flex-direction: column`
+  with `.hero-feature-card-box` (title/date) at `flex: 1` — it grows
+  to fill any extra height, instead of the card's border just
+  stretching around a fixed-height photo + fixed-height text block.
+- `.hero-feature-card-rail .hero-pub-card-minimal-cover` goes back to
+  `flex: 1 1 auto; aspect-ratio: unset` (the pre-redesign pattern,
+  reinstated) so the cover image itself grows and crops
+  (`object-fit: cover`, its own base rule) to fill extra height,
+  instead of staying locked to its 2/3 ratio and leaving blank space
+  below it.
+
+Verified live at 1280px with both the current (longer) hero title and
+a simulated short one (swapped in via the DOM to match Farhad's exact
+screenshot text) — both columns' `getBoundingClientRect().bottom`
+matched exactly in both cases, confirmed via direct measurement, not
+eyeballed. Checked 375px (mobile stacking, unaffected — stretch only
+matters in the row layout). Theme bumped to v1.50.2.
