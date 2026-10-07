@@ -3259,84 +3259,27 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 
 /* --- ۱۰.۶ · Hero "دوستونی: کارت مقالهٔ ویژه + ستون نشریه" layout
-   (hero_section: feature_card, added 2026-09-24; corrected twice same
-   week after Farhad relayed live client screenshots against the
-   reference) ---------------------------------------------------------
-   Per a client reference screenshot (an English-language news site's
-   two-column hero) — a featured-article photo with a solid white info
-   box overlaid at one corner, beside a narrower publication-rail
-   column, no darkening wash over the photo.
-   Width corrected twice: first pass used .hero-lead--with-rail's
-   centered-1200px-band model (main.css §10.1); second pass wrongly
-   removed that entirely in favor of .hero-lead--rail-full's edge-to-
-   edge model (main.css §10.4) chasing a "gap between the columns"
-   report that turned out not to be caused by the width/padding at all
-   (a flex row's children sit flush regardless of the container's own
-   padding-inline — that was a wrong diagnosis). Farhad's explicit
-   follow-up: this layout should sit in the same fixed-width grid
-   column every other homepage section uses, not full-bleed — so this
-   is back to the exact box model `.wrap` itself uses (main.css §04):
-   `max-width: var(--wrap-wide)`, `margin-inline: auto`,
-   `padding-inline: var(--gap-pad-x)`. No explicit `gap` is set (never
-   was) — the two flex children sit genuinely flush against each other
-   regardless of this outer padding, which only affects the block's own
-   left/right edges relative to the page, not the space between its
-   children.
-   `.hero-lead--feature-card::before/::after { content: none }` —
-   .hero-lead's own base ::before/::after (main.css §10, the gray-wash +
-   dark-gradient pair every full-bleed layout normally wants) applied
-   unconditionally since this modifier never opted out, which was the
-   dark overlay Farhad flagged; `.hero-lead--with-rail`/`.hero-lead--
-   rail-full` both already opt out the same way for their own layouts,
-   this modifier had simply been missed. */
-/* margin-block: 2.5rem, 2026-09-24 — per Farhad's explicit ask for
-   breathing room above/below the whole card, matching the reference's
-   own generous top/bottom spacing (its module sits clearly apart from
-   the header above and the content below, not flush against either).
-   .hero-lead's own base rule (main.css §10) sets `margin-block: 0 0` —
-   fine for every other layout, which are either full-viewport-tall
-   (single/overlay/etc., where flush-against-the-masthead is the point)
-   or already have their own compact-height treatment tuned without
-   this need; this is the first layout that reads as a distinct,
-   inset "card" rather than a full banner, so it's the first to need
-   its own margin. */
-/* gap: 2.5rem, 2026-09-24 (fifth pass, same day) — Farhad flagged the
-   two columns sitting flush against each other with no space between,
-   unlike the reference's own generous white-space gutter between the
-   photo and the promo column. Earlier in this layout's history a "gap
-   between columns" complaint was misdiagnosed as the outer wrap's
-   padding/max-width (see the removed full-bleed detour, reverted
-   above) — that was wrong because a flex row's own outer padding never
-   affects spacing *between* its children, only its edges relative to
-   the page. This time the ask is genuinely about inter-column spacing,
-   so the fix is the property actually meant for it: `gap` on the flex
-   container itself. */
-/*
- * Full-bleed cream band, centered content column — added 2026-09-26, per
- * Farhad's live test request ("give تازه‌ترین مقاله‌ها's cream background
- * to the hero, edge to edge"). This layout's photo+rail row needs a
- * `max-width`/centered column (so it doesn't stretch edge to edge itself),
- * but a background needs to reach the true viewport edges — the same
- * "unconstrained full-width `<section>` wrapping a centered `.wrap`"
- * split every other section on this page already uses (.sect-cream +
- * `.wrap`), applied here via a dedicated inner wrapper
- * (`.hero-feature-card-inner`, front-page.php) instead of `.wrap` itself,
- * since this layout's own gap/flex/padding values are specific to it.
- *
- * A first attempt tried to fake this split with a single element (a
- * `::before` pseudo-element pulled out to 100vw via `transform:
- * translateX(-50%)`, avoiding a markup change) — abandoned after hitting
- * two real rendering bugs in a row confirmed live (a stacking-context
- * issue needing `isolation: isolate`, then the backdrop still not
- * reaching the edge even after that fix, most likely clipped by this
- * site's own `overflow-x: hidden` on `<html>`, added for the mobile
- * blank-page fix). Two real elements is simply the robust, already-
- * proven pattern; not worth re-fighting a hack for.
- */
+   (hero_section: feature_card, added 2026-09-24) ---------------------
+   Redesigned 2026-10-07, replacing the original photo-with-overlaid-
+   white-box treatment entirely. Client feedback (relayed by Farhad):
+   the overlay box covered too much of the featured photo. New design,
+   per a BBC Persian reference the client liked: image, then title,
+   then category/date below it, stacked in normal flow — approved via
+   a standalone mockup (wp-content/themes/shola-jawid/
+   mockup-feature-v2.html, deleted once reviewed) before this
+   implementation. The photo shrank ~35% to make room; the publication-
+   rail column (right) is now its own independent bordered card rather
+   than height-matched to the photo column, which the shorter photo
+   made impossible to keep doing automatically — accepted trade-off,
+   flagged to Farhad before building this.
+   Width/background/margin/gap history (max-width: var(--wrap-wide)
+   column, var(--cream) full-bleed band via .hero-feature-card-inner,
+   2.5rem margin-block/gap) carried over unchanged from the original
+   design — only the two columns' internal content changed. */
 .hero-lead--feature-card { background: var(--cream); }
 .hero-feature-card-inner {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 2.5rem;
   max-width: var(--wrap-wide);
   margin-inline: auto;
@@ -3345,313 +3288,96 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 .hero-lead--feature-card::before,
 .hero-lead--feature-card::after { content: none; }
+
 /*
- * Height corrected 2026-09-24 (third round), per Farhad's explicit
- * side-by-side comparison against the reference: the reference's hero
- * is a genuinely short, wide banner card — nowhere near this site's own
- * `lead_rail`/`rail_full` compact-height convention
- * (clamp(480px, 42vw, 560px), itself already much shorter than a full-
- * viewport hero), let alone `single`'s full-viewport height. Set
- * directly here rather than reusing that existing clamp, and applied
- * unconditionally (not gated behind a min-width) so this layout is
- * never full-viewport-tall at any width, including the stacked mobile/
- * tablet state below — a shorter, fixed value there too (mobile has no
- * sibling rail to share a height with once stacked, so it just needs
- * its own sensible photo height, not "whatever's left of the
- * viewport").
+ * `.hero-feature-main` is now the whole card (photo + text below it),
+ * not just the photo — a bordered white box, same "sharp corners, no
+ * shadow trickery" convention as the rest of the site. `.hero-media`
+ * inside it keeps the fixed-height/overflow:hidden crop treatment, at
+ * ~65% of its pre-redesign height (320px -> ~210px / clamp(340px,
+ * 30vw, 420px) -> clamp(220px, 20vw, 270px)) per Farhad's explicit
+ * "shrink the image 30-40%, keep its proportion" ask.
  */
-.hero-feature-main { position: relative; flex: 1 1 70%; min-width: 0; overflow: hidden; height: 320px; }
-.hero-lead--feature-card .hero-media { height: 320px; }
-@media (min-width: 901px) {
-  .hero-lead--feature-card .hero-media,
-  .hero-feature-main { height: clamp(340px, 30vw, 420px); }
+.hero-feature-main {
+  flex: 1 1 68%;
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
 }
-/*
- * The publication rail reuses the plain .hero-rail class (same 320px
- * width as `lead_rail`'s own rail), but that class's default styling
- * is a solid --winston-red background with white text — built for
- * `lead_rail`/`overlay`'s own design, not this layout's reference,
- * which shows a plain, unstyled promo column with no background of its
- * own. Overridden here to a transparent background. Farhad's explicit
- * ask, after the client flagged the rail's red fill against the
- * reference's plain column.
- */
-.hero-lead--feature-card .hero-rail { background: none; color: var(--ink); }
-/*
- * Rail content corrected 2026-09-24 (second pass, same day) — now
- * renders shola_render_hero_publication_card_minimal()'s markup
- * (.hero-pub-card-minimal-desc + .hero-pub-card-minimal-cover, title
- * turned off via show_title => false) instead of
- * shola_render_hero_publication_card()'s (.h-page/.dek/.btn-primary,
- * now unused here) — see front-page.php's own comment on this swap.
- * Both classes already carry everything needed (their own solid
- * --cream/--paper background, sharp corners, and `width: 100%`) from
- * their original floating-card design on `minimal_cover` — they need
- * no further overrides to work correctly inside this plain flex-column
- * rail, since neither ever assumed the absolutely-positioned wrapper
- * that layout floats them in; only that wrapper's own positioning was
- * specific to `minimal_cover`, not these two content classes.
- */
-/*
- * Top/bottom alignment fix, 2026-09-24 (third pass, same day) — Farhad
- * flagged the rail sitting visibly lower than the photo column and not
- * reaching as far down either. Root cause: bare `.hero-rail` centers
- * its content vertically (`justify-content: center`) — fine for
- * `lead_rail`/`overlay`, where the rail's content is genuinely meant to
- * float in the middle of a taller card, but wrong here, where the rail
- * needs to match the photo column's own top-and-bottom edges exactly.
- * `justify-content: flex-start` aligns the top; the cover's own fixed
- * 2/3 aspect-ratio is dropped and given `flex: 1` instead so it grows
- * to fill whatever height is left after the description chip, meaning
- * the cover's bottom edge lands exactly on the rail's own bottom edge —
- * the same edge `.hero-feature-main`'s photo already fills via
- * `align-items: stretch` on their shared parent.
- */
-.hero-lead--feature-card .hero-rail { justify-content: flex-start; }
-.hero-feature-card-rail .hero-pub-card-minimal-cover {
-  flex: 1 1 auto;
+.hero-lead--feature-card .hero-media {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  height: 210px;
+  /*
+   * min-height: 0 — the bare `.hero-media` base rule (main.css §10.1)
+   * sets an unconditional `min-height: 240px`, tuned for the
+   * full-viewport-height hero layouts; at 0,1,0 specificity it can't
+   * override this rule's own `height` (0,2,0), but `min-height` and
+   * `height` are different properties, so the 240px floor was still
+   * silently winning and clamping this layout's shorter photo back up
+   * to 240px regardless of the height set here. Found live via
+   * computed-style inspection, not assumed.
+   */
   min-height: 0;
-  aspect-ratio: unset;
 }
+@media (min-width: 901px) {
+  .hero-lead--feature-card .hero-media { height: clamp(220px, 20vw, 270px); }
+}
+
 /*
- * padding: 0, 2026-09-24 (fourth pass, same day) — Farhad flagged the
- * rail still coming up shorter than the photo even after the flex-1
- * cover fix above. Root cause: bare `.hero-rail`'s own
- * `padding: 2rem var(--gap-pad-x)` insets its content box on every
- * side, so the cover's flex-1 growth was only ever filling that
- * smaller, padded box, not the rail element's real full height/width —
- * `.hero-feature-main`'s photo has no such padding, filling its
- * container completely, which is what actually produced the visible
- * height (and width) gap. Zeroing it out here makes both columns fill
- * edge-to-edge, matching the reference's own edge-to-edge promo column.
+ * Publication rail: now its own bordered card (matching the photo
+ * card's chrome) instead of a transparent column height-matched to the
+ * photo — see this section's intro comment for why the height-match
+ * was dropped. `.hero-pub-card-minimal-cover`'s own base rule
+ * (main.css §10.3b, aspect-ratio: 2/3 + its drop shadow) is reused
+ * unmodified now that nothing needs to force-stretch it; the
+ * description chip's red/white styling (several passes, 2026-09-24,
+ * kept here unchanged) still applies inside the new card padding.
  */
-.hero-lead--feature-card .hero-rail { padding: 0; }
-/*
- * flex-basis: 272px, 2026-09-24 (sixth pass, same day) -- Farhad's ask:
- * make the publication card column ~15% narrower. Bare `.hero-rail`
- * fixes its width at 320px (`flex: 0 0 320px`, main.css above); 320px
- * x 0.85 = 272px. `.hero-feature-main` uses `flex: 1 1 70%` purely as a
- * grow factor here (the rail is flex-shrink: 0, so it never actually
- * competes on that percentage) -- it simply grows to fill whatever
- * width the rail's fixed basis leaves behind, so narrowing the rail's
- * basis alone widens the photo column to match, no change needed there.
- */
-.hero-lead--feature-card .hero-rail { flex-basis: 272px; }
-/*
- * Caption background, 2026-09-24 (seventh pass, same day) -- Farhad's
- * ask: change the background of the description caption above the
- * cover. Scoped to this layout only (`.hero-feature-card-rail`, not the
- * shared `.hero-pub-card-minimal-desc` class itself), since that class
- * is also used by `minimal_cover`'s own floating card design, which
- * Farhad didn't ask to change. Chose `--line` (one of the eleven locked
- * brand tokens, the site's existing light-neutral-gray token, already
- * used elsewhere for hairline rules) with `--ink-soft` text, per
- * Farhad's explicit choice of a subtle light-gray treatment over a red
- * or dark-ink alternative.
- */
-/*
- * Legibility fix, 2026-09-24 (eighth pass, same day) -- Farhad flagged
- * the caption as dim and hard to read even after the background swap.
- * Diagnosis: the shared `.hero-pub-card-minimal-desc` base (font-size:
- * .8rem, no font-weight override, color: var(--ink-soft)) is tuned for
- * its original floating-card-on-photo context (minimal_cover), where a
- * light caption reads as an intentionally quiet accent against a large
- * image; against this layout's small, flat --line chip it just reads
- * as washed out, not quiet. Farhad approved this specific combination
- * after a design-head assessment: bump the size slightly, add real
- * weight to anchor it, and swap to full var(--ink) (darkest token)
- * instead of --ink-soft for the maximum-contrast reading the caption's
- * "useful at a glance" job actually needs.
- */
+.hero-lead--feature-card .hero-rail {
+  flex: 0 0 300px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 1.25rem 1.25rem 1.5rem;
+}
 .hero-feature-card-rail .hero-pub-card-minimal-desc {
-  background: var(--line);
-  color: var(--ink);
+  background: var(--winston-red);
+  color: var(--paper);
   font-size: 0.875rem;
   font-weight: 600;
 }
-/*
- * Bell glyph, 2026-09-24 (ninth pass, same day) -- Farhad's ask: the
- * outline icon read as weak once the caption text itself was bolded up
- * for legibility (previous pass), and should be filled + winston-red
- * instead. `shola_bell_icon( true )` (inc/template-tags.php) now
- * renders the solid variant for this layout only, via a new
- * `filled_icon` arg on shola_render_hero_publication_card_minimal()
- * (front-page.php passes it for feature_card, minimal_cover doesn't) --
- * the glyph's `fill="currentColor"` means only the color needs setting
- * here, overriding the caption's own var(--ink) text color for the
- * icon specifically so the glyph reads red while the text stays dark.
- */
-.hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--winston-red); }
-/*
- * Colors reversed, 2026-09-24 (eleventh pass, same day) -- Farhad still
- * felt the caption looked "off" against --line/--ink and wants to try
- * the inverse as a live comparison: solid winston-red background with
- * white icon and text, instead of the light chip with dark text/red
- * icon. This override comes after the two rules above in source order
- * so it wins on both properties they set; only `color` needs setting on
- * the glyph specifically since it no longer differs from the caption
- * text's own color (both white here, unlike the two-tone red/dark
- * treatment this replaces).
- */
-.hero-feature-card-rail .hero-pub-card-minimal-desc { background: var(--winston-red); color: var(--paper); }
 .hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--paper); }
+
 /*
- * The box floats within the photo with real margin on every side (not
- * flush to an edge), per the client's reference — `inset-inline-start`/
- * `bottom` position it from the reading-start corner (visual right in
- * this RTL site; the reference's own visual-left corner under its LTR
- * layout is the same logical corner, so this mirrors correctly, not a
- * hardcoded flip). Solid --paper background (not translucent) and sharp
- * corners (no border-radius), same "no borders, whitespace only, no
- * rounded corners" principle as the rest of this site — this box gets
- * its contrast from being genuinely opaque, not from a scrim behind it.
+ * Text block below the photo — shola_render_hero_body() reused
+ * unchanged (same .type-label/.h-display/.card-byline markup every
+ * hero layout uses), restyled here as plain stacked blocks (no more
+ * flex/order line-sharing trick the old overlay box needed to fit
+ * everything into a short floating box — there's no such space
+ * constraint now, so simpler wins). Title size is a flat 24px per
+ * Farhad's explicit ask after reviewing the mockup at its default
+ * (much larger) .h-display size.
  */
-/*
- * Proportions corrected 2026-09-24 (tenth pass, same day) -- design-head
- * assessment, per Farhad's ask: the box read as a little tall for its
- * width. Traded 15% of its height for 15% more width rather than just
- * shrinking it overall, so it keeps the same visual weight/footprint on
- * the photo -- just a squatter, wider proportion. Height comes down via
- * `padding-block` (vertical padding only, split out from the old
- * uniform `padding`) and the internal vertical rhythm between the
- * label/title/dek/byline (all scaled the same 0.85x below), not by
- * shrinking the title/dek font sizes or truncating the dek's existing
- * 3-line clamp -- Farhad explicitly asked to leave that untouched.
- * Width comes from `max-width`: 420px x 1.15 = 483px.
- */
-.hero-feature-card-box {
-  position: absolute;
-  z-index: 2;
-  inset-inline-start: 2rem;
-  bottom: 0;
-  max-width: min(483px, calc(100% - 4rem));
-  background: var(--paper);
-  box-shadow: 0 20px 45px -18px rgba(0, 0, 0, .35);
-  padding-block: 1.125rem;
-  padding-inline: 1.75rem;
-  /*
-   * display:flex + flex-wrap + order — added 2026-10-03, third pass on
-   * this same element, per Farhad's live feedback that a separate pill
-   * floating above the title (the second attempt, same day) still read
-   * as its own distracting element. Farhad's actual ask: put the label
-   * beside the date instead, on the same line. shola_render_hero_body()
-   * (inc/template-tags.php) is shared by every hero layout and always
-   * outputs .type-label, then the h1, then .card-byline, in that DOM
-   * order — reordering the markup itself would change every other hero
-   * layout too. `order` lets this layout alone re-sequence its own
-   * children purely in CSS: the h1 is forced onto its own full-width
-   * line (`flex: 1 1 100%`), and .type-label + .card-byline (left at
-   * their natural content width, no forced basis) wrap onto the next
-   * line together, side by side, in that order — see the two rules
-   * below.
-   */
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-}
-/*
- * shola_render_hero_body() is reused unchanged for this box's content
- * (same .type-label/.h-display/.dek/.card-byline markup every other
- * hero layout already uses) — only restyled here for a small opaque
- * card instead of white-on-photo hero text: dark ink colors (not the
- * white-with-text-shadow treatment §10.1's .hero-body uses, which
- * assumes text sits directly on the photo), and a noticeably smaller
- * title scale (this is a compact card, not a full masthead headline).
- */
-/*
- * .type-label placed on the same line as the date — corrected 2026-10-03
- * (third pass, same session): the first attempt put it in-flow as a
- * full-width row above the title; the second made it a separate pill
- * touching the box's top edge. Farhad's actual ask, after seeing the
- * pill live: move it down next to/before the date instead of sitting as
- * its own element near the top. `order: 2` (with .card-byline at
- * `order: 3` below, and the box's own `flex-wrap` above) puts it right
- * before the date on their shared line — no background/padding of its
- * own needed any more, it's plain text sharing the box's existing white
- * background. Text stays dark ink + `--winston-red` glyph/link, the same
- * convention every other white-background `.type-label` on this site
- * uses (e.g. card.php).
- */
-.hero-feature-card-box .type-label {
-  order: 2;
-  margin-top: .6375rem;
-  margin-inline-end: .5rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--ink);
-}
+.hero-feature-card-box { padding: 1.5rem 1.75rem 1.75rem; }
+.hero-feature-card-box .type-label { margin: 0 0 .75rem; font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
 .hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
 .hero-feature-card-box .type-label a { color: var(--stone); }
 .hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
 .hero-feature-card-box .h-display {
-  order: 1;
-  flex: 1 1 100%;
-  margin-top: 0;
-  font-size: clamp(1.25rem, 1.8vw, 1.375rem);
-  line-height: 1.35;
+  margin: 0 0 .85rem;
+  font-size: 1.5rem;
+  line-height: 1.4;
   color: var(--ink);
   text-shadow: none;
 }
 .hero-feature-card-box .h-display a:hover { color: var(--winston-red); }
-.hero-feature-card-box .dek {
-  margin-top: .6375rem;
-  max-width: none;
-  font-size: 0.9375rem;
-  color: var(--ink-soft);
-  text-shadow: none;
-  /*
-   * -webkit-line-clamp: 2, was 3 — reduced 2026-09-26, per Farhad relaying
-   * the client's explicit ask to shorten the excerpt so this compact card
-   * covers less of the photo behind it. Still reuses
-   * shola_render_hero_body()'s existing wp_trim_words(...,34) source text
-   * unchanged (shared by every hero layout) — clamping to fewer rendered
-   * lines is sufficient on its own and doesn't require touching that
-   * shared function or affecting any other layout's dek length.
-   */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-}
-.hero-feature-card-box .card-byline { order: 3; margin-top: .6375rem; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .card-byline { margin: 0; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-feature-card-inner { flex-direction: column; }
   .hero-feature-main { flex: none; width: 100%; }
   .hero-lead--feature-card .hero-rail { flex: none; width: 100%; }
-}
-@media (max-width: 640px) {
-  /* padding-block scaled the same 0.85x as the desktop box above, for
-     the same shorter/wider proportion at mobile width; padding-inline
-     kept as-is since the box is already width-capped by the viewport
-     here (calc(100% - 2rem)), not by the desktop max-width value. */
-  .hero-feature-card-box { inset-inline-start: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); padding-block: 1.0625rem; padding-inline: 1.25rem; }
-  /*
-   * Photo height raised to ~65% of the viewport, mobile only — added
-   * 2026-09-26, per Farhad relaying the client's live phone-size test
-   * (iPhone 16, 393x852): the shared 320px height (main.css §10.6 base
-   * rule, also used by the 641-900px tablet range) read as too short and
-   * cramped on an actual tall phone screen — the photo barely registered
-   * before the white card took over. Scoped to this same max-width:640px
-   * breakpoint the card's own mobile tweak already uses (not the wider
-   * 900px breakpoint above), per Farhad's explicit "tablet already looks
-   * good, only fix mobile" — the 641-900px tablet range keeps the
-   * original 320px untouched.
-   * 80% (first live version, same day) tested as too tall on a real
-   * phone-size viewport — lowered to 65% same session, same reasoning
-   * and mechanism otherwise unchanged.
-   * `65vh` first (fallback for browsers without dvh support), `65dvh`
-   * after — same progressive-enhancement pattern `single`/`overlay`'s own
-   * full-viewport `.hero-media` height already uses (main.css §10.1),
-   * `dvh` accounts for mobile Safari/Chrome's collapsing address bar so
-   * the photo doesn't visibly resize as the user scrolls.
-   */
-  .hero-lead--feature-card .hero-media,
-  .hero-feature-main {
-    height: 65vh;
-    height: 65dvh;
-  }
 }
 
 /* -------------------------------------------------------------------------

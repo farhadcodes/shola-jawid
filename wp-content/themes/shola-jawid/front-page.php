@@ -372,46 +372,17 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 <?php elseif ( $hero && 'feature_card' === $hero_layout ) : ?>
 	<?php
 	/*
-	 * دوستونی: کارت مقالهٔ ویژه + ستون نشریه (2026-09-24, seventh layout):
-	 * per a client reference screenshot (an English-language news site's
-	 * two-column hero — a featured-article photo card with a solid white
-	 * info box overlaid at one corner, beside a narrower promo column) —
-	 * adapted for RTL rather than copied literally: the reference's LTR
-	 * "photo+box on the left, promo on the right" becomes "photo+box on
-	 * the visual right (reading-start), publication rail on the visual
-	 * left" here, via DOM order alone (.hero-feature-main first, .hero-
-	 * rail second) — same no-hardcoded-side technique every other multi-
-	 * column hero layout on this site already uses.
-	 *
-	 * Deliberately its own main-column treatment, not a reuse of
-	 * `overlay`'s floating-card-over-photo or `lead_rail`/`rail_full`'s
-	 * plain-text-over-a-scrim: .hero-feature-main has no darkening
-	 * scrim at all (see main.css §10.6) — the white info box provides
-	 * its own contrast against the photo, so darkening the whole photo
-	 * underneath it isn't needed and would just make the photo itself
-	 * less visible. shola_render_hero_body() is reused unchanged for the
-	 * box's content (category label, title, excerpt, byline) — same
-	 * content function every other layout already uses, only this
-	 * layout's own CSS (.hero-feature-card-box) restyles it for a small
-	 * white card instead of white-on-photo hero text.
-	 *
-	 * Rail column corrected 2026-09-24 (same day, second pass) — Farhad
-	 * relayed the client comparing a live screenshot against the
-	 * reference sample and asking for the rail's card to match it: now
-	 * reuses shola_render_hero_publication_card_minimal() (the same
-	 * function `minimal_cover`'s own floating card uses) with `show_title
-	 * => false`, instead of shola_render_hero_publication_card(). That
-	 * function's description-above-cover shape (sourced from the
-	 * `shcore_hero_pub_description` field, main.css §10.3b's own
-	 * metabox) already matches the reference once its title is turned
-	 * off — no button either, since that function never had one to begin
-	 * with (removed from it entirely back on 2026-09-18).
-	 *
-	 * `filled_icon => true` added 2026-09-24 (fourth pass, same day) —
-	 * Farhad flagged the caption's outline bell glyph as reading weak
-	 * once the caption text itself was bolded up for legibility, and
-	 * asked for a filled icon in winston-red instead; the color itself
-	 * is set in main.css (feature_card's own rail scope), not here.
+	 * دوستونی: کارت مقالهٔ ویژه + ستون نشریه (added 2026-09-24, redesigned
+	 * 2026-10-07 — see main.css §10.6 for the full redesign rationale).
+	 * Markup unchanged by the redesign: `.hero-feature-main` holds the
+	 * photo (`.hero-media`) and the text block (`.hero-feature-card-box`)
+	 * as siblings — originally an absolutely-positioned overlay box, now
+	 * a normal in-flow block below the photo, purely via CSS. Publication
+	 * rail still on the visual left (reading-end) via DOM order alone,
+	 * same no-hardcoded-side convention every multi-column hero layout
+	 * here uses. shola_render_hero_body()/shola_render_hero_publication_
+	 * card_minimal() both reused unchanged — only the surrounding CSS
+	 * changed.
 	 */
 	?>
 	<section class="hero-lead hero-lead--feature-card" aria-label="<?php esc_attr_e( 'مقالهٔ سرخط', 'shola-jawid' ); ?>">

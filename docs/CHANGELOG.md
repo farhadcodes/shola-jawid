@@ -14488,3 +14488,65 @@ Farhad asked for the party name text 20% bigger. `.shola-login-brand
 factor. Checked live that the existing 240px max-width (desktop/
 tablet) still wraps to three lines at the larger size, and that
 mobile's two-line wrap is unaffected. Theme bumped to v1.49.37.
+
+## 2026-10-07 — Homepage feature-card hero: redesigned, image→title→meta
+
+Client feedback (relayed by Farhad): the `feature_card` hero layout's
+overlaid white info box covered too much of the featured photo. The
+client liked BBC Persian's own feature-post pattern instead — photo,
+then title, then category/date below it, no overlay. Per Farhad's
+explicit process ask, this was built first as a standalone, read-only
+mockup (`mockup-feature-v2.html`, published temporarily beside the
+theme, never linked from the live site, deleted after review) using
+the real main.css tokens/fonts/typography classes so it was an
+accurate preview — reviewed and approved live before touching any
+real template or stylesheet, including a flagged trade-off (shrinking
+the photo breaks the old height-matched publication rail) that Farhad
+accepted in advance.
+
+**Implementation (main.css §10.6 rewritten; front-page.php markup
+unchanged — the image and text block were already siblings in the
+DOM, so only the surrounding CSS needed to change):**
+- `.hero-feature-main` is now the whole card (photo + text), a
+  bordered white box (`border: 1px solid var(--line)`) instead of
+  just the photo's own clipping container.
+- `.hero-media` photo height cut ~35% (320px -> 210px mobile/tablet;
+  `clamp(340px, 30vw, 420px)` -> `clamp(220px, 20vw, 270px)`
+  desktop), per Farhad's explicit "shrink the image 30-40%, keep
+  proportion" ask.
+- `.hero-feature-card-box` (title/category/date) changed from an
+  absolutely-positioned overlay to a normal in-flow block below the
+  photo; the flex/`order` trick the overlay box needed to fit
+  everything into a short floating box is gone — plain stacked blocks
+  now that there's no such space constraint.
+- Title size: a first live pass reused `.h-display`'s own default
+  (unmodified) size, which read as much too large once seen live —
+  Farhad asked for a flat 24px, now set explicitly
+  (`.hero-feature-card-box .h-display { font-size: 1.5rem; }`).
+- Publication rail (`.hero-feature-card-rail`): per the accepted
+  trade-off, no longer height-matched to the photo column (impossible
+  once the photo shrank independently of the rail's own content
+  height) — now its own independent bordered card
+  (`align-items: flex-start` on `.hero-feature-card-inner`, was
+  `stretch`), with the existing red/white description-chip styling
+  (several passes, 2026-09-24) kept unchanged inside the new card
+  padding, and `.hero-pub-card-minimal-cover` reverted to its own
+  unmodified base aspect-ratio (2/3) now that nothing needs to
+  force-stretch it to match the photo's height.
+
+**Bug found and fixed during verification:** the new, shorter
+`.hero-media` height was silently being clamped back up to 240px by
+the bare `.hero-media` base rule's unconditional `min-height: 240px`
+(tuned for the full-viewport-height hero layouts) — `min-height` and
+`height` are different properties, so the lower-specificity base
+rule's floor still won regardless of this layout's own higher-
+specificity `height` value. Fixed with an explicit `min-height: 0`
+override, found via computed-style inspection (`getComputedStyle`
+showing 240px against a 210px rule), not assumed correct from a
+screenshot alone.
+
+Verified live at 375px and 1280px: photo/title/meta render correctly,
+rail card is proportioned independently as expected, and the
+column-stacking breakpoint (max-width: 900px) still stacks cleanly
+(behavior carried over unchanged from the original layout). Theme
+bumped to v1.50.1.
