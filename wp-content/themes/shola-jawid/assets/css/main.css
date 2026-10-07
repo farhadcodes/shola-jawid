@@ -3327,7 +3327,10 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  height: 210px;
+  /* 210px -> 250px, 2026-10-07, per Farhad's explicit ask to give the
+     photo a little more vertical room now that the title area (below)
+     is more compact. */
+  height: 250px;
   /*
    * min-height: 0 — the bare `.hero-media` base rule (main.css §10.1)
    * sets an unconditional `min-height: 240px`, tuned for the
@@ -3341,7 +3344,7 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   min-height: 0;
 }
 @media (min-width: 901px) {
-  .hero-lead--feature-card .hero-media { height: clamp(220px, 20vw, 270px); }
+  .hero-lead--feature-card .hero-media { height: clamp(260px, 24vw, 320px); }
 }
 
 /*
@@ -3392,30 +3395,49 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 /*
  * Text block below the photo — shola_render_hero_body() reused
  * unchanged (same .type-label/.h-display/.card-byline markup every
- * hero layout uses), restyled here as plain stacked blocks (no more
- * flex/order line-sharing trick the old overlay box needed to fit
- * everything into a short floating box — there's no such space
- * constraint now, so simpler wins). Title size is a flat 24px per
- * Farhad's explicit ask after reviewing the mockup at its default
- * (much larger) .h-display size.
+ * hero layout uses, always in that DOM order: label, title, date).
+ * Farhad's ask (2026-10-07, second round): move the label down next
+ * to the date instead of above the title, and tighten the spacing —
+ * `display: flex` + `order` re-sequences the three children purely in
+ * CSS, same technique this layout's original overlay-box design used
+ * for the same reason (no touching the shared render function, which
+ * every other hero layout also calls). Title own full-width line
+ * (`flex: 1 1 100%`), label + date share the line below it.
  */
 /* flex: 1 — grows to fill any extra height `align-items: stretch`
    (above) gives this card, so a short title still ends flush with a
    taller rail card instead of leaving blank space below it. */
-.hero-feature-card-box { flex: 1; padding: 1.5rem 1.75rem 1.75rem; }
-.hero-feature-card-box .type-label { margin: 0 0 .75rem; font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
-.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
-.hero-feature-card-box .type-label a { color: var(--stone); }
-.hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
+.hero-feature-card-box {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  /* 1.5rem/1.75rem -> 1rem/1.25rem, 2026-10-07 — per Farhad's explicit
+     "compact" ask. */
+  padding: 1rem 1.25rem 1.25rem;
+}
 .hero-feature-card-box .h-display {
-  margin: 0 0 .85rem;
+  order: 1;
+  flex: 1 1 100%;
+  margin: 0 0 .5rem;
   font-size: 1.5rem;
-  line-height: 1.4;
+  line-height: 1.3;
   color: var(--ink);
   text-shadow: none;
 }
 .hero-feature-card-box .h-display a:hover { color: var(--winston-red); }
-.hero-feature-card-box .card-byline { margin: 0; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .type-label {
+  order: 2;
+  margin: 0;
+  margin-inline-end: .5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
+.hero-feature-card-box .type-label a { color: var(--stone); }
+.hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
+.hero-feature-card-box .card-byline { order: 3; margin: 0; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-feature-card-inner { flex-direction: column; }

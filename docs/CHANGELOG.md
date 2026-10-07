@@ -14584,3 +14584,31 @@ screenshot text) — both columns' `getBoundingClientRect().bottom`
 matched exactly in both cases, confirmed via direct measurement, not
 eyeballed. Checked 375px (mobile stacking, unaffected — stretch only
 matters in the row layout). Theme bumped to v1.50.2.
+
+## 2026-10-07 (continued) — Feature-card hero: label moved below title, compacted, bigger photo
+
+Farhad asked for three more changes to the feature-card hero's text
+block: move the category label from above the title to just before
+the date (both below the title now, not above it), tighten the
+spacing overall, and give the photo a little more vertical room.
+
+`main.css` §10.6:
+- `.hero-feature-card-box` is now `display: flex; flex-wrap: wrap`
+  with `order` on its children — `shola_render_hero_body()` (shared by
+  every hero layout) always outputs label, then title, then date in
+  that DOM order, so this layout alone re-sequences them purely in
+  CSS: `.h-display` (`order: 1`, `flex: 1 1 100%`) owns its own
+  full-width line, `.type-label` (`order: 2`) and `.card-byline`
+  (`order: 3`) share the line below it. Same technique this layout's
+  original pre-10-07 overlay-box design used for the same reason.
+- Padding 1.5rem/1.75rem -> 1rem/1.25rem, title margin-bottom .85rem
+  -> .5rem, line-height 1.4 -> 1.3 — the "compact" ask.
+- `.hero-media` height 210px -> 250px (mobile/tablet),
+  `clamp(220px, 20vw, 270px)` -> `clamp(260px, 24vw, 320px)`
+  (desktop) — the "more vertical space for the photo" ask, made
+  possible by the text block now taking less room below it.
+
+Verified live at 375px, 1280px, and 1440px; re-confirmed the
+bottom-alignment fix from the previous entry still holds
+(`getBoundingClientRect().bottom` matching on both columns) after
+these spacing changes. Theme bumped to v1.50.3.
