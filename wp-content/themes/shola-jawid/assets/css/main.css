@@ -3346,6 +3346,35 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 @media (min-width: 901px) {
   .hero-lead--feature-card .hero-media { height: clamp(260px, 24vw, 320px); }
 }
+/*
+ * Same hover effect as regular article/report cards (.card-media /
+ * .card-media img / .card:hover, main.css §09 — the site's one
+ * established image-hover treatment, "Aeon principle"), per Farhad's
+ * explicit ask to bring it to this feature photo too: a red
+ * screen-blend wash fades in and the image scales up slightly with a
+ * desaturating filter. Hover scoped to `.hero-feature-main` (the whole
+ * card), not just `.hero-media`, matching `.card:hover` triggering on
+ * the whole card rather than only the image itself.
+ */
+.hero-lead--feature-card .hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--winston-red);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+  pointer-events: none;
+}
+.hero-lead--feature-card .hero-media img {
+  transition: transform .6s var(--ease), filter .45s var(--ease);
+}
+.hero-feature-main:hover .hero-media img { transform: scale(1.04); filter: grayscale(.9) brightness(1.02); }
+.hero-feature-main:hover .hero-media::after { opacity: .3; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-lead--feature-card .hero-media img,
+  .hero-lead--feature-card .hero-media::after { transition: none; }
+}
 
 /*
  * Publication rail: now its own bordered card (matching the photo

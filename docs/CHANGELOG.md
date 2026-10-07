@@ -14612,3 +14612,25 @@ Verified live at 375px, 1280px, and 1440px; re-confirmed the
 bottom-alignment fix from the previous entry still holds
 (`getBoundingClientRect().bottom` matching on both columns) after
 these spacing changes. Theme bumped to v1.50.3.
+
+## 2026-10-07 (continued) — Feature-card hero: article-card hover effect on the photo
+
+Farhad asked for the same hover effect regular article/report cards
+use on their images to be added to the feature-card hero's photo too.
+
+`main.css` §10.6: reused the exact same technique as `.card-media`/
+`.card-media img`/`.card:hover` (main.css §09, this site's one
+established image-hover pattern — a red, screen-blend-mode wash
+fading in over the image plus a slight scale-up with a desaturating
+filter), scoped to `.hero-lead--feature-card .hero-media` and
+triggered by `.hero-feature-main:hover` (the whole card, matching
+`.card:hover`'s own whole-card trigger, not just the image). Same
+`prefers-reduced-motion: reduce` opt-out as the original. No new CSS
+pattern introduced — purely reusing the site's existing one on a
+layout that didn't have it yet.
+
+Verified live at 1280px via hover + computed-style check
+(`transform: scale(1.04)`, `filter: grayscale(0.9) brightness(1.02)`
+on hover, matching the regular card hover exactly). Hover-only effect,
+not touch-relevant, so no separate mobile check needed. Theme bumped
+to v1.50.4.
