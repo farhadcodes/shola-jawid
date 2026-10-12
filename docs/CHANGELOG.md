@@ -14732,3 +14732,13 @@ to be anchored to.
 Verified live at 375px, 1280px, and 1440px that the gradient now
 reaches the card's bottom edge with no gap at any width. Theme bumped
 to v1.51.2.
+
+## 2026-10-12 (continued) — Feature-card hero: even side/bottom spacing
+
+Farhad flagged (a marked-up screenshot) that the text block's bottom
+margin read visibly wider than its right-side margin, and asked for
+them to match. `.hero-feature-card-box` padding-bottom: 4.5rem ->
+1.25rem — matching the existing 1.25rem inline padding exactly, so
+the text now sits an even distance from all three non-flush edges.
+
+Verified live at 375px, 1280px, and 1440px. Theme bumped to v1.51.3.
