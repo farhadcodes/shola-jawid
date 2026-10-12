@@ -14712,3 +14712,23 @@ matching on both columns), confirmed the hover removal via computed-
 style check (`transform: none`, `filter: none` after hovering), and
 checked the title link still resolves. Verified live at 375px, 1280px,
 and 1440px. Theme bumped to v1.51.1.
+
+## 2026-10-12 (continued) — Feature-card hero: fix gradient gap
+
+Farhad caught it live right after uploading v1.51.1: lifting the text
+via `bottom: 15%` had moved the *whole* box — gradient included — up
+with it, leaving a visible gap of flat, un-gradiented photo between
+the box and the card's true bottom edge (marked up in his screenshot).
+
+Root cause: `bottom` is a position offset, so raising it moves the
+entire positioned box (gradient background and all), not just the
+text inside it. Fixed by reverting `.hero-feature-card-box` to
+`bottom: 0` — the gradient/box always reaches the card's actual
+bottom edge now — and lifting the *content* instead via extra
+`padding-bottom` (1.25rem -> 4.5rem) so the title/label/date still sit
+higher, without ever detaching the gradient from the edge it's meant
+to be anchored to.
+
+Verified live at 375px, 1280px, and 1440px that the gradient now
+reaches the card's bottom edge with no gap at any width. Theme bumped
+to v1.51.2.

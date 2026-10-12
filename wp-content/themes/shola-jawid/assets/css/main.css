@@ -3374,17 +3374,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .hero-feature-card-box {
   position: absolute;
   inset-inline: 0;
-  /* 0 -> 15%, 2026-10-12, per Farhad's explicit ask to lift the whole
-     text block (title + label + date) higher on the image — 15% of
-     this card's own height (a position offset, unlike padding,
-     resolves against the containing block's height), not flush
-     against the very bottom edge. */
-  bottom: 15%;
+  /*
+   * bottom: 15% (tried first, same day) lifted the text by moving the
+   * whole box — gradient included — up with it, leaving a visible gap
+   * of flat, un-gradiented photo between the box and the card's true
+   * bottom edge. Farhad flagged that gap live. Reverted to `bottom: 0`
+   * (the gradient/box always reaches the card's actual bottom edge)
+   * and lift the *content* instead via extra `padding-bottom` — same
+   * visual result for the text's position, without ever detaching the
+   * gradient from the edge it's meant to be anchored to.
+   */
+  bottom: 0;
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  padding: 3.5rem 1.25rem 1.25rem;
+  padding: 3.5rem 1.25rem 4.5rem;
   background: linear-gradient(to top, rgba(15, 15, 15, .85) 0%, rgba(15, 15, 15, .55) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
