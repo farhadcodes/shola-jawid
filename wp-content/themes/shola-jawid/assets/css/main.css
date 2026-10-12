@@ -3260,34 +3260,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 
 /* --- ۱۰.۶ · Hero "دوستونی: کارت مقالهٔ ویژه + ستون نشریه" layout
    (hero_section: feature_card, added 2026-09-24) ---------------------
-   Redesigned 2026-10-07, replacing the original photo-with-overlaid-
-   white-box treatment entirely. Client feedback (relayed by Farhad):
-   the overlay box covered too much of the featured photo. New design,
-   per a BBC Persian reference the client liked: image, then title,
-   then category/date below it, stacked in normal flow — approved via
-   a standalone mockup (wp-content/themes/shola-jawid/
-   mockup-feature-v2.html, deleted once reviewed) before this
-   implementation. The photo shrank ~35% to make room; the publication-
-   rail column (right) is now its own independent bordered card rather
-   than height-matched to the photo column, which the shorter photo
-   made impossible to keep doing automatically — accepted trade-off,
-   flagged to Farhad before building this.
+   Redesigned again 2026-10-12, replacing the 2026-10-07 image-then-
+   title-below-it treatment: the client found that version's photo
+   "too narrow" vertically and unprofessional. New reference (a
+   screenshot the client supplied): a tall, full-height photo with
+   title + category/date overlaid directly on it, bottom-anchored on a
+   subtle bottom-to-top gradient — closer to the original pre-10-07
+   overlay concept, but with the photo noticeably taller than either
+   past version and the gradient genuinely subtle rather than a solid
+   scrim. Farhad confirmed label order stays "category, then date"
+   (unchanged from the 10-07 round) and approved building it directly,
+   no mockup round this time.
    Width/background/margin/gap history (max-width: var(--wrap-wide)
    column, var(--cream) full-bleed band via .hero-feature-card-inner,
-   2.5rem margin-block/gap) carried over unchanged from the original
-   design — only the two columns' internal content changed. */
+   2.5rem margin-block/gap, align-items: stretch so this column and
+   the publication rail always match height) carried over unchanged. */
 .hero-lead--feature-card { background: var(--cream); }
 .hero-feature-card-inner {
   display: flex;
-  /*
-   * flex-start -> stretch, 2026-10-07 — per Farhad's live report after
-   * uploading: a short title left the photo+text card shorter than the
-   * rail card, so their bottoms didn't line up (the rail hung lower).
-   * `stretch` makes both columns always match the taller one's height;
-   * see `.hero-feature-card-box`/`.hero-pub-card-minimal-cover` below
-   * for how each column's own flexible element absorbs the extra
-   * height without leaving a dead gap.
-   */
   align-items: stretch;
   gap: 2.5rem;
   max-width: var(--wrap-wide);
@@ -3299,62 +3289,40 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .hero-lead--feature-card::after { content: none; }
 
 /*
- * `.hero-feature-main` is now the whole card (photo + text below it),
- * not just the photo — a bordered white box, same "sharp corners, no
- * shadow trickery" convention as the rest of the site. `.hero-media`
- * inside it keeps the fixed-height/overflow:hidden crop treatment, at
- * ~65% of its pre-redesign height (320px -> ~210px / clamp(340px,
- * 30vw, 420px) -> clamp(220px, 20vw, 270px)) per Farhad's explicit
- * "shrink the image 30-40%, keep its proportion" ask.
+ * `.hero-feature-main` is the whole card, now just the photo's own
+ * positioning context (`position: relative`) with an explicit height
+ * — the "image should be bigger in height" ask, a generous fixed
+ * height rather than ~210-250px, for a genuinely tall hero photo.
+ * `.hero-media` fills it completely (`inset: 0`) instead of the
+ * previous fixed-height-in-normal-flow box, since the text now lives
+ * on top of the photo as a second, separately absolutely-positioned
+ * layer (`.hero-feature-card-box` below) rather than below it in
+ * normal flow.
  */
 .hero-feature-main {
+  position: relative;
   flex: 1 1 68%;
   min-width: 0;
-  background: var(--paper);
+  overflow: hidden;
   border: 1px solid var(--line);
-  /*
-   * display: flex column, 2026-10-07 — lets `.hero-feature-card-box`
-   * (the text block) grow to absorb whatever extra height `align-items:
-   * stretch` above gives this card when the rail is the taller column,
-   * instead of the card's own border just stretching around a fixed-
-   * height photo + fixed-height text block and leaving blank space.
-   */
-  display: flex;
-  flex-direction: column;
+  height: 360px;
+}
+@media (min-width: 901px) {
+  .hero-feature-main { height: clamp(420px, 38vw, 520px); }
 }
 .hero-lead--feature-card .hero-media {
   display: block;
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  flex-shrink: 0;
-  /* 210px -> 250px, 2026-10-07, per Farhad's explicit ask to give the
-     photo a little more vertical room now that the title area (below)
-     is more compact. */
-  height: 250px;
-  /*
-   * min-height: 0 — the bare `.hero-media` base rule (main.css §10.1)
-   * sets an unconditional `min-height: 240px`, tuned for the
-   * full-viewport-height hero layouts; at 0,1,0 specificity it can't
-   * override this rule's own `height` (0,2,0), but `min-height` and
-   * `height` are different properties, so the 240px floor was still
-   * silently winning and clamping this layout's shorter photo back up
-   * to 240px regardless of the height set here. Found live via
-   * computed-style inspection, not assumed.
-   */
-  min-height: 0;
-}
-@media (min-width: 901px) {
-  .hero-lead--feature-card .hero-media { height: clamp(260px, 24vw, 320px); }
 }
 /*
  * Same hover effect as regular article/report cards (.card-media /
  * .card-media img / .card:hover, main.css §09 — the site's one
- * established image-hover treatment, "Aeon principle"), per Farhad's
- * explicit ask to bring it to this feature photo too: a red
- * screen-blend wash fades in and the image scales up slightly with a
- * desaturating filter. Hover scoped to `.hero-feature-main` (the whole
- * card), not just `.hero-media`, matching `.card:hover` triggering on
- * the whole card rather than only the image itself.
+ * established image-hover treatment, "Aeon principle"), kept unchanged
+ * from the 10-07 round: a red screen-blend wash fades in and the image
+ * scales up slightly with a desaturating filter, triggered by hovering
+ * the whole card.
  */
 .hero-lead--feature-card .hero-media::after {
   content: "";
@@ -3377,37 +3345,18 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 
 /*
- * Publication rail: now its own bordered card (matching the photo
- * card's chrome) instead of a transparent column height-matched to the
- * photo — see this section's intro comment for why the height-match
- * was dropped. `.hero-pub-card-minimal-cover`'s own base rule
- * (main.css §10.3b, aspect-ratio: 2/3 + its drop shadow) is reused
- * unmodified now that nothing needs to force-stretch it; the
- * description chip's red/white styling (several passes, 2026-09-24,
- * kept here unchanged) still applies inside the new card padding.
+ * Publication rail: unchanged from the 10-07 round — its own bordered
+ * card, still height-matched to the photo column via `align-items:
+ * stretch` above (now stretching to match this layout's own explicit,
+ * taller photo height instead of the previous shorter one).
  */
 .hero-lead--feature-card .hero-rail {
   flex: 0 0 300px;
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 1.25rem 1.25rem 1.5rem;
-  /* base .hero-rail centers its content vertically (justify-content:
-     center) — wrong here now that the rail can be stretched taller
-     than its own content: flex-start keeps the description chip at
-     the top, with the cover (flex: 1 below) filling the rest. */
   justify-content: flex-start;
 }
-/*
- * flex: 1 + aspect-ratio: unset — restores the cover-image-fills-
- * available-height behavior (2026-10-07): with `align-items: stretch`
- * back on `.hero-feature-card-inner`, the rail can be stretched taller
- * than its own natural content height (desc chip + 2/3-ratio cover) by
- * a taller photo+title card; letting the cover grow and crop
- * (object-fit: cover, already set on its own base rule) to fill that
- * extra height, instead of the fixed 2/3 ratio leaving blank space
- * below it, is the same fix `.hero-feature-card-box` above uses on the
- * other column.
- */
 .hero-feature-card-rail .hero-pub-card-minimal-cover {
   flex: 1 1 auto;
   min-height: 0;
@@ -3422,28 +3371,32 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 .hero-feature-card-rail .hero-pub-card-minimal-desc .glyph { color: var(--paper); }
 
 /*
- * Text block below the photo — shola_render_hero_body() reused
- * unchanged (same .type-label/.h-display/.card-byline markup every
- * hero layout uses, always in that DOM order: label, title, date).
- * Farhad's ask (2026-10-07, second round): move the label down next
- * to the date instead of above the title, and tighten the spacing —
- * `display: flex` + `order` re-sequences the three children purely in
- * CSS, same technique this layout's original overlay-box design used
- * for the same reason (no touching the shared render function, which
- * every other hero layout also calls). Title own full-width line
- * (`flex: 1 1 100%`), label + date share the line below it.
+ * Text overlay — shola_render_hero_body() reused unchanged (same
+ * .type-label/.h-display/.card-byline markup, in that DOM order,
+ * every hero layout uses). Bottom-anchored over the photo
+ * (`position: absolute; inset-inline: 0; bottom: 0`), with the
+ * gradient as this element's own `background` (not a separate
+ * pseudo-element on `.hero-media`, which would either paint behind the
+ * image or fight the hover-effect `::after` already on that element
+ * for stacking order) — generous top padding gives the gradient room
+ * to actually fade out before it reaches the box's own top edge,
+ * rather than cutting off abruptly. `display: flex` + `order` still
+ * re-sequences the three children purely in CSS (title first/full-
+ * width, then label + date sharing the line below it, in that order —
+ * Farhad's explicit "category, then date" ask, unchanged from 10-07).
+ * Text color switched to --paper (white) now that it sits on a photo,
+ * not a white card.
  */
-/* flex: 1 — grows to fill any extra height `align-items: stretch`
-   (above) gives this card, so a short title still ends flush with a
-   taller rail card instead of leaving blank space below it. */
 .hero-feature-card-box {
-  flex: 1;
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  /* 1.5rem/1.75rem -> 1rem/1.25rem, 2026-10-07 — per Farhad's explicit
-     "compact" ask. */
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 3.5rem 1.25rem 1.25rem;
+  background: linear-gradient(to top, rgba(15, 15, 15, .85) 0%, rgba(15, 15, 15, .55) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
   order: 1;
@@ -3451,22 +3404,22 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   margin: 0 0 .5rem;
   font-size: 1.5rem;
   line-height: 1.3;
-  color: var(--ink);
-  text-shadow: none;
+  color: var(--paper);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
 }
-.hero-feature-card-box .h-display a:hover { color: var(--winston-red); }
+.hero-feature-card-box .h-display a:hover { color: var(--winston-red-tint); }
 .hero-feature-card-box .type-label {
   order: 2;
   margin: 0;
   margin-inline-end: .5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--paper);
 }
-.hero-feature-card-box .type-label .glyph { color: var(--winston-red); }
-.hero-feature-card-box .type-label a { color: var(--stone); }
-.hero-feature-card-box .type-label a:hover { color: var(--winston-red); }
-.hero-feature-card-box .card-byline { order: 3; margin: 0; font-size: 0.75rem; color: var(--stone); text-shadow: none; }
+.hero-feature-card-box .type-label .glyph { color: var(--paper); }
+.hero-feature-card-box .type-label a { color: rgba(255, 255, 255, .85); }
+.hero-feature-card-box .type-label a:hover { color: var(--paper); }
+.hero-feature-card-box .card-byline { order: 3; margin: 0; font-size: 0.75rem; color: rgba(255, 255, 255, .85); text-shadow: none; }
 
 @media (max-width: 900px) {
   .hero-feature-card-inner { flex-direction: column; }

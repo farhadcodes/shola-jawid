@@ -14634,3 +14634,49 @@ Verified live at 1280px via hover + computed-style check
 on hover, matching the regular card hover exactly). Hover-only effect,
 not touch-relevant, so no separate mobile check needed. Theme bumped
 to v1.50.4.
+
+## 2026-10-12 — Feature-card hero: redesigned again, full-height photo overlay
+
+Client feedback via Farhad (a screenshot from the live site, plus a
+reference image): the 2026-10-07 image-then-title-below-it redesign
+made the photo "too narrow" vertically, reading as unprofessional.
+New reference: a tall, full-height photo with the title and category/
+date overlaid directly on it, bottom-anchored on a subtle dark-to-
+transparent gradient. Farhad confirmed the label order stays
+"category, then date" (unchanged from 10-07) and approved building
+directly from a stated understanding, no mockup round this time.
+
+`main.css` §10.6, `.hero-feature-main`/`.hero-media`/
+`.hero-feature-card-box` rewritten:
+- `.hero-feature-main` height: 250px -> 360px (mobile/tablet),
+  `clamp(260px, 24vw, 320px)` -> `clamp(420px, 38vw, 520px)`
+  (desktop) -- a large, deliberate increase per "the image should be
+  bigger in height."
+- `.hero-media` changed from a fixed-height box in normal flow to
+  `position: absolute; inset: 0`, filling the whole card -- the photo
+  *is* the card now, not a block above a separate text block.
+- `.hero-feature-card-box` (title/label/date) changed from static flow
+  to `position: absolute; inset-inline: 0; bottom: 0`, overlaid
+  directly on the photo. The gradient lives on this element's own
+  `background` (`linear-gradient(to top, rgba(15,15,15,.85) 0%,
+  rgba(15,15,15,.55) 45%, rgba(15,15,15,0) 100%)`) rather than a
+  pseudo-element on `.hero-media`, which would have either painted
+  behind the image or fought the hover-effect `::after` already on
+  that element for stacking order -- generous top padding (3.5rem)
+  gives the gradient room to actually fade out before its own top
+  edge instead of cutting off abruptly. Text colors switched to
+  `--paper`/near-white now that they sit on a photo, not a white card;
+  `order` still re-sequences title/label/date the same way as the
+  10-07 round (title full-width line, label + date sharing the line
+  below it, in that order).
+- Publication rail and the bottom-alignment mechanism (`align-items:
+  stretch` on `.hero-feature-card-inner`) both carried over unchanged
+  -- the rail now simply stretches to match this layout's taller photo
+  instead of the shorter one.
+
+Verified live at 375px, 1280px, and 1440px: gradient reads as subtle
+(checked via zoomed screenshot, not just eyeballed at full size),
+text legible against both dark and light parts of the photo, both
+columns' `getBoundingClientRect().bottom` still match exactly, and
+the hero's own links (title anchor, photo anchor) still point to the
+same post URL. Theme bumped to v1.51.0.
