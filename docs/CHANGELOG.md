@@ -14680,3 +14680,35 @@ text legible against both dark and light parts of the photo, both
 columns' `getBoundingClientRect().bottom` still match exactly, and
 the hero's own links (title anchor, photo anchor) still point to the
 same post URL. Theme bumped to v1.51.0.
+
+## 2026-10-12 (continued) — Feature-card hero: four refinements
+
+Farhad reviewed v1.51.0 live and asked for four more changes:
+
+1. **Card height -15% (vertical only)**: `.hero-feature-main` height
+   360px -> 306px (mobile/tablet), `clamp(420px, 38vw, 520px)` ->
+   `clamp(357px, 32vw, 442px)` (desktop). Width/column proportions
+   untouched.
+2. **Title 24px -> 28px**: `.hero-feature-card-box .h-display`
+   font-size `1.5rem` -> `1.75rem`.
+3. **Hover effect removed entirely**: the red-wash/scale/desaturate
+   treatment added earlier (reused from the site's regular article
+   cards) didn't read as professional on this full-photo overlay
+   layout — `.hero-feature-main:hover` and the `.hero-media`
+   `::after`/`img` transition rules are gone; the photo is now fully
+   static.
+4. **Text block lifted 15% higher on the image**: `.hero-feature-card-
+   box`'s `bottom: 0` -> `bottom: 15%` — a position offset (unlike
+   padding) resolves against the containing block's *height*, so this
+   is literally 15% of the card's own height, not a guess. The
+   gradient still lives on the box's own background and moves up with
+   it, leaving a clean strip of un-gradiented photo visible below —
+   confirmed via a zoomed screenshot that this reads intentional, not
+   like a missing background.
+
+Re-verified the bottom-alignment mechanism from two entries ago still
+holds after the height change (`getBoundingClientRect().bottom`
+matching on both columns), confirmed the hover removal via computed-
+style check (`transform: none`, `filter: none` after hovering), and
+checked the title link still resolves. Verified live at 375px, 1280px,
+and 1440px. Theme bumped to v1.51.1.
