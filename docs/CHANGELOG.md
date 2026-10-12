@@ -14762,3 +14762,14 @@ fewer lines."
 Re-confirmed bottom-alignment (`getBoundingClientRect().bottom`
 matching on both columns) still holds. Verified live at 375px, 1280px,
 and 1440px. Theme bumped to v1.51.4.
+
+## 2026-10-12 (continued) — Feature-card hero: dial back the +5% overshoot
+
+Same day, next round: Farhad marked up another screenshot — the +5%
+bump from the previous entry overshot, reading as too wide a gap on
+both the right and bottom. `.hero-feature-card-box` inline/bottom
+padding: 3.75rem -> 2.25rem, a middle value between the original
+1.25rem and the overshot 3.75rem. Kept equal to each other, same as
+both prior rounds.
+
+Verified live at 375px, 1280px, and 1440px. Theme bumped to v1.51.5.

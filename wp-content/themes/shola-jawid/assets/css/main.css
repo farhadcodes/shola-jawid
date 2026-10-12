@@ -3390,14 +3390,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   flex-wrap: wrap;
   align-items: baseline;
   /*
-   * Inline/bottom padding 1.25rem -> 3.75rem (roughly +5% of the
-   * card's own width, ~40px at this layout's typical desktop size),
-   * 2026-10-12, per Farhad's explicit ask for "at least 5% more"
-   * space on the right and bottom after the previous round matched
-   * them to each other but still read as too tight. Kept equal to
-   * each other, same as that previous fix — just both bigger now.
+   * Inline/bottom padding 3.75rem -> 2.25rem, 2026-10-12 (same day,
+   * next round) — the +5% bump turned out to overshoot once seen live
+   * (a marked-up screenshot flagged the gap as too wide); dialed back
+   * to a middle value between the original 1.25rem and the overshot
+   * 3.75rem. Kept equal to each other, same as both prior rounds.
    */
-  padding: 3.5rem 3.75rem 3.75rem;
+  padding: 3.5rem 2.25rem 2.25rem;
   background: linear-gradient(to top, rgba(15, 15, 15, .85) 0%, rgba(15, 15, 15, .55) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
