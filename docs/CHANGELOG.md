@@ -14742,3 +14742,23 @@ them to match. `.hero-feature-card-box` padding-bottom: 4.5rem ->
 the text now sits an even distance from all three non-flush edges.
 
 Verified live at 375px, 1280px, and 1440px. Theme bumped to v1.51.3.
+
+## 2026-10-12 (continued) — Feature-card hero: +5% more side/bottom space
+
+Farhad said the even spacing from the previous round still wasn't
+enough and asked for "at least 5% more" on the right and bottom.
+`.hero-feature-card-box` inline/bottom padding: 1.25rem -> 3.75rem —
+roughly +5% of the card's own width (~40px at this layout's typical
+desktop size, measured live via `getBoundingClientRect()` before
+picking the value, not guessed). Kept equal to each other, same as
+the previous round's fix.
+
+Mobile note: at 375px this pushes the (already long) party-name-style
+titles to wrap one extra line within the narrower remaining width —
+checked live and still reads fine, not flagged as a problem, but
+worth knowing if a future ask references "the title used to fit in
+fewer lines."
+
+Re-confirmed bottom-alignment (`getBoundingClientRect().bottom`
+matching on both columns) still holds. Verified live at 375px, 1280px,
+and 1440px. Theme bumped to v1.51.4.
