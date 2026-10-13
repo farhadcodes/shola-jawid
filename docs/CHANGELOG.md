@@ -14841,3 +14841,22 @@ only.
 
 Verified live at 375px (title now proportional to the photo) and
 confirmed desktop is unchanged. Theme bumped to v1.51.10.
+
+## 2026-10-13 (continued) — Feature-card hero: mobile-only gradient, deeper coverage
+
+Same day, next round: Farhad, from a real-phone screenshot, flagged
+that the shared desktop/mobile gradient didn't give the title enough
+dark backing on mobile -- title and busy photo detail were "mixed
+together." His direction: on mobile, dark coverage should reach
+roughly 60-70% of the box height up from the bottom, then fade out to
+the top.
+
+Added a mobile-only override (inside the same `@media (max-width:
+900px)` block used for the mobile title-size override) replacing
+`.hero-feature-card-box`'s background with a 9-stop curve whose dark
+zone (opacity .68-1) runs through ~55% of the height before easing
+down to 0 by 100%. Desktop's gradient (defined once, outside any media
+query) is untouched.
+
+Verified live at 375px and confirmed desktop unchanged. Theme bumped
+to v1.51.11.

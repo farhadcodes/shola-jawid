@@ -3457,6 +3457,31 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   /* Title 34px -> 20px on mobile only, 2026-10-13: at full desktop size
      it overwhelmed the photo on small screens. Desktop size unchanged. */
   .hero-feature-card-box .h-display { font-size: 20px; }
+  /*
+   * Mobile-only gradient, 2026-10-13 (same day, next round): on a real
+   * phone screenshot the desktop gradient's dark zone didn't reach far
+   * enough up the (proportionally taller/narrower) mobile photo, so
+   * title and busy photo detail mixed together. Dark coverage now
+   * extends to roughly 60-70% of the box height before it starts
+   * fading, then eases out to fully transparent at the top -- per
+   * Farhad's explicit "60 to 70 percent... then fade out to the top".
+   * Desktop's gradient (defined above, outside this media query) is
+   * untouched.
+   */
+  .hero-feature-card-box {
+    background: linear-gradient(
+      to top,
+      rgba(15, 15, 15, 1) 0%,
+      rgba(15, 15, 15, .98) 10%,
+      rgba(15, 15, 15, .92) 25%,
+      rgba(15, 15, 15, .82) 40%,
+      rgba(15, 15, 15, .68) 55%,
+      rgba(15, 15, 15, .45) 65%,
+      rgba(15, 15, 15, .22) 78%,
+      rgba(15, 15, 15, .06) 90%,
+      rgba(15, 15, 15, 0) 100%
+    );
+  }
 }
 
 /* -------------------------------------------------------------------------
