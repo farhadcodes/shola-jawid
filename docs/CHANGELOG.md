@@ -14860,3 +14860,24 @@ query) is untouched.
 
 Verified live at 375px and confirmed desktop unchanged. Theme bumped
 to v1.51.11.
+
+## 2026-10-13 (continued) — Security/performance plan: two-track split, B4 done
+
+`docs/SECURITY_PERFORMANCE_PLAN.md` split into two tracks, per Farhad:
+**Track 1** (Claude executes directly — code-only changes or read-only
+audits against the public site, no production credentials involved)
+and **Track 2** (parked until Farhad has time — every item needs his
+own hands on production wp-admin/Hostinger/DNS, which Claude never
+touches). Original item IDs unchanged, just regrouped, so nothing from
+the original A/B/C sections was lost.
+
+First Track 1 item done: **B4**, application-password REST
+authentication disabled (`class-security.php`,
+`wp_is_application_passwords_available` filtered to `__return_false`)
+— this project has no external app/integration using it. Verified live
+via `/wp-json/` discovery: the `authentication` object's
+`application-passwords` entry is gone. Also recorded **P-4**
+(font-display: swap) as already done — audited `main.css`, every
+`@font-face` already has it, no change needed.
+
+Plugin bumped to v1.25.4.

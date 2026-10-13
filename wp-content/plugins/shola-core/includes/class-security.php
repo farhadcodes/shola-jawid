@@ -30,6 +30,14 @@
  *   scoped to `! is_admin()` so wp-admin's own author column/dropdowns
  *   (a legitimate internal CMS-management view, not public-facing) are
  *   unaffected.
+ * - Application passwords (B4, docs/SECURITY_PERFORMANCE_PLAN.md,
+ *   2026-10-13): disabled site-wide. This project has no external app,
+ *   mobile client, or integration that authenticates against the REST
+ *   API with one (confirmed against CLAUDE.md §3's plugin whitelist and
+ *   the full IA — nothing calls for it), so it's a credential-based
+ *   attack surface with zero legitimate use on this site. If a real
+ *   integration ever needs one, re-enabling is a one-line revert here,
+ *   not a rebuild.
  *
  * @package SholaCore
  */
@@ -53,6 +61,7 @@ class Security {
 	public static function init() {
 		add_filter( 'xmlrpc_enabled', '__return_false' );
 		add_filter( 'wp_headers', array( __CLASS__, 'remove_xmlrpc_header' ) );
+		add_filter( 'wp_is_application_passwords_available', '__return_false' );
 
 		remove_action( 'wp_head', 'wp_generator' );
 		add_filter( 'the_generator', '__return_empty_string' );
