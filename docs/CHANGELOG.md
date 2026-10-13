@@ -14828,3 +14828,16 @@ anywhere near as sharp as the old 45% seam.
 
 Verified live via `javascript_exec` + screenshot before committing.
 Theme bumped to v1.51.9.
+
+## 2026-10-13 (continued) — Feature-card hero: mobile-only title size
+
+Farhad, from an actual mobile screenshot (marked up with a red circle
+around the title): at the desktop 34px size, the title overwhelmed the
+photo on small screens. Added a mobile-only override inside the
+existing `@media (max-width: 900px)` block for this layout:
+`.hero-feature-card-box .h-display { font-size: 20px; }`. Desktop size
+(34px) is untouched -- this is additive inside the mobile breakpoint
+only.
+
+Verified live at 375px (title now proportional to the photo) and
+confirmed desktop is unchanged. Theme bumped to v1.51.10.

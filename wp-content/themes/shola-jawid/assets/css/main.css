@@ -3454,6 +3454,9 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   .hero-feature-card-inner { flex-direction: column; }
   .hero-feature-main { flex: none; width: 100%; }
   .hero-lead--feature-card .hero-rail { flex: none; width: 100%; }
+  /* Title 34px -> 20px on mobile only, 2026-10-13: at full desktop size
+     it overwhelmed the photo on small screens. Desktop size unchanged. */
+  .hero-feature-card-box .h-display { font-size: 20px; }
 }
 
 /* -------------------------------------------------------------------------
