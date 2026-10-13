@@ -14773,3 +14773,15 @@ padding: 3.75rem -> 2.25rem, a middle value between the original
 both prior rounds.
 
 Verified live at 375px, 1280px, and 1440px. Theme bumped to v1.51.5.
+
+## 2026-10-13 — Feature-card hero: extra space past the title's left edge
+
+Farhad: "looks great now, just add a little space to the left of the
+title on the image... if you double the current space, that's good."
+`.hero-feature-card-box` padding split from one symmetric
+`padding-inline` value into `padding-inline-start`/`-end`: start
+(right, in this RTL layout) stays 2.25rem, end (left) doubled to
+4.5rem. Only this one side changed.
+
+Verified live via `javascript_exec` + screenshot before committing.
+Theme bumped to v1.51.6.

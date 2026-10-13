@@ -3395,8 +3395,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    * (a marked-up screenshot flagged the gap as too wide); dialed back
    * to a middle value between the original 1.25rem and the overshot
    * 3.75rem. Kept equal to each other, same as both prior rounds.
+   *
+   * Then, 2026-10-13: Farhad asked for a little extra room past the
+   * title's left edge specifically (not both sides) — doubled just
+   * that side. padding-inline-end is the physical-left side in this
+   * RTL layout, so it's split from padding-inline-start here.
    */
-  padding: 3.5rem 2.25rem 2.25rem;
+  padding-block: 3.5rem 2.25rem;
+  padding-inline-start: 2.25rem;
+  padding-inline-end: 4.5rem;
   background: linear-gradient(to top, rgba(15, 15, 15, .85) 0%, rgba(15, 15, 15, .55) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
