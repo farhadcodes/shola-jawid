@@ -3404,8 +3404,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-block: 3.5rem 2.25rem;
   padding-inline-start: 2.25rem;
   padding-inline-end: 4.5rem;
-  /* Gradient 10% darker, 2026-10-13 -- too subtle once seen live on prod. */
-  background: linear-gradient(to top, rgba(15, 15, 15, .95) 0%, rgba(15, 15, 15, .65) 45%, rgba(15, 15, 15, 0) 100%);
+  /* Gradient 10% darker again, 2026-10-13 (same day) -- still needed more punch. */
+  background: linear-gradient(to top, rgba(15, 15, 15, 1) 0%, rgba(15, 15, 15, .75) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
   order: 1;
@@ -3415,7 +3415,8 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   font-size: 2.125rem;
   line-height: 1.3;
   color: var(--paper);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  /* Stronger shadow, 2026-10-13 (same day) -- title needed to pop more off the photo. */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .65), 0 1px 2px rgba(0, 0, 0, .5);
 }
 .hero-feature-card-box .h-display a:hover { color: var(--winston-red-tint); }
 .hero-feature-card-box .type-label {

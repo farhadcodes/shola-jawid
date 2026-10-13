@@ -14797,3 +14797,16 @@ gradient reads too subtle, and the title text looks too small.
 
 Verified live via `javascript_exec` + screenshot before committing.
 Theme bumped to v1.51.7.
+
+## 2026-10-13 (continued) — Feature-card hero: gradient darker again, title text-shadow strengthened
+
+Same day, next round: Farhad asked for the gradient 10% darker again
+(.95/.65 -> 1/.75, 0% stop unchanged) and said the title "should pop
+up" more. Rather than a further font-size bump (34px was just set),
+read that as needing more contrast against the photo, so strengthened
+`.h-display`'s text-shadow from a single soft `0 1px 3px rgba(0,0,0,.4)`
+to a two-layer shadow (`0 2px 8px rgba(0,0,0,.65), 0 1px 2px
+rgba(0,0,0,.5)`) for more separation from busy/light photo areas.
+
+Verified live via `javascript_exec` + screenshot before committing.
+Theme bumped to v1.51.8.
