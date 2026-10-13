@@ -3404,14 +3404,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-block: 3.5rem 2.25rem;
   padding-inline-start: 2.25rem;
   padding-inline-end: 4.5rem;
-  background: linear-gradient(to top, rgba(15, 15, 15, .85) 0%, rgba(15, 15, 15, .55) 45%, rgba(15, 15, 15, 0) 100%);
+  /* Gradient 10% darker, 2026-10-13 -- too subtle once seen live on prod. */
+  background: linear-gradient(to top, rgba(15, 15, 15, .95) 0%, rgba(15, 15, 15, .65) 45%, rgba(15, 15, 15, 0) 100%);
 }
 .hero-feature-card-box .h-display {
   order: 1;
   flex: 1 1 100%;
   margin: 0 0 .5rem;
-  /* 1.5rem (24px) -> 1.75rem (28px), per Farhad's explicit ask. */
-  font-size: 1.75rem;
+  /* 24px -> 28px -> 34px (2026-10-13, too small once seen live on prod). */
+  font-size: 2.125rem;
   line-height: 1.3;
   color: var(--paper);
   text-shadow: 0 1px 3px rgba(0, 0, 0, .4);

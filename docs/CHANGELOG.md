@@ -14785,3 +14785,15 @@ title on the image... if you double the current space, that's good."
 
 Verified live via `javascript_exec` + screenshot before committing.
 Theme bumped to v1.51.6.
+
+## 2026-10-13 (continued) — Feature-card hero: darker gradient, bigger title, seen live on prod
+
+After this round shipped to production, Farhad checked the real site
+(sholajawid.com) and flagged two things once seen at full scale: the
+gradient reads too subtle, and the title text looks too small.
+`.hero-feature-card-box` gradient stops bumped ~10% darker (.85/.55 ->
+.95/.65, 0% stop unchanged). Title `.h-display` font-size 28px ->
+34px (1.75rem -> 2.125rem).
+
+Verified live via `javascript_exec` + screenshot before committing.
+Theme bumped to v1.51.7.
