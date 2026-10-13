@@ -14902,3 +14902,29 @@ font files loading on first paint, and a 292KB uncompressed PNG
 (`Herat-women-protest-1.png`, a regular article featured image) —
 directly confirms the P-2 gap already in this plan (image optimizer
 currently `leaflet`-CPT-only). P-1 marked done on that basis.
+
+## 2026-10-13 (continued) — P-2: image optimizer widened beyond leaflet
+
+Acting directly on the P-1 finding above: `Image_Optimizer`'s gate
+(`class-image-optimizer.php`) widened from a hardcoded `'leaflet' !==
+get_post_type( $post_id )` check to `post_type_supports( $post_type,
+'thumbnail' )` — self-maintaining, covers every current and future
+post type that actually shows a featured image, without a list to keep
+in sync by hand. Verified against the real registered post types
+(`class-post-types.php`): correctly includes `post`, `issue`,
+`document`, `party_publication`, `party_document`, `leaflet`,
+`editors_pick`; correctly excludes `announcement`, `hero_section`,
+`masthead_section` (none declare `thumbnail` support). No change to
+the actual resize/re-encode logic or its tuning (2000px cap, quality
+82, 300KB skip floor) — those were already a safe, if anything
+conservative, choice for general photography, chosen originally for
+leaflets' harder case (sharp typography/line art).
+
+PDFs: audited, found genuinely untouched (no compression anywhere),
+but real PDF recompression needs an external tool (Ghostscript) not
+guaranteed present on Hostinger shared hosting — parked as a Track 2
+decision-needed item rather than silently building something that
+might not even run on the actual host.
+
+Verified live: front end and wp-admin both load clean after the
+change, no fatal. Plugin bumped to v1.25.5.

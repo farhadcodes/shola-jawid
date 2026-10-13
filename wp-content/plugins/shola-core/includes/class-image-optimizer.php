@@ -1,12 +1,20 @@
 <?php
 /**
- * Automatic upload-time image optimization for تراکت (leaflet) featured
- * images — added 2026-09-17, per Farhad relaying the client's concern that
- * non-technical staff uploading leaflet/banner/poster photos (phone
- * photos, uncompressed PNGs) would bloat the media library and slow the
- * new archive page down. Scoped to the `leaflet` CPT only — see this
- * class's own docblock below for the full reasoning; every other content
- * type's uploads are completely untouched.
+ * Automatic upload-time image optimization for featured images —
+ * originally added 2026-09-17 scoped to just the `leaflet` CPT (per
+ * Farhad relaying the client's concern about non-technical staff
+ * uploading uncompressed phone photos for that content type
+ * specifically). Widened 2026-10-13 (P-2,
+ * docs/SECURITY_PERFORMANCE_PLAN.md) to every public post type that
+ * supports a featured image, after a real production measurement
+ * (`docs/screenshots/p1-prod-perf-baseline.md`) found a 292KB
+ * uncompressed PNG on an ordinary article — proof the original
+ * `leaflet`-only scope was leaving the exact same problem untouched
+ * everywhere else. The tuning (2000px cap, quality 82, 300KB skip
+ * floor — see constants below) was chosen for leaflets specifically
+ * (sharp typography/line art is the harder case for JPEG artifacting),
+ * which makes it, if anything, a conservative/safe choice for general
+ * editorial photography too — no values changed, just the scope gate.
  *
  * @package SholaCore
  */
@@ -101,7 +109,13 @@ class Image_Optimizer {
 		if ( '_thumbnail_id' !== $meta_key ) {
 			return;
 		}
-		if ( 'leaflet' !== get_post_type( $post_id ) ) {
+
+		$post_type = get_post_type( $post_id );
+		// `post_type_supports` is the generic, self-maintaining gate
+		// (2026-10-13 widening, see class docblock) — covers every
+		// current and future post type that actually shows a featured
+		// image, without a hardcoded CPT list to keep in sync by hand.
+		if ( ! $post_type || ! post_type_supports( $post_type, 'thumbnail' ) ) {
 			return;
 		}
 

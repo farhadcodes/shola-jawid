@@ -56,7 +56,7 @@ duplicated or lost.
 | P-4 | font-display: swap on self-hosted fonts | ✅ Already done — every `@font-face` in `main.css` already has it (verified 2026-10-13, no change needed) |
 | B4 | Disable application-password REST auth (unused by this project) | ✅ Done 2026-10-13 — `class-security.php`, `wp_is_application_passwords_available` filtered off. Verified via `/wp-json/` discovery: `authentication` list is now empty. |
 | P-1 | Real Lighthouse/PageSpeed audit against the live `sholajawid.com` (public URL, no login needed) | ✅ Done 2026-10-13 — formal Lighthouse/PSI both blocked (see `docs/screenshots/p1-prod-perf-baseline.md` for why); real measured data gathered directly instead. Two concrete findings: 486KB/12 font files loading on first paint, and a 292KB uncompressed PNG — feeds directly into P-2. |
-| P-2 | Audit + extend upload-time image/PDF compression (currently only covers the `leaflet` CPT — see `class-image-optimizer.php`) | Not started |
+| P-2 | Audit + extend upload-time image/PDF compression (currently only covers the `leaflet` CPT — see `class-image-optimizer.php`) | ✅ Done (images) 2026-10-13 — widened from `leaflet`-only to every post type supporting a featured image (`post_type_supports( $post_type, 'thumbnail' )` gate). PDFs: no compression exists or was added — real PDF recompression needs an external tool (Ghostscript) not guaranteed on shared hosting; flagged as a Track 2 decision, not silently built. |
 | P-5 | Database housekeeping (revisions/spam/transients) via a WP-Cron-based scheduled task — no server cron access needed | Not started |
 | B1 (draft only) | Security-header `.htaccess` snippet — already fully drafted in `docs/DEPLOYMENT.md` §2 | ✅ Draft already done; pasting it into *production* `.htaccess` is Track 2 (needs hPanel/SFTP access) |
 
@@ -75,6 +75,7 @@ duplicated or lost.
 | B3 | Cloudflare — decision needed (DNS change) |
 | B5 | Confirm Wordfence file-integrity alerts actually reach an inbox |
 | P-3 | Edge/reverse-proxy cache — decision needed (CLAUDE.md §3 policy) |
+| P-2 (PDFs only) | PDF compression — decision needed: real recompression needs an external tool (Ghostscript) not guaranteed available on Hostinger shared hosting; needs Farhad to confirm what's actually on the plan before any approach is chosen |
 
 ---
 
@@ -109,7 +110,7 @@ duplicated or lost.
 | ID | Action | Priority | Effort | Status |
 |---|---|---|---|---|
 | **P-1** | Run a real **Lighthouse / PageSpeed Insights audit** against the live production site to get actual measured numbers, instead of planning further performance work from guesses. | P1 | 30 min | ✅ Done 2026-10-13 — see `docs/screenshots/p1-prod-perf-baseline.md` |
-| **P-2** | Audit whether uploaded **images and PDFs are compressed/resized on upload**, or stored exactly as-uploaded. On a content-heavy publishing site with many photos and PDFs, this is typically the single largest real-world speed lever. Per CLAUDE.md §3, this is built as custom code, not a plugin. | P1 | Audit: 1 hr · Fix: 1 day | Not started |
+| **P-2** | Audit whether uploaded **images and PDFs are compressed/resized on upload**, or stored exactly as-uploaded. On a content-heavy publishing site with many photos and PDFs, this is typically the single largest real-world speed lever. Per CLAUDE.md §3, this is built as custom code, not a plugin. | P1 | Audit: 1 hr · Fix: 1 day | ✅ Images done 2026-10-13; PDFs parked (Track 2, needs a host-capability decision) |
 | **P-3** | Add an **edge/reverse-proxy cache** (e.g. Cloudflare cache rules, or host-level caching if the hosting provider offers it) rather than a WordPress caching plugin — keeps the project's existing "no caching plugin by default" policy (CLAUDE.md §3) while still gaining the performance benefit. | P2 | 2–3 hrs | **Decision needed** — rules-change discussion per CLAUDE.md §3 |
 | **P-4** | Confirm self-hosted fonts (Vazirmatn, Markazi Text, JetBrains Mono — already self-hosted per CLAUDE.md §4) are served with `font-display: swap` so text is not invisible while fonts load. | P2 | 30 min | ✅ Already done, verified 2026-10-13 |
 | **P-5** | **Database housekeeping**: clean up accumulated post revisions, spam/trashed comments, and expired transients via a scheduled WP-CLI cron job (no plugin needed). Reduces query overhead that grows over time on an actively updated site. | P2 | 2–3 hrs | Not started |
