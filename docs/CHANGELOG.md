@@ -14810,3 +14810,21 @@ rgba(0,0,0,.5)`) for more separation from busy/light photo areas.
 
 Verified live via `javascript_exec` + screenshot before committing.
 Theme bumped to v1.51.8.
+
+## 2026-10-13 (continued) — Feature-card hero: gradient rebuilt as a smooth curve
+
+Same day, next round: Farhad, from a design perspective, flagged that
+the gradient looked "cut in the middle" -- not smooth, a visible seam.
+Correct diagnosis: the 3-stop gradient (opaque -> .75 over the first
+45%, then .75 -> 0 over the remaining 55%) had two very different
+slopes meeting at the 45% stop, which is what reads as a seam even
+though both halves are individually linear.
+
+Rebuilt as an 8-stop curve easing continuously from the bottom (fully
+dark) to the top. Per his ask, the top ~30% of the box is now nearly
+transparent but never fully 0 -- it settles at .02 (~2% black) at the
+very top instead of vanishing completely. No stop-to-stop slope jump
+anywhere near as sharp as the old 45% seam.
+
+Verified live via `javascript_exec` + screenshot before committing.
+Theme bumped to v1.51.9.

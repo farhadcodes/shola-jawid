@@ -3404,8 +3404,26 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   padding-block: 3.5rem 2.25rem;
   padding-inline-start: 2.25rem;
   padding-inline-end: 4.5rem;
-  /* Gradient 10% darker again, 2026-10-13 (same day) -- still needed more punch. */
-  background: linear-gradient(to top, rgba(15, 15, 15, 1) 0%, rgba(15, 15, 15, .75) 45%, rgba(15, 15, 15, 0) 100%);
+  /*
+   * Rebuilt as an 8-stop curve, 2026-10-13 (same day) -- the old 3-stop
+   * version (1 -> .75 over the first 45%, then .75 -> 0 over the last
+   * 55%) had two very different slopes either side of the 45% stop,
+   * which read as a visible seam/cut rather than a smooth fade. This
+   * keeps the bottom dark, eases continuously through the middle, and
+   * leaves the top 30% nearly transparent but never fully 0 (settles
+   * at .02, a faint 2% tint) per Farhad's ask.
+   */
+  background: linear-gradient(
+    to top,
+    rgba(15, 15, 15, 1) 0%,
+    rgba(15, 15, 15, .92) 15%,
+    rgba(15, 15, 15, .78) 30%,
+    rgba(15, 15, 15, .58) 45%,
+    rgba(15, 15, 15, .38) 60%,
+    rgba(15, 15, 15, .25) 70%,
+    rgba(15, 15, 15, .08) 85%,
+    rgba(15, 15, 15, .02) 100%
+  );
 }
 .hero-feature-card-box .h-display {
   order: 1;
