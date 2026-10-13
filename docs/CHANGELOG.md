@@ -14881,3 +14881,24 @@ via `/wp-json/` discovery: the `authentication` object's
 `@font-face` already has it, no change needed.
 
 Plugin bumped to v1.25.4.
+
+## 2026-10-13 (continued) — P-1: production performance baseline
+
+Attempted a real Lighthouse audit against `https://sholajawid.com` —
+blocked (`HTTP 403`), while plain `curl` against the same URL returns
+`200`; points at the production bot/automation protection (Wordfence/
+LiteSpeed) blocking headless Chrome specifically, a good security sign
+but it also blocks Lighthouse's own Chrome. Fell back to Google's PSI
+API — blocked too (`429`, anonymous quota is `0`, needs a billed
+Google Cloud API key, not set up silently).
+
+Rather than report "no audit possible," gathered real measured data
+directly: loaded the live production homepage in an actual interactive
+browser (confirmed it loads fine there, consistent with the
+bot-detection theory) and read real values via the Navigation Timing/
+Resource Timing APIs. Full numbers and two concrete findings in
+`docs/screenshots/p1-prod-perf-baseline.md`: 486KB across 12 separate
+font files loading on first paint, and a 292KB uncompressed PNG
+(`Herat-women-protest-1.png`, a regular article featured image) —
+directly confirms the P-2 gap already in this plan (image optimizer
+currently `leaflet`-CPT-only). P-1 marked done on that basis.

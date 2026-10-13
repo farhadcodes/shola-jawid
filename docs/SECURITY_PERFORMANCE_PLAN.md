@@ -55,7 +55,7 @@ duplicated or lost.
 |---|---|---|
 | P-4 | font-display: swap on self-hosted fonts | ✅ Already done — every `@font-face` in `main.css` already has it (verified 2026-10-13, no change needed) |
 | B4 | Disable application-password REST auth (unused by this project) | ✅ Done 2026-10-13 — `class-security.php`, `wp_is_application_passwords_available` filtered off. Verified via `/wp-json/` discovery: `authentication` list is now empty. |
-| P-1 | Real Lighthouse/PageSpeed audit against the live `sholajawid.com` (public URL, no login needed) | Not started |
+| P-1 | Real Lighthouse/PageSpeed audit against the live `sholajawid.com` (public URL, no login needed) | ✅ Done 2026-10-13 — formal Lighthouse/PSI both blocked (see `docs/screenshots/p1-prod-perf-baseline.md` for why); real measured data gathered directly instead. Two concrete findings: 486KB/12 font files loading on first paint, and a 292KB uncompressed PNG — feeds directly into P-2. |
 | P-2 | Audit + extend upload-time image/PDF compression (currently only covers the `leaflet` CPT — see `class-image-optimizer.php`) | Not started |
 | P-5 | Database housekeeping (revisions/spam/transients) via a WP-Cron-based scheduled task — no server cron access needed | Not started |
 | B1 (draft only) | Security-header `.htaccess` snippet — already fully drafted in `docs/DEPLOYMENT.md` §2 | ✅ Draft already done; pasting it into *production* `.htaccess` is Track 2 (needs hPanel/SFTP access) |
@@ -108,7 +108,7 @@ duplicated or lost.
 
 | ID | Action | Priority | Effort | Status |
 |---|---|---|---|---|
-| **P-1** | Run a real **Lighthouse / PageSpeed Insights audit** against the live production site to get actual measured numbers, instead of planning further performance work from guesses. | P1 | 30 min | Not started |
+| **P-1** | Run a real **Lighthouse / PageSpeed Insights audit** against the live production site to get actual measured numbers, instead of planning further performance work from guesses. | P1 | 30 min | ✅ Done 2026-10-13 — see `docs/screenshots/p1-prod-perf-baseline.md` |
 | **P-2** | Audit whether uploaded **images and PDFs are compressed/resized on upload**, or stored exactly as-uploaded. On a content-heavy publishing site with many photos and PDFs, this is typically the single largest real-world speed lever. Per CLAUDE.md §3, this is built as custom code, not a plugin. | P1 | Audit: 1 hr · Fix: 1 day | Not started |
 | **P-3** | Add an **edge/reverse-proxy cache** (e.g. Cloudflare cache rules, or host-level caching if the hosting provider offers it) rather than a WordPress caching plugin — keeps the project's existing "no caching plugin by default" policy (CLAUDE.md §3) while still gaining the performance benefit. | P2 | 2–3 hrs | **Decision needed** — rules-change discussion per CLAUDE.md §3 |
 | **P-4** | Confirm self-hosted fonts (Vazirmatn, Markazi Text, JetBrains Mono — already self-hosted per CLAUDE.md §4) are served with `font-display: swap` so text is not invisible while fonts load. | P2 | 30 min | ✅ Already done, verified 2026-10-13 |
