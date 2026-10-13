@@ -3,7 +3,7 @@
  * Plugin Name: Shola Core
  * Plugin URI: https://github.com/farhadcodes/shola-jawid
  * Description: Content model for شعله جاوید (Shola Jawid) — custom post types, taxonomies, and meta fields. Companion plugin to the shola-jawid theme; content survives a theme switch.
- * Version: 1.25.5
+ * Version: 1.25.6
  * Requires at least: 6.4
  * Requires PHP: 8.1
  * Author: Farhad Farhaad
@@ -62,6 +62,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Security::init();
 \SholaCore\Image_Optimizer::init();
 \SholaCore\Login_Security_Settings::init();
+\SholaCore\Db_Housekeeping::init();
 
 /**
  * On activation: register post types, taxonomies, and the
@@ -82,6 +83,10 @@ function shcore_activate() {
 	\SholaCore\Taxonomies::register_topic_rewrite();
 	\SholaCore\Taxonomies::create_default_terms();
 	\SholaCore\Video_Guide::register_rewrite();
+	// Db_Housekeeping's cron event doesn't need scheduling here — its
+	// own init() (called unconditionally above, every load) already
+	// schedules it idempotently, which also correctly covers an
+	// already-active install that never re-fires this hook.
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'shcore_activate' );
@@ -93,6 +98,7 @@ register_activation_hook( __FILE__, 'shcore_activate' );
  * @return void
  */
 function shcore_deactivate() {
+	\SholaCore\Db_Housekeeping::unschedule();
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'shcore_deactivate' );

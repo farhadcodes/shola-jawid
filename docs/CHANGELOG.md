@@ -14928,3 +14928,43 @@ might not even run on the actual host.
 
 Verified live: front end and wp-admin both load clean after the
 change, no fatal. Plugin bumped to v1.25.5.
+
+## 2026-10-13 (continued) — P-5: database housekeeping (WP-Cron)
+
+New `wp-content/plugins/shola-core/includes/class-db-housekeeping.php`
+(`\SholaCore\Db_Housekeeping`), wired into `shola-core.php`'s existing
+init list. Built on WP-Cron (`wp_schedule_event`, daily), deliberately
+not a server crontab entry — needed zero host-level access, matching
+this item's Track 1 scope.
+
+Scoped to the two real gaps core doesn't already cover (checked before
+writing anything, not assumed): post revisions (core keeps every one
+forever unless `WP_POST_REVISIONS` is set — not set anywhere in this
+project) older than 90 days, deleted via `wp_delete_post_revision()`
+(not a raw query, so related meta cleanup runs too), capped at 300 per
+run to keep one run fast; and expired transients/site-transients,
+deleted via the same query shape WP-CLI's own `transient
+delete-expired` uses (`get_transient()`'s lazy per-key delete only
+catches a transient something actually requests again after expiry).
+
+Deliberately did *not* duplicate trash/spam-comment cleanup — grepped
+first and confirmed `wp_scheduled_delete` (a core cron event, active
+by default) already empties those after `EMPTY_TRASH_DAYS`/15 days
+respectively, with no override anywhere in this project; adding a
+second cleanup path for the same rows would just be redundant, racing
+code.
+
+Scheduling lives in the class's own `init()` (checked on every load,
+not just plugin activation) specifically so an already-active install
+— including production, the moment this ships there — gets the cron
+event scheduled without needing a deactivate/reactivate cycle.
+Unscheduled cleanly on plugin deactivation.
+
+Verified live: front end loads clean, `wp-cron.php` (which executes
+any due event synchronously, including this newly-scheduled one)
+returns 200, no fatal. Plugin bumped to v1.25.6.
+
+**Track 1 of the security/performance plan is now fully complete**
+(P-4, B4, P-1, P-2 images, B1 draft, P-5 — all 6 items done). Track 2
+(A1-A6, B1 deploy, B2, B3, B5, P-3, PDF compression) is parked per
+Farhad, pending his own time on production.
