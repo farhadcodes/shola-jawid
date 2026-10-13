@@ -34,6 +34,50 @@ marked **Decision needed** must not be built silently.
 
 ---
 
+## 0.1 Two-track split (added 2026-10-13)
+
+Split into two independently-trackable tracks, per Farhad's request —
+he doesn't have time for both right now, so **Track 1 proceeds on its
+own, immediately, with no further sign-off needed per item** (code-only
+changes, or read-only audits against the public site — nothing that
+touches production credentials or irreversible host/DNS config).
+**Track 2 is parked until Farhad has time** — every item in it requires
+his own hands on production (wp-admin login, Hostinger hPanel, personal
+2FA enrollment, or a DNS/host-policy decision), which I cannot do on his
+behalf (production credentials are never entered by Claude, as a hard
+rule — not a preference). Original IDs (A1, B4, P-2, etc.) are
+unchanged, just regrouped here so nothing in Section 1-4 below is
+duplicated or lost.
+
+**Track 1 — Claude executes directly, one at a time:**
+
+| ID | Action | Status |
+|---|---|---|
+| P-4 | font-display: swap on self-hosted fonts | ✅ Already done — every `@font-face` in `main.css` already has it (verified 2026-10-13, no change needed) |
+| B4 | Disable application-password REST auth (unused by this project) | Not started |
+| P-1 | Real Lighthouse/PageSpeed audit against the live `sholajawid.com` (public URL, no login needed) | Not started |
+| P-2 | Audit + extend upload-time image/PDF compression (currently only covers the `leaflet` CPT — see `class-image-optimizer.php`) | Not started |
+| P-5 | Database housekeeping (revisions/spam/transients) via a WP-Cron-based scheduled task — no server cron access needed | Not started |
+| B1 (draft only) | Security-header `.htaccess` snippet — already fully drafted in `docs/DEPLOYMENT.md` §2 | ✅ Draft already done; pasting it into *production* `.htaccess` is Track 2 (needs hPanel/SFTP access) |
+
+**Track 2 — parked, needs Farhad's own hands when free:**
+
+| ID | Action |
+|---|---|
+| A1 | Verify production `wp-config.php` has `DISALLOW_FILE_EDIT` |
+| A2 | Verify production `WP_DEBUG` is off |
+| A3 | Enable 2FA for every admin/editor account (personal, per-account) |
+| A4 | Confirm Wordfence brute-force module is configured on production |
+| A5 | Confirm daily backups + a tested restore, on the Hostinger account |
+| A6 | Audit production wp-admin user accounts |
+| B1 (deploy) | Paste the already-drafted header snippet into production `.htaccess`; confirm `X-Powered-By` actually drops |
+| B2 | Audit SSL/TLS config (HSTS, cert auto-renewal) |
+| B3 | Cloudflare — decision needed (DNS change) |
+| B5 | Confirm Wordfence file-integrity alerts actually reach an inbox |
+| P-3 | Edge/reverse-proxy cache — decision needed (CLAUDE.md §3 policy) |
+
+---
+
 ## 1. Section A — Security: Critical (P0)
 
 | ID | Action | Priority | Effort | Status |
