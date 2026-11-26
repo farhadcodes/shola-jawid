@@ -17,12 +17,13 @@ entry if any rule was newly applied.
 
 ## Phase 1 — Infrastructure (no visible change to either language yet)
 
-- Extend `shcore_language` to every content type decided on in Phase 0.
-- Generalize `shcore_translation_id` into a shared pairing field across
+- ✅ Extend `shcore_language` to every content type decided on in Phase 0.
+- ✅ Generalize `shcore_translation_id` into a shared pairing field across
   those content types, with its admin metabox UI.
-- Add `shcore_term_name_en`/`shcore_term_slug_en` term-meta fields and their
+- ✅ Add `shcore_term_name_en`/`shcore_term_slug_en` term-meta fields and their
   admin UI to `topic`, `publication`, `collection`, `party_document_category`
-  (and `editors_pick_category` if in scope).
+  (and `editors_pick_category`, `report`) — done 2026-11-26, generalized
+  across `Category_Manager::MANAGED` the same way ترتیب already was.
 - Build the `/en/` rewrite rule, the `shola_lang` query var, and the central
   language-context function (`url-structure-and-routing.md`).
 - Add the `pre_get_posts` language filter to every archive/search query.

@@ -1683,3 +1683,44 @@ function shola_render_hero_filmstrip( $posts ) {
 	</div>
 	<?php
 }
+
+/**
+ * Gets a term's name in a given language. Falls back to the term's own
+ * (Persian) name if no English name was ever set for it — so an editor
+ * forgetting to fill in the English field never breaks a page, it just
+ * shows Persian there until someone does.
+ *
+ * English name comes from term-meta, not a second taxonomy — see
+ * english-version/03-content-architecture/taxonomy-translation.md for why:
+ * one real-world category, one term, two labels.
+ *
+ * @param \WP_Term $term Term object.
+ * @param string   $lang 'fa' or 'en'.
+ * @return string
+ */
+function shola_get_term_label( $term, $lang ) {
+	if ( 'en' !== $lang ) {
+		return $term->name;
+	}
+
+	$name_en = get_term_meta( $term->term_id, 'shcore_term_name_en', true );
+	return $name_en ? $name_en : $term->name;
+}
+
+/**
+ * Gets a term's web-address slug in a given language. Same fallback idea
+ * as shola_get_term_label() above: no English slug set yet means the
+ * Persian slug is used until someone fills it in, never a broken link.
+ *
+ * @param \WP_Term $term Term object.
+ * @param string   $lang 'fa' or 'en'.
+ * @return string
+ */
+function shola_get_term_slug( $term, $lang ) {
+	if ( 'en' !== $lang ) {
+		return $term->slug;
+	}
+
+	$slug_en = get_term_meta( $term->term_id, 'shcore_term_slug_en', true );
+	return $slug_en ? $slug_en : $term->slug;
+}

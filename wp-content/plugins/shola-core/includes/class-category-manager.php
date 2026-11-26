@@ -159,6 +159,21 @@ class Category_Manager {
 			add_filter( "manage_edit-{$taxonomy}_columns", array( __CLASS__, 'add_term_order_column' ) );
 			add_filter( "manage_{$taxonomy}_custom_column", array( __CLASS__, 'render_term_order_column' ), 10, 3 );
 		}
+
+		/*
+		 * English name + slug term meta (2026-11-26, English-version
+		 * rollout — english-version/03-content-architecture/taxonomy-
+		 * translation.md). Same generalized pattern as ترتیب above: one
+		 * shared pair of fields on every managed taxonomy's Add/Edit term
+		 * screens, instead of a second, parallel English taxonomy tree.
+		 */
+		add_action( 'init', array( __CLASS__, 'register_term_translation_meta' ) );
+		foreach ( array_keys( self::MANAGED ) as $taxonomy ) {
+			add_action( "{$taxonomy}_add_form_fields", array( __CLASS__, 'render_term_translation_add_fields' ) );
+			add_action( "{$taxonomy}_edit_form_fields", array( __CLASS__, 'render_term_translation_edit_fields' ) );
+			add_action( "created_{$taxonomy}", array( __CLASS__, 'save_term_translation' ) );
+			add_action( "edited_{$taxonomy}", array( __CLASS__, 'save_term_translation' ) );
+		}
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -292,6 +307,131 @@ class Category_Manager {
 		}
 		$order = get_term_meta( $term_id, 'shcore_term_order', true );
 		return '' === $order ? '—' : esc_html( $order );
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* English name + slug — one shared term per category, two languages. */
+	/* english-version/03-content-architecture/taxonomy-translation.md     */
+	/* ------------------------------------------------------------------ */
+
+	/**
+	 * Registers `shcore_term_name_en` and `shcore_term_slug_en` on every
+	 * managed taxonomy.
+	 *
+	 * @return void
+	 */
+	public static function register_term_translation_meta() {
+		$auth_callback = function () {
+			return current_user_can( 'manage_categories' );
+		};
+
+		foreach ( array_keys( self::MANAGED ) as $taxonomy ) {
+			register_term_meta(
+				$taxonomy,
+				'shcore_term_name_en',
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'sanitize_text_field',
+					'auth_callback'     => $auth_callback,
+				)
+			);
+			register_term_meta(
+				$taxonomy,
+				'shcore_term_slug_en',
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'sanitize_title',
+					'auth_callback'     => $auth_callback,
+				)
+			);
+		}
+	}
+
+	/**
+	 * English name/slug fields on the "Add New Term" screen — same
+	 * `<div class="form-field">` convention as render_term_order_add_field().
+	 *
+	 * @return void
+	 */
+	public static function render_term_translation_add_fields() {
+		?>
+		<div class="form-field">
+			<label for="shcore-term-name-en"><?php esc_html_e( 'نام انگلیسی', 'shola-core' ); ?></label>
+			<input type="text" name="shcore_term_name_en" id="shcore-term-name-en">
+			<p><?php esc_html_e( 'برای نسخهٔ انگلیسی سایت. اگر خالی بماند، این دسته در نسخهٔ انگلیسی نام فارسی خود را نشان می‌دهد.', 'shola-core' ); ?></p>
+		</div>
+		<div class="form-field">
+			<label for="shcore-term-slug-en"><?php esc_html_e( 'آدرس انگلیسی', 'shola-core' ); ?></label>
+			<input type="text" name="shcore_term_slug_en" id="shcore-term-slug-en">
+			<p><?php esc_html_e( 'فقط حروف لاتین، اعداد و خط تیره؛ مثلاً world یا labor. برای لینک این دسته در نسخهٔ انگلیسی استفاده می‌شود.', 'shola-core' ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * English name/slug fields on the term "Edit" screen — same
+	 * `<tr class="form-field">` convention as render_term_order_edit_field().
+	 *
+	 * @param \WP_Term $term Term being edited.
+	 * @return void
+	 */
+	public static function render_term_translation_edit_fields( $term ) {
+		$name_en = get_term_meta( $term->term_id, 'shcore_term_name_en', true );
+		$slug_en = get_term_meta( $term->term_id, 'shcore_term_slug_en', true );
+		?>
+		<tr class="form-field">
+			<th scope="row"><label for="shcore-term-name-en"><?php esc_html_e( 'نام انگلیسی', 'shola-core' ); ?></label></th>
+			<td>
+				<input type="text" name="shcore_term_name_en" id="shcore-term-name-en" value="<?php echo esc_attr( $name_en ); ?>">
+				<p class="description"><?php esc_html_e( 'برای نسخهٔ انگلیسی سایت. اگر خالی بماند، این دسته در نسخهٔ انگلیسی نام فارسی خود را نشان می‌دهد.', 'shola-core' ); ?></p>
+			</td>
+		</tr>
+		<tr class="form-field">
+			<th scope="row"><label for="shcore-term-slug-en"><?php esc_html_e( 'آدرس انگلیسی', 'shola-core' ); ?></label></th>
+			<td>
+				<input type="text" name="shcore_term_slug_en" id="shcore-term-slug-en" value="<?php echo esc_attr( $slug_en ); ?>">
+				<p class="description"><?php esc_html_e( 'فقط حروف لاتین، اعداد و خط تیره؛ مثلاً world یا labor. برای لینک این دسته در نسخهٔ انگلیسی استفاده می‌شود.', 'shola-core' ); ?></p>
+			</td>
+		</tr>
+		<?php
+	}
+
+	/**
+	 * Saves both English fields on create and edit — same
+	 * `created_{$taxonomy}`/`edited_{$taxonomy}` pairing as
+	 * save_term_order() above, no separate nonce check for the same reason
+	 * (both hooks only ever fire through WP core's own already-verified
+	 * admin term-save flow).
+	 *
+	 * @param int $term_id Term ID.
+	 * @return void
+	 */
+	public static function save_term_translation( $term_id ) {
+		if ( ! current_user_can( 'manage_categories' ) ) {
+			return;
+		}
+
+		if ( isset( $_POST['shcore_term_name_en'] ) ) {
+			$name_en = sanitize_text_field( wp_unslash( $_POST['shcore_term_name_en'] ) );
+			if ( '' === $name_en ) {
+				delete_term_meta( $term_id, 'shcore_term_name_en' );
+			} else {
+				update_term_meta( $term_id, 'shcore_term_name_en', $name_en );
+			}
+		}
+
+		if ( isset( $_POST['shcore_term_slug_en'] ) ) {
+			$slug_en = sanitize_title( wp_unslash( $_POST['shcore_term_slug_en'] ) );
+			if ( '' === $slug_en ) {
+				delete_term_meta( $term_id, 'shcore_term_slug_en' );
+			} else {
+				update_term_meta( $term_id, 'shcore_term_slug_en', $slug_en );
+			}
+		}
 	}
 
 	/* ------------------------------------------------------------------ */

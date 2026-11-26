@@ -15048,6 +15048,37 @@ Phase 1). `class-meta-fields.php`:
   this site — confirmed all 8 content types' meta correctly registered,
   and the new render functions execute and produce real output.
 
-Plugin version not yet bumped — more Phase 1 infrastructure (taxonomy
-term-meta translation, `/en/` routing, the hide-if-empty helper) is still
-to come before this is a shippable, user-visible increment.
+Plugin version not yet bumped — more Phase 1 infrastructure (`/en/`
+routing, the hide-if-empty helper) is still to come before this is a
+shippable, user-visible increment.
+
+## 2026-11-26 (continued) — English-version Phase 1, step 2: taxonomy term translation
+
+Second Phase 1 piece. Per the already-established ترتیب (`shcore_term_order`)
+pattern in `class-category-manager.php` — a shared term-meta field
+generalized across every managed taxonomy — added the same way:
+
+- `shcore_term_name_en` / `shcore_term_slug_en` term-meta, registered on
+  every taxonomy in `Category_Manager::MANAGED` (`topic`, `publication`,
+  `collection`, `party_document_category`, `report`,
+  `editors_pick_category`).
+- Add/Edit term screen fields for both, same markup convention as the
+  existing ترتیب fields.
+- One shared save handler, same `created_{$taxonomy}`/`edited_{$taxonomy}`
+  hook pairing already used for ترتیب.
+- No second, parallel English taxonomy tree — one real term, two labels
+  (`english-version/03-content-architecture/taxonomy-translation.md`
+  explains why).
+- New theme-side helpers in `inc/template-tags.php`:
+  `shola_get_term_label( $term, $lang )` and
+  `shola_get_term_slug( $term, $lang )` — both fall back to the term's
+  existing Persian name/slug if no English value has been set yet, so a
+  forgotten field never breaks a page.
+
+Verified via a real WP bootstrap: term-meta registered correctly on all
+six taxonomies; a real `topic` term ("جهان") given a real English
+name/slug round-tripped correctly through both helper functions in both
+languages; a second term with no English value set correctly fell back
+to its Persian name/slug; the admin field-renderer functions produce
+real output with no fatal. All test meta values removed from real data
+afterward — nothing left behind.
