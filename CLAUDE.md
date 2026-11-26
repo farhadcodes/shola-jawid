@@ -38,31 +38,58 @@ the old value before continuing.
 
 ---
 
-## 1. Scope lock — Persian only, bilingual-ready
+## 1. Scope lock — Persian (RTL) primary, English (LTR) secondary
 
-- **Active content, menus, and site language: Persian (fa) only, RTL.** English (en)
-  is *not* being built, populated, or exposed in this phase.
-- The theme must nonetheless be **bilingual-ready**, meaning:
-  - Every user-facing string in PHP is wrapped in `__()` / `_e()` / `esc_html__()`
-    etc. under the `shola-jawid` text-domain (plugin strings under `shola-core`).
-    No hardcoded UI copy in template files, ever — not even "temporarily."
-  - `dir="rtl"` / `dir="ltr"` and all spacing in CSS uses **logical properties**
-    (`margin-inline-start`, `padding-inline-end`, `border-inline-end`, `inset-inline-*`)
-    exactly as the v6 prototype already does. Never add a physical-direction property
-    (`margin-left`, `padding-right`, etc.) to new CSS — this is a permanent rule, not
-    a phase-specific one.
-  - The `languages/` folder exists with a `.pot` file kept current, even though only
-    a Persian `.po`/`.mo` will actually be produced.
-  - Do **not** install Polylang, WPML, or any multilingual plugin in this phase. Do
-    not build a language switcher that does anything (a static/inert menu item that
-    matches the prototype's visual language toggle is fine — it must not link
-    anywhere real or 404).
-  - Do not hardcode `lang="fa"` in a way that would require find-and-replace later —
-    pull it from `get_locale()` / `is_rtl()` / a theme mod, never a literal string in
-    more than one place.
-- Any future English rollout is explicitly out of scope. Do not scaffold Polylang
-  config, `en/` routing, or hreflang tags speculatively — bilingual-*ready* means
-  "won't have to be rewritten," not "half-built now."
+**Changed 2026-11-26** (full reasoning, architecture, and phased build plan in
+`english-version/` — read `english-version/00-START-HERE.md` first; this section is
+the governing summary, that folder is the detail).
+
+- **Primary content, menus, and site language: Persian (fa), RTL.** This remains the
+  default language for every new visitor and the language staff write in first.
+- **English (en) is a second, real, reachable version of the site, not a placeholder.**
+  English pages live under a `/en/` URL prefix; Persian URLs are completely
+  unaffected — no `/fa/` prefix, no change to any existing Persian permalink.
+- **Complete-mirror rule** (client-confirmed, 2026-11-26): every content type, every
+  taxonomy, every homepage section, and every nav item gets full English capability —
+  no content type is skipped or deferred in the build. But a section only *displays*
+  once it has at least one real English item in it (hide-if-empty, not
+  shown-but-empty); it appears automatically the moment the first English item of
+  that type is published. Full detail:
+  `english-version/03-content-architecture/complete-mirror-and-empty-state-rule.md`.
+- Content is paired, not duplicated as a separate install: a post's English
+  counterpart (if one exists) is linked via a generalized `shcore_translation_id`-style
+  meta field, and its language is marked via a generalized `shcore_language` meta field
+  (`fa`/`en`). Not every piece of Persian content needs an English counterpart —
+  pairing is set per post, as translations are actually written.
+- Fixed-vocabulary taxonomies (`topic`, `publication`, `collection`, etc.) are NOT
+  duplicated into parallel English taxonomies — one shared term per real-world
+  category, with an English label and English slug stored as term-meta. See
+  `english-version/03-content-architecture/taxonomy-translation.md`.
+- `dir="rtl"` / `dir="ltr"` and all spacing in CSS uses **logical properties**
+  (`margin-inline-start`, `padding-inline-end`, `border-inline-end`, `inset-inline-*`)
+  exactly as the v6 prototype already does. Never add a physical-direction property
+  (`margin-left`, `padding-right`, etc.) to new CSS — this was already a permanent
+  rule, and is now load-bearing: the English version depends on logical properties
+  flipping correctly under `dir="ltr"` with minimal explicit overrides.
+- The language switcher is now a real, working control — not inert. It resolves to
+  the current page's actual paired/equivalent URL in the other language, with a
+  defined, safe fallback when no direct pairing exists (never a 404, never a silent
+  no-op). See `english-version/03-content-architecture/language-field-and-pairing.md`.
+- The `languages/` folder's `.pot` files are kept current going forward (both were
+  badly stale even for Persian-only content and are being regenerated as part of this
+  rollout — see `english-version/05-technical-implementation-plan/pot-file-regeneration.md`).
+  No multilingual plugin (Polylang, WPML) is used for this or anything else —
+  §3's plugin-whitelist policy is unchanged; this is custom code, same as every other
+  feature on this project.
+- `get_locale()` / `is_rtl()` remain the only correct way to branch on language/
+  direction in PHP — never a hardcoded `"fa"`/`"en"` string outside the one central
+  language-context function described in
+  `english-version/03-content-architecture/url-structure-and-routing.md`.
+- Code comments in the English-version code stay to 1-2 lines, plain language, no
+  jargon — per Farhad's explicit instruction, so a future developer with no context
+  can read a comment and understand what something does and how it connects, without
+  decoding a technical explanation. Full reasoning/history belongs in
+  `docs/CHANGELOG.md`, same convention already used for the Persian build.
 
 ---
 

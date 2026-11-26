@@ -14968,3 +14968,47 @@ returns 200, no fatal. Plugin bumped to v1.25.6.
 (P-4, B4, P-1, P-2 images, B1 draft, P-5 — all 6 items done). Track 2
 (A1-A6, B1 deploy, B2, B3, B5, P-3, PDF compression) is parked per
 Farhad, pending his own time on production.
+
+## 2026-11-26 — CLAUDE.md §1 rewritten: English (LTR) rollout now in scope
+
+Client confirmed (relayed by Farhad) they want a real, complete English
+version of the site — reachable via a working language switcher, not a
+placeholder. `CLAUDE.md` §1 previously stated, in writing, that any
+future English rollout was "explicitly out of scope" and forbade even
+speculative scaffolding toward it. That rule has now been formally
+replaced, not quietly worked around, per `CLAUDE.md`'s own instruction
+to stop and change the rules file first when a new situation isn't
+covered.
+
+A full planning pass preceded this change: a from-scratch structural
+audit of the entire Persian codebase (every template, every CPT/
+taxonomy/meta field, every existing bilingual-readiness signal already
+built in), an architecture decision (one WordPress install, `/en/` URL
+prefix, content paired via a generalized `shcore_language`/
+`shcore_translation_id` mechanism — Polylang/WPML, WP Multisite, and a
+fully separate install were all considered and rejected, reasoning
+recorded), and a phased build plan. All of this lives in the new
+`english-version/` folder at the project root, kept deliberately
+separate from `docs/` (which covers the already-live Persian site) —
+start at `english-version/00-START-HERE.md`.
+
+Key finding from that audit, worth recording here since it shaped the
+whole approach: the Persian build already has real bilingual discipline
+in place — 100% logical CSS properties (zero physical left/right
+properties found anywhere in `main.css`/`login.css`), every UI string
+already wrapped for translation (349 calls in the theme, 392 in the
+plugin), English/Latin fonts already self-hosted and tokenized
+(`--font-en`, `--font-ui`, `--font-mono`), and `shcore_language`/
+`shcore_translation_id` meta fields already existing (on a subset of
+content types) specifically for this purpose, just never finished or
+wired up. This is a completion project, not a rebuild.
+
+Also decided, same session: the **complete-mirror rule** — every
+content type, taxonomy, and homepage section gets full English
+capability with no type skipped in the build, but a given section only
+displays once it has real English content (hidden, not shown-empty,
+until then — appears automatically the moment content is published).
+Full rule: `english-version/03-content-architecture/complete-mirror-and-empty-state-rule.md`.
+
+Approved by: Farhad, relaying the client's direction, in session on
+2026-11-26.
