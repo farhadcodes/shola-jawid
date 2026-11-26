@@ -1,4 +1,4 @@
-# Admin language switcher (approved 2026-11-27)
+# Admin language switcher (approved 2026-11-27, built 2026-11-27)
 
 The Polylang/WPML-style "which language am I working in right now" admin
 experience, built as custom code in `class-language.php` — not a plugin.

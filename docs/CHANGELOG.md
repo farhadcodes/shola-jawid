@@ -15148,3 +15148,42 @@ from the code): `/en/` and `/en/announcements/` both return `200`; rule
 count confirmed correct after the regex fix; Persian/English content
 split confirmed correct on both `archive-announcement.php` and
 `taxonomy-topic.php` after the backfill fix.
+
+## 2026-11-27 (continued) — Admin language switcher
+
+Farhad asked whether our custom system has a Polylang/WPML-style "which
+language am I working in" admin experience — it didn't yet, so this adds
+it, entirely inside `class-language.php` (`english-version/03-content-
+architecture/admin-language-switcher.md`):
+
+- A فارسی/English switcher in the WordPress admin bar (same place
+  Polylang/WPML put theirs). Stored per-user (`shcore_admin_language`
+  user-meta), not site-wide — a translator and an editor can each work in
+  a different language at the same time without affecting each other.
+- Every managed post type's admin list table (Posts, Issues, Documents,
+  Party Publications, Party Documents, Leaflets, Editor's Picks,
+  Announcements) now gets a "زبان" column, plus a filter dropdown
+  (همهٔ زبان‌ها/فارسی/English) pre-selected to the admin's current
+  working language — and the underlying query defaults to that same
+  language until an explicit choice overrides it.
+- New posts now default their Language field to whichever language the
+  admin is currently working in (`render_language_field()` in
+  `class-meta-fields.php`, previously hardcoded to always default
+  `fa`) — only affects brand-new posts; every pre-existing post already
+  has a real stored value from the earlier backfill migration, so this
+  never silently changes an existing post's language.
+- Explicit scope boundary, confirmed with Farhad before building: this
+  only changes which language's *content* an admin sees/creates by
+  default — it does not translate the wp-admin interface chrome itself
+  (that's WordPress core's own separate per-user Profile → Language
+  setting, untouched here).
+
+Verified via a real WP bootstrap: admin-bar nodes render correctly with
+a working nonce-protected switch link; the per-user language preference
+reads/writes correctly; the list-table column and filter dropdown render
+without error and are correctly suppressed on unrelated post types; a
+brand-new post's language field correctly defaults to English when the
+admin's working language is English, and to Persian otherwise (confirmed
+from the raw rendered HTML, not just a loose string match). Test
+preference changes made to the real `SJ_manager` account during
+verification were reset back to the default afterward.

@@ -1483,7 +1483,15 @@ class Meta_Fields {
 	 */
 	private static function render_language_field( $language ) {
 		if ( ! $language ) {
-			$language = 'fa';
+			/*
+			 * Empty only ever means "brand-new post" — every pre-existing
+			 * post got a real stored value from Language::
+			 * backfill_legacy_language_meta(). Defaults to whichever
+			 * language the editor is currently working in (admin-bar
+			 * switcher, english-version/03-content-architecture/admin-
+			 * language-switcher.md), not always Persian.
+			 */
+			$language = \SholaCore\Language::get_admin_language();
 		}
 		?>
 		<p>

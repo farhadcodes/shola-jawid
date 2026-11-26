@@ -26,6 +26,24 @@ class Language {
 	const QUERY_VAR = 'shola_lang';
 
 	/**
+	 * User-meta key holding which language an admin/editor is currently
+	 * working in — english-version/03-content-architecture/admin-
+	 * language-switcher.md. Separate concept from QUERY_VAR above: that's
+	 * which language a front-end *visitor* is reading; this is which
+	 * language a logged-in *admin* is currently managing content in.
+	 */
+	const ADMIN_LANG_META_KEY = 'shcore_admin_language';
+
+	/**
+	 * Every post type with a `shcore_language` field — the admin-bar
+	 * switcher's default-filtering and language column apply to all of
+	 * these list screens.
+	 *
+	 * @var string[]
+	 */
+	const MANAGED_POST_TYPES = array( 'post', 'issue', 'document', 'party_publication', 'party_document', 'leaflet', 'editors_pick', 'announcement' );
+
+	/**
 	 * This request's language, resolved once per request by
 	 * set_language_context() and read by current() everywhere else —
 	 * one source of truth instead of every piece of code re-deriving it
@@ -58,6 +76,22 @@ class Language {
 		 * own $args instead — see that method's docblock.
 		 */
 		add_action( 'pre_get_posts', array( __CLASS__, 'filter_main_query_by_language' ) );
+
+		/*
+		 * Admin language switcher (english-version/03-content-architecture/
+		 * admin-language-switcher.md) — a separate feature from the /en/
+		 * routing above: this is about which language an admin/editor is
+		 * currently managing content *in*, not what a front-end visitor
+		 * sees.
+		 */
+		add_action( 'admin_bar_menu', array( __CLASS__, 'add_admin_bar_switcher' ), 100 );
+		add_action( 'admin_init', array( __CLASS__, 'handle_admin_language_switch' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'apply_admin_language_default' ) );
+		add_action( 'restrict_manage_posts', array( __CLASS__, 'render_admin_language_filter' ) );
+		foreach ( self::MANAGED_POST_TYPES as $post_type ) {
+			add_filter( "manage_{$post_type}_posts_columns", array( __CLASS__, 'add_admin_language_column' ) );
+			add_action( "manage_{$post_type}_posts_custom_column", array( __CLASS__, 'render_admin_language_column' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -258,5 +292,187 @@ class Language {
 		}
 
 		update_option( 'shcore_language_meta_backfilled', 1 );
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Admin language switcher — which language an admin/editor is        */
+	/* currently managing content in. See the class const docblocks       */
+	/* above and english-version/03-content-architecture/admin-language-  */
+	/* switcher.md for the full design.                                   */
+	/* ------------------------------------------------------------------ */
+
+	/**
+	 * The current user's working language — `fa` or `en`, defaulting to
+	 * `fa` for anyone who's never picked one.
+	 *
+	 * @return string
+	 */
+	public static function get_admin_language() {
+		$lang = get_user_meta( get_current_user_id(), self::ADMIN_LANG_META_KEY, true );
+		return in_array( $lang, array( 'fa', 'en' ), true ) ? $lang : 'fa';
+	}
+
+	/**
+	 * Adds the فارسی/English switcher to the admin bar (the dark toolbar
+	 * on every wp-admin screen) — same place Polylang/WPML put theirs.
+	 * Gated the same way every other editorial feature on this site is —
+	 * anyone who can edit content at all, not just admins.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
+	 * @return void
+	 */
+	public static function add_admin_bar_switcher( $wp_admin_bar ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		$current = self::get_admin_language();
+		$wp_admin_bar->add_node(
+			array(
+				'id'    => 'shcore-admin-language',
+				'title' => __( 'زبان پیشخان: ', 'shola-core' ) . ( 'en' === $current ? 'English' : __( 'فارسی', 'shola-core' ) ),
+			)
+		);
+		$wp_admin_bar->add_node(
+			array(
+				'id'     => 'shcore-admin-language-fa',
+				'parent' => 'shcore-admin-language',
+				'title'  => __( 'فارسی', 'shola-core' ),
+				'href'   => self::get_admin_language_switch_url( 'fa' ),
+			)
+		);
+		$wp_admin_bar->add_node(
+			array(
+				'id'     => 'shcore-admin-language-en',
+				'parent' => 'shcore-admin-language',
+				'title'  => 'English',
+				'href'   => self::get_admin_language_switch_url( 'en' ),
+			)
+		);
+	}
+
+	/**
+	 * Builds a nonce-protected link that switches the current user's
+	 * working language when visited — used by both admin-bar items above.
+	 *
+	 * @param string $lang Target language.
+	 * @return string
+	 */
+	private static function get_admin_language_switch_url( $lang ) {
+		return wp_nonce_url(
+			add_query_arg( 'shcore_switch_admin_language', $lang ),
+			'shcore_switch_admin_language'
+		);
+	}
+
+	/**
+	 * Handles a click on either admin-bar language link — saves the
+	 * choice to this user's account, then redirects back to the exact
+	 * page they were already on (with the switch's own query args
+	 * stripped off), so clicking the switcher never navigates anywhere
+	 * unexpected.
+	 *
+	 * @return void
+	 */
+	public static function handle_admin_language_switch() {
+		if ( ! isset( $_GET['shcore_switch_admin_language'] ) ) {
+			return;
+		}
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'shcore_switch_admin_language' ) ) {
+			return;
+		}
+
+		$lang = sanitize_key( wp_unslash( $_GET['shcore_switch_admin_language'] ) );
+		if ( ! in_array( $lang, array( 'fa', 'en' ), true ) ) {
+			return;
+		}
+
+		update_user_meta( get_current_user_id(), self::ADMIN_LANG_META_KEY, $lang );
+		wp_safe_redirect( remove_query_arg( array( 'shcore_switch_admin_language', '_wpnonce' ) ) );
+		exit;
+	}
+
+	/**
+	 * Adds the "زبان" column to every managed post type's admin list
+	 * table, right after Title.
+	 *
+	 * @param string[] $columns Existing columns.
+	 * @return string[]
+	 */
+	public static function add_admin_language_column( $columns ) {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$new['shcore_admin_language_col'] = __( 'زبان', 'shola-core' );
+			}
+		}
+		return $new;
+	}
+
+	/**
+	 * Renders one row's value in the "زبان" column.
+	 *
+	 * @param string $column  Column being rendered.
+	 * @param int    $post_id Post ID for this row.
+	 * @return void
+	 */
+	public static function render_admin_language_column( $column, $post_id ) {
+		if ( 'shcore_admin_language_col' !== $column ) {
+			return;
+		}
+		$lang = get_post_meta( $post_id, 'shcore_language', true );
+		echo 'en' === $lang ? 'English' : esc_html__( 'فارسی', 'shola-core' );
+	}
+
+	/**
+	 * Renders the language filter dropdown above a managed post type's
+	 * list table — pre-selected to the admin's current working language,
+	 * matching what apply_admin_language_default() below does to the
+	 * query when no explicit choice has been made yet.
+	 *
+	 * @return void
+	 */
+	public static function render_admin_language_filter() {
+		global $typenow;
+		if ( ! in_array( $typenow, self::MANAGED_POST_TYPES, true ) ) {
+			return;
+		}
+
+		$selected = isset( $_GET['shcore_language_filter'] ) ? sanitize_key( wp_unslash( $_GET['shcore_language_filter'] ) ) : self::get_admin_language();
+		?>
+		<select name="shcore_language_filter">
+			<option value="all" <?php selected( $selected, 'all' ); ?>><?php esc_html_e( 'همهٔ زبان‌ها', 'shola-core' ); ?></option>
+			<option value="fa" <?php selected( $selected, 'fa' ); ?>><?php esc_html_e( 'فارسی', 'shola-core' ); ?></option>
+			<option value="en" <?php selected( $selected, 'en' ); ?>>English</option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Filters a managed post type's admin list table by language —
+	 * explicit dropdown choice (render_admin_language_filter() above)
+	 * wins if present; otherwise defaults to the admin's current working
+	 * language, so a list screen always opens already scoped to what
+	 * that editor is working on instead of a mix of both languages.
+	 * Picking "همهٔ زبان‌ها" (All) shows everything, unfiltered.
+	 *
+	 * @param \WP_Query $query The query being filtered.
+	 * @return void
+	 */
+	public static function apply_admin_language_default( $query ) {
+		global $pagenow, $typenow;
+		if ( ! is_admin() || ! $query->is_main_query() || 'edit.php' !== $pagenow || ! in_array( $typenow, self::MANAGED_POST_TYPES, true ) ) {
+			return;
+		}
+
+		$choice = isset( $_GET['shcore_language_filter'] ) ? sanitize_key( wp_unslash( $_GET['shcore_language_filter'] ) ) : self::get_admin_language();
+
+		if ( ! in_array( $choice, array( 'fa', 'en' ), true ) ) {
+			// 'all' (or anything unrecognized) — no filter, show everything.
+			return;
+		}
+
+		$query->set( 'meta_query', array( array( 'key' => 'shcore_language', 'value' => $choice ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list screen, same small per-type post counts as every other meta_query in this plugin.
 	}
 }
