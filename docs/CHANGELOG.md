@@ -15012,3 +15012,42 @@ Full rule: `english-version/03-content-architecture/complete-mirror-and-empty-st
 
 Approved by: Farhad, relaying the client's direction, in session on
 2026-11-26.
+
+## 2026-11-26 (continued) — English-version Phase 1, step 1: language + pairing fields on every content type
+
+First real code of the English-version build (`english-version/05-technical-implementation-plan/phase-by-phase-build-plan.md`
+Phase 1). `class-meta-fields.php`:
+
+- `shcore_language` added to `issue`, `leaflet`, `editors_pick`,
+  `announcement` — the four content types that didn't already have it
+  (`document`, `party_publication`, `party_document`, `post` already
+  did).
+- `shcore_translation_id` (the bilingual-pairing field) generalized from
+  `post`-only to every content type: `issue`, `document`,
+  `party_publication`, `party_document`, `leaflet`, `editors_pick`,
+  `announcement` all got it added.
+- New shared `render_translation_pairing_field()` — a dropdown of
+  same-type posts in the opposite language, instead of typing a raw post
+  ID by hand. Wired into every metabox that now has a language field,
+  including three brand-new metaboxes (`leaflet`, `editors_pick`,
+  `announcement` never had one before — language + pairing is the only
+  thing each needs).
+- `post`'s existing `shcore_translation_id` field — previously a plain
+  number input with a "not active yet" note, since English was out of
+  scope when it was built — now uses the same picker as everything else,
+  copy updated since the field is genuinely active now.
+- New `sync_translation_pairing()`: picking a pairing from either side
+  links both posts to each other automatically, and correctly clears the
+  old back-link if a post is re-paired to something else. Verified with
+  real throwaway posts (not just read from the code): link A→B (both
+  sides set correctly) → re-link A→C (C linked, B's stale back-link
+  cleared) → unlink (both sides cleared) — all three steps confirmed via
+  a direct WordPress bootstrap, then the test posts deleted.
+- Verified no fatal errors via a real WP bootstrap (not just `php -l`)
+  using the exact PHP build (8.5.12) and `php.ini` Local generates for
+  this site — confirmed all 8 content types' meta correctly registered,
+  and the new render functions execute and produce real output.
+
+Plugin version not yet bumped — more Phase 1 infrastructure (taxonomy
+term-meta translation, `/en/` routing, the hide-if-empty helper) is still
+to come before this is a shippable, user-visible increment.

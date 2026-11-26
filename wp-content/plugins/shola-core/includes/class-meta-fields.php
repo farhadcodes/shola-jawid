@@ -256,6 +256,40 @@ class Meta_Fields {
 				'auth_callback'     => $auth_callback,
 			)
 		);
+		/*
+		 * shcore_language / shcore_translation_id (2026-11-26, English-
+		 * version rollout — see english-version/ at the project root)
+		 * added here on issue, and further below on leaflet,
+		 * editors_pick, and announcement — the four content types that
+		 * didn't already carry these two fields. `document`,
+		 * `party_publication`, `party_document`, and `post` already had
+		 * `shcore_language`; `post` already had `shcore_translation_id`
+		 * too — both untouched here, just getting `shcore_translation_id`
+		 * added where it was still missing, a few lines down.
+		 */
+		register_post_meta(
+			'issue',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'issue',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 
 		/*
 		 * shcore_subtitle (2026-09-19) — added to `document`,
@@ -336,6 +370,17 @@ class Meta_Fields {
 				'auth_callback'     => $auth_callback,
 			)
 		);
+		register_post_meta(
+			'document',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
 
 		// party_publication (2026-09-02) — deliberately no author-source
 		// field like `document` has: these are the party's own
@@ -372,6 +417,17 @@ class Meta_Fields {
 				'show_in_rest'      => true,
 				'default'           => 'fa',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_publication',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
 				'auth_callback'     => $auth_callback,
 			)
 		);
@@ -427,6 +483,95 @@ class Meta_Fields {
 				'show_in_rest'      => true,
 				'default'           => 'fa',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'party_document',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
+		/*
+		 * leaflet, editors_pick, announcement (2026-11-26) — the English-
+		 * version rollout's complete-mirror rule (english-version/03-
+		 * content-architecture/complete-mirror-and-empty-state-rule.md)
+		 * means every content type gets language + pairing support, not
+		 * just the ones that already had it. No other fields change for
+		 * these three types.
+		 */
+		register_post_meta(
+			'leaflet',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'leaflet',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'editors_pick',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'editors_pick',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'announcement',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'announcement',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
 				'auth_callback'     => $auth_callback,
 			)
 		);
@@ -835,6 +980,14 @@ class Meta_Fields {
 		add_meta_box( 'shcore_selected_field', __( 'ترجمه', 'shola-core' ), array( __CLASS__, 'render_selected_metabox' ), 'post', 'side', 'high' );
 		add_meta_box( 'shcore_hero_fields', __( 'تنظیمات هدر', 'shola-core' ), array( __CLASS__, 'render_hero_metabox' ), 'hero_section', 'normal', 'high' );
 		add_meta_box( 'shcore_masthead_fields', __( 'تنظیمات هدر سایت', 'shola-core' ), array( __CLASS__, 'render_masthead_metabox' ), 'masthead_section', 'normal', 'high' );
+		/*
+		 * leaflet, editors_pick, announcement (2026-11-26, English-version
+		 * rollout) — these three had no metabox at all before; language +
+		 * pairing is now the only thing each one needs.
+		 */
+		add_meta_box( 'shcore_leaflet_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_leaflet_metabox' ), 'leaflet', 'side', 'default' );
+		add_meta_box( 'shcore_editors_pick_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_editors_pick_metabox' ), 'editors_pick', 'side', 'default' );
+		add_meta_box( 'shcore_announcement_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_announcement_metabox' ), 'announcement', 'side', 'default' );
 	}
 
 	/**
@@ -864,6 +1017,7 @@ class Meta_Fields {
 		 */
 		$period_terms = get_the_terms( $post->ID, 'publication' );
 		$period_term  = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
+		$language     = get_post_meta( $post->ID, 'shcore_language', true );
 		?>
 		<p>
 			<label for="shcore_issue_number"><strong><?php esc_html_e( 'شمارهٔ شماره', 'shola-core' ); ?></strong></label><br>
@@ -881,6 +1035,8 @@ class Meta_Fields {
 		</p>
 		<p class="description"><?php esc_html_e( 'برای تغییر دوره، از کادر «نشریه» در همین صفحه استفاده کنید.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
+		<?php self::render_language_field( $language ); ?>
+		<?php self::render_translation_pairing_field( $post->ID, 'issue' ); ?>
 
 		<p><strong><?php esc_html_e( 'فهرست مطالب (اختیاری)', 'shola-core' ); ?></strong></p>
 		<p class="description">
@@ -1004,6 +1160,7 @@ class Meta_Fields {
 		<p class="description"><?php esc_html_e( 'نام نویسندهٔ اصلی این سند یا منبع را بنویسید؛ اختیاری است.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
+		<?php self::render_translation_pairing_field( $post->ID, 'document' ); ?>
 		<?php
 	}
 
@@ -1024,6 +1181,7 @@ class Meta_Fields {
 		<?php self::render_subtitle_field( $subtitle ); ?>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
+		<?php self::render_translation_pairing_field( $post->ID, 'party_publication' ); ?>
 		<?php
 	}
 
@@ -1051,6 +1209,7 @@ class Meta_Fields {
 		<p class="description"><?php esc_html_e( 'شمارهٔ ثبت یا سریال داخلی این سند را وارد کنید؛ اختیاری است.', 'shola-core' ); ?></p>
 		<?php self::render_pdf_field( $post->ID, 'shcore_pdf_id' ); ?>
 		<?php self::render_language_field( $language ); ?>
+		<?php self::render_translation_pairing_field( $post->ID, 'party_document' ); ?>
 		<?php
 	}
 
@@ -1062,11 +1221,10 @@ class Meta_Fields {
 	 */
 	public static function render_article_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$subtitle       = get_post_meta( $post->ID, 'shcore_subtitle', true );
-		$byline         = get_post_meta( $post->ID, 'shcore_byline', true );
-		$author_note    = get_post_meta( $post->ID, 'shcore_author_note', true );
-		$language       = get_post_meta( $post->ID, 'shcore_language', true );
-		$translation_id = get_post_meta( $post->ID, 'shcore_translation_id', true );
+		$subtitle    = get_post_meta( $post->ID, 'shcore_subtitle', true );
+		$byline      = get_post_meta( $post->ID, 'shcore_byline', true );
+		$author_note = get_post_meta( $post->ID, 'shcore_author_note', true );
+		$language    = get_post_meta( $post->ID, 'shcore_language', true );
 		?>
 		<?php self::render_subtitle_field( $subtitle ); ?>
 		<p>
@@ -1080,11 +1238,17 @@ class Meta_Fields {
 		</p>
 		<p class="description"><?php esc_html_e( 'توضیح کوتاهی دربارهٔ نحوهٔ همکاری در این نوشته؛ مثلاً «کاری از میز اقتصاد».', 'shola-core' ); ?></p>
 		<?php self::render_language_field( $language ); ?>
-		<p>
-			<label for="shcore_translation_id"><strong><?php esc_html_e( 'شناسهٔ نوشتهٔ ترجمه', 'shola-core' ); ?></strong></label><br>
-			<input type="number" id="shcore_translation_id" name="shcore_translation_id" class="small-text" value="<?php echo esc_attr( $translation_id ); ?>">
-		</p>
-		<p class="description"><?php esc_html_e( 'این فیلد هنوز فعال نیست و در حال حاضر نیازی به تکمیل آن نیست.', 'shola-core' ); ?></p>
+		<?php
+		/*
+		 * shcore_translation_id (2026-11-26) — this used to be a plain
+		 * number field with a "not active yet" note (English-version
+		 * rollout was out of scope then, per CLAUDE.md §1's old wording).
+		 * Now that it's a real, working pairing, it uses the same picker
+		 * every other content type's pairing field uses below, instead of
+		 * making an editor type a raw post ID by hand.
+		 */
+		self::render_translation_pairing_field( $post->ID, 'post' );
+		?>
 		<?php
 	}
 
@@ -1246,6 +1410,51 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the leaflet metabox: language + translation pairing only
+	 * (2026-11-26, English-version rollout) — this CPT never had a
+	 * metabox before, and needs no other field.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_leaflet_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$language = get_post_meta( $post->ID, 'shcore_language', true );
+		self::render_language_field( $language );
+		self::render_translation_pairing_field( $post->ID, 'leaflet' );
+	}
+
+	/**
+	 * Render the editors_pick metabox: language + translation pairing
+	 * only (2026-11-26, English-version rollout) — same reasoning as
+	 * render_leaflet_metabox() above.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_editors_pick_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$language = get_post_meta( $post->ID, 'shcore_language', true );
+		self::render_language_field( $language );
+		self::render_translation_pairing_field( $post->ID, 'editors_pick' );
+	}
+
+	/**
+	 * Render the announcement metabox: language + translation pairing
+	 * only (2026-11-26, English-version rollout) — same reasoning as
+	 * render_leaflet_metabox() above.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_announcement_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$language = get_post_meta( $post->ID, 'shcore_language', true );
+		self::render_language_field( $language );
+		self::render_translation_pairing_field( $post->ID, 'announcement' );
+	}
+
+	/**
 	 * Shared subtitle field for `document`, `party_publication`, and
 	 * `party_document` (2026-09-19) — see register_meta()'s comment on
 	 * shcore_subtitle for the full reasoning. Placed first in each of
@@ -1284,7 +1493,56 @@ class Meta_Fields {
 				<option value="en" <?php selected( $language, 'en' ); ?>>English</option>
 			</select>
 		</p>
-		<p class="description"><?php esc_html_e( 'زبان اصلی این محتوا را مشخص کنید؛ اکنون فقط فارسی فعال است.', 'shola-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'زبان این محتوا را مشخص کنید.', 'shola-core' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Shared translation-pairing picker (2026-11-26, English-version
+	 * rollout — english-version/03-content-architecture/language-field-
+	 * and-pairing.md). Lets an editor pick this post's counterpart in the
+	 * other language, from a plain dropdown of same-type posts in the
+	 * opposite language — no new JS, consistent with how small this
+	 * site's own content lists actually are. Saving/bidirectional
+	 * linking happens in save_meta_boxes()/sync_translation_pairing()
+	 * below, not here — this function only renders the field.
+	 *
+	 * @param int    $post_id Current post's ID.
+	 * @param string $post_type Current post's post type.
+	 * @return void
+	 */
+	private static function render_translation_pairing_field( $post_id, $post_type ) {
+		$language  = get_post_meta( $post_id, 'shcore_language', true );
+		$language  = $language ? $language : 'fa';
+		$other     = ( 'en' === $language ) ? 'fa' : 'en';
+		$current   = (int) get_post_meta( $post_id, 'shcore_translation_id', true );
+		$candidates = get_posts(
+			array(
+				'post_type'      => $post_type,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'post__not_in'   => array( $post_id ),
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- editor-facing admin screen only, small per-type post counts.
+					array(
+						'key'   => 'shcore_language',
+						'value' => $other,
+					),
+				),
+			)
+		);
+		?>
+		<p>
+			<label for="shcore_translation_id"><strong><?php esc_html_e( 'نسخهٔ ترجمه', 'shola-core' ); ?></strong></label><br>
+			<select id="shcore_translation_id" name="shcore_translation_id">
+				<option value="0"><?php esc_html_e( '— بدون پیوند —', 'shola-core' ); ?></option>
+				<?php foreach ( $candidates as $candidate ) : ?>
+					<option value="<?php echo esc_attr( $candidate->ID ); ?>" <?php selected( $current, $candidate->ID ); ?>><?php echo esc_html( $candidate->post_title ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+		<p class="description"><?php esc_html_e( 'اگر نسخهٔ این محتوا به زبان دیگر موجود است، آن را اینجا انتخاب کنید. هر دو طرف به‌طور خودکار به یکدیگر پیوند می‌خورند؛ دکمهٔ تغییر زبان در سایت، خواننده را مستقیماً به همین نسخه می‌برد.', 'shola-core' ); ?></p>
 		<?php
 	}
 
@@ -1339,13 +1597,17 @@ class Meta_Fields {
 		}
 
 		$fields_by_type = array(
-			'issue'             => array( 'shcore_issue_number', 'shcore_issue_custom_title', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description' ),
-			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language' ),
-			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language' ),
-			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language' ),
+			'issue'             => array( 'shcore_issue_number', 'shcore_issue_custom_title', 'shcore_pdf_id', 'shcore_contents', 'shcore_hero_pub_description', 'shcore_language', 'shcore_translation_id' ),
+			'document'          => array( 'shcore_subtitle', 'shcore_author_source', 'shcore_pdf_id', 'shcore_language', 'shcore_translation_id' ),
+			'party_publication' => array( 'shcore_subtitle', 'shcore_pdf_id', 'shcore_language', 'shcore_translation_id' ),
+			'party_document'    => array( 'shcore_subtitle', 'shcore_serial_number', 'shcore_pdf_id', 'shcore_language', 'shcore_translation_id' ),
 			'post'              => array( 'shcore_subtitle', 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected', 'shcore_translation_original_author', 'shcore_translation_translator' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
+			// leaflet, editors_pick, announcement (2026-11-26, English-version rollout).
+			'leaflet'           => array( 'shcore_language', 'shcore_translation_id' ),
+			'editors_pick'      => array( 'shcore_language', 'shcore_translation_id' ),
+			'announcement'      => array( 'shcore_language', 'shcore_translation_id' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {
@@ -1382,6 +1644,18 @@ class Meta_Fields {
 				update_post_meta( $post_id, 'shcore_is_selected', isset( $_POST['shcore_is_selected'] ) );
 				continue;
 			}
+			if ( 'shcore_translation_id' === $field ) {
+				// Absent means "no picker shown for this type" (not every
+				// metabox that saves shcore_language also shows the
+				// pairing dropdown yet) — leave the stored value alone,
+				// same as every other optional text field below, rather
+				// than wiping it.
+				if ( isset( $_POST['shcore_translation_id'] ) ) {
+					$new_paired_id = absint( wp_unslash( $_POST['shcore_translation_id'] ) );
+					self::sync_translation_pairing( $post_id, $new_paired_id );
+				}
+				continue;
+			}
 			if ( 'shcore_contents' === $field ) {
 				// Repeater rows arrive as shcore_contents[N][section|title|byline].
 				// Absent entirely (JS never touched, or every row removed) is a
@@ -1395,6 +1669,33 @@ class Meta_Fields {
 			if ( isset( $_POST[ $field ] ) ) {
 				update_post_meta( $post_id, $field, wp_unslash( $_POST[ $field ] ) );
 			}
+		}
+	}
+
+	/**
+	 * Keeps a translation pairing pointing both ways (2026-11-26,
+	 * English-version rollout). When this post is linked to a paired
+	 * post, the paired post gets its own `shcore_translation_id` set back
+	 * to this post too — an editor only ever has to set the link from
+	 * one side. If this post *used* to point at a different paired post,
+	 * that old post's back-link is cleared first, so nothing is left
+	 * pointing at a relationship that no longer exists.
+	 *
+	 * @param int $post_id This post's ID.
+	 * @param int $new_paired_id The post ID just picked in the dropdown (0 = no pairing).
+	 * @return void
+	 */
+	private static function sync_translation_pairing( $post_id, $new_paired_id ) {
+		$old_paired_id = (int) get_post_meta( $post_id, 'shcore_translation_id', true );
+
+		if ( $old_paired_id && $old_paired_id !== $new_paired_id ) {
+			delete_post_meta( $old_paired_id, 'shcore_translation_id', $post_id );
+		}
+
+		update_post_meta( $post_id, 'shcore_translation_id', $new_paired_id );
+
+		if ( $new_paired_id ) {
+			update_post_meta( $new_paired_id, 'shcore_translation_id', $post_id );
 		}
 	}
 
