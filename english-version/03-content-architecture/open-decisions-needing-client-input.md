@@ -38,17 +38,23 @@ appearing the moment *any* English content exists, demo or real). Full
 policy, including exactly how demo content is marked so it's trivial to
 find and remove later: `demo-content-policy.md` in this same folder.
 
-## 5. ModamPro's Latin character coverage — DEFERRED, Claude flags when it actually matters
+## 5. ~~ModamPro's/Farhang2's Latin character coverage~~ — RESOLVED 2026-11-28
 
-**Answer:** decide later, not now. Per Farhad's instruction: Claude will
-raise this again right before it actually becomes a blocking decision —
-specifically, at the start of Phase 3 (the LTR CSS pass,
-`04-design-and-ltr-system/`), where the nav/masthead font choice for
-English pages is actually implemented — rather than deciding it
-unprompted now or letting it block anything in the meantime. Until then,
-English pages simply use the font stack's own existing fallback
-(ModamPro → Farhang2 → system sans-serif), which already degrades
-gracefully either way.
+**Answer: use the same fonts as Persian — Farhang2 and ModamPro —
+for English too.** Farhad confirmed both fonts were purchased as full
+Persian+English (Latin) typefaces — alphabet, numerals, everything.
+Verified directly before accepting the claim, not just taken on trust:
+rendered plain Latin text (`ABCDEFGHIJKLM nopqrstuvwxyz 0123456789`) in
+each font with no fallback in the stack, live in the browser — both
+produced real, distinct, fully legible Latin letterforms and numerals,
+no missing-glyph boxes, no silent substitution. Confirmed.
+
+This simplifies Phase 3 considerably: **no font-family switch is needed
+for English pages at all.** `typography-for-english.md` is rewritten to
+reflect this — the `--font-en`/`--font-ui` (Newsreader/Inter) tokens and
+the planned `html[lang="en"] body { font-family: ... }` override are no
+longer part of this plan; the site's existing default font stack
+already applies correctly regardless of page language.
 
 ## 6. ~~Date format for English readers~~ — RESOLVED 2026-11-27
 

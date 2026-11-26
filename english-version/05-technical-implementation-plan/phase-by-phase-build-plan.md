@@ -24,8 +24,9 @@ entry if any rule was newly applied.
   admin UI to `topic`, `publication`, `collection`, `party_document_category`
   (and `editors_pick_category`, `report`) — done 2026-11-26, generalized
   across `Category_Manager::MANAGED` the same way ترتیب already was.
-- Build the `/en/` rewrite rule, the `shola_lang` query var, and the central
-  language-context function (`url-structure-and-routing.md`).
+- ✅ Build the `/en/` rewrite rule, the `shola_lang` query var, and the
+  central language-context function (`url-structure-and-routing.md`) —
+  done 2026-11-27, `class-language.php`.
 - ✅ Add the language filter to every archive/search/homepage-panel query
   — done 2026-11-27. `pre_get_posts` covers the 3 templates using
   WordPress's own main query (search, announcement/editors_pick
@@ -105,14 +106,14 @@ entry if any rule was newly applied.
 
 ## Phase 3 — LTR CSS pass
 
-- **Decision checkpoint, raised here, not before:** ModamPro's Latin
-  glyph coverage (open decision #5) gets decided right at the start of
-  this phase, since this is the first point it actually matters (the
-  nav/masthead font choice for English pages is implemented here) —
-  Claude raises it again at that point rather than deciding it earlier
-  or leaving it unresolved past the point it's needed.
-- Add the `html[lang="en"] body`/`.ui` font rules from
-  `typography-for-english.md`.
+- ✅ **Font decision** (open decision #5) — resolved 2026-11-28: same
+  fonts as Persian (Farhang2/ModamPro) for English too, confirmed by
+  Farhad and verified directly (real Latin text rendered in both fonts
+  with no fallback, live in the browser — full, legible letterforms and
+  numerals, no missing glyphs). **No font-family CSS work needed at
+  all** — see `typography-for-english.md`'s rewrite. This replaces the
+  originally-planned `html[lang="en"] body`/`.ui` font-switch rules,
+  which are no longer part of this plan.
 - Work through `component-by-component-ltr-notes.md` top to bottom, fixing
   each flagged exception (icon mirroring, drop-cap float, number
   formatting) as found — this requires Phase 1's language context to exist,

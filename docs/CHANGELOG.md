@@ -15343,3 +15343,30 @@ All throwaway test posts created during verification were deleted
 afterward. **Phase 2 is now complete** — the language switcher is real
 and working on every page type, in both masthead layouts, at every
 screen width.
+
+## 2026-11-28 — English-version Phase 3 font decision: same fonts as Persian
+
+Farhad confirmed the deferred font decision (open decision #5,
+`english-version/03-content-architecture/open-decisions-needing-client-input.md`):
+Farhang2 and ModamPro — already purchased and licensed as full
+Persian+English typefaces — are used for English pages exactly as they
+already are for Persian. No separate English font stack.
+
+Verified directly before accepting this, not taken purely on the
+vendor's word: rendered plain Latin text
+(`ABCDEFGHIJKLM nopqrstuvwxyz 0123456789`) in each font live in the
+browser with no fallback font in the stack — both produced real,
+distinct, fully legible Latin letterforms and numerals, no missing-
+glyph boxes, no silent substitution to a system font. Confirmed.
+
+This removes work from Phase 3 rather than adding any: the originally-
+planned `html[lang="en"] body { font-family: var(--font-en); }` /
+`.ui` font-switch rules (which would have applied the already-self-
+hosted Newsreader/Inter tokens to English pages) are no longer part of
+this plan — the site's one existing default font stack already applies
+correctly regardless of page language, since the same fonts are
+correct for both. `typography-for-english.md` rewritten accordingly;
+Inter/Newsreader/JetBrains Mono remain self-hosted and untouched,
+still used only where they already were (the pre-existing
+`[lang="en"]`/`.latin` masthead-runner detail, unrelated to this
+rollout).
