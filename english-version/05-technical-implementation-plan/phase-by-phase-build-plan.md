@@ -272,13 +272,31 @@ entry if any rule was newly applied.
   fully reachable via nav/search either way, just not sitemap-listed
   directly).
 
-## Phase 6 — POT file regeneration
+## Phase 6 — POT file regeneration ✅ done 2026-11-28
 
-- Regenerate both `.pot` files via WP-CLI (`pot-file-regeneration.md`) —
-  both are currently stale by roughly two orders of magnitude even for the
-  existing Persian-only string count, independent of this whole project;
-  doing this now is overdue housekeeping as much as it is part of this
-  rollout.
+- ✅ Regenerated both `.pot` files via WP-CLI's `wp i18n make-pot`
+  (`pot-file-regeneration.md`), run against the real local install
+  (WP-CLI phar + the exact matching PHP binary/php.ini, same technique
+  used throughout this project for live verification). Theme:
+  4 → 197 entries. Plugin: 67 → 346 entries — both now current through
+  every post type/taxonomy/field added since the original 2026-08-05/06
+  generation (`party_publication`, `party_document`, `leaflet`,
+  `hero_section`, `masthead_section`, `editors_pick`, and every string
+  this English-version rollout itself added: the language switcher, the
+  admin demo-content notice, the admin language switcher, …).
+- ✅ Fixed one real header regression WP-CLI's default introduced:
+  `Report-Msgid-Bugs-To` defaulted to a `wordpress.org` support-forum
+  URL — wrong, since this project isn't published there — re-generated
+  with `--headers` to keep the original GitHub issues URL both files
+  already had.
+- Three benign WP-CLI warnings during generation (same msgid, different
+  `translators:` comment, e.g. "%s مقاله" commented once as "number of
+  articles" and once as "article count") — not an error, nothing to fix;
+  gettext just can't attach two different comments to one string.
+- Verified live, not assumed: grepped both regenerated files for a
+  cross-section of recent strings (`تغییر زبان`, `گزیده‌ها`, the demo-
+  content admin notice, `اسناد حزب`) to confirm they're actually present,
+  not just that the file got bigger.
 
 ## Phase 7 — QA
 

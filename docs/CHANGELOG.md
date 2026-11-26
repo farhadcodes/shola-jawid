@@ -15660,3 +15660,40 @@ Every fix above verified live via direct `curl` requests against the
 real local site (the built-in browser tool was temporarily unavailable
 for part of this round) — response codes, `hreflang`/canonical tag
 output, and raw sitemap XML, not assumed from the diff.
+
+## 2026-11-28 (continued, 5) — English-version Phase 6: POT file regeneration
+
+Regenerated both `.pot` files via WP-CLI's `wp i18n make-pot`
+(`english-version/05-technical-implementation-plan/pot-file-
+regeneration.md`), run with the WP-CLI phar against the real local
+install using the exact matching PHP binary/php.ini — same live-
+verification technique used throughout this project, not a dry-run
+assumption.
+
+- `wp-content/themes/shola-jawid/languages/shola-jawid.pot`: 4 → 197
+  entries.
+- `wp-content/plugins/shola-core/languages/shola-core.pot`: 67 → 346
+  entries.
+
+Both files were last generated 2026-08-05/06 and had never been
+regenerated since — predating `party_publication`, `party_document`,
+`leaflet`, `hero_section`, `masthead_section`, and `editors_pick`
+entirely (all added 2026-09-02 through 2026-10-01), independent of this
+English-version project. Doing this now, after the English rollout's
+own new strings (language switcher, admin language switcher, demo-
+content notice) already exist, means the regenerated file reflects the
+final string set for this round rather than needing a second pass.
+
+One real regression caught in WP-CLI's own default output, not assumed
+correct: `Report-Msgid-Bugs-To` defaulted to a `wordpress.org`
+support-forum URL on first generation — wrong, this project isn't
+published there — re-run with `--headers` to restore the original
+GitHub issues URL both files already carried. Three benign warnings
+during generation (same msgid, two different `translators:` comments —
+e.g. "%s مقاله" commented differently in two call sites) are gettext
+limitations, not errors; nothing to fix.
+
+Verified live: grepped both regenerated files for a cross-section of
+recent strings (تغییر زبان, گزیده‌ها, the demo-content admin notice,
+اسناد حزب) to confirm they're actually present, not just that the file
+got bigger.

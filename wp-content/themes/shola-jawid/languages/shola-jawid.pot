@@ -2,25 +2,1013 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Shola Jawid 1.0.0\n"
+"Project-Id-Version: Shola Jawid 1.51.11\n"
 "Report-Msgid-Bugs-To: https://github.com/farhadcodes/shola-jawid/issues\n"
-"POT-Creation-Date: 2026-08-05T00:00:00+00:00\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-08-05T00:00:00+00:00\n"
-"X-Generator: manual\n"
+"POT-Creation-Date: 2026-11-26T16:02:28+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: shola-jawid\n"
 
-#: inc/setup.php
+#. Theme Name of the theme
+#: style.css
+msgid "Shola Jawid"
+msgstr ""
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://github.com/farhadcodes/shola-jawid"
+msgstr ""
+
+#. Description of the theme
+#: style.css
+msgid "A bilingual-ready, Persian-active WordPress theme for شعله جاوید (Shola Jawid), a Persian-language editorial publishing platform. A faithful, pixel-accurate conversion of the v6 \"Quiet Press\" static prototype."
+msgstr ""
+
+#. Author of the theme
+#: style.css
+msgid "Farhad Farhaad"
+msgstr ""
+
+#. Author URI of the theme
+#: style.css
+msgid "https://github.com/farhadcodes"
+msgstr ""
+
+#: 404.php:27
+msgid "صفحه‌ای که به دنبال آن هستید یافت نشد. ممکن است نشانی اشتباه باشد یا این صفحه جابه‌جا یا حذف شده باشد."
+msgstr ""
+
+#: 404.php:30
+msgid "بازگشت به صفحهٔ اصلی"
+msgstr ""
+
+#: 404.php:31
+msgid "جست‌وجو در سایت"
+msgstr ""
+
+#: archive-announcement.php:45
+#: header.php:282
+#: inc/setup.php:206
+#: inc/template-tags.php:1026
+#: inc/template-tags.php:1065
+#: single-announcement.php:45
+#: template-parts/masthead/two-tier.php:96
+msgid "اطلاعیه‌ها"
+msgstr ""
+
+#: archive-announcement.php:56
+#: template-parts/cards/announcement-spotlight.php:65
+msgid "اطلاعیه‌ها و بیانیه‌ها"
+msgstr ""
+
+#: archive-announcement.php:58
+msgid "خبرهای نشریه، فراخوان‌های ارسال مقاله، و اعلان‌های عمومی."
+msgstr ""
+
+#: archive-editors_pick.php:39
+#: archive-editors_pick.php:50
+#: single.php:105
+#: template-parts/cards/editors-picks-panel.php:51
+msgid "گزیده‌ها"
+msgstr ""
+
+#: archive-editors_pick.php:52
+msgid "نوشته‌هایی که هیئت تحریریه برای معرفی ویژه برگزیده است."
+msgstr ""
+
+#: archive-editors_pick.php:66
+#: page-reports.php:91
+#: taxonomy-collection.php:118
+#: taxonomy-party_document_category.php:110
+#: taxonomy-topic.php:129
+msgid "صفحه‌بندی"
+msgstr ""
+
+#: archive-editors_pick.php:88
+msgid "هنوز گزیده‌ای منتشر نشده است."
+msgstr ""
+
+#: footer.php:43
+#: header.php:240
+#: header.php:323
+#: inc/setup.php:176
+#: inc/template-tags.php:1010
+#: page-library.php:46
+#: page-party-documents.php:68
+#: single-announcement.php:43
+#: single-document.php:68
+#: single-issue.php:90
+#: single-party_document.php:77
+#: single-party_publication.php:53
+#: single.php:87
+#: taxonomy-collection.php:79
+#: taxonomy-party_document_category.php:75
+#: taxonomy-publication.php:103
+#: taxonomy-publication.php:209
+#: template-parts/breadcrumb.php:40
+#: template-parts/masthead/two-tier.php:76
+msgid "صفحهٔ اصلی"
+msgstr ""
+
+#: footer.php:74
+#: header.php:344
+msgid "شبکه‌های اجتماعی"
+msgstr ""
+
+#: footer.php:81
+#: footer.php:82
+#: header.php:395
+#: inc/setup.php:181
+#: inc/template-tags.php:1011
+#: page-publications.php:30
+#: page-publications.php:41
+#: single-issue.php:92
+#: taxonomy-publication.php:105
+#: taxonomy-publication.php:211
+msgid "نشرات"
+msgstr ""
+
+#: footer.php:93
+#: taxonomy-publication.php:306
+msgid "همهٔ شماره‌ها"
+msgstr ""
+
+#: footer.php:111
+msgid "پیوندهای سایت"
+msgstr ""
+
+#: footer.php:112
+msgid "سایت"
+msgstr ""
+
+#. translators: 1: Jalali year, 2: site name.
+#: footer.php:135
+#, php-format
+msgid "© %1$s · %2$s · بازنشر با ذکر منبع آزاد است"
+msgstr ""
+
+#: front-page.php:180
+#: front-page.php:211
+#: front-page.php:248
+#: front-page.php:280
+#: front-page.php:321
+#: front-page.php:358
+#: front-page.php:388
+msgid "مقالهٔ سرخط"
+msgstr ""
+
+#: front-page.php:222
+#: front-page.php:257
+#: front-page.php:289
+#: front-page.php:332
+#: front-page.php:413
+msgid "شمارهٔ جاری"
+msgstr ""
+
+#: front-page.php:578
+msgid "تازه‌ترین مقاله‌ها"
+msgstr ""
+
+#: front-page.php:583
+msgid "مقالات"
+msgstr ""
+
+#: front-page.php:585
+msgid "همهٔ مقالات"
+msgstr ""
+
+#: front-page.php:683
+#: front-page.php:688
+msgid "تراکت"
+msgstr ""
+
+#: front-page.php:714
+msgid "مشاهدهٔ آرشیو تراکت‌ها"
+msgstr ""
+
+#: front-page.php:835
+msgid "همهٔ گزارش‌ها"
+msgstr ""
+
+#: front-page.php:836
+msgid "پیمایش گزارش‌ها"
+msgstr ""
+
+#: front-page.php:837
+msgid "گزارش‌های قدیمی‌تر"
+msgstr ""
+
+#: front-page.php:840
+msgid "گزارش‌های جدیدتر"
+msgstr ""
+
+#: front-page.php:1001
+#: front-page.php:1006
+#: header.php:232
+#: inc/setup.php:158
+#: template-parts/masthead/two-tier.php:88
+msgid "نشریات"
+msgstr ""
+
+#: front-page.php:1047
+#: template-parts/search/result.php:39
+msgid "شماره"
+msgstr ""
+
+#: front-page.php:1051
+msgid "دوره"
+msgstr ""
+
+#: front-page.php:1054
+#: single-document.php:123
+#: single-issue.php:163
+#: single-party_document.php:116
+#: single-party_publication.php:86
+msgid "تاریخ نشر"
+msgstr ""
+
+#: front-page.php:1057
+msgid "فایل PDF"
+msgstr ""
+
+#: front-page.php:1077
+#: inc/template-tags.php:1620
+msgid "دریافت شماره"
+msgstr ""
+
+#: front-page.php:1078
+#: page-publications.php:79
+msgid "آرشیو شماره‌ها"
+msgstr ""
+
+#: front-page.php:1126
+#: front-page.php:1131
+#: inc/setup.php:311
+#: inc/template-tags.php:1407
+#: page-selected.php:47
+#: page-selected.php:58
+#: single-issue.php:227
+#: single.php:122
+msgid "ترجمه"
+msgstr ""
+
+#: front-page.php:1133
+msgid "همهٔ ترجمه‌ها"
+msgstr ""
+
+#: front-page.php:1206
+#: front-page.php:1211
+#: page-party-publications.php:49
+#: page-party-publications.php:60
+#: search.php:32
+#: single-party_publication.php:55
+#: single-party_publication.php:76
+#: template-parts/search/result.php:60
+msgid "انتشارات حزب"
+msgstr ""
+
+#: front-page.php:1213
+msgid "همهٔ آثار"
+msgstr ""
+
+#: front-page.php:1293
+msgid "همهٔ مجموعه‌ها"
+msgstr ""
+
+#: front-page.php:1356
+msgid "همهٔ اسناد"
+msgstr ""
+
+#: front-page.php:1378
+#: header.php:234
+#: inc/setup.php:141
+#: inc/setup.php:399
+#: inc/template-tags.php:1181
+#: inc/template-tags.php:1183
+#: inc/template-tags.php:1186
+#: template-parts/masthead/two-tier.php:90
+msgid "موضوعات"
+msgstr ""
+
+#. translators: %s: number of articles.
+#. translators: %s: article count.
+#: front-page.php:1410
+#: page-topics.php:62
+#, php-format
+msgid "%s article"
+msgid_plural "%s articles"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of articles.
+#. translators: %s: article count.
+#: front-page.php:1413
+#: page-topics.php:65
+#: single-issue.php:72
+#, php-format
+msgid "%s مقاله"
+msgid_plural "%s مقاله"
+msgstr[0] ""
+msgstr[1] ""
+
+#: header.php:80
+msgid "در حال بارگذاری…"
+msgstr ""
+
+#: header.php:127
+msgid "پرش به محتوای اصلی"
+msgstr ""
+
+#: header.php:201
+#: template-parts/masthead/two-tier.php:83
+msgid "باز کردن منو"
+msgstr ""
+
+#: header.php:204
+#: template-parts/masthead/two-tier.php:86
+msgid "صفحهٔ نخست"
+msgstr ""
+
+#: header.php:216
+#: header.php:286
+#: search.php:48
+#: search.php:59
+#: search.php:68
+#: template-parts/masthead/two-tier.php:118
+msgid "جست‌وجو"
+msgstr ""
+
+#: header.php:231
+msgid "پیوندهای اصلی"
+msgstr ""
+
+#: header.php:236
+#: inc/setup.php:186
+#: inc/template-tags.php:1012
+#: inc/template-tags.php:1064
+#: page-library.php:48
+#: page-library.php:54
+#: single-document.php:70
+#: taxonomy-collection.php:81
+#: template-parts/masthead/two-tier.php:92
+msgid "کتابخانه"
+msgstr ""
+
+#: header.php:280
+#: inc/setup.php:211
+#: inc/template-tags.php:1027
+#: inc/template-tags.php:1066
+#: template-parts/masthead/two-tier.php:94
+msgid "دربارهٔ ما"
+msgstr ""
+
+#: header.php:284
+#: template-parts/masthead/two-tier.php:98
+msgid "تماس"
+msgstr ""
+
+#: header.php:316
 msgid "منوی اصلی"
 msgstr ""
 
+#: header.php:319
+msgid "بستن منو"
+msgstr ""
+
+#: header.php:321
+#: template-parts/leaflets/lightbox.php:71
+msgid "بستن"
+msgstr ""
+
+#: header.php:362
+msgid "تغییر زبان"
+msgstr ""
+
+#: header.php:366
+msgid "بخش‌های سایت"
+msgstr ""
+
+#: header.php:367
+#: inc/setup.php:171
+msgid "بخش‌ها"
+msgstr ""
+
+#: header.php:380
+#: template-parts/masthead/two-tier.php:87
+msgid "پیوندهای کمکی"
+msgstr ""
+
+#: inc/customizer.php:36
+msgid "برای بهترین کیفیت، تصویر PNG یا WebP با پس‌زمینهٔ شفاف و حداقل ۴۰۰ در ۴۰۰ پیکسل بارگذاری کنید."
+msgstr ""
+
+#: inc/customizer.php:51
+msgid "توضیح پانویس (زیر نشان حزب)"
+msgstr ""
+
+#: inc/customizer.php:52
+msgid "متنی که زیر نشان و نام سایت، در پانویس هر صفحه نمایش داده می‌شود."
+msgstr ""
+
+#: inc/customizer.php:68
+msgid "پلتفرم نشر دوزبانه برای مقالات، یادداشت‌ها و اسناد؛ با آرشیو کامل نشرات «شعله جاوید» و «جهان برای فتح»."
+msgstr ""
+
+#: inc/login-screen.php:117
+msgid "ورود ویژهٔ اعضای هیئت تحریریه و مدیریت سایت."
+msgstr ""
+
+#: inc/setup.php:100
+msgid "منو — موضوعات"
+msgstr ""
+
+#: inc/setup.php:101
+msgid "منو — نشریات"
+msgstr ""
+
+#: inc/setup.php:102
+msgid "منو — بخش‌ها"
+msgstr ""
+
+#: inc/setup.php:103
+msgid "منو — بیشتر"
+msgstr ""
+
+#: inc/setup.php:104
+msgid "پاورقی — موضوعات منتخب"
+msgstr ""
+
+#: inc/setup.php:105
+msgid "پاورقی — پیوندهای سایت"
+msgstr ""
+
+#: inc/setup.php:191
+#: inc/setup.php:507
+#: inc/template-tags.php:1179
+#: page-party-documents.php:70
+#: page-party-documents.php:76
+#: single-party_document.php:80
+#: single-party_document.php:84
+#: single-party_document.php:106
+#: taxonomy-party_document_category.php:77
+msgid "اسناد حزب"
+msgstr ""
+
+#: inc/setup.php:196
+#: inc/template-tags.php:1013
+#: inc/template-tags.php:1052
+#: inc/template-tags.php:1176
+#: inc/template-tags.php:1177
+msgid "همهٔ موضوعات"
+msgstr ""
+
+#: inc/setup.php:201
+#: inc/template-tags.php:1182
+msgid "بیشتر"
+msgstr ""
+
+#: inc/setup.php:216
+#: inc/template-tags.php:1028
+#: inc/template-tags.php:1067
+msgid "ارتباط با حزب"
+msgstr ""
+
+#: inc/setup.php:221
+#: inc/template-tags.php:1029
+msgid "جست‌وجو در آرشیو"
+msgstr ""
+
+#: inc/setup.php:356
+#: page-leaflets.php:59
+#: page-leaflets.php:70
+msgid "تراکت‌ها"
+msgstr ""
+
+#: inc/setup.php:444
+#: inc/template-tags.php:1180
+#: inc/template-tags.php:1399
+#: page-reports.php:63
+#: page-reports.php:74
+msgid "گزارش"
+msgstr ""
+
 #. translators: %s: linked author name, not translatable.
-#: inc/setup.php
+#: inc/setup.php:673
+#, php-format
 msgid "ساخته‌شده با قالب شعله جاوید، توسط %s"
 msgstr ""
 
-#: inc/setup.php
+#: inc/setup.php:703
 msgid "برای عملکرد کامل نشریه (شماره‌ها، اسناد، اطلاعیه‌ها)، افزونهٔ «Shola Core» باید نصب و فعال باشد."
+msgstr ""
+
+#: inc/template-tags.php:673
+msgid "جاری"
+msgstr ""
+
+#: inc/template-tags.php:673
+msgid "آرشیوی"
+msgstr ""
+
+#. translators: %s: issue number.
+#: inc/template-tags.php:705
+#, php-format
+msgid "شمارهٔ %s"
+msgstr ""
+
+#: inc/template-tags.php:1122
+#: single.php:241
+msgid "تلگرام"
+msgstr ""
+
+#: inc/template-tags.php:1123
+#: single.php:251
+msgid "ایکس"
+msgstr ""
+
+#: inc/template-tags.php:1138
+msgid "خوراک RSS"
+msgstr ""
+
+#: inc/template-tags.php:1174
+msgid "تازه‌ها مقالات"
+msgstr ""
+
+#: inc/template-tags.php:1175
+#: inc/template-tags.php:1184
+msgid "تازه‌ها"
+msgstr ""
+
+#: inc/template-tags.php:1178
+msgid "تازه‌ترین اسناد"
+msgstr ""
+
+#: inc/template-tags.php:1185
+msgid "پرخواننده‌ترین"
+msgstr ""
+
+#. translators: 1: issue count, 2: year or year range.
+#: inc/template-tags.php:1253
+#, php-format
+msgid "%1$s issue · %2$s"
+msgid_plural "%1$s issues · %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: issue count (Persian digits), 2: year or year range.
+#: inc/template-tags.php:1262
+#, php-format
+msgid "%1$s شماره · %2$s"
+msgstr ""
+
+#: inc/template-tags.php:1395
+msgid "گزیده"
+msgstr ""
+
+#: inc/template-tags.php:1403
+#: search.php:29
+#: template-parts/search/result.php:66
+msgid "یادداشت"
+msgstr ""
+
+#: inc/template-tags.php:1410
+#: search.php:28
+#: template-parts/search/result.php:66
+msgid "مقاله"
+msgstr ""
+
+#: inc/template-tags.php:1751
+msgid "آخرین مقالات"
+msgstr ""
+
+#: inc/template-tags.php:1778
+msgid "مقالهٔ قبلی"
+msgstr ""
+
+#: inc/template-tags.php:1781
+msgid "مقالهٔ بعدی"
+msgstr ""
+
+#: inc/template-tags.php:2009
+msgid "فارسی"
+msgstr ""
+
+#: page-contact.php:41
+msgid "پیشنهاد مقاله، پرسش‌های تحریری، همکاری ترجمه یا نکته‌ای دربارهٔ سایت — از هر مسیر که برایتان راحت‌تر است."
+msgstr ""
+
+#: page-contact.php:67
+msgid "ایمیل"
+msgstr ""
+
+#: page-contact.php:69
+msgid "پاسخ‌دهی و حریم خصوصی"
+msgstr ""
+
+#. translators: %s: link to the site's Privacy Policy page.
+#: page-contact.php:91
+#, php-format
+msgid "پیام‌ها معمولاً ظرف یک هفته پاسخ داده می‌شوند؛ ایمیلتان فقط برای پاسخگویی استفاده می‌شود، نه بازاریابی — جزئیات در %s."
+msgstr ""
+
+#: page-contact.php:92
+msgid "سیاست حریم خصوصی"
+msgstr ""
+
+#: page-contact.php:96
+msgid "پیام‌ها معمولاً ظرف یک هفته پاسخ داده می‌شوند؛ ایمیلتان فقط برای پاسخگویی استفاده می‌شود، نه بازاریابی."
+msgstr ""
+
+#: page-leaflets.php:72
+msgid "آرشیو تراکت‌ها، بنرها و پوسترهای تبلیغاتی حزب برای تظاهرات و اعتراضات."
+msgstr ""
+
+#: page-leaflets.php:131
+msgid "بارگذاری بیشتر"
+msgstr ""
+
+#: page-leaflets.php:154
+msgid "هنوز تراکتی منتشر نشده است."
+msgstr ""
+
+#: page-library.php:45
+#: page-party-documents.php:67
+#: single-announcement.php:42
+#: single-document.php:67
+#: single-issue.php:89
+#: single-party_document.php:76
+#: single-party_publication.php:52
+#: single.php:86
+#: taxonomy-collection.php:78
+#: taxonomy-party_document_category.php:74
+#: taxonomy-publication.php:102
+#: taxonomy-publication.php:208
+#: template-parts/breadcrumb.php:39
+msgid "مسیر"
+msgstr ""
+
+#: page-library.php:56
+msgid "چهار مجموعه از اسناد PDF: متن‌های پایهٔ نظری، بیانیه‌های جنبش‌های جهانی، اسناد رسمی حزب، و پلمیک‌ها. پیش‌نمایش درون‌مرورگری و دریافت آزاد."
+msgstr ""
+
+#. translators: %s: document count.
+#: page-library.php:71
+#: page-party-documents.php:88
+#, php-format
+msgid "%s document"
+msgid_plural "%s documents"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: document count.
+#: page-library.php:74
+#: page-party-documents.php:91
+#, php-format
+msgid "%s سند"
+msgid_plural "%s سند"
+msgstr[0] ""
+msgstr[1] ""
+
+#: page-party-documents.php:78
+msgid "اسناد داخلی حزب — با پیش‌نمایش درون‌مرورگری و دریافت آزاد PDF."
+msgstr ""
+
+#: page-party-documents.php:96
+msgid "هنوز دسته‌ای ایجاد نشده است."
+msgstr ""
+
+#: page-party-publications.php:62
+msgid "کتاب‌ها و جزوه‌هایی که خود حزب منتشر کرده است — با پیش‌نمایش درون‌مرورگری و دریافت آزاد PDF."
+msgstr ""
+
+#: page-party-publications.php:100
+msgid "هنوز اثری منتشر نشده است."
+msgstr ""
+
+#: page-publications.php:51
+msgid "دو نشریه با آرشیو کامل PDF. «حزب کمونیست (مائوئیست) افغانستان» جاری منتشر می‌شود؛ «جهان برای فتح» به‌صورت آرشیو تاریخی نگه‌داری می‌شود."
+msgstr ""
+
+#: page-publications.php:79
+msgid "آرشیو کامل"
+msgstr ""
+
+#: page-reports.php:76
+msgid "آرشیو کامل گزارش‌های منتشرشده در سایت."
+msgstr ""
+
+#: page-reports.php:114
+msgid "هنوز گزارشی منتشر نشده است."
+msgstr ""
+
+#: page-selected.php:60
+msgid "مقالات و گزارش‌های ترجمه‌شدهٔ سردبیری."
+msgstr ""
+
+#: page-selected.php:96
+msgid "هنوز مطلبی در ترجمه نیست."
+msgstr ""
+
+#: page-topics.php:43
+msgid "شش موضوع ثابت؛ چهارچوبی که نشریه پیرامون آن مقاله سفارش می‌دهد و مقاله می‌پذیرد."
+msgstr ""
+
+#: search.php:27
+msgid "همه"
+msgstr ""
+
+#: search.php:30
+msgid "شمارهٔ نشریه"
+msgstr ""
+
+#: search.php:31
+msgid "سند کتابخانه"
+msgstr ""
+
+#: search.php:61
+msgid "در مقالات، شماره‌ها، اسناد کتابخانه و انتشارات حزب — به فارسی یا انگلیسی."
+msgstr ""
+
+#: search.php:65
+msgid "عبارت جست‌وجو"
+msgstr ""
+
+#: search.php:67
+msgid "مثلاً: تورم، دهقان، آب"
+msgstr ""
+
+#: search.php:133
+msgid "برای دیدن نتیجه، عبارتی را در کادر بالا وارد کنید."
+msgstr ""
+
+#: search.php:172
+msgid "نتیجه برای"
+msgstr ""
+
+#: search.php:210
+msgid "نتیجه‌ای یافت نشد. عبارت دیگری را امتحان کنید."
+msgstr ""
+
+#: single-announcement.php:60
+msgid "سایر اطلاعیه‌ها"
+msgstr ""
+
+#. translators: %s: issue number.
+#: single-document.php:89
+#: single-document.php:129
+#: single-document.php:132
+#: single-issue.php:109
+#: single-issue.php:189
+#: single-issue.php:192
+#: single-party_document.php:100
+#: single-party_document.php:146
+#: single-party_document.php:149
+#: single-party_publication.php:70
+#: single-party_publication.php:97
+#: single-party_publication.php:100
+#: taxonomy-publication.php:283
+msgid "دریافت PDF"
+msgstr ""
+
+#: single-document.php:95
+msgid "در کتابخانه"
+msgstr ""
+
+#: single-document.php:106
+msgid "نویسنده"
+msgstr ""
+
+#: single-document.php:111
+msgid "مجموعه"
+msgstr ""
+
+#: single-document.php:116
+#: single-issue.php:172
+#: single-party_document.php:139
+#: single-party_publication.php:90
+msgid "حجم فایل"
+msgstr ""
+
+#: single-document.php:120
+msgid "ویراستار"
+msgstr ""
+
+#: single-document.php:130
+#: single-document.php:133
+#: single-issue.php:190
+#: single-issue.php:193
+#: single-party_document.php:147
+#: single-party_document.php:150
+#: single-party_publication.php:98
+#: single-party_publication.php:101
+msgid "پیش‌نمایش درون‌مرورگری"
+msgstr ""
+
+#: single-document.php:144
+msgid "دربارهٔ این متن"
+msgstr ""
+
+#: single-document.php:155
+msgid "اسناد مرتبط"
+msgstr ""
+
+#. translators: %s: translation count.
+#: single-issue.php:79
+#, php-format
+msgid "%s ترجمه"
+msgid_plural "%s ترجمه"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: issue number.
+#: single-issue.php:109
+#, php-format
+msgid "دریافت PDF شمارهٔ %s"
+msgstr ""
+
+#. translators: 1: issue number, 2: current/archived status label.
+#: single-issue.php:135
+#, php-format
+msgid "شمارهٔ %1$s · %2$s"
+msgstr ""
+
+#: single-issue.php:167
+msgid "شمار مطالب"
+msgstr ""
+
+#: single-issue.php:204
+msgid "فهرست مطالب"
+msgstr ""
+
+#. translators: 1: row number (Persian digits), 2: section/topic name.
+#: single-issue.php:237
+#, php-format
+msgid "%1$s · بخش: %2$s"
+msgstr ""
+
+#. translators: %s: page number.
+#: single-issue.php:257
+#, php-format
+msgid "صفحهٔ %s"
+msgstr ""
+
+#: single-party_document.php:120
+msgid "شمارهٔ سریال"
+msgstr ""
+
+#: single-party_document.php:125
+msgid "دسته"
+msgstr ""
+
+#: single-party_document.php:161
+msgid "جزئیات سند"
+msgstr ""
+
+#: single-party_document.php:172
+msgid "سایر اسناد حزب"
+msgstr ""
+
+#: single-party_publication.php:112
+msgid "دربارهٔ این اثر"
+msgstr ""
+
+#: single-party_publication.php:123
+msgid "سایر آثار حزب"
+msgstr ""
+
+#: single.php:148
+msgid "اطلاعات مقاله"
+msgstr ""
+
+#. translators: %s: word count.
+#: single.php:187
+#, php-format
+msgid "%s واژه"
+msgstr ""
+
+#. translators: %s: reading time in minutes.
+#: single.php:191
+#, php-format
+msgid "%s دقیقه خواندن"
+msgstr ""
+
+#: single.php:220
+msgid "برچسب‌ها"
+msgstr ""
+
+#: single.php:236
+msgid "فیس‌بوک"
+msgstr ""
+
+#: single.php:246
+msgid "واتساپ"
+msgstr ""
+
+#: single.php:259
+msgid "اشتراک"
+msgstr ""
+
+#. translators: %s: platform name (Facebook, Telegram, etc.).
+#: single.php:268
+#, php-format
+msgid "اشتراک‌گذاری در %s"
+msgstr ""
+
+#: single.php:274
+msgid "لینک کپی شد"
+msgstr ""
+
+#: single.php:276
+msgid "کپی لینک"
+msgstr ""
+
+#: single.php:314
+#: single.php:318
+msgid "مطالب دیگر"
+msgstr ""
+
+#: taxonomy-collection.php:96
+msgid "پیمایش مجموعه‌ها"
+msgstr ""
+
+#: taxonomy-party_document_category.php:92
+msgid "پیمایش دسته‌های اسناد حزب"
+msgstr ""
+
+#: taxonomy-party_document_category.php:132
+msgid "هنوز سندی در این دسته منتشر نشده است."
+msgstr ""
+
+#. translators: %s: issue count.
+#: taxonomy-publication.php:140
+#, php-format
+msgid "%s issue"
+msgid_plural "%s issues"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: issue count.
+#. translators: %s: archived issue count.
+#: taxonomy-publication.php:143
+#: taxonomy-publication.php:299
+#, php-format
+msgid "%s شماره"
+msgid_plural "%s شماره"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: issue title.
+#: taxonomy-publication.php:260
+#, php-format
+msgid "%s · جاری"
+msgstr ""
+
+#: taxonomy-publication.php:284
+msgid "فهرست شماره"
+msgstr ""
+
+#: taxonomy-publication.php:306
+msgid "شماره‌های پیشین"
+msgstr ""
+
+#: taxonomy-topic.php:98
+msgid "پیمایش موضوعات"
+msgstr ""
+
+#: template-parts/cards/announcement-spotlight.php:91
+msgid "همهٔ اطلاعیه‌ها"
+msgstr ""
+
+#: template-parts/cards/card.php:47
+#: template-parts/search/result.php:49
+msgid "سند"
+msgstr ""
+
+#: template-parts/cards/editors-picks-panel.php:70
+msgid "مشاهدهٔ آرشیو گزیده‌ها"
+msgstr ""
+
+#: template-parts/cards/most-viewed-panel.php:50
+msgid "پربازدیدترین‌ها"
+msgstr ""
+
+#: template-parts/leaflets/lightbox.php:70
+msgid "نمایش تراکت"
+msgstr ""
+
+#: template-parts/leaflets/lightbox.php:88
+msgid "تراکت قبلی، جدیدتر"
+msgstr ""
+
+#: template-parts/leaflets/lightbox.php:97
+msgid "تراکت بعدی، قدیمی‌تر"
+msgstr ""
+
+#: template-parts/rows/document-row.php:70
+msgid "دریافت"
 msgstr ""
