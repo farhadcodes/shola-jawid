@@ -15471,3 +15471,117 @@ comment.
 
 Phase 3 (LTR CSS pass) is now functionally complete for every item
 `component-by-component-ltr-notes.md` and this audit file flagged.
+
+## 2026-11-28 (continued, 3) — English-version Phase 4: demo content + English term labels, and the bugs found verifying them live
+
+Built the demo-content infrastructure (`english-version/03-content-
+architecture/demo-content-policy.md`) and populated it, then filled in
+every taxonomy term's English label/slug — the two items Phase 4 opens
+with. Verifying both **live**, not just by reading the code, surfaced
+four real bugs that would otherwise have shipped silently broken; all
+four are fixed and re-verified below.
+
+**Demo-content infrastructure** — `shcore_is_demo_content` (boolean
+post-meta) registered on every `Language::MANAGED_POST_TYPES` type plus
+`page` (`class-meta-fields.php`), with a generalized "نمونه" admin-list
+column and an edit-screen warning notice, both wired once via a loop
+over those post types rather than per-type hooks (same pattern already
+used for the hero_section/masthead_section status columns). Verified
+with a direct bootstrap script simulating the admin list-table filters
+and both notice states (flagged/unflagged) — not assumed from reading
+the registration code alone.
+
+**Demo content populated**: one English post per managed content type
+(`post`, `issue`, `document`, `party_publication`, `party_document`,
+`leaflet`, `editors_pick`, `announcement`), each paired bidirectionally
+(`shcore_translation_id`) to a real existing Persian post, flagged
+`shcore_is_demo_content`, titled with the `[نمونه]` prefix, and written
+as generic, clearly-placeholder prose — never adapted from the real
+Persian original, per the policy's own "never misrepresent a
+translation as already done" rule. Plus two new English Pages (About,
+Contact), paired to the real `دربارهٔ شعله جاوید`/`ارتباط با حزب` Pages.
+
+**Bug 1 — demo Pages rendered the wrong template.** The new English
+About/Contact Pages have different slugs from their Persian originals
+(`about-en`/`contact-en`, since a Page's slug must be unique), so
+WordPress's `page-{slug}.php` naming convention didn't match them to
+`page-about.php`/`page-contact.php` at all — they silently fell back to
+the generic `page.php`, losing the logo header and the real contact
+form/address markup respectively. Fixed by pinning the exact template
+explicitly via the `_wp_page_template` post meta (which
+`get_page_template()` honors regardless of a selectable "Template
+Name:" header) when creating each Page. Verified live: both now render
+with their real template's markup.
+
+**Bug 2 (the big one) — every nav menu item had a hardcoded Persian
+URL.** `shola_hide_empty_language_nav_items()` (added Phase 1) only ever
+removed empty-content nav items on English pages; it never rewrote the
+URL of an item that stayed. Every item in the popup menu's دو real
+locations is a plain WP menu-item post seeded once with a literal
+`home_url('/about/')`-style URL (`shola_maybe_add_*_menu_item()`) — so
+until this fix, a reader on an *English* page clicking *any* nav item
+(home, نشرات, دربارهٔ ما, …) would have silently landed back on the
+*Persian* site. Found only because Phase 4's first real paired English
+content made this testable end-to-end for the first time. Fixed in the
+same function: every item that survives the hide-if-empty check now
+also gets its URL rewritten — `/en` prefix for fixed structural paths,
+pairing-based resolution (`shola_get_paired_url_or_fallback()`, the same
+helper the language switcher itself uses) for genuine editorial Pages
+like دربارهٔ ما/ارتباط با حزب. Verified live: every nav item on an
+English page now stays on `/en/...`.
+
+**Bug 3 — every taxonomy term's name/link/count was Persian-only,
+everywhere one is shown.** Phase 1 built the term-meta mechanism
+(`shcore_term_name_en`/`shcore_term_slug_en`) and the helper functions to
+read it (`shola_get_term_label()`, `shola_build_term_link_for_lang()`),
+but no template had ever actually been wired to call them — every
+taxonomy archive's own H1/breadcrumb/sibling-term nav, the homepage's
+موضوعات panel, the شared card's topic/collection badge, and every
+"browse by category" tile Page (کتابخانه, اسناد حزب, موضوعات, نشرات) were
+still showing `$term->name` and `get_term_link($term)` directly,
+regardless of page language. Found immediately on first live check of
+`/en/topics/world/` (heading, breadcrumb, and sibling pills all still
+Persian, despite the correctly-filtered English article list under
+them). Fixed across: `taxonomy-topic.php`, `taxonomy-publication.php`
+(both its parent-tiles and leaf-issue-grid branches), `taxonomy-
+collection.php`, `taxonomy-party_document_category.php`,
+`template-parts/breadcrumb.php` (shared "صفحهٔ اصلی" home link),
+`template-parts/cards/card.php` (shared card's term badge, used almost
+everywhere on the site), `page-library.php`, `page-topics.php`,
+`page-publications.php`, `page-party-documents.php`, and
+`shola_get_party_document_subsections()`
+(`inc/template-tags.php`). Static UI chrome strings (تازه‌ها, "N
+مقاله"'s own word, پرخواننده‌ترین, …) are deliberately left Persian here
+— those are real `__()`-wrapped, already-correct WordPress i18n calls
+waiting on Phase 6's actual `en_US` translation file, not a template
+bug; conflating the two would have meant hand-rolling i18n badly in
+dozens of places instead of doing it once, properly, in Phase 6.
+
+**Bug 4 — found while verifying bug 3's fix: per-language counts were
+themselves wrong on *both* languages, not just English.** The new
+`shola_get_term_post_count()` helper was first used only on the English
+branch, trusting `$term->count` (WordPress's own cached, combined count)
+for Persian — which was correct only because no English content existed
+yet. The moment a demo English article was tagged with the same topic
+term a Persian article already used, جهان's own *Persian* count jumped
+from ۳ to ۴, confirmed live, not assumed. The same bug existed in
+`shola_get_publication_meta_line()`'s issue count (`get_posts()` with no
+language filter at all). Fixed by always calling
+`shola_get_term_post_count()`/filtering by the current language on
+*both* branches, never defaulting to the raw combined count on the
+Persian side — re-verified live on both `/topics/` (۳ مقاله, correct)
+and `/en/topics/` (1 article, correct) after the fix.
+
+One demo post (`leaflet`) needed a real attached image to appear at
+all — تراکت‌ها's own archive query filters on `_thumbnail_id EXISTS`
+(the leaflet image *is* the content, not a nice-to-have), so a titled-
+only demo entry was correctly, silently excluded until a placeholder
+image (the theme's own `assets/images/fallback.png`, sideloaded as a
+real attachment) was set as its featured image — not a bug, the content
+model working exactly as designed, just something the demo content
+itself needed to satisfy.
+
+Every fix above verified live in both languages, not assumed from
+reading the diff: homepage, all four taxonomy archives, all four tile-
+listing Pages, the language switcher in both directions, and the new
+Pages' own templates were each re-checked after their respective fix.

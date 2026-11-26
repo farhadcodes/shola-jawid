@@ -1382,6 +1382,7 @@ $party_documents_query = new WP_Query( \SholaCore\Language::add_language_filter(
 			<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_topics_section_heading' ) ); ?></h2>
 		</div>
 	</div>
+	<?php $shola_topics_lang = \SholaCore\Language::current(); ?>
 	<ul class="topic-list">
 		<?php foreach ( shola_get_topic_slugs_ordered() as $slug ) : ?>
 			<?php
@@ -1389,11 +1390,28 @@ $party_documents_query = new WP_Query( \SholaCore\Language::add_language_filter(
 			if ( ! $term ) {
 				continue;
 			}
+			$term_link  = shola_build_term_link_for_lang( $term, $shola_topics_lang );
+			$term_label = shola_get_term_label( $term, $shola_topics_lang );
+			/*
+			 * Always per-language, not just on English — found 2026-11-28
+			 * while verifying the first real English article: $term->count
+			 * is WordPress's own combined count across both languages, so
+			 * once an English article shares a term with Persian ones, the
+			 * PERSIAN count must also be filtered, or it silently inflates
+			 * too (confirmed live: جهان jumped from 3 to 4 the moment one
+			 * English demo article was tagged with it).
+			 */
+			$term_count = shola_get_term_post_count( $term, $shola_topics_lang );
 			?>
-			<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
-				<span class="name"><?php echo esc_html( $term->name ); ?></span>
-				<?php /* translators: %s: number of articles. */ ?>
-				<span class="count"><?php echo esc_html( sprintf( _n( '%s مقاله', '%s مقاله', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
+			<li><a href="<?php echo esc_url( $term_link ? $term_link : get_term_link( $term ) ); ?>">
+				<span class="name"><?php echo esc_html( $term_label ); ?></span>
+				<?php if ( 'en' === $shola_topics_lang ) : ?>
+					<?php /* translators: %s: number of articles. */ ?>
+					<span class="count"><?php echo esc_html( sprintf( _n( '%s article', '%s articles', $term_count, 'shola-jawid' ), number_format_i18n( $term_count ) ) ); ?></span></a></li>
+				<?php else : ?>
+					<?php /* translators: %s: number of articles. */ ?>
+					<span class="count"><?php echo esc_html( sprintf( _n( '%s مقاله', '%s مقاله', $term_count, 'shola-jawid' ), shola_to_persian_digits( $term_count ) ) ); ?></span></a></li>
+				<?php endif; ?>
 		<?php endforeach; ?>
 	</ul>
 </section>

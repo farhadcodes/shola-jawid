@@ -31,13 +31,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 $collections = shola_get_library_collections();
+/*
+ * English term label/link/count — added 2026-11-28, English-version
+ * rollout, same reasoning/pattern as taxonomy-collection.php's own fix
+ * (and every sibling tile-listing Page like this one): $term->name/
+ * get_term_link()/$term->count are always the raw, mixed-language
+ * Persian values.
+ */
+$shola_lang = \SholaCore\Language::current();
 ?>
 	<section class="wrap section-top">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			<a class="active" href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/library/' ) : home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
 		</nav>
 
 		<header class="page-header">
@@ -50,9 +58,21 @@ $collections = shola_get_library_collections();
 
 		<ul class="topic-list">
 			<?php foreach ( $collections as $term ) : ?>
-				<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
-					<span class="name"><?php echo esc_html( $term->name ); ?></span>
-					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
+				<?php
+				$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+				$term_link  = $term_link ? $term_link : get_term_link( $term );
+				// Always per-language — see front-page.php's موضوعات panel for the full reasoning (2026-11-28).
+				$term_count = shola_get_term_post_count( $term, $shola_lang, 'document' );
+				?>
+				<li><a href="<?php echo esc_url( $term_link ); ?>">
+					<span class="name"><?php echo esc_html( shola_get_term_label( $term, $shola_lang ) ); ?></span>
+					<?php if ( 'en' === $shola_lang ) : ?>
+						<?php /* translators: %s: document count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s document', '%s documents', $term_count, 'shola-jawid' ), number_format_i18n( $term_count ) ) ); ?></span></a></li>
+					<?php else : ?>
+						<?php /* translators: %s: document count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s سند', '%s سند', $term_count, 'shola-jawid' ), shola_to_persian_digits( $term_count ) ) ); ?></span></a></li>
+					<?php endif; ?>
 			<?php endforeach; ?>
 		</ul>
 

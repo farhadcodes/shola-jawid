@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
+/*
+ * English term label/link — added 2026-11-28, English-version rollout,
+ * same reasoning/pattern as taxonomy-publication.php's own fix.
+ */
+$shola_lang = \SholaCore\Language::current();
 ?>
 	<section class="wrap section-top">
 
@@ -23,7 +28,7 @@ get_header();
 				'items' => array(
 					array(
 						'label' => __( 'نشرات', 'shola-jawid' ),
-						'url'   => home_url( '/publications/' ),
+						'url'   => ( 'en' === $shola_lang ) ? home_url( '/en/publications/' ) : home_url( '/publications/' ),
 					),
 				),
 			)
@@ -55,11 +60,13 @@ get_header();
 				}
 				$is_current = 'shola-jawid' === $slug;
 				$meta_line  = shola_get_publication_meta_line( $term );
+				$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+				$term_link  = $term_link ? $term_link : get_term_link( $term );
 				?>
 				<article class="publication-item<?php echo $is_current ? '' : ' publication-item--archived'; ?>">
 					<div>
 						<p class="<?php echo $is_current ? 'badge-current' : 'badge-archive'; ?>"><?php echo esc_html( shola_publication_status_label( $slug ) ); ?></p>
-						<h2 class="h-page"><?php echo esc_html( $term->name ); ?></h2>
+						<h2 class="h-page"><?php echo esc_html( shola_get_term_label( $term, $shola_lang ) ); ?></h2>
 						<?php if ( $term->description ) : ?>
 							<p class="dek"><?php echo esc_html( $term->description ); ?></p>
 						<?php endif; ?>
@@ -68,7 +75,7 @@ get_header();
 							<p class="meta-mono"><?php echo esc_html( $meta_line ); ?></p>
 						<?php endif; ?>
 						<div class="row">
-							<a class="btn <?php echo $is_current ? 'btn-primary' : 'btn-ghost'; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>">
+							<a class="btn <?php echo $is_current ? 'btn-primary' : 'btn-ghost'; ?>" href="<?php echo esc_url( $term_link ); ?>">
 								<?php echo $is_current ? esc_html__( 'آرشیو شماره‌ها', 'shola-jawid' ) : esc_html__( 'آرشیو کامل', 'shola-jawid' ); ?>
 							</a>
 							<?php

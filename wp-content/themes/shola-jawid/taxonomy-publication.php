@@ -46,6 +46,19 @@ get_header();
 
 $term = get_queried_object();
 
+/*
+ * English term label/link — added 2026-11-28, English-version rollout,
+ * same reasoning/pattern as taxonomy-topic.php's own fix: $term->name
+ * and get_term_link() are always the raw Persian values, so every place
+ * this template shows or links to a publication/دوره term needs the
+ * language-aware helpers instead, or an English page would show Persian
+ * headings/breadcrumbs/tiles around an otherwise-correct issue list.
+ */
+$shola_lang = \SholaCore\Language::current();
+$term_label = shola_get_term_label( $term, $shola_lang );
+$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+$term_link  = $term_link ? $term_link : get_term_link( $term );
+
 $period_terms = get_terms(
 	array(
 		'taxonomy'   => 'publication',
@@ -87,17 +100,17 @@ if ( $period_terms ) {
 	<section class="wrap section-top">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/publications/' ) : home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+			<a class="active" href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_label ); ?></a>
 		</nav>
 
 		<header class="page-header">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( $term_label ); ?></h1>
 			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
@@ -106,9 +119,29 @@ if ( $period_terms ) {
 
 		<ul class="topic-list">
 			<?php foreach ( $period_terms as $period_term ) : ?>
-				<li><a href="<?php echo esc_url( get_term_link( $period_term ) ); ?>">
-					<span class="name"><?php echo esc_html( $period_term->name ); ?></span>
-					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: issue count. */ _n( '%s شماره', '%s شماره', $period_term->count, 'shola-jawid' ), shola_to_persian_digits( $period_term->count ) ) ); ?></span></a></li>
+				<?php
+				$period_term_link = shola_build_term_link_for_lang( $period_term, $shola_lang );
+				$period_term_link = $period_term_link ? $period_term_link : get_term_link( $period_term );
+				?>
+				<?php
+				/*
+				 * Always per-language, not just on English — see front-
+				 * page.php's موضوعات panel for the full reasoning
+				 * (2026-11-28): $period_term->count mixes both languages
+				 * together, so the PERSIAN count needs filtering too once
+				 * any English issue shares a دوره term with Persian ones.
+				 */
+				$period_term_count = shola_get_term_post_count( $period_term, $shola_lang, 'issue' );
+				?>
+				<li><a href="<?php echo esc_url( $period_term_link ); ?>">
+					<span class="name"><?php echo esc_html( shola_get_term_label( $period_term, $shola_lang ) ); ?></span>
+					<?php if ( 'en' === $shola_lang ) : ?>
+						<?php /* translators: %s: issue count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s issue', '%s issues', $period_term_count, 'shola-jawid' ), number_format_i18n( $period_term_count ) ) ); ?></span></a></li>
+					<?php else : ?>
+						<?php /* translators: %s: issue count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s شماره', '%s شماره', $period_term_count, 'shola-jawid' ), shola_to_persian_digits( $period_term_count ) ) ); ?></span></a></li>
+					<?php endif; ?>
 			<?php endforeach; ?>
 		</ul>
 
@@ -173,21 +206,25 @@ $archive_query = new WP_Query(
 	<section class="wrap section-top">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/publications/' ) : home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
 			<?php if ( $parent_term ) : ?>
+				<?php
+				$parent_term_link = shola_build_term_link_for_lang( $parent_term, $shola_lang );
+				$parent_term_link = $parent_term_link ? $parent_term_link : get_term_link( $parent_term );
+				?>
 				<span aria-hidden="true"> / </span>
-				<a href="<?php echo esc_url( get_term_link( $parent_term ) ); ?>"><?php echo esc_html( $parent_term->name ); ?></a>
+				<a href="<?php echo esc_url( $parent_term_link ); ?>"><?php echo esc_html( shola_get_term_label( $parent_term, $shola_lang ) ); ?></a>
 			<?php endif; ?>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+			<a class="active" href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_label ); ?></a>
 		</nav>
 
 		<header class="page-header<?php echo $is_current ? '' : ' page-header--muted'; ?>">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( $term_label ); ?></h1>
 			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>

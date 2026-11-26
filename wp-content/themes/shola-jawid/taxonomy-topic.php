@@ -50,6 +50,19 @@ if ( 'views' === $sort && class_exists( '\SholaCore\View_Counter' ) ) {
 }
 
 $archive_query = new WP_Query( $query_args );
+/*
+ * English term label/link — added 2026-11-28, English-version rollout.
+ * $term->name/get_term_link() are the raw Persian values regardless of
+ * request language; every place this template shows or links to a term
+ * (this one, or a sibling one in the topic-nav pills) needs the
+ * language-aware helpers from Phase 1's taxonomy-translation work
+ * instead, or an English page would show Persian headings/breadcrumbs
+ * around an otherwise-correct English article list.
+ */
+$shola_lang      = \SholaCore\Language::current();
+$term_label      = shola_get_term_label( $term, $shola_lang );
+$term_link       = shola_build_term_link_for_lang( $term, $shola_lang );
+$term_link       = $term_link ? $term_link : get_term_link( $term );
 ?>
 	<section class="wrap section-top">
 
@@ -61,11 +74,11 @@ $archive_query = new WP_Query( $query_args );
 				'items' => array(
 					array(
 						'label' => shola_get_label( 'breadcrumb_topics_label' ),
-						'url'   => home_url( '/topics/' ),
+						'url'   => ( 'en' === $shola_lang ) ? home_url( '/en/topics/' ) : home_url( '/topics/' ),
 					),
 					array(
-						'label' => $term->name,
-						'url'   => get_term_link( $term ),
+						'label' => $term_label,
+						'url'   => $term_link,
 					),
 				),
 			)
@@ -75,7 +88,7 @@ $archive_query = new WP_Query( $query_args );
 		<header class="page-header page-header--narrow page-header--tight">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( $term_label ); ?></h1>
 			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
@@ -89,14 +102,16 @@ $archive_query = new WP_Query( $query_args );
 				if ( ! $nav_term ) {
 					continue;
 				}
+				$nav_term_link = shola_build_term_link_for_lang( $nav_term, $shola_lang );
+				$nav_term_link = $nav_term_link ? $nav_term_link : get_term_link( $nav_term );
 				?>
-				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( get_term_link( $nav_term ) ); ?>"><?php echo esc_html( $nav_term->name ); ?></a>
+				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( $nav_term_link ); ?>"><?php echo esc_html( shola_get_term_label( $nav_term, $shola_lang ) ); ?></a>
 			<?php endforeach; ?>
 		</nav>
 
 		<div class="filter-tabs">
-			<a class="<?php echo ( 'views' !== $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_latest' ) ); ?></a>
-			<a class="<?php echo ( 'views' === $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'sort', 'views', get_term_link( $term ) ) ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_most_read' ) ); ?></a>
+			<a class="<?php echo ( 'views' !== $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_latest' ) ); ?></a>
+			<a class="<?php echo ( 'views' === $sort ) ? 'active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'sort', 'views', $term_link ) ); ?>"><?php echo esc_html( shola_get_label( 'topic_tab_most_read' ) ); ?></a>
 		</div>
 
 		<?php if ( $archive_query->have_posts() ) : ?>

@@ -65,6 +65,20 @@ class Meta_Fields {
 		add_action( 'admin_init', array( __CLASS__, 'seed_default_masthead_section' ) );
 
 		/*
+		 * Demo-content admin UX (2026-11-28, English-version rollout --
+		 * english-version/03-content-architecture/demo-content-policy.md).
+		 * A demo-flag list column (same generalized-column pattern as
+		 * hero_section/masthead_section's status column above) and an
+		 * edit-screen notice, both generalized across every content type
+		 * that can carry shcore_is_demo_content, not one hook per type.
+		 */
+		foreach ( array_merge( Language::MANAGED_POST_TYPES, array( 'page' ) ) as $demo_flag_post_type ) {
+			add_filter( "manage_{$demo_flag_post_type}_posts_columns", array( __CLASS__, 'add_demo_content_column' ) );
+			add_action( "manage_{$demo_flag_post_type}_posts_custom_column", array( __CLASS__, 'render_demo_content_column' ), 10, 2 );
+		}
+		add_action( 'edit_form_top', array( __CLASS__, 'render_demo_content_notice' ) );
+
+		/*
 		 * Hide WordPress's native "Stick to the front page" control on
 		 * `post` edit screens — added 2026-09-25. This site already has two
 		 * dedicated, purpose-built "feature this content" mechanisms (the
@@ -747,6 +761,36 @@ class Meta_Fields {
 				'auth_callback'     => $auth_callback,
 			)
 		);
+
+		/*
+		 * shcore_is_demo_content (2026-11-28, English-version rollout —
+		 * english-version/03-content-architecture/demo-content-policy.md).
+		 * Marks a post as placeholder English content Claude added so the
+		 * site looks genuinely full while the client writes real content.
+		 * Registered on every content type that carries shcore_language
+		 * (Language::MANAGED_POST_TYPES, plus `page`) so one query
+		 * (`get_posts( array( 'meta_key' => 'shcore_is_demo_content' ) )`)
+		 * finds every demo post site-wide, regardless of type — see
+		 * add_demo_content_column()/render_demo_content_column() and
+		 * add_demo_content_notice() below for where this flag surfaces in
+		 * the admin.
+		 */
+		$demo_flag_post_types = array_merge( Language::MANAGED_POST_TYPES, array( 'page' ) );
+		foreach ( $demo_flag_post_types as $demo_flag_post_type ) {
+			register_post_meta(
+				$demo_flag_post_type,
+				'shcore_is_demo_content',
+				array(
+					'type'              => 'boolean',
+					'single'            => true,
+					'show_in_rest'      => true,
+					'default'           => false,
+					'sanitize_callback' => 'rest_sanitize_boolean',
+					'auth_callback'     => $auth_callback,
+				)
+			);
+		}
+
 		/*
 		 * گزیده‌ها (Selected) flag — added 2026-09-16, per Farhad relaying
 		 * the client's request for a curated homepage section. First built
@@ -1823,6 +1867,63 @@ class Meta_Fields {
 		} else {
 			echo '<span style="color:#777">' . esc_html__( 'غیرفعال', 'shola-core' ) . '</span>';
 		}
+	}
+
+	/**
+	 * Add a "نمونه" (Demo) column to any content type's list table, right
+	 * after the title — english-version/03-content-architecture/demo-
+	 * content-policy.md. Same insertion pattern as add_hero_status_column()
+	 * above, registered generically for every post type in
+	 * init()'s demo-content-UX loop rather than once per type.
+	 *
+	 * @param array<string, string> $columns Default columns.
+	 * @return array<string, string>
+	 */
+	public static function add_demo_content_column( $columns ) {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$new['shcore_is_demo_content'] = __( 'نمونه', 'shola-core' );
+			}
+		}
+		return $new;
+	}
+
+	/**
+	 * Render the "نمونه" column's value for one row — a plain badge, no
+	 * link/action needed; Farhad removes demo posts manually from
+	 * wp-admin once real content replaces them (see demo-content-policy.md).
+	 *
+	 * @param string $column Column key being rendered.
+	 * @param int    $post_id Post ID for this row.
+	 * @return void
+	 */
+	public static function render_demo_content_column( $column, $post_id ) {
+		if ( 'shcore_is_demo_content' !== $column ) {
+			return;
+		}
+		if ( get_post_meta( $post_id, 'shcore_is_demo_content', true ) ) {
+			echo '<strong style="color:#a05a00">' . esc_html__( 'نمونه', 'shola-core' ) . '</strong>';
+		} else {
+			echo '<span style="color:#ccc">&#8212;</span>';
+		}
+	}
+
+	/**
+	 * Show a plain, impossible-to-miss notice at the top of the edit
+	 * screen for demo content, per demo-content-policy.md. Fires on every
+	 * post type's edit screen (edit_form_top isn't type-specific) but only
+	 * prints anything when the current post actually carries the flag.
+	 *
+	 * @param \WP_Post $post Post object for the screen being edited.
+	 * @return void
+	 */
+	public static function render_demo_content_notice( $post ) {
+		if ( ! $post || ! get_post_meta( $post->ID, 'shcore_is_demo_content', true ) ) {
+			return;
+		}
+		echo '<div class="notice notice-warning" style="margin:15px 0"><p><strong>' . esc_html__( 'این یک محتوای نمونه (جای‌گیر) است — آن را با نسخهٔ واقعی انگلیسی جایگزین کنید.', 'shola-core' ) . '</strong></p></div>';
 	}
 
 	/**

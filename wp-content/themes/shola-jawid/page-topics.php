@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
+/*
+ * English term label/link/count — added 2026-11-28, English-version
+ * rollout, same reasoning/pattern as front-page.php's موضوعات panel fix.
+ */
+$shola_lang = \SholaCore\Language::current();
 ?>
 	<section class="wrap section-top">
 
@@ -23,7 +28,7 @@ get_header();
 				'items' => array(
 					array(
 						'label' => shola_get_label( 'breadcrumb_topics_label' ),
-						'url'   => home_url( '/topics/' ),
+						'url'   => ( 'en' === $shola_lang ) ? home_url( '/en/topics/' ) : home_url( '/topics/' ),
 					),
 				),
 			)
@@ -45,10 +50,20 @@ get_header();
 				if ( ! $term ) {
 					continue;
 				}
+				$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+				$term_link  = $term_link ? $term_link : get_term_link( $term );
+				// Always per-language — see front-page.php's موضوعات panel for the full reasoning (2026-11-28).
+				$term_count = shola_get_term_post_count( $term, $shola_lang );
 				?>
-				<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
-					<span class="name"><?php echo esc_html( $term->name ); ?></span>
-					<span class="count"><?php echo esc_html( sprintf( /* translators: %s: article count. */ _n( '%s مقاله', '%s مقاله', $term->count, 'shola-jawid' ), shola_to_persian_digits( $term->count ) ) ); ?></span></a></li>
+				<li><a href="<?php echo esc_url( $term_link ); ?>">
+					<span class="name"><?php echo esc_html( shola_get_term_label( $term, $shola_lang ) ); ?></span>
+					<?php if ( 'en' === $shola_lang ) : ?>
+						<?php /* translators: %s: article count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s article', '%s articles', $term_count, 'shola-jawid' ), number_format_i18n( $term_count ) ) ); ?></span></a></li>
+					<?php else : ?>
+						<?php /* translators: %s: article count. */ ?>
+						<span class="count"><?php echo esc_html( sprintf( _n( '%s مقاله', '%s مقاله', $term_count, 'shola-jawid' ), shola_to_persian_digits( $term_count ) ) ); ?></span></a></li>
+					<?php endif; ?>
 			<?php endforeach; ?>
 		</ul>
 

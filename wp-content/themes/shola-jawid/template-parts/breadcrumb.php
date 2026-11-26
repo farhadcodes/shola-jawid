@@ -28,9 +28,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $items      = isset( $args['items'] ) && is_array( $args['items'] ) ? $args['items'] : array();
 $last_index = count( $items ) - 1;
+/*
+ * Home link's own /en/ prefix — added 2026-11-28, English-version
+ * rollout, found while verifying Phase 4's first real paired English
+ * content: this "صفحهٔ اصلی" link always pointed at the Persian
+ * homepage regardless of the current page's language.
+ */
+$shola_breadcrumb_home = ( 'en' === \SholaCore\Language::current() ) ? home_url( '/en/' ) : home_url( '/' );
 ?>
 <nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-	<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+	<a href="<?php echo esc_url( $shola_breadcrumb_home ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 	<?php foreach ( $items as $index => $item ) : ?>
 		<span aria-hidden="true"> / </span>
 		<?php if ( ! empty( $item['url'] ) ) : ?>

@@ -51,14 +51,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
+/*
+ * English home/breadcrumb link + count wording — added 2026-11-28,
+ * English-version rollout, same reasoning/pattern as page-library.php's
+ * own fix. $subsection['name']/['link'] are already language-aware
+ * (shola_get_party_document_subsections()), and its 'count' is now
+ * per-language too — only this template's own static links/wording
+ * needed a direct fix.
+ */
+$shola_lang  = \SholaCore\Language::current();
 $subsections = shola_get_party_document_subsections();
 ?>
 	<section class="wrap section-top">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+			<a class="active" href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/party-documents/' ) : home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
 		</nav>
 
 		<header class="page-header">
@@ -74,7 +83,13 @@ $subsections = shola_get_party_document_subsections();
 				<?php foreach ( $subsections as $subsection ) : ?>
 					<li><a href="<?php echo esc_url( $subsection['link'] ); ?>">
 						<span class="name"><?php echo esc_html( $subsection['name'] ); ?></span>
-						<span class="count"><?php echo esc_html( sprintf( /* translators: %s: document count. */ _n( '%s سند', '%s سند', $subsection['count'], 'shola-jawid' ), shola_to_persian_digits( $subsection['count'] ) ) ); ?></span></a></li>
+						<?php if ( 'en' === $shola_lang ) : ?>
+							<?php /* translators: %s: document count. */ ?>
+							<span class="count"><?php echo esc_html( sprintf( _n( '%s document', '%s documents', $subsection['count'], 'shola-jawid' ), number_format_i18n( $subsection['count'] ) ) ); ?></span></a></li>
+						<?php else : ?>
+							<?php /* translators: %s: document count. */ ?>
+							<span class="count"><?php echo esc_html( sprintf( _n( '%s سند', '%s سند', $subsection['count'], 'shola-jawid' ), shola_to_persian_digits( $subsection['count'] ) ) ); ?></span></a></li>
+						<?php endif; ?>
 				<?php endforeach; ?>
 			</ul>
 		<?php else : ?>

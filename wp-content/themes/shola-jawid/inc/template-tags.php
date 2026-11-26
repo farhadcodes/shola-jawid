@@ -566,6 +566,47 @@ function shola_get_topic_slugs_ordered() {
 }
 
 /**
+ * Counts published posts of one type tagged with a given term, in one
+ * language — added 2026-11-28, English-version rollout. `$term->count`
+ * (WordPress's own cached term count) counts every language together,
+ * which is wrong once Persian and English content shares the same term
+ * vocabulary (CLAUDE.md §1: one shared term per category, not parallel
+ * taxonomies) — every "N مقاله"/"N شماره"-style count next to a term
+ * name needs a per-language number instead, same as every content query
+ * on the site already gets via Language::add_language_filter().
+ *
+ * @param \WP_Term $term      Term to count posts for.
+ * @param string   $lang      'fa' or 'en'.
+ * @param string   $post_type Post type to count. Default 'post'.
+ * @return int
+ */
+function shola_get_term_post_count( $term, $lang, $post_type = 'post' ) {
+	$query = new WP_Query(
+		array(
+			'post_type'      => $post_type,
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+			'posts_per_page' => 1,
+			'no_found_rows'  => false,
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+				array(
+					'taxonomy' => $term->taxonomy,
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
+			),
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- small per-type post counts, same as every other meta_query already in this codebase.
+				array(
+					'key'   => 'shcore_language',
+					'value' => ( 'en' === $lang ) ? 'en' : 'fa',
+				),
+			),
+		)
+	);
+	return $query->found_posts;
+}
+
+/**
  * Editor-controlled display order for the `publication` taxonomy terms,
  * read from the real `menu_publications` nav menu. See
  * shola_get_topic_slugs_ordered() docblock for the full history — same
@@ -745,13 +786,22 @@ function shola_get_party_document_subsections() {
 		}
 	);
 
+	/*
+	 * Language-aware name/link — added 2026-11-28, English-version
+	 * rollout, same reasoning as every other term-display fix this round:
+	 * $term->name/get_term_link() are always the raw Persian values.
+	 */
+	$lang  = \SholaCore\Language::current();
 	$items = array();
 	foreach ( $ordinary as $term ) {
+		$link = shola_build_term_link_for_lang( $term, $lang );
 		$items[] = array(
 			'term'  => $term,
-			'name'  => $term->name,
-			'link'  => get_term_link( $term ),
-			'count' => (int) $term->count,
+			'name'  => shola_get_term_label( $term, $lang ),
+			'link'  => $link ? $link : get_term_link( $term ),
+			// Per-language count, not $term->count's combined total — see
+			// shola_get_term_post_count()'s own docblock for why.
+			'count' => shola_get_term_post_count( $term, $lang, 'party_document' ),
 		);
 	}
 
@@ -1153,17 +1203,19 @@ function shola_get_label( $key ) {
  */
 function shola_get_publication_meta_line( $term ) {
 	$issues = get_posts(
-		array(
-			'post_type'      => 'issue',
-			'posts_per_page' => -1,
-			'post_status'    => 'publish',
-			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
-				array(
-					'taxonomy' => 'publication',
-					'field'    => 'term_id',
-					'terms'    => $term->term_id,
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'      => 'issue',
+				'posts_per_page' => -1,
+				'post_status'    => 'publish',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+					array(
+						'taxonomy' => 'publication',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
 				),
-			),
+			)
 		)
 	);
 
@@ -1173,12 +1225,12 @@ function shola_get_publication_meta_line( $term ) {
 
 	$years = array();
 	foreach ( $issues as $issue ) {
+		// shola_get_jalali_year() is already request-aware (via wp_date(),
+		// gated on is_rtl() — Phase 3's foundational locale fix): it
+		// returns a real Gregorian year on English pages, despite its name.
 		$years[] = shola_get_jalali_year( $issue );
 	}
 	sort( $years );
-	$year_range = ( end( $years ) === $years[0] )
-		? shola_to_persian_digits( $years[0] )
-		: shola_to_persian_digits( $years[0] ) . '–' . shola_to_persian_digits( end( $years ) );
 
 	/*
 	 * Bug fix, 2026-09-10: this was literal hardcoded English ("N ISSUE"/
@@ -1186,7 +1238,25 @@ function shola_get_publication_meta_line( $term ) {
 	 * needed for the Persian replacement — Persian nouns don't inflect
 	 * for count the way English does, so "%1$s شماره" already reads
 	 * correctly whether %1$s is ۱ or ۳۲.
+	 *
+	 * English branch added 2026-11-28, English-version rollout, plus the
+	 * `add_language_filter()` added above this function — without both,
+	 * an English page's "N issues" count silently included every Persian
+	 * issue sharing that publication term too (found live: جهان برای فتح
+	 * showed ۴ شماره when only ۳ were actually Persian).
 	 */
+	if ( 'en' === \SholaCore\Language::current() ) {
+		$year_range = ( end( $years ) === $years[0] )
+			? (string) $years[0]
+			: $years[0] . '–' . end( $years );
+		/* translators: 1: issue count, 2: year or year range. */
+		return sprintf( _n( '%1$s issue · %2$s', '%1$s issues · %2$s', count( $issues ), 'shola-jawid' ), number_format_i18n( count( $issues ) ), $year_range );
+	}
+
+	$year_range = ( end( $years ) === $years[0] )
+		? shola_to_persian_digits( $years[0] )
+		: shola_to_persian_digits( $years[0] ) . '–' . shola_to_persian_digits( end( $years ) );
+
 	return sprintf(
 		/* translators: 1: issue count (Persian digits), 2: year or year range. */
 		__( '%1$s شماره · %2$s', 'shola-jawid' ),

@@ -173,23 +173,49 @@ entry if any rule was newly applied.
 
 ## Phase 4 — Demo content, then real English content population
 
-- **Demo content first** (resolved 2026-11-27 —
-  `03-content-architecture/demo-content-policy.md`): Claude populates
-  clearly-marked placeholder English content across every content type,
-  so the site looks genuininely full for visual review and so the
-  hide-if-empty infrastructure from Phase 1-2 can actually be seen
-  working, not just verified empty. Every demo post is flagged
-  (`shcore_is_demo_content`) and titled with a `[نمونه]` prefix — see
-  that file for the full marking convention and how it gets cleaned up
-  later.
+- ✅ **Demo-content infrastructure** — done 2026-11-28:
+  `shcore_is_demo_content` registered on every `Language::
+  MANAGED_POST_TYPES` type plus `page`, with a generalized "نمونه"
+  admin-list column and edit-screen notice (`class-meta-fields.php`).
+  Verified with a direct bootstrap script simulating the admin list-
+  table columns and both notice states, not assumed from the code alone.
+- ✅ **Demo content populated** — done 2026-11-28: one English post per
+  managed content type (`post`, `issue`, `document`,
+  `party_publication`, `party_document`, `leaflet`, `editors_pick`,
+  `announcement`), each paired bidirectionally to a real Persian post,
+  flagged, `[نمونه]`-titled, generic placeholder prose (never adapted
+  from the real Persian original — see demo-content-policy.md's own
+  rule on this). Plus two new English Pages (About, Contact), paired to
+  the real `دربارهٔ شعله جاوید`/`ارتباط با حزب` Pages. Full story,
+  including the four real bugs this surfaced and fixed, in
+  `docs/CHANGELOG.md` 2026-11-28 (continued, 3).
+- ✅ **English term labels/slugs for every taxonomy term in scope** —
+  done 2026-11-28: all 24 real terms across `topic`, `publication`,
+  `collection`, `party_document_category`, `report` now have
+  `shcore_term_name_en`/`shcore_term_slug_en` set (`editors_pick_
+  category` has zero terms yet in either language — nothing to
+  translate). **This alone wasn't enough** — verifying it live
+  surfaced that no template had ever actually been wired to *use*
+  these fields (Phase 1 built the mechanism, not its consumers) and
+  that per-language term post-counts weren't being filtered on
+  *either* language once content started sharing terms across them —
+  both fixed across every taxonomy archive, the homepage موضوعات panel,
+  the shared card, and every tile-listing Page; see the CHANGELOG entry
+  above for the full list of files and the live verification on both
+  languages.
+- ✅ **Nav menu items now resolve to the correct language's URL, not
+  just hide/show correctly** — done 2026-11-28, found while verifying
+  the above: every popup-menu item is a plain WP menu-item post with a
+  hardcoded Persian URL; `shola_hide_empty_language_nav_items()` (Phase
+  1) only ever removed empty ones, never rewrote the URL of one that
+  stayed. This was the single most user-visible bug found this phase —
+  every nav click from an English page would have silently bounced the
+  reader back to Persian. Fixed in the same function; see CHANGELOG.
 - Once the client is ready, they write the real English content
   themselves (this is their own ongoing editorial process, covered in
   `06-editorial-workflow/`) — About and Contact pages first (lowest
   complexity, highest visibility), then articles/issues, pairing each to
   its Persian original, replacing demo posts as real ones go up.
-- Add English term labels/slugs to every taxonomy term in scope (this part
-  Claude also does now, alongside the demo content, since it's structural
-  setup, not editorial writing).
 - This phase has no fixed end date past the demo-content step — real
   content population is an ongoing editorial process.
 

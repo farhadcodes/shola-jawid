@@ -43,6 +43,15 @@ get_header();
 $term  = get_queried_object();
 $paged = max( 1, get_query_var( 'paged' ) );
 
+/*
+ * English term label/link — added 2026-11-28, English-version rollout,
+ * same reasoning/pattern as taxonomy-topic.php's own fix.
+ */
+$shola_lang = \SholaCore\Language::current();
+$term_label = shola_get_term_label( $term, $shola_lang );
+$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+$term_link  = $term_link ? $term_link : get_term_link( $term );
+
 $collections = shola_get_library_collections();
 
 $archive_query = new WP_Query(
@@ -67,17 +76,17 @@ $archive_query = new WP_Query(
 	<section class="wrap section-top">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_lang ) ? home_url( '/en/library/' ) : home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>
+			<a class="active" href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term_label ); ?></a>
 		</nav>
 
 		<header class="page-header page-header--narrow page-header--tight">
 			<div class="kicker-row">
 				<p class="section-marker"></p>
-				<h1 class="h-page"><?php echo esc_html( $term->name ); ?></h1>
+				<h1 class="h-page"><?php echo esc_html( $term_label ); ?></h1>
 			</div>
 			<?php if ( $term->description ) : ?>
 				<p class="dek"><?php echo esc_html( $term->description ); ?></p>
@@ -86,7 +95,11 @@ $archive_query = new WP_Query(
 
 		<nav class="topic-nav" aria-label="<?php esc_attr_e( 'پیمایش مجموعه‌ها', 'shola-jawid' ); ?>">
 			<?php foreach ( $collections as $nav_term ) : ?>
-				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( get_term_link( $nav_term ) ); ?>"><?php echo esc_html( $nav_term->name ); ?></a>
+				<?php
+				$nav_term_link = shola_build_term_link_for_lang( $nav_term, $shola_lang );
+				$nav_term_link = $nav_term_link ? $nav_term_link : get_term_link( $nav_term );
+				?>
+				<a<?php echo ( $nav_term->term_id === $term->term_id ) ? ' class="active"' : ''; ?> href="<?php echo esc_url( $nav_term_link ); ?>"><?php echo esc_html( shola_get_term_label( $nav_term, $shola_lang ) ); ?></a>
 			<?php endforeach; ?>
 		</nav>
 
