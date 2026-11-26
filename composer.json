@@ -1,0 +1,17 @@
+{
+    "name": "farhadcodes/shola-jawid",
+    "description": "Dev-only tooling (phpcs/WPCS) for the Shola Jawid theme and Shola Core plugin. Not a runtime dependency of the site itself.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "php": ">=8.1",
+        "squizlabs/php_codesniffer": "^3.9",
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

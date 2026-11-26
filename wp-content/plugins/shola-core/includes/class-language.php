@@ -224,7 +224,7 @@ class Language {
 		$post_lang = get_post_meta( $post->ID, 'shcore_language', true );
 		$post_lang = ( 'en' === $post_lang ) ? 'en' : 'fa';
 
-		if ( $post_lang === self::current() ) {
+		if ( self::current() === $post_lang ) {
 			return;
 		}
 

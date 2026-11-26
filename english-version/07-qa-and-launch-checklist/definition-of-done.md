@@ -68,10 +68,18 @@ below is true — not just the code being written.
 
 ## Code quality
 
-- [ ] `phpcs` runs clean (same WPCS standard already used project-wide)
-      — **not verified**: no local `phpcs`/Composer install available
-      this round. Manual review + `php -l` on every touched file instead;
-      a real `phpcs` run against `phpcs.xml.dist` is still outstanding.
+- [~] `phpcs` installed and run (via a new `composer.json`/`composer.lock`
+      — WPCS/PHPCompatibilityWP weren't available any other way). Real
+      result: 103 errors/156 warnings project-wide, but 166 of those are
+      cosmetic alignment/array-spacing (`phpcbf`-fixable), and every
+      substantive finding (missing-nonce warnings on read-only GET
+      filters, unused parameters, a few non-Yoda conditions) is in
+      **pre-existing code from before this rollout** — none in code
+      this rollout added, except one Yoda-condition nit in
+      `class-language.php`, fixed on the spot. Not run clean project-
+      wide; that's pre-existing debt, a separate decision from this
+      rollout, not blocking it. Full breakdown: `docs/CHANGELOG.md`
+      2026-11-28 (continued, 8).
 - [x] All code comments follow Farhad's stated rule: 1-2 lines, plain
       language, no jargon — every long narrative comment added across
       this entire rollout (Phases 1-7) reviewed and condensed; full

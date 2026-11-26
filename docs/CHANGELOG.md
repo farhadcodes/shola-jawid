@@ -15784,3 +15784,56 @@ the one English demo announcement instead of Persian ones, while the
 "مطالب دیگر" section correctly disappears entirely once there's no
 second English article in that topic to recommend. Persian pages
 re-checked after every fix: byte-identical.
+
+## 2026-11-28 (continued, 8) — English-version Phase 7: phpcs actually installed and run
+
+`phpcs.xml.dist` has required `WordPress-Extra` + `PHPCompatibilityWP`
+since Phase 0, but no local install existed to run it against — this
+project had no Composer setup at all, despite `.gitignore` already
+excluding `vendor/` in anticipation of one. Added a new `composer.json`
+(dev-only: `squizlabs/php_codesniffer`, `wp-coding-standards/wpcs`,
+`phpcompatibility/phpcompatibility-wp`) and ran `composer install`,
+which resolves and registers both rulesets automatically via
+`dealerdirect/phpcodesniffer-composer-installer` — confirmed via
+`phpcs -i` listing `WordPress-Extra`/`PHPCompatibilityWP` as installed
+standards. `composer.json`/`composer.lock` committed; `vendor/` stays
+gitignored, same as every other project dependency directory.
+
+**Real run, full project**: 103 errors, 156 warnings, 61 files.
+First real finding, checked rather than assumed: 60 of those "errors"
+were `Generic.Files.LineEndings.InvalidEOLChar` — confirmed via
+`git show HEAD:<file>` that the actual committed blobs are LF-only;
+this is purely `core.autocrlf=true` converting line endings on this
+Windows checkout, not a real repository issue, so excluded from the
+real count.
+
+**Re-run excluding that false positive**: 199 violations in 20 sniff
+types. 166 of those (across 9 sniff types — `MultipleStatementAlignment`,
+`ArrayIndentation`, `ArrayDeclarationSpacing`,
+`FunctionCallSignature`) are cosmetic alignment/spacing, auto-fixable
+by `phpcbf` — not run, since that would touch dozens of files across
+the whole pre-existing codebase in one pass, a decision left to Farhad
+rather than done unprompted.
+
+**The remaining ~33 substantive findings** (`NonceVerification.Missing`/
+`.Recommended`, `UnusedFunctionParameter`, `YodaConditions.NotYoda`,
+reserved-keyword parameter names, direct filesystem calls instead of
+`WP_Filesystem`, two non-enqueued assets) are **every one of them in
+pre-existing code from before this rollout** (`class-category-
+manager.php`, `class-image-optimizer.php`, `class-taxonomies.php`,
+`class-video-guide.php`, `front-page.php`'s leaflet-teaser section,
+`page-leaflets.php`) — checked file-by-file against this session's own
+diffs, not assumed. The lone exception, one `YodaConditions.NotYoda` in
+this rollout's own `Language::redirect_mismatched_singular_language()`
+(`$post_lang === self::current()`), was fixed on the spot (reordered to
+`self::current() === $post_lang`). The two `NonceVerification.
+Recommended` warnings in this rollout's own `class-language.php` (the
+admin-bar language filter's GET read) are a read-only display filter,
+the same pattern WP core's own admin list filters use with no nonce —
+left as-is, not a real gap.
+
+**Net result**: phpcs does not run clean project-wide, but the gap is
+pre-existing technical debt independent of this rollout, not something
+this rollout introduced — fixing the pre-existing 33 findings and/or
+running `phpcbf` for the cosmetic 166 is a separate, explicit decision
+for Farhad to make, not assumed as part of this round.
