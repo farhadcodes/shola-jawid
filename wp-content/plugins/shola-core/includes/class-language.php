@@ -264,13 +264,25 @@ class Language {
 	 * @return void
 	 */
 	public static function backfill_legacy_language_meta() {
-		if ( get_option( 'shcore_language_meta_backfilled' ) ) {
-			return;
-		}
-
-		$post_types = array( 'post', 'issue', 'document', 'party_publication', 'party_document', 'leaflet', 'editors_pick', 'announcement' );
+		/*
+		 * Tracked per post type (an array option), not one single flag —
+		 * added 2026-11-27 when `page` joined the list after the first
+		 * version of this migration had already run and marked itself
+		 * fully done: a single boolean would have left `page` silently
+		 * never backfilled, since the function would return before ever
+		 * reaching it. Same per-item-tracking pattern as
+		 * Taxonomies::seed_publication_periods()'s own `$seeded` array,
+		 * for the same reason — this list is expected to grow again
+		 * later as more types get `shcore_language`.
+		 */
+		$post_types = array( 'post', 'page', 'issue', 'document', 'party_publication', 'party_document', 'leaflet', 'editors_pick', 'announcement' );
+		$done       = get_option( 'shcore_language_meta_backfilled', array() );
 
 		foreach ( $post_types as $post_type ) {
+			if ( ! empty( $done[ $post_type ] ) ) {
+				continue;
+			}
+
 			$missing_ids = get_posts(
 				array(
 					'post_type'      => $post_type,
@@ -289,9 +301,10 @@ class Language {
 			foreach ( $missing_ids as $post_id ) {
 				update_post_meta( $post_id, 'shcore_language', 'fa' );
 			}
-		}
 
-		update_option( 'shcore_language_meta_backfilled', 1 );
+			$done[ $post_type ] = true;
+			update_option( 'shcore_language_meta_backfilled', $done );
+		}
 	}
 
 	/* ------------------------------------------------------------------ */

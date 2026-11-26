@@ -38,13 +38,27 @@ entry if any rule was newly applied.
   substance; English homepage correctly shows every content panel empty
   (no English content exists yet) with zero Persian content leaking
   through anywhere.
-- Build `shola_lang_has_content()` — the one shared "does this section have
-  real English content yet" helper, per
-  `03-content-architecture/complete-mirror-and-empty-state-rule.md`. Every
-  later hide-if-empty check (nav, homepage panels, taxonomy term listings)
-  calls this one function, not a one-off query each.
-- **Nothing is user-visible yet at the end of this phase** — this is pure
-  plumbing, verified via WP-CLI/direct query checks, not a visual QA pass.
+- ✅ Build `shola_lang_has_content()` — done 2026-11-27, `inc/template-
+  tags.php`. Every hide-if-empty check (nav, homepage panels) calls this
+  one function, not a one-off query each. A sibling,
+  `shola_page_has_english_version( $page_id )`, handles the different
+  "has this *specific* Page been translated" check static pages need.
+- ✅ Nav hide-if-empty — done 2026-11-27, `shola_hide_empty_language_nav_items()`
+  in `inc/setup.php`, filtering `wp_nav_menu_objects` for the popup
+  menu's two real locations. `page` post type got `shcore_language`/
+  `shcore_translation_id` added too (needed for the About/Contact
+  pairing check) — required fixing the backfill migration from earlier
+  to track completion per post type rather than one global flag, since
+  the original flag was already marked done before `page` existed.
+  Homepage panel hide-if-empty turned out to already work for free —
+  every panel was already wrapped in `if ($query->have_posts())`, so
+  Phase 1's query-language-filtering alone already made them disappear
+  correctly once filtered to zero results; confirmed live, no extra code
+  needed there.
+- **This phase is now fully done and is genuinely user-visible** (the
+  nav itself changes) — verified live at the actual URLs, not just via
+  function calls: `/en/`'s popup menu correctly shows only Home/Topics/
+  Search; Persian nav shows every item unchanged.
 
 ## Phase 2 — Language switcher
 

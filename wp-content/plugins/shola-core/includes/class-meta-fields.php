@@ -499,6 +499,40 @@ class Meta_Fields {
 		);
 
 		/*
+		 * page (2026-11-27) — static Pages (دربارهٔ ما, ارتباط با حزب, and
+		 * any other Page) get the same two fields, needed specifically so
+		 * the nav hide-if-empty check (shola_lang_has_content(), inc/
+		 * template-tags.php) can tell whether a given Page's English
+		 * version actually exists, per the complete-mirror rule's own
+		 * "Static pages... has THIS SPECIFIC page been published?" rule —
+		 * a pairing check, not a content-type count like every other type
+		 * below.
+		 */
+		register_post_meta(
+			'page',
+			'shcore_language',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'fa',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_language' ),
+				'auth_callback'     => $auth_callback,
+			)
+		);
+		register_post_meta(
+			'page',
+			'shcore_translation_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth_callback,
+			)
+		);
+
+		/*
 		 * leaflet, editors_pick, announcement (2026-11-26) — the English-
 		 * version rollout's complete-mirror rule (english-version/03-
 		 * content-architecture/complete-mirror-and-empty-state-rule.md)
@@ -988,6 +1022,7 @@ class Meta_Fields {
 		add_meta_box( 'shcore_leaflet_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_leaflet_metabox' ), 'leaflet', 'side', 'default' );
 		add_meta_box( 'shcore_editors_pick_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_editors_pick_metabox' ), 'editors_pick', 'side', 'default' );
 		add_meta_box( 'shcore_announcement_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_announcement_metabox' ), 'announcement', 'side', 'default' );
+		add_meta_box( 'shcore_page_fields', __( 'زبان و نسخهٔ ترجمه', 'shola-core' ), array( __CLASS__, 'render_page_metabox' ), 'page', 'side', 'default' );
 	}
 
 	/**
@@ -1455,6 +1490,23 @@ class Meta_Fields {
 	}
 
 	/**
+	 * Render the page metabox: language + translation pairing only
+	 * (2026-11-27, English-version rollout) — same reasoning as
+	 * render_leaflet_metabox() above. This is what lets
+	 * shola_lang_has_content() tell whether a specific Page (دربارهٔ ما,
+	 * ارتباط با حزب, ...) has a published English version.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return void
+	 */
+	public static function render_page_metabox( $post ) {
+		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
+		$language = get_post_meta( $post->ID, 'shcore_language', true );
+		self::render_language_field( $language );
+		self::render_translation_pairing_field( $post->ID, 'page' );
+	}
+
+	/**
 	 * Shared subtitle field for `document`, `party_publication`, and
 	 * `party_document` (2026-09-19) — see register_meta()'s comment on
 	 * shcore_subtitle for the full reasoning. Placed first in each of
@@ -1612,10 +1664,11 @@ class Meta_Fields {
 			'post'              => array( 'shcore_subtitle', 'shcore_byline', 'shcore_author_note', 'shcore_language', 'shcore_translation_id', 'shcore_is_selected', 'shcore_translation_original_author', 'shcore_translation_translator' ),
 			'hero_section'      => array( 'shcore_hero_active', 'shcore_hero_layout', 'shcore_hero_rail_publication' ),
 			'masthead_section'  => array( 'shcore_masthead_active', 'shcore_masthead_layout' ),
-			// leaflet, editors_pick, announcement (2026-11-26, English-version rollout).
+			// leaflet, editors_pick, announcement, page (English-version rollout).
 			'leaflet'           => array( 'shcore_language', 'shcore_translation_id' ),
 			'editors_pick'      => array( 'shcore_language', 'shcore_translation_id' ),
 			'announcement'      => array( 'shcore_language', 'shcore_translation_id' ),
+			'page'              => array( 'shcore_language', 'shcore_translation_id' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {

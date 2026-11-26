@@ -1728,3 +1728,48 @@ function shola_get_term_slug( $term, $lang ) {
 	$slug_en = get_term_meta( $term->term_id, 'shcore_term_slug_en', true );
 	return $slug_en ? $slug_en : $term->slug;
 }
+
+/**
+ * Does at least one real, published item matching these args exist in
+ * the current page's language? The one shared check every hide-if-empty
+ * decision uses — nav items, homepage panels, term links — per
+ * english-version/03-content-architecture/complete-mirror-and-empty-
+ * state-rule.md, so that logic lives in one place, not six.
+ *
+ * @param array $args A `get_posts()`-style args array (post_type, optional tax_query/meta_query).
+ * @return bool
+ */
+function shola_lang_has_content( $args ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'posts_per_page' => 1,
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	$args = \SholaCore\Language::add_language_filter( $args );
+
+	return (bool) get_posts( $args );
+}
+
+/**
+ * Does this specific Page (دربارهٔ ما, ارتباط با حزب, or any other plain
+ * informational Page) have a real, published English version? A
+ * pairing check, not a content-type count — see the complete-mirror
+ * rule's own distinction between "does this content type have any
+ * English items" (shola_lang_has_content() above) and "has THIS
+ * specific page been translated."
+ *
+ * @param int $page_id Page ID.
+ * @return bool
+ */
+function shola_page_has_english_version( $page_id ) {
+	if ( 'en' === get_post_meta( $page_id, 'shcore_language', true ) ) {
+		return true; // The page itself already is the English version.
+	}
+
+	$paired_id = (int) get_post_meta( $page_id, 'shcore_translation_id', true );
+	return $paired_id && 'publish' === get_post_status( $paired_id );
+}

@@ -15233,3 +15233,55 @@ taxonomy translation, `/en/` routing, every query now language-aware).
 Remaining Phase 1 item per the plan: the `shola_lang_has_content()`
 hide-if-empty helper, so the nav/homepage sections that are now
 correctly *filtered* also correctly *hide* instead of showing empty.
+
+## 2026-11-27 (continued) — English-version Phase 1 complete: hide-if-empty
+
+Final Phase 1 piece. Two new functions in `inc/template-tags.php`:
+`shola_lang_has_content( $args )` (does at least one published item
+matching these args exist in the current page's language — the one
+shared check, per `complete-mirror-and-empty-state-rule.md`) and
+`shola_page_has_english_version( $page_id )` (a different check for
+static Pages: has *this specific* Page been paired to a published
+English version, not "does this content type have any items").
+
+New `shola_hide_empty_language_nav_items()` in `inc/setup.php`, filtering
+`wp_nav_menu_objects` for the popup menu's two real locations
+(`menu_sections`, `menu_more`): on an English page, removes any item
+whose content type has zero English items, or (for a plain Page like
+دربارهٔ ما/ارتباط با حزب) has no published English pairing yet. Persian
+pages are completely untouched.
+
+Real finding while building this: `page` (the native WordPress Page
+post type — دربارهٔ ما, ارتباط با حزب, etc.) never had
+`shcore_language`/`shcore_translation_id` registered at all, needed for
+the About/Contact pairing check. Added it the same way as every other
+type, which surfaced a second real bug: the backfill migration
+(`Language::backfill_legacy_language_meta()`, added in the previous
+entry) tracked completion with one single flag already marked "done"
+from the first 8 content types — adding `page` to the list would have
+silently never backfilled it, since the function returns before
+reaching a type it thinks is already finished. Fixed by switching to a
+per-post-type completion array (same pattern already established by
+`Taxonomies::seed_publication_periods()`'s own `$seeded` array), reset
+the stale flag, and re-ran it live — confirmed all 11 real Pages on the
+site now have a real `shcore_language = fa` row.
+
+Also found, and confirms it needed no extra code: every `front-page.php`
+panel was already wrapped in `if ( $query->have_posts() )` from before
+this project even started — once Phase 1's query filtering made an
+English query correctly return zero results, those same existing
+conditionals already hid the section for free. Verified live rather
+than assumed.
+
+Verified end-to-end on the real site, not just via direct function
+calls (an earlier direct-call test gave a confusing result purely
+because it checked `Language::current()` before a real request had
+resolved it — not a bug, just an invalid test setup, caught and
+explained rather than left unexplained): `/en/`'s actual rendered popup
+menu now shows only Home/Topics/Search; the same page's Persian version
+(`/`) still shows every nav item exactly as before, unchanged.
+
+**Phase 1 (Infrastructure) is now fully complete** — language fields,
+pairing, taxonomy translation, `/en/` routing, every listing query
+filtered, and hide-if-empty all verified working together, live. Next:
+Phase 2, the actual language-switcher button.

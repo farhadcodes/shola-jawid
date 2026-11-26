@@ -515,6 +515,86 @@ function shola_maybe_add_party_documents_menu_item() {
 add_action( 'admin_init', 'shola_maybe_add_party_documents_menu_item' );
 
 /**
+ * Hide-if-empty for the popup menu's two real nav locations (2026-11-27,
+ * English-version rollout — english-version/03-content-architecture/
+ * complete-mirror-and-empty-state-rule.md): on an English page, a nav
+ * item pointing at a content type with zero published English items yet
+ * is removed from the menu entirely, rather than shown linking to an
+ * empty page. Persian pages are completely untouched — every item
+ * always shows exactly as configured in Appearance → Menus.
+ *
+ * `$path_content_checks` only covers paths that are themselves content
+ * *listings* (an archive/landing page backed by a CPT) — anything else
+ * pointing at a plain Page (دربارهٔ ما, ارتباط با حزب, ...) falls through
+ * to shola_page_has_english_version()'s pairing check instead, and
+ * anything structural (home, موضوعات, جست‌وجو) is never checked at all —
+ * those aren't tied to one content type's translation progress.
+ *
+ * @param \WP_Post[] $items Menu item objects.
+ * @param object     $args  wp_nav_menu()'s own args object (has ->theme_location).
+ * @return \WP_Post[]
+ */
+function shola_hide_empty_language_nav_items( $items, $args ) {
+	if ( ! in_array( $args->theme_location, array( 'menu_sections', 'menu_more' ), true ) ) {
+		return $items;
+	}
+	if ( 'en' !== \SholaCore\Language::current() ) {
+		return $items;
+	}
+
+	$always_show = array( '/', '/topics/', '/search/' );
+
+	$path_content_checks = array(
+		'/publications/'       => array( 'post_type' => 'issue' ),
+		'/library/'            => array( 'post_type' => 'document' ),
+		'/party-publications/' => array( 'post_type' => 'party_publication' ),
+		'/party-documents/'    => array( 'post_type' => 'party_document' ),
+		'/leaflets/'           => array( 'post_type' => 'leaflet' ),
+		'/announcements/'      => array( 'post_type' => 'announcement' ),
+		'/editors-picks/'      => array( 'post_type' => 'editors_pick' ),
+		'/selected/'           => array(
+			'post_type' => 'post',
+			'meta_key'  => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern used everywhere else this key appears.
+			'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		),
+		'/reports/'            => array(
+			'post_type' => 'post',
+			'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+				array(
+					'taxonomy' => 'report',
+					'field'    => 'slug',
+					'terms'    => 'reports',
+				),
+			),
+		),
+	);
+
+	foreach ( $items as $key => $item ) {
+		$path = untrailingslashit( (string) wp_parse_url( $item->url, PHP_URL_PATH ) );
+		$path = $path ? $path . '/' : '/';
+
+		if ( in_array( $path, $always_show, true ) ) {
+			continue;
+		}
+
+		if ( isset( $path_content_checks[ $path ] ) ) {
+			if ( ! shola_lang_has_content( $path_content_checks[ $path ] ) ) {
+				unset( $items[ $key ] );
+			}
+			continue;
+		}
+
+		$page = get_page_by_path( trim( $path, '/' ) );
+		if ( $page instanceof WP_Post && ! shola_page_has_english_version( $page->ID ) ) {
+			unset( $items[ $key ] );
+		}
+	}
+
+	return array_values( $items );
+}
+add_filter( 'wp_nav_menu_objects', 'shola_hide_empty_language_nav_items', 10, 2 );
+
+/**
  * Keeps the Topics/Publications/Collections taxonomy panels always
  * available in the Appearance → Menus "Add menu items" sidebar.
  *
