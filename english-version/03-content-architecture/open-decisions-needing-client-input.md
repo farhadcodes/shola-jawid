@@ -5,41 +5,27 @@ the IA document's open decisions): these get flagged clearly, built against
 a documented working assumption where a decision is needed to keep moving,
 and never silently resolved. Nothing here should be decided by guessing.
 
-## 1. Does every content type need an English version, or only some?
+## 1. ~~Does every content type need an English version, or only some?~~ — RESOLVED 2026-11-26
 
-**Working assumption, pending confirmation:** articles (`post`), issues
-(`issue`), and the About/Contact pages are the real priority — these are
-what a first-time English-speaking visitor actually reads. Library
-documents, party publications, and party documents are large archives of
-often decades-old material; translating all of it is a much bigger editorial
-job than building the technical capability for it.
+**Answer: every content type, full stop.** The client wants a complete
+structural mirror of the Persian site — see
+`complete-mirror-and-empty-state-rule.md` for the full rule and how it's
+built (hide a section until it has real English content, show it the
+moment it does). This also resolves questions 2 and 3 below.
 
-**Recommendation:** build the *capability* for every content type (the
-`shcore_language` field, the pairing field, the routing) everywhere it
-plausibly matters, but don't treat "every single existing Persian document
-needs an English translation before launch" as a requirement — content gets
-added to the English site incrementally, same as the Persian site's own
-content already grows incrementally.
+## 2. ~~Do تراکت (leaflets) need an English version at all?~~ — RESOLVED 2026-11-26
 
-## 2. Do تراکت (leaflets) need an English version at all?
+Leaflets get the same full English capability as everything else. Whether
+the client ever actually publishes English leaflet content is now
+irrelevant to the build — if they don't, the Leaflets nav item simply never
+appears on the English site, per the hide-if-empty rule. No separate
+decision needed.
 
-Leaflets are street-level agitation posters/flyers — image-only content,
-often tied to a specific local event or audience. **Open question for the
-client specifically:** is there any English-language leaflet material, or
-is this section Persian-only by nature? If Persian-only, the English site
-simply doesn't show a Leaflets link in its navigation — not a missing
-feature, a deliberate scope choice.
+## 3. ~~Does the homepage need the same layout/composition in English?~~ — RESOLVED 2026-11-26
 
-## 3. Does the homepage need the same layout/composition in English?
-
-The Persian homepage's hero section is one of 7 configurable layouts
-(`shcore_hero_layout`), chosen via an admin singleton. **Working
-assumption:** English homepage mirrors whichever layout is active in
-Persian, pulling from English-language content instead. **Open question:**
-does the client want the English homepage to potentially look different
-structurally (e.g. feature different content, a different hero layout) from
-day one, or should it always mirror the Persian homepage's current choice
-automatically?
+Yes, exactly mirrors the Persian homepage's structure (same hero-layout
+mechanism, same panel set) — each panel individually hidden/shown per the
+same rule.
 
 ## 4. Who writes the English content, and on what timeline?
 

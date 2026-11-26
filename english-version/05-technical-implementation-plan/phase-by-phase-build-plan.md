@@ -26,6 +26,11 @@ entry if any rule was newly applied.
 - Build the `/en/` rewrite rule, the `shola_lang` query var, and the central
   language-context function (`url-structure-and-routing.md`).
 - Add the `pre_get_posts` language filter to every archive/search query.
+- Build `shola_lang_has_content()` — the one shared "does this section have
+  real English content yet" helper, per
+  `03-content-architecture/complete-mirror-and-empty-state-rule.md`. Every
+  later hide-if-empty check (nav, homepage panels, taxonomy term listings)
+  calls this one function, not a one-off query each.
 - **Nothing is user-visible yet at the end of this phase** — this is pure
   plumbing, verified via WP-CLI/direct query checks, not a visual QA pass.
 
@@ -40,6 +45,12 @@ entry if any rule was newly applied.
   `04-design-and-ltr-system/component-by-component-ltr-notes.md`, even
   before any real English content exists (every path should correctly fall
   back to an English archive/homepage, never 404).
+- Wire `shola_lang_has_content()` into the primary nav menu builder and
+  every `front-page.php` panel, so the hide-if-empty rule is live before
+  any real English content exists — verify by checking the English site
+  looks clean/complete with zero English content published yet (an empty
+  nav except About/Contact once those exist, an empty-but-not-broken
+  homepage), not just after content starts appearing.
 
 ## Phase 3 — LTR CSS pass
 
