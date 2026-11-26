@@ -118,6 +118,22 @@ class Language {
 		add_action( 'pre_get_posts', array( __CLASS__, 'filter_main_query_by_language' ) );
 
 		/*
+		 * Canonical-URL enforcement for singular content, found 2026-11-28
+		 * while verifying Phase 4/5's work live: because the English
+		 * rewrite rules only ever ADD an /en/-prefixed mirror of every
+		 * existing rule, never remove the original, every single post/Page
+		 * is reachable at BOTH its bare URL and its /en/-prefixed one,
+		 * regardless of that post's own actual shcore_language — confirmed
+		 * live: `/en/about/` rendered the Persian About page with
+		 * lang="en-US"/no dir="rtl", and `/about-en/` (no prefix) rendered
+		 * the English About page with dir="rtl"/lang="fa-IR". Real
+		 * duplicate-content URLs, and actively wrong direction/locale on
+		 * whichever one doesn't match the content's real language. See
+		 * redirect_mismatched_singular_language() below for the fix.
+		 */
+		add_action( 'template_redirect', array( __CLASS__, 'redirect_mismatched_singular_language' ) );
+
+		/*
 		 * Admin language switcher (english-version/03-content-architecture/
 		 * admin-language-switcher.md) — a separate feature from the /en/
 		 * routing above: this is about which language an admin/editor is
@@ -250,6 +266,70 @@ class Language {
 	 */
 	public static function current() {
 		return self::$current ? self::$current : 'fa';
+	}
+
+	/**
+	 * `page` slugs that are structural content-type landing pages
+	 * (نشرات, کتابخانه, موضوعات, ...) — one single Page row renders at
+	 * the *same* path in both languages, filtered by content, not a
+	 * pairing. Same set the theme's own `shola_get_language_switch_url()`
+	 * (inc/template-tags.php) recognizes by template file rather than
+	 * slug; kept as a slug list here instead of calling that function,
+	 * same CLAUDE.md §2 reasoning as every other theme-logic duplication
+	 * in this class/class-seo.php. Checked by
+	 * redirect_mismatched_singular_language() below — these pages never
+	 * have a real `shcore_translation_id` pairing (there's nothing to
+	 * pair, it's the same Page either way), so without this exclusion
+	 * they'd be wrongly treated as "always Persian" and bounced away
+	 * from their own `/en/` URL.
+	 *
+	 * @var string[]
+	 */
+	const STRUCTURAL_PAGE_SLUGS = array( 'publications', 'library', 'reports', 'party-documents', 'party-publications', 'topics', 'selected', 'leaflets' );
+
+	/**
+	 * 301-redirects a singular post/Page to its one correct canonical
+	 * URL whenever the URL's own language (the /en/ prefix or its
+	 * absence) disagrees with that specific post's real
+	 * `shcore_language` value — see init()'s registration above for the
+	 * live bug this fixes. Never touches archives/search/the front page:
+	 * those aren't tied to one fixed language the way a single post is
+	 * (Language::add_language_filter() already makes them show the
+	 * correct per-language results at either URL, which is correct,
+	 * not a bug), and a mismatch there has no one "right" URL to redirect
+	 * to. Also never touches the structural listing Pages in
+	 * STRUCTURAL_PAGE_SLUGS above, for the same reason — found live
+	 * (`/en/leaflets/` was being wrongly redirected back to `/leaflets/`)
+	 * right after shipping the first version of this fix.
+	 *
+	 * @return void
+	 */
+	public static function redirect_mismatched_singular_language() {
+		if ( is_admin() || is_preview() || ! is_singular() ) {
+			return;
+		}
+
+		$post = get_queried_object();
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			return;
+		}
+
+		if ( 'page' === $post->post_type && in_array( $post->post_name, self::STRUCTURAL_PAGE_SLUGS, true ) ) {
+			return;
+		}
+
+		$post_lang = get_post_meta( $post->ID, 'shcore_language', true );
+		$post_lang = ( 'en' === $post_lang ) ? 'en' : 'fa';
+
+		if ( $post_lang === self::current() ) {
+			return;
+		}
+
+		$path   = (string) wp_parse_url( get_permalink( $post ), PHP_URL_PATH );
+		$target = ( 'en' === $post_lang ) ? home_url( '/en' . $path ) : home_url( $path );
+
+		wp_safe_redirect( $target, 301 );
+		exit;
 	}
 
 	/**

@@ -15585,3 +15585,78 @@ Every fix above verified live in both languages, not assumed from
 reading the diff: homepage, all four taxonomy archives, all four tile-
 listing Pages, the language switcher in both directions, and the new
 Pages' own templates were each re-checked after their respective fix.
+
+## 2026-11-28 (continued, 4) — English-version Phase 5: a real routing bug found first, then SEO (hreflang, canonical, sitemap)
+
+**The real bug, found before any SEO work could mean anything:** every
+URL on the site — every post, every Page — was reachable at *both* its
+bare path and its `/en/`-prefixed mirror, regardless of which language
+that specific content actually is. The `/en/` rewrite rules
+(`Language::add_english_prefixed_rules()`, Phase 1) only ever *add* a
+prefixed mirror of each existing rule; nothing ever removes or redirects
+the original. Confirmed live: `/en/about/` rendered the *Persian* About
+page with `lang="en-US"` and no `dir="rtl"`; `/about-en/` (no prefix)
+rendered the *English* About page with `dir="rtl"` and `lang="fa-IR"`.
+Real duplicate-content URLs, and actively wrong direction/locale
+whichever one a reader (or a search engine) happened to land on.
+
+Fixed with `Language::redirect_mismatched_singular_language()`
+(`class-language.php`, hooked on `template_redirect`): a 301 to the one
+correct URL whenever a singular post/Page's own `shcore_language`
+disagrees with the URL's own language. A second bug was caught shipping
+the *first* version of this exact fix, re-verified before calling it
+done: structural listing Pages (نشرات, کتابخانه, موضوعات, ...) are a
+single Page row that legitimately renders at the *same* path in both
+languages (filtered by content, not a pairing) — the first version
+wrongly treated them as "always Persian" and 301'd `/en/leaflets/` back
+to `/leaflets/`. Fixed by excluding a new `Language::
+STRUCTURAL_PAGE_SLUGS` list from the redirect check.
+
+**hreflang, from inert to real** (`class-seo.php`): singular content
+now gets a second `hreflang` tag only when a real, published
+`shcore_translation_id` pairing exists — never a guessed/fallback URL,
+since hreflang means "this exact page, translated," not "related
+content in another language." Every archive/search/front-page context
+always gets both languages' tags (the `/en/` space structurally mirrors
+all of them regardless of whether English content exists there yet).
+`x-default` stays on the Persian URL when one exists. The term-URL
+logic needed here duplicates the theme's own
+`shola_build_term_link_for_lang()` rather than calling it — CLAUDE.md
+§2: a plugin must never depend on a theme function, since it has to
+keep working under any active theme.
+
+**Canonical URLs now carry `/en/`**: added a `get_canonical_url` filter
+(`filter_singular_canonical_url()`) to fix WordPress core's own
+`rel_canonical()` output for singular content, which otherwise built
+its URL from the never-prefixed `get_permalink()` — without this, an
+English post's own canonical tag would have pointed at the exact URL
+the redirect fix above now 301s away from. `SEO::get_canonical_url()`'s
+own non-singular branches (search, taxonomy, post-type archive, front
+page) each got the same `/en/`-prefix logic directly.
+
+**`og:locale` needed no change**, confirmed live exactly as
+`seo-and-sitemap-updates.md` predicted: `fa_AF` on Persian pages,
+`en_US` on English ones, automatically, via the same Phase 3
+foundational `is_rtl()`/locale fix.
+
+**Sitemap — checked live, not assumed**, per that same plan file's own
+explicit instruction not to guess here: core's `wp_sitemaps_*` does
+**not** auto-include the `/en/` prefix. Curling
+`wp-sitemap-posts-post-1.xml` directly found the one real English demo
+article listed at its bare, un-prefixed URL. Fixed with one
+`wp_sitemaps_posts_entry` filter, then re-verified by curling all 9
+managed post types' own sitemap XML (`issue`, `document`,
+`party_publication`, `party_document`, `leaflet`, `announcement`,
+`editors_pick`, `post`, `page`) — every English entry now correctly
+carries `/en/`, every Persian entry unchanged. Deliberately **not**
+fixed this round, flagged rather than silently skipped: taxonomy-archive
+sitemap entries still list only the Persian URL per term; giving each
+term a second, English sitemap entry means injecting new rows, not
+correcting existing ones — left for a later round if Farhad wants it,
+since English taxonomy archives are still fully reachable via nav and
+search either way.
+
+Every fix above verified live via direct `curl` requests against the
+real local site (the built-in browser tool was temporarily unavailable
+for part of this round) — response codes, `hreflang`/canonical tag
+output, and raw sitemap XML, not assumed from the diff.

@@ -219,15 +219,58 @@ entry if any rule was newly applied.
 - This phase has no fixed end date past the demo-content step — real
   content population is an ongoing editorial process.
 
-## Phase 5 — SEO and sitemap
+## Phase 5 — SEO and sitemap ✅ done 2026-11-28
 
-- Rewire `class-seo.php`'s hreflang tags from the current inert
-  self-referential pair to the real pairing-based logic
-  (`seo-and-sitemap-updates.md`).
-- Update canonical URL logic for the `/en/` prefix.
-- Confirm `wp_sitemaps_*` correctly includes English URLs (check, don't
-  assume — WordPress core's sitemap API may need one small filter addition,
-  detailed in that file).
+- ✅ **A real, previously-undiscovered routing bug found and fixed
+  first, before any of the SEO work below could mean anything:** every
+  URL on the site was reachable at BOTH its bare path and its
+  `/en/`-prefixed mirror, regardless of which language that content
+  actually is — the `/en/` rewrite rules only ever *add* a prefixed
+  mirror of each existing rule, never remove the original. Confirmed
+  live: `/en/about/` rendered the *Persian* About page with
+  `lang="en-US"`/no `dir="rtl"`; `/about-en/` (no prefix) rendered the
+  *English* About page with `dir="rtl"`/`lang="fa-IR"`. Fixed with
+  `Language::redirect_mismatched_singular_language()` — a 301 to the
+  one correct URL whenever a singular post/Page's own
+  `shcore_language` disagrees with the URL's language, added to
+  `class-language.php`. Deliberately excludes the structural listing
+  Pages (نشرات, کتابخانه, ...) via a new `Language::
+  STRUCTURAL_PAGE_SLUGS` list — those render the *same* single Page row
+  at both URLs by design, not a mismatch to correct, found live the
+  moment the first version of this fix wrongly redirected `/en/leaflets/`
+  back to `/leaflets/`.
+- ✅ Rewired `class-seo.php`'s hreflang tags from inert self-referential
+  scaffolding to real pairing-based logic: singular content gets a
+  second `hreflang` tag only when a real, published
+  `shcore_translation_id` pairing exists (never a guessed/fallback
+  URL); every archive/search/front-page context always gets both
+  (`/en/` structurally mirrors all of them). `x-default` stays on the
+  Persian URL when one exists. Verified live across every context:
+  paired singular (`/en/about-en/` ↔ `/about/`), unpaired singular
+  (one real tag only), taxonomy archive, post-type archive, search,
+  front page.
+- ✅ Canonical URLs now carry the `/en/` prefix: a new
+  `get_canonical_url` filter (`filter_singular_canonical_url()`) fixes
+  core's own `rel_canonical()` for singular content (which otherwise
+  built its URL from the never-prefixed `get_permalink()`), and
+  `SEO::get_canonical_url()`'s own non-singular branches (search,
+  taxonomy, post-type archive, front page) each got the same prefix
+  logic. Verified live, not assumed.
+- ✅ `og:locale` needed no change at all, confirmed live exactly as this
+  file predicted: `fa_AF` on Persian pages, `en_US` on English ones.
+- ✅ Sitemap — **checked live, not assumed, per this file's own
+  instruction**: core's `wp_sitemaps_*` does **not** auto-include the
+  `/en/` prefix (every post-type sitemap listed English content's bare,
+  never-prefixed URL — the exact URL the new redirect fix above now
+  301s away from). Fixed with one `wp_sitemaps_posts_entry` filter,
+  re-verified by curling every one of the 9 managed post types' sitemap
+  XML directly. **Deliberately deferred, not a silent gap:**
+  taxonomy-archive sitemap entries still list only the Persian URL per
+  term — adding a second English entry per term means injecting new
+  sitemap rows, not correcting existing ones, a larger change left for
+  a later round if Farhad wants it (English taxonomy archives are still
+  fully reachable via nav/search either way, just not sitemap-listed
+  directly).
 
 ## Phase 6 — POT file regeneration
 
