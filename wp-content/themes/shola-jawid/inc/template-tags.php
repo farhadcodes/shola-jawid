@@ -1508,8 +1508,13 @@ function shola_render_hero_body( $hero ) {
 		?>
 		<span><?php echo esc_html( shola_get_content_type_label( $hero ) ); ?></span>
 		<?php if ( $hero_term ) : ?>
+			<?php
+			$hero_term_lang = \SholaCore\Language::current();
+			$hero_term_link = shola_build_term_link_for_lang( $hero_term, $hero_term_lang );
+			$hero_term_link = $hero_term_link ? $hero_term_link : get_term_link( $hero_term );
+			?>
 			<span class="divider">/</span>
-			<a href="<?php echo esc_url( get_term_link( $hero_term ) ); ?>"><?php echo esc_html( $hero_term->name ); ?></a>
+			<a href="<?php echo esc_url( $hero_term_link ); ?>"><?php echo esc_html( shola_get_term_label( $hero_term, $hero_term_lang ) ); ?></a>
 		<?php endif; ?>
 	</p>
 	<h1 class="h-display">
@@ -1581,7 +1586,7 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
 		<?php echo shola_get_featured_image( $issue, 'shola_issue_cover', array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally. ?>
 	</a>
 	<?php if ( $show_title ) : ?>
-		<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+		<h2 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( shola_get_term_label( $pub_term, \SholaCore\Language::current() ) ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
 	<?php endif; ?>
 	<?php
 	/*
@@ -1679,7 +1684,7 @@ function shola_render_hero_publication_card_minimal( $issue, $pub_term, $args = 
 	$filled_icon  = isset( $args['filled_icon'] ) ? (bool) $args['filled_icon'] : false;
 	?>
 	<?php if ( $show_title ) : ?>
-		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
+		<h2 class="h-page hero-pub-card-minimal-title"><a href="<?php echo esc_url( $permalink ); ?>" class="link-quiet"><?php echo esc_html( shola_get_term_label( $pub_term, \SholaCore\Language::current() ) ); ?><?php echo $issue_number ? ' — ' . esc_html( $issue_number ) : ''; ?></a></h2>
 	<?php endif; ?>
 	<?php if ( $description ) : ?>
 		<p class="hero-pub-card-minimal-desc">

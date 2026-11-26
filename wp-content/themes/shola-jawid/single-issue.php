@@ -33,6 +33,7 @@ while ( have_posts() ) :
 	$root_slug   = ( $pub_parent && ! is_wp_error( $pub_parent ) ) ? $pub_parent->slug : ( $pub ? $pub->slug : '' );
 	$is_current  = 'shola-jawid' === $root_slug;
 	$number      = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
+	$shola_issue_lang = \SholaCore\Language::current();
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
@@ -86,17 +87,23 @@ while ( have_posts() ) :
 
 	<section class="wrap">
 
+		<?php
+		$shola_pub_parent_link = $pub_parent ? shola_build_term_link_for_lang( $pub_parent, $shola_issue_lang ) : '';
+		$shola_pub_parent_link = $shola_pub_parent_link ? $shola_pub_parent_link : ( $pub_parent ? get_term_link( $pub_parent ) : '' );
+		$shola_pub_link        = $pub ? shola_build_term_link_for_lang( $pub, $shola_issue_lang ) : '';
+		$shola_pub_link        = $shola_pub_link ? $shola_pub_link : ( $pub ? get_term_link( $pub ) : '' );
+		?>
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_issue_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_issue_lang ) ? home_url( '/en/publications/' ) : home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'نشرات', 'shola-jawid' ); ?></a>
 			<?php if ( $pub_parent ) : ?>
 				<span aria-hidden="true"> / </span>
-				<a href="<?php echo esc_url( get_term_link( $pub_parent ) ); ?>"><?php echo esc_html( $pub_parent->name ); ?></a>
+				<a href="<?php echo esc_url( $shola_pub_parent_link ); ?>"><?php echo esc_html( shola_get_term_label( $pub_parent, $shola_issue_lang ) ); ?></a>
 			<?php endif; ?>
 			<?php if ( $pub ) : ?>
 				<span aria-hidden="true"> / </span>
-				<a class="active" href="<?php echo esc_url( get_term_link( $pub ) ); ?>"><?php echo esc_html( $pub->name ); ?></a>
+				<a class="active" href="<?php echo esc_url( $shola_pub_link ); ?>"><?php echo esc_html( shola_get_term_label( $pub, $shola_issue_lang ) ); ?></a>
 			<?php endif; ?>
 		</nav>
 
@@ -227,7 +234,7 @@ while ( have_posts() ) :
 									$section_label = __( 'ترجمه', 'shola-jawid' );
 								} else {
 									$section_term  = get_term_by( 'slug', $entry['section'], 'topic' );
-									$section_label = ( $section_term && ! is_wp_error( $section_term ) ) ? $section_term->name : $entry['section'];
+									$section_label = ( $section_term && ! is_wp_error( $section_term ) ) ? shola_get_term_label( $section_term, $shola_issue_lang ) : $entry['section'];
 								}
 								?>
 								<p class="meta-mono">

@@ -26,13 +26,17 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
+	$shola_ann_lang = \SholaCore\Language::current();
+
 	$related_query = new WP_Query(
-		array(
-			'post_type'      => 'announcement',
-			'posts_per_page' => 3,
-			'post__not_in'   => array( get_the_ID() ),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'      => 'announcement',
+				'posts_per_page' => 3,
+				'post__not_in'   => array( get_the_ID() ),
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
 		)
 	);
 	?>
@@ -40,9 +44,9 @@ while ( have_posts() ) :
 	<section class="wrap section-top">
 
 		<nav class="article-crumb" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_ann_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a>
+			<a class="active" href="<?php echo esc_url( ( 'en' === $shola_ann_lang ) ? home_url( '/en/announcements/' ) : home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a>
 		</nav>
 
 		<header class="page-header page-header--narrow mt-sm">

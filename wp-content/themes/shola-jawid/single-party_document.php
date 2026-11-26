@@ -60,28 +60,37 @@ while ( have_posts() ) :
 	$categories    = get_the_terms( get_the_ID(), 'party_document_category' );
 	$categories    = ( $categories && ! is_wp_error( $categories ) ) ? $categories : array();
 
+	$shola_pd_lang = \SholaCore\Language::current();
+
 	$related_query = new WP_Query(
-		array(
-			'post_type'      => 'party_document',
-			'posts_per_page' => 3,
-			'post__not_in'   => array( get_the_ID() ),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'      => 'party_document',
+				'posts_per_page' => 3,
+				'post__not_in'   => array( get_the_ID() ),
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
 		)
 	);
+
+	if ( $categories ) {
+		$shola_pd_cat_link = shola_build_term_link_for_lang( $categories[0], $shola_pd_lang );
+		$shola_pd_cat_link = $shola_pd_cat_link ? $shola_pd_cat_link : get_term_link( $categories[0] );
+	}
 	?>
 
 	<section class="wrap single-party-document">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_pd_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
 			<?php if ( $categories ) : ?>
-				<a href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+				<a href="<?php echo esc_url( ( 'en' === $shola_pd_lang ) ? home_url( '/en/party-documents/' ) : home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
 				<span aria-hidden="true"> / </span>
-				<a class="active" href="<?php echo esc_url( get_term_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a>
+				<a class="active" href="<?php echo esc_url( $shola_pd_cat_link ); ?>"><?php echo esc_html( shola_get_term_label( $categories[0], $shola_pd_lang ) ); ?></a>
 			<?php else : ?>
-				<a class="active" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
+				<a class="active" href="<?php echo esc_url( ( 'en' === $shola_pd_lang ) ? home_url( '/en/party-documents/' ) : home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'اسناد حزب', 'shola-jawid' ); ?></a>
 			<?php endif; ?>
 		</nav>
 

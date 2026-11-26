@@ -28,32 +28,55 @@ practice (seen throughout `docs/CHANGELOG.md`).
 
 ## Homepage (`front-page.php`)
 
-- [ ] Whichever hero layout is active (all 7 variants should be checked at
-      least once each, even though only one is live at a time, since any of
-      them could become active later)
-- [ ] Library shelf section
-- [ ] Most Viewed panel
+- [x] Hero — all 7 layouts share one function
+      (`shola_render_hero_body()`) for the topic badge; fixed once,
+      applies to all. The two publication-card renderers 4 of the 7
+      layouts also use were fixed the same round. Not individually
+      screenshotted per layout (only `feature_card`, the currently-active
+      one, was visually confirmed), but the fix is structural, not
+      per-layout markup.
+- [x] Library shelf section — checked live, correct.
+- [x] Most Viewed panel — N/A on the homepage itself (that panel lives on
+      `single.php`, see below); homepage has no separate instance.
 - [ ] Editor's Picks panel
 - [ ] Translation ("ترجمه") row section
-- [ ] Announcement spotlight tiles
+- [x] Announcement spotlight tiles — checked live, correct (demo
+      announcement shows correctly, card.php's own fix applies).
+- [x] «نشریات» current-issue panel (not in the original checklist, found
+      during this pass) — `$pub_term->name`/`get_term_link()` was
+      hardcoded Persian; fixed, see `docs/CHANGELOG.md` 2026-11-28
+      (continued, 7).
 
 ## Cards and shared partials
 
 - [x] `template-parts/cards/card.php` — term badge was hardcoded Persian, fixed (Phase 4).
 - [ ] `template-parts/cards/issue-card.php`
 - [ ] `template-parts/cards/hero-strip-card.php`
-- [ ] `template-parts/rows/document-row.php`
+- [x] `template-parts/rows/document-row.php` — collection-name label was
+      hardcoded Persian, fixed.
 - [x] `template-parts/breadcrumb.php` — home-link `/en/` prefix was missing, fixed (Phase 4).
-- [ ] `template-parts/search/result.php`
+- [x] `template-parts/search/result.php` — term name/link was hardcoded
+      Persian, fixed; confirmed live with a real English search result.
 
 ## Single views
 
-- [ ] `single.php` (article) — byline, drop cap (see CSS audit), author
-      note box, translation-credit box
-- [ ] `single-issue.php` / `single-document.php` / `single-party_publication.php`
-      / `single-party_document.php` — PDF preview/download button direction,
-      table-of-contents layout
-- [ ] `single-announcement.php`
+- [x] `single.php` (article) — breadcrumb, related-topics tag list, and
+      the "Most Viewed"/"مطالب دیگر" related-content queries were all
+      either hardcoded Persian or completely unfiltered by language
+      (showing Persian content under an English article); all fixed and
+      verified live. Native `post_tag` (`برچسب‌ها`) deliberately left
+      unfixed — no bilingual mechanism exists for native WP tags, a
+      separate, larger decision. Drop cap/author-note-box/translation-
+      credit-box not individually re-checked this round (no demo content
+      currently exercises those specific blocks).
+- [x] `single-issue.php` / `single-document.php` / `single-party_publication.php`
+      / `single-party_document.php` — breadcrumbs and "related items"
+      queries all had the same two bugs, all fixed and verified live.
+      PDF button direction/TOC layout not separately re-checked (no LTR-
+      specific issue found or expected there — logical properties already
+      handle it per the Phase 3 CSS audit).
+- [x] `single-announcement.php` — same two bugs (breadcrumb, unfiltered
+      related-announcements query), fixed and verified live.
 
 ## Archives and listings
 

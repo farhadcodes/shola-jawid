@@ -51,7 +51,7 @@ $doc_pdf_sz = shola_get_pdf_size( $doc_pdf_id );
 $on_own_collection_archive = $doc_term && is_tax( $doc_term->taxonomy, $doc_term->term_id );
 $meta_parts                = array_filter(
 	array(
-		$on_own_collection_archive ? '' : ( $doc_term ? $doc_term->name : '' ),
+		$on_own_collection_archive ? '' : ( $doc_term ? shola_get_term_label( $doc_term, \SholaCore\Language::current() ) : '' ),
 		$doc_author,
 	)
 );

@@ -36,13 +36,17 @@ while ( have_posts() ) :
 	// .article-title font-size doesn't have to carry the whole string.
 	$subtitle = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
 
+	$shola_pub_lang = \SholaCore\Language::current();
+
 	$related_query = new WP_Query(
-		array(
-			'post_type'      => 'party_publication',
-			'posts_per_page' => 3,
-			'post__not_in'   => array( get_the_ID() ),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'      => 'party_publication',
+				'posts_per_page' => 3,
+				'post__not_in'   => array( get_the_ID() ),
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
 		)
 	);
 	?>
@@ -50,9 +54,9 @@ while ( have_posts() ) :
 	<section class="wrap">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_pub_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a class="active" href="<?php echo esc_url( home_url( '/party-publications/' ) ); ?>"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></a>
+			<a class="active" href="<?php echo esc_url( ( 'en' === $shola_pub_lang ) ? home_url( '/en/party-publications/' ) : home_url( '/party-publications/' ) ); ?>"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></a>
 		</nav>
 
 		<div class="issue-hero">

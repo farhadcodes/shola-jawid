@@ -39,6 +39,7 @@ while ( have_posts() ) :
 	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
 	$thumb_id    = get_post_thumbnail_id();
 	$caption     = $thumb_id ? wp_get_attachment_caption( $thumb_id ) : '';
+	$shola_single_lang = \SholaCore\Language::current();
 
 	/*
 	 * پربازدیدترین (Most Viewed) — added 2026-09-15, per Farhad: the
@@ -58,15 +59,17 @@ while ( have_posts() ) :
 	 * single reordered element.
 	 */
 	$most_viewed_query = new WP_Query(
-		array(
-			'post_type'           => array( 'post', 'announcement' ),
-			'posts_per_page'      => 5,
-			'post__not_in'        => array( get_the_ID() ),
-			'orderby'             => 'meta_value_num',
-			'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
-			'order'               => 'DESC',
-			'ignore_sticky_posts' => true,
-			'no_found_rows'       => true,
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'           => array( 'post', 'announcement' ),
+				'posts_per_page'      => 5,
+				'post__not_in'        => array( get_the_ID() ),
+				'orderby'             => 'meta_value_num',
+				'meta_key'            => 'shcore_view_count', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- same established pattern as taxonomy-topic.php's پرخواننده‌ترین tab; dataset is small.
+				'order'               => 'DESC',
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+			)
 		)
 	);
 	$has_mostviewed = $most_viewed_query->have_posts();
@@ -83,47 +86,26 @@ while ( have_posts() ) :
 				</div>
 
 				<header class="wrap article-header">
+					<?php
+					$shola_topic_link = $topic ? shola_build_term_link_for_lang( $topic, $shola_single_lang ) : '';
+					$shola_topic_link = $shola_topic_link ? $shola_topic_link : ( $topic ? get_term_link( $topic ) : '' );
+					$shola_en         = ( 'en' === $shola_single_lang );
+					?>
 					<nav class="article-crumb" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-						<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+						<a href="<?php echo esc_url( $shola_en ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 						<?php if ( 'editors_pick' === get_post_type() ) : ?>
-							<?php
-							/*
-							 * گزیده‌ها crumb — added 2026-10-01, when this
-							 * template was reused for the new editors_pick CPT
-							 * (Farhad's explicit instruction, "same as the
-							 * articles but independent"). An editors_pick post
-							 * never has `topic` terms or the ترجمه flag, so the
-							 * موضوعات crumb below (and the two conditional ones
-							 * that depend on it) would otherwise show a
-							 * dangling, non-active "موضوعات" link that doesn't
-							 * actually describe this content — this crumb
-							 * replaces that branch entirely for this one post
-							 * type instead of appending to it.
-							 */
-							?>
 							<span aria-hidden="true"> / </span>
-							<a class="active" href="<?php echo esc_url( home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></a>
+							<a class="active" href="<?php echo esc_url( $shola_en ? home_url( '/en/editors-picks/' ) : home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'گزیده‌ها', 'shola-jawid' ); ?></a>
 						<?php else : ?>
 							<span aria-hidden="true"> / </span>
-							<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
-							<?php
-							/*
-							 * ترجمه crumb — added 2026-09-27, per Farhad relaying
-							 * the client's request: a ترجمه-flagged post's
-							 * breadcrumb showed no trace of that at all. Placed
-							 * right after موضوعات (matching where Farhad pointed
-							 * on a live screenshot), before the topic crumb if
-							 * one also exists — additive, doesn't replace the
-							 * topic crumb.
-							 */
-							?>
+							<a href="<?php echo esc_url( $shola_en ? home_url( '/en/topics/' ) : home_url( '/topics/' ) ); ?>"><?php echo esc_html( shola_get_label( 'breadcrumb_topics_label' ) ); ?></a>
 							<?php if ( $is_tarjome ) : ?>
 								<span aria-hidden="true"> / </span>
-								<a class="<?php echo $topic ? '' : 'active'; ?>" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></a>
+								<a class="<?php echo $topic ? '' : 'active'; ?>" href="<?php echo esc_url( $shola_en ? home_url( '/en/selected/' ) : home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></a>
 							<?php endif; ?>
 							<?php if ( $topic ) : ?>
 								<span aria-hidden="true"> / </span>
-								<a class="active" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a>
+								<a class="active" href="<?php echo esc_url( $shola_topic_link ); ?>"><?php echo esc_html( shola_get_term_label( $topic, $shola_single_lang ) ); ?></a>
 							<?php endif; ?>
 						<?php endif; ?>
 					</nav>
@@ -194,7 +176,11 @@ while ( have_posts() ) :
 				<?php if ( $terms ) : ?>
 					<ul class="tag-list">
 						<?php foreach ( $terms as $term ) : ?>
-							<li><a class="tag-outline" href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></li>
+							<?php
+							$shola_tag_link = shola_build_term_link_for_lang( $term, $shola_single_lang );
+							$shola_tag_link = $shola_tag_link ? $shola_tag_link : get_term_link( $term );
+							?>
+							<li><a class="tag-outline" href="<?php echo esc_url( $shola_tag_link ); ?>"><?php echo esc_html( shola_get_term_label( $term, $shola_single_lang ) ); ?></a></li>
 						<?php endforeach; ?>
 					</ul>
 				<?php endif; ?>
@@ -293,19 +279,21 @@ while ( have_posts() ) :
 		$related_query = false;
 		if ( $topic ) {
 			$related_query = new WP_Query(
-				array(
-					'post_type'      => 'post',
-					'posts_per_page' => 3,
-					'post__not_in'   => array( get_the_ID() ),
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
-						array(
-							'taxonomy' => 'topic',
-							'field'    => 'term_id',
-							'terms'    => $topic->term_id,
+				\SholaCore\Language::add_language_filter(
+					array(
+						'post_type'      => 'post',
+						'posts_per_page' => 3,
+						'post__not_in'   => array( get_the_ID() ),
+						'orderby'        => 'date',
+						'order'          => 'DESC',
+						'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+							array(
+								'taxonomy' => 'topic',
+								'field'    => 'term_id',
+								'terms'    => $topic->term_id,
+							),
 						),
-					),
+					)
 				)
 			);
 		}

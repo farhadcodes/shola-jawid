@@ -15738,3 +15738,49 @@ TOPICS / LIBRARY / ABOUT US", every link pointing at its real `/en/`
 destination (paired pages resolve to their own slug, e.g.
 `/en/about-en/`); the Persian homepage's masthead and footer are
 pixel/byte-identical to before this fix.
+
+## 2026-11-28 (continued, 7) — English-version Phase 7: the same two bugs, found across every single-item template and homepage panel
+
+Continuing the component-by-component QA pass, systematically grepped
+every remaining theme file for the two recurring bug patterns this
+round kept finding: (1) a term displayed via raw `$term->name`/
+`get_term_link( $term )` instead of the language-aware helpers, and
+(2) a secondary/"related" `WP_Query`/`get_posts()` with no
+`Language::add_language_filter()`, silently mixing both languages'
+content together. Both patterns turned out to be present in nearly
+every single-item template and several homepage panels — none of them
+had been touched by the Phase 1/4 query-filter pass, which only ever
+covered each template's *own* primary query.
+
+**Pattern 1 (raw term display) fixed in:** the homepage's هدر
+(`shola_render_hero_body()`, shown on all 7 hero layouts, plus the two
+publication-card renderers reused by 4 of them) and its «نشریات» current-
+issues panel; `single.php`'s breadcrumb, related-topics tag list, and
+ترجمه/گزیده‌ها crumbs; `single-issue.php`'s breadcrumb and table-of-
+contents section labels; `single-document.php`'s breadcrumb and «مجموعه»
+meta row; `single-party_document.php`'s breadcrumb;
+`template-parts/cards/selected-row.php`; `template-parts/rows/
+document-row.php`'s «اسناد مرتبط» collection label.
+
+**Pattern 2 (unfiltered related-content query) fixed in:** `single.php`
+(its own "Most Viewed" sidebar query *and* its "مطالب دیگر" related-
+articles query — confirmed live showing 3 Persian articles under an
+English post before the fix), `single-document.php`, `single-
+party_publication.php`, `single-party_document.php`, `single-
+announcement.php` — every one of these "related items" queries had
+been missed.
+
+Native WP post tags (`post_tag`, `single.php`'s «برچسب‌ها» row) are a
+deliberately **un**fixed, documented gap: there is no bilingual-label
+mechanism for native tags (`Category_Manager::MANAGED` only covers
+`topic`/`publication`/`collection`/`party_document_category`), and
+building one is a larger, separate decision, not a bug-fix.
+
+Every fix verified live in both languages: the homepage hero badge
+("مقاله / World" instead of raw "جهان"), the current-issues panel
+("A World to Win" instead of "جهان برای فتح"), and — most tellingly —
+the "Most Viewed" panel on an English article now correctly surfaces
+the one English demo announcement instead of Persian ones, while the
+"مطالب دیگر" section correctly disappears entirely once there's no
+second English article in that topic to recommend. Persian pages
+re-checked after every fix: byte-identical.

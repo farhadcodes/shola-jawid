@@ -41,36 +41,43 @@ while ( have_posts() ) :
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	$pdf_size = shola_get_pdf_size( $pdf_id );
 
+	$shola_doc_lang = \SholaCore\Language::current();
+
 	$related_query = false;
 	if ( $collection ) {
 		$related_query = new WP_Query(
-			array(
-				'post_type'      => 'document',
-				'posts_per_page' => 3,
-				'post__not_in'   => array( get_the_ID() ),
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
-					array(
-						'taxonomy' => 'collection',
-						'field'    => 'term_id',
-						'terms'    => $collection->term_id,
+			\SholaCore\Language::add_language_filter(
+				array(
+					'post_type'      => 'document',
+					'posts_per_page' => 3,
+					'post__not_in'   => array( get_the_ID() ),
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, not a scale concern.
+						array(
+							'taxonomy' => 'collection',
+							'field'    => 'term_id',
+							'terms'    => $collection->term_id,
+						),
 					),
-				),
+				)
 			)
 		);
 	}
+
+	$shola_collection_link = $collection ? shola_build_term_link_for_lang( $collection, $shola_doc_lang ) : '';
+	$shola_collection_link = $shola_collection_link ? $shola_collection_link : ( $collection ? get_term_link( $collection ) : '' );
 	?>
 
 	<section class="wrap single-document-page">
 
 		<nav class="article-crumb mt-lg" aria-label="<?php esc_attr_e( 'مسیر', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_doc_lang ) ? home_url( '/en/' ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'صفحهٔ اصلی', 'shola-jawid' ); ?></a>
 			<span aria-hidden="true"> / </span>
-			<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( ( 'en' === $shola_doc_lang ) ? home_url( '/en/library/' ) : home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
 			<?php if ( $collection ) : ?>
 				<span aria-hidden="true"> / </span>
-				<a class="active" href="<?php echo esc_url( get_term_link( $collection ) ); ?>"><?php echo esc_html( $collection->name ); ?></a>
+				<a class="active" href="<?php echo esc_url( $shola_collection_link ); ?>"><?php echo esc_html( shola_get_term_label( $collection, $shola_doc_lang ) ); ?></a>
 			<?php endif; ?>
 		</nav>
 
@@ -109,7 +116,7 @@ else :
 
 					<?php if ( $collection ) : ?>
 						<dt><?php esc_html_e( 'مجموعه', 'shola-jawid' ); ?></dt>
-						<dd><?php echo esc_html( $collection->name ); ?></dd>
+						<dd><?php echo esc_html( shola_get_term_label( $collection, $shola_doc_lang ) ); ?></dd>
 					<?php endif; ?>
 
 					<?php if ( $pdf_size ) : ?>

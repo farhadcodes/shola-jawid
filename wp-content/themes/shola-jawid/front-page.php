@@ -1009,6 +1009,7 @@ foreach ( $publication_terms as $pub_term ) {
 
 			<div class="current-issues">
 				<?php
+				$shola_current_issues_lang = \SholaCore\Language::current();
 				foreach ( $current_issues as $current_issue_entry ) :
 					$pub_term     = $current_issue_entry['term'];
 					$issue        = $current_issue_entry['issue'];
@@ -1031,7 +1032,9 @@ foreach ( $publication_terms as $pub_term ) {
 					 */
 					$period_terms = get_the_terms( $issue->ID, 'publication' );
 					$period_term  = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
-					$volume       = ( $period_term && $period_term->parent ) ? $period_term->name : '';
+					$volume       = ( $period_term && $period_term->parent ) ? shola_get_term_label( $period_term, $shola_current_issues_lang ) : '';
+					$pub_term_link = shola_build_term_link_for_lang( $pub_term, $shola_current_issues_lang );
+					$pub_term_link = $pub_term_link ? $pub_term_link : get_term_link( $pub_term );
 					?>
 					<div class="issue-hero issue-hero--embedded">
 
@@ -1040,7 +1043,7 @@ foreach ( $publication_terms as $pub_term ) {
 						</a>
 
 						<div class="reveal">
-							<h3 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( $pub_term->name ); ?></a></h3>
+							<h3 class="h-page"><a href="<?php echo esc_url( get_permalink( $issue ) ); ?>" class="link-quiet"><?php echo esc_html( shola_get_term_label( $pub_term, $shola_current_issues_lang ) ); ?></a></h3>
 							<p class="dek mt-sm"><?php echo esc_html( shola_trim_excerpt( $issue, 30 ) ); ?></p>
 							<dl class="issue-meta">
 								<?php if ( $issue_number ) : ?>
@@ -1075,7 +1078,7 @@ foreach ( $publication_terms as $pub_term ) {
 								 */
 								?>
 								<a class="btn btn-sm btn-primary" <?php echo $pdf_url ? 'href="' . esc_url( $pdf_url ) . '" download' : 'href="' . esc_url( get_permalink( $issue ) ) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() already applied in both branches; the rest is a static string, not user input. ?>><?php esc_html_e( 'دریافت شماره', 'shola-jawid' ); ?></a>
-								<a class="btn btn-sm btn-ghost" href="<?php echo esc_url( get_term_link( $pub_term ) ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?></a>
+								<a class="btn btn-sm btn-ghost" href="<?php echo esc_url( $pub_term_link ); ?>"><?php esc_html_e( 'آرشیو شماره‌ها', 'shola-jawid' ); ?></a>
 							</div>
 						</div>
 
