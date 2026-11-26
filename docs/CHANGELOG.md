@@ -15439,3 +15439,35 @@ Still open for a later round: pagination's `prev_text`/`next_text` arrow
 *characters* (`→`/`←` in `paginate_links()`, across ~8 templates) need
 the same prev/next swap, but as a PHP-level choice since they're text
 glyphs, not stylable icons — not yet done.
+
+## 2026-11-28 (continued, 2) — English-version Phase 3: pagination arrows + a second icon-mirroring find
+
+Closed the pagination item flagged above. Added two new direction-aware
+helpers, `shola_pagination_prev_text()`/`shola_pagination_next_text()`
+(`inc/template-tags.php`), each a one-line `is_rtl()` ternary, and
+replaced the hardcoded `'prev_text' => '→'`/`'next_text' => '←'` pair
+with them everywhere `paginate_links()` is called: 9 template files, 10
+call sites (archive-announcement.php, archive-editors_pick.php,
+page-party-publications.php, page-reports.php, page-selected.php,
+search.php, taxonomy-collection.php,
+taxonomy-party_document_category.php, taxonomy-publication.php,
+taxonomy-topic.php). Verified live with a temporary debug mu-plugin
+(deleted after use, same technique as the foundational locale-fix
+trace): Persian pages still render `prev=→ next=←` unchanged; `/en/`
+correctly renders `prev=← next=→`.
+
+While reviewing this, caught a second, unrelated instance of the same
+icon-mirroring bug class as the hero filmstrip arrows: the leaflet
+lightbox's prev/next buttons
+(`template-parts/leaflets/lightbox.php`/`main.css`) already position
+correctly under LTR via `inset-inline-start`/`-end`, but their chevron
+SVGs are a static path — the glyph itself doesn't flip just because the
+button moved sides. An old code comment on this file had explicitly
+(and incorrectly) claimed "mirrors correctly under dir="ltr" with no
+changes" — not true once position and glyph direction are separated out.
+Fixed with the same `transform: scaleX(-1)` technique already used for
+the filmstrip, scoped to `html:not([dir="rtl"])`, and corrected the
+comment.
+
+Phase 3 (LTR CSS pass) is now functionally complete for every item
+`component-by-component-ltr-notes.md` and this audit file flagged.

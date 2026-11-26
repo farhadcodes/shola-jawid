@@ -96,8 +96,8 @@ $reports_query = new WP_Query(
 							'total'     => $reports_query->max_num_pages,
 							'current'   => $paged,
 							'type'      => 'array',
-							'prev_text' => '→',
-							'next_text' => '←',
+							'prev_text' => shola_pagination_prev_text(),
+							'next_text' => shola_pagination_next_text(),
 						)
 					);
 					if ( $links ) {

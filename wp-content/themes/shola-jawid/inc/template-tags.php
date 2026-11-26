@@ -40,6 +40,28 @@ function shola_to_persian_digits( $number ) {
 }
 
 /**
+ * Pagination "previous" arrow character, direction-aware.
+ *
+ * RTL: previous (newer) points → (toward the visual right, reading-start).
+ * LTR: previous points ← instead — same meaning, mirrored arrow.
+ *
+ * @return string
+ */
+function shola_pagination_prev_text() {
+	return is_rtl() ? '→' : '←';
+}
+
+/**
+ * Pagination "next" arrow character, direction-aware. Mirror of
+ * shola_pagination_prev_text() — see that function's docblock.
+ *
+ * @return string
+ */
+function shola_pagination_next_text() {
+	return is_rtl() ? '←' : '→';
+}
+
+/**
  * Renders a paginate_links() page numbers strip safely — Persian digits
  * in the visible label, ASCII digits (untouched) inside every href.
  *

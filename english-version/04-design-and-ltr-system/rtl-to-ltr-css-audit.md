@@ -69,9 +69,24 @@ These need deliberate attention during the template-by-template pass
    arrows in pagination, breadcrumb separators) needs mirroring under LTR —
    logical CSS properties handle spacing and position, not which way an
    arrow glyph points. Fix: `transform: scaleX(-1)` on the icon under
-   `[dir="ltr"]`, or a direction-aware icon variant, applied per-icon as
-   they're found.
-2. ~~**Drop caps.**~~ **Corrected 2026-11-28 — not this theme's concern at
+   `html:not([dir="rtl"])`, or a direction-aware icon variant, applied
+   per-icon as they're found. **Done, 2026-11-28, for every instance found
+   so far:** the hero filmstrip arrows, and the leaflet lightbox's
+   prev/next chevrons (`.leaflet-lightbox-prev`/`-next svg`) — the latter
+   already positioned correctly via `inset-inline-start`/`-end`, but its
+   SVG path needed the same mirroring, same root cause as the filmstrip.
+   Pagination's `prev_text`/`next_text` are plain text arrow *characters*,
+   not SVGs, so they got their own fix instead — see item below.
+2. **Pagination arrow characters.** `paginate_links()`'s `prev_text`/
+   `next_text` were hardcoded `'→'`/`'←'` in 9 templates (10 call sites) —
+   a plain-text glyph, not an SVG, so `scaleX(-1)` doesn't apply. **Done,
+   2026-11-28:** two new direction-aware helpers,
+   `shola_pagination_prev_text()`/`shola_pagination_next_text()`
+   (`inc/template-tags.php`, both a one-line `is_rtl()` ternary), used
+   everywhere instead of the literal characters. Verified live with a
+   temporary debug probe: Persian unchanged (`→`/`←`), `/en/` correctly
+   swapped (`←`/`→`).
+3. ~~**Drop caps.**~~ **Corrected 2026-11-28 — not this theme's concern at
    all.** The original audit mis-attributed this to `main.css`; a direct
    grep found zero matches there. The RTL-aware `.has-drop-cap` rule
    actually lives in **WordPress core's own** injected block-library CSS,
@@ -79,12 +94,12 @@ These need deliberate attention during the template-by-template pass
    is correctly request-aware (the foundational fix above), core's own
    existing CSS already handles this correctly for English pages with
    zero theme changes needed.
-3. ~~**Number and digit formatting.**~~ **Resolved by the foundational fix
+4. ~~**Number and digit formatting.**~~ **Resolved by the foundational fix
    above**, not a separate task — Persian Calendar's Persian-digit
    conversion is gated on the same `is_rtl()` check the date-conversion
    fix already corrects, so English pages now get standard Arabic-numeral
    digits automatically, with no additional code needed.
-4. **Quote marks / typographic punctuation**, if any template uses
+5. **Quote marks / typographic punctuation**, if any template uses
    direction-specific quote characters (needs checking per-template, not
    assumed either way).
 

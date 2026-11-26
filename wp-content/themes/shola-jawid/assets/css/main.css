@@ -5551,6 +5551,14 @@ html:not([dir="rtl"]) .hero-filmstrip-arrow svg { transform: scaleX(-1); }
 }
 .leaflet-lightbox-prev { inset-inline-start: 1rem; }
 .leaflet-lightbox-next { inset-inline-end: 1rem; }
+/* Chevron shape is a static SVG path, not direction-aware on its own —
+   inset-inline-start/-end already flips the button's side correctly under
+   dir="ltr", but the arrow glyph itself still needs mirroring so it keeps
+   pointing toward "older"/"newer" instead of pointing the wrong way. */
+html:not([dir="rtl"]) .leaflet-lightbox-prev svg,
+html:not([dir="rtl"]) .leaflet-lightbox-next svg {
+  transform: scaleX(-1);
+}
 
 /* -------------------------------------------------------------------------
    ۳۳ · کتابخانه (Library) homepage "shelf" — dark, cover-only book shelf

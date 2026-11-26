@@ -118,8 +118,8 @@ $archive_query = new WP_Query( $query_args );
 							'total'     => $archive_query->max_num_pages,
 							'current'   => $paged,
 							'type'      => 'array',
-							'prev_text' => '→',
-							'next_text' => '←',
+							'prev_text' => shola_pagination_prev_text(),
+							'next_text' => shola_pagination_next_text(),
 							'add_args'  => $sort ? array( 'sort' => $sort ) : array(),
 						)
 					);

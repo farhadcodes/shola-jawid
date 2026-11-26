@@ -146,10 +146,25 @@ entry if any rule was newly applied.
   `dir="ltr"` explicitly, only omits `dir` for LTR), fixed to
   `html:not([dir="rtl"])`, the selector that actually reaches English
   pages — same fix applied to the new filmstrip-arrow rule.
-- Still open: pagination's `prev_text`/`next_text` arrow *characters*
-  (`→`/`←`, used in `paginate_links()` across ~8 templates) need the
-  same prev/next direction swap, but as a PHP-level choice (they're text
-  glyphs, not stylable icons) — not yet done.
+- ✅ Pagination arrow characters — done 2026-11-28: added
+  `shola_pagination_prev_text()`/`shola_pagination_next_text()`
+  (`inc/template-tags.php`), both direction-aware via `is_rtl()`, and
+  replaced the hardcoded `'prev_text' => '→'`/`'next_text' => '←'` pair
+  in all 9 templates that call `paginate_links()`
+  (archive-announcement.php, archive-editors_pick.php,
+  page-party-publications.php, page-reports.php, page-selected.php,
+  search.php, taxonomy-collection.php,
+  taxonomy-party_document_category.php, taxonomy-publication.php,
+  taxonomy-topic.php — 10 files, one had two call sites). Verified live
+  with a temporary debug probe (not assumed from code alone): Persian
+  pages still render `prev=→ next=←` unchanged; `/en/` renders
+  `prev=← next=→`, correctly swapped. A second, related bug was caught
+  reviewing this: the leaflet lightbox's prev/next buttons
+  (`template-parts/leaflets/lightbox.php`) position correctly via
+  `inset-inline-start`/`-end` already, but their chevron SVGs are a
+  static path, not direction-aware on their own — same class of bug as
+  the filmstrip arrows. Fixed with the same `scaleX(-1)` mirroring
+  technique, scoped to `html:not([dir="rtl"])`, in `main.css`.
 - ✅ Gregorian-vs-Jalali date decision (open decision #6, resolved —
   Gregorian for English) — **resolved by the foundational fix above, not
   a separate task.** Persian Calendar's own date conversion is gated on

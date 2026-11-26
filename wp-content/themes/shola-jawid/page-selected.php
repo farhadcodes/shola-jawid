@@ -78,8 +78,8 @@ $selected_query  = shola_get_selected_query(
 							'total'     => $selected_query->max_num_pages,
 							'current'   => $paged,
 							'type'      => 'array',
-							'prev_text' => '→',
-							'next_text' => '←',
+							'prev_text' => shola_pagination_prev_text(),
+							'next_text' => shola_pagination_next_text(),
 						)
 					);
 					if ( $links ) {
