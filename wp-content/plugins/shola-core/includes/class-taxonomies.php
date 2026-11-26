@@ -772,7 +772,14 @@ class Taxonomies {
 			return is_array( $existing ) ? (int) $existing['term_id'] : (int) $existing;
 		}
 
-		$result = wp_insert_term( $name, $taxonomy, array( 'slug' => $slug, 'parent' => $parent ) ); // phpcs:ignore WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+		$result = wp_insert_term(
+			$name,
+			$taxonomy,
+			array(
+				'slug'   => $slug,
+				'parent' => $parent,
+			)
+		);
 		return is_wp_error( $result ) ? 0 : (int) $result['term_id'];
 	}
 

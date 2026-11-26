@@ -72,9 +72,9 @@ $shola_result_lang = \SholaCore\Language::current();
 $term_name         = $term ? shola_get_term_label( $term, $shola_result_lang ) : '';
 $term_link         = $term ? shola_build_term_link_for_lang( $term, $shola_result_lang ) : '';
 $term_link         = $term_link ? $term_link : ( $term ? get_term_link( $term ) : '' );
-$permalink = get_permalink( $result );
-$title     = shola_highlight_search_term( esc_html( get_the_title( $result ) ), $query );
-$dek       = shola_highlight_search_term( esc_html( shola_trim_excerpt( $result, 24 ) ), $query );
+$permalink         = get_permalink( $result );
+$title             = shola_highlight_search_term( esc_html( get_the_title( $result ) ), $query );
+$dek               = shola_highlight_search_term( esc_html( shola_trim_excerpt( $result, 24 ) ), $query );
 ?>
 <li>
 	<p class="type-label">

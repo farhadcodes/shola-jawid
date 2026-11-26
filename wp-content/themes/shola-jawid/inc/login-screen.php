@@ -65,12 +65,18 @@ add_action( 'login_enqueue_scripts', 'shola_login_dequeue_dashboard_font', 20 );
  * so it's pointed at the real home page/site name rather than left at
  * WordPress core's own default (wordpress.org / "Powered by WordPress").
  */
-add_filter( 'login_headerurl', function () {
-	return home_url( '/' );
-} );
-add_filter( 'login_headertext', function () {
-	return get_bloginfo( 'name' );
-} );
+add_filter(
+	'login_headerurl',
+	function () {
+		return home_url( '/' );
+	}
+);
+add_filter(
+	'login_headertext',
+	function () {
+		return get_bloginfo( 'name' );
+	}
+);
 
 /**
  * Injects the brand panel markup right after `#login`'s own default h1

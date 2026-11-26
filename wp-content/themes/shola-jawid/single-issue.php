@@ -18,8 +18,8 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$pub_terms   = get_the_terms( get_the_ID(), 'publication' );
-	$pub         = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
+	$pub_terms = get_the_terms( get_the_ID(), 'publication' );
+	$pub       = ( $pub_terms && ! is_wp_error( $pub_terms ) ) ? reset( $pub_terms ) : false;
 	// 2026-09-03: since the دوره migration, $pub is a دوره (period) child
 	// term, not the top-level publication — Farhad flagged the breadcrumb
 	// was missing that grandparent level (صفحهٔ اصلی / نشرات / دورهٔ اول
@@ -29,10 +29,10 @@ while ( have_posts() ) :
 	// (not $pub's own — a دوره slug like `shola-jawid-dowre-1` was never
 	// what "is this the actively-publishing publication" was actually
 	// asking about) for $is_current.
-	$pub_parent  = ( $pub && $pub->parent ) ? get_term( $pub->parent, 'publication' ) : false;
-	$root_slug   = ( $pub_parent && ! is_wp_error( $pub_parent ) ) ? $pub_parent->slug : ( $pub ? $pub->slug : '' );
-	$is_current  = 'shola-jawid' === $root_slug;
-	$number      = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
+	$pub_parent       = ( $pub && $pub->parent ) ? get_term( $pub->parent, 'publication' ) : false;
+	$root_slug        = ( $pub_parent && ! is_wp_error( $pub_parent ) ) ? $pub_parent->slug : ( $pub ? $pub->slug : '' );
+	$is_current       = 'shola-jawid' === $root_slug;
+	$number           = get_post_meta( get_the_ID(), 'shcore_issue_number', true );
 	$shola_issue_lang = \SholaCore\Language::current();
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );

@@ -534,15 +534,15 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 
 	// English labels for every seeded nav item's path — the stored title is permanent Persian text otherwise.
 	$english_labels = array(
-		'/'                => 'Home',
-		'/topics/'         => 'All Topics',
-		'/search/'         => 'Search the Archive',
-		'/publications/'   => 'Publications',
-		'/library/'        => 'Library',
+		'/'                 => 'Home',
+		'/topics/'          => 'All Topics',
+		'/search/'          => 'Search the Archive',
+		'/publications/'    => 'Publications',
+		'/library/'         => 'Library',
 		'/party-documents/' => 'Party Documents',
-		'/announcements/'  => 'Announcements',
-		'/about/'          => 'About Us',
-		'/contact/'        => 'Contact the Party',
+		'/announcements/'   => 'Announcements',
+		'/about/'           => 'About Us',
+		'/contact/'         => 'Contact the Party',
 	);
 
 	$always_show = array( '/', '/topics/', '/search/' );
@@ -556,8 +556,8 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 		'/announcements/'      => array( 'post_type' => 'announcement' ),
 		'/editors-picks/'      => array( 'post_type' => 'editors_pick' ),
 		'/selected/'           => array(
-			'post_type' => 'post',
-			'meta_key'  => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern used everywhere else this key appears.
+			'post_type'  => 'post',
+			'meta_key'   => 'shcore_is_selected', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- small, bounded flag, same pattern used everywhere else this key appears.
 			'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		),
 		'/reports/'            => array(

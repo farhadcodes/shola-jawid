@@ -48,11 +48,11 @@ class Category_Manager {
 	 */
 	const MANAGED = array(
 		'topic'                   => 'post',
-		'collection'               => 'document',
-		'party_document_category'  => 'party_document',
-		'report'                    => 'post',
-		'publication'               => 'issue',
-		'editors_pick_category'     => 'editors_pick',
+		'collection'              => 'document',
+		'party_document_category' => 'party_document',
+		'report'                  => 'post',
+		'publication'             => 'issue',
+		'editors_pick_category'   => 'editors_pick',
 	);
 
 	/**
@@ -740,8 +740,8 @@ class Category_Manager {
 		$target_id = isset( $_POST['shcore_target_term_id'] ) ? absint( $_POST['shcore_target_term_id'] ) : 0;
 		$target    = get_term( $target_id, $taxonomy );
 
-		$is_sibling      = $target && ! is_wp_error( $target ) && (int) $target->parent === (int) $term->parent;
-		$is_parent       = $target && ! is_wp_error( $target ) && $target_id === (int) $term->parent;
+		$is_sibling       = $target && ! is_wp_error( $target ) && (int) $target->parent === (int) $term->parent;
+		$is_parent        = $target && ! is_wp_error( $target ) && $target_id === (int) $term->parent;
 		$is_uncategorized = $target_id === self::get_uncategorized_term_id( $taxonomy );
 
 		if ( ! $target || is_wp_error( $target ) || $target_id === $term_id || ! ( $is_sibling || $is_parent || $is_uncategorized ) ) {
@@ -1340,8 +1340,8 @@ class Category_Manager {
 			return $parent;
 		}
 
-		$parent  = (int) $parent;
-		$current = get_term( (int) $term_id, $taxonomy );
+		$parent         = (int) $parent;
+		$current        = get_term( (int) $term_id, $taxonomy );
 		$current_parent = ( $current && ! is_wp_error( $current ) ) ? (int) $current->parent : 0;
 
 		if ( $parent <= 0 ) {

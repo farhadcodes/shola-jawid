@@ -35,7 +35,7 @@ while ( have_posts() ) :
 	// Optional (2026-09-19) — see class-meta-fields.php's shcore_subtitle
 	// docblock: long titles split into title + subtitle so the large
 	// .article-title font-size doesn't have to carry the whole string.
-	$subtitle   = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
+	$subtitle = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
 
 	$pdf_id   = (int) get_post_meta( get_the_ID(), 'shcore_pdf_id', true );
 	$pdf_url  = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';

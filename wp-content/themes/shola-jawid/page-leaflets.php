@@ -75,7 +75,7 @@ $leaflets_query = shola_get_leaflets_query(
 		<?php if ( $leaflets_query->have_posts() ) : ?>
 			<div class="leaflet-stream">
 				<?php
-				$leaflet_i          = 0;
+				$leaflet_i             = 0;
 				$leaflet_lightbox_data = array();
 				while ( $leaflets_query->have_posts() ) :
 					$leaflets_query->the_post();

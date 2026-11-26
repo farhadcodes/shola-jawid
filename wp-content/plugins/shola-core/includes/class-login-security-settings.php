@@ -130,8 +130,8 @@ class Login_Security_Settings {
 			return;
 		}
 
-		$slug         = get_option( self::OPTION_SLUG, '' );
-		$current_url  = $slug ? home_url( '/' . $slug . '/' ) : wp_login_url();
+		$slug        = get_option( self::OPTION_SLUG, '' );
+		$current_url = $slug ? home_url( '/' . $slug . '/' ) : wp_login_url();
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'ورود امن', 'shola-core' ); ?></h1>

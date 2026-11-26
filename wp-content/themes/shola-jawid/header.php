@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 $shola_loader_enabled = get_option( 'shcore_page_loader_enabled', '1' );
 if ( $shola_loader_enabled ) :
-	$shola_loader_logo_id = get_option( 'shcore_page_loader_logo_id' );
+	$shola_loader_logo_id  = get_option( 'shcore_page_loader_logo_id' );
 	$shola_loader_logo_url = $shola_loader_logo_id
 		? wp_get_attachment_image_url( $shola_loader_logo_id, 'full' )
 		: get_theme_file_uri( 'assets/images/page-loader-logo.svg' );

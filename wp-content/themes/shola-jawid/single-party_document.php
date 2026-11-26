@@ -56,9 +56,9 @@ while ( have_posts() ) :
 	// Optional (2026-09-19) — see class-meta-fields.php's shcore_subtitle
 	// docblock: long titles split into title + subtitle so the large
 	// .article-title font-size doesn't have to carry the whole string.
-	$subtitle      = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
-	$categories    = get_the_terms( get_the_ID(), 'party_document_category' );
-	$categories    = ( $categories && ! is_wp_error( $categories ) ) ? $categories : array();
+	$subtitle   = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
+	$categories = get_the_terms( get_the_ID(), 'party_document_category' );
+	$categories = ( $categories && ! is_wp_error( $categories ) ) ? $categories : array();
 
 	$shola_pd_lang = \SholaCore\Language::current();
 

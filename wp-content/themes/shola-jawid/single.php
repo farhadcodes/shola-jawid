@@ -26,19 +26,19 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$terms       = get_the_terms( get_the_ID(), 'topic' );
-	$terms       = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
-	$topic       = shola_get_primary_topic( get_the_ID() );
-	$is_tarjome  = (bool) get_post_meta( get_the_ID(), 'shcore_is_selected', true );
+	$terms      = get_the_terms( get_the_ID(), 'topic' );
+	$terms      = ( $terms && ! is_wp_error( $terms ) ) ? $terms : array();
+	$topic      = shola_get_primary_topic( get_the_ID() );
+	$is_tarjome = (bool) get_post_meta( get_the_ID(), 'shcore_is_selected', true );
 	// Optional (2026-10-01, spec-audit gap B4) — see class-meta-fields.php's
 	// shcore_subtitle docblock: long titles split into title + subtitle,
 	// same .article-subtitle class already used by the PDF single templates.
-	$subtitle    = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
-	$stats       = shola_get_reading_stats();
-	$post_tags   = get_the_tags();
-	$post_tags   = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
-	$thumb_id    = get_post_thumbnail_id();
-	$caption     = $thumb_id ? wp_get_attachment_caption( $thumb_id ) : '';
+	$subtitle          = get_post_meta( get_the_ID(), 'shcore_subtitle', true );
+	$stats             = shola_get_reading_stats();
+	$post_tags         = get_the_tags();
+	$post_tags         = ( $post_tags && ! is_wp_error( $post_tags ) ) ? $post_tags : array();
+	$thumb_id          = get_post_thumbnail_id();
+	$caption           = $thumb_id ? wp_get_attachment_caption( $thumb_id ) : '';
 	$shola_single_lang = \SholaCore\Language::current();
 
 	/*
@@ -72,7 +72,7 @@ while ( have_posts() ) :
 			)
 		)
 	);
-	$has_mostviewed = $most_viewed_query->have_posts();
+	$has_mostviewed    = $most_viewed_query->have_posts();
 	?>
 
 	<div class="progress-track" aria-hidden="true"><div class="progress-bar"></div></div>

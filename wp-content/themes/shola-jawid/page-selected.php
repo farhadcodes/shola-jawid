@@ -27,8 +27,8 @@ get_header();
  * query instead of the main one (confirmed against WP core's rewrite
  * rules for the `page` post type, not assumed).
  */
-$paged           = max( 1, (int) get_query_var( 'page' ) );
-$selected_query  = shola_get_selected_query(
+$paged          = max( 1, (int) get_query_var( 'page' ) );
+$selected_query = shola_get_selected_query(
 	array(
 		'posts_per_page' => 12,
 		'paged'          => $paged,

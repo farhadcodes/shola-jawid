@@ -202,7 +202,10 @@ class SEO {
 			// Structural listing Pages render the same Page at the same path in both languages.
 			if ( 'page' === $post->post_type && in_array( $post->post_name, \SholaCore\Language::STRUCTURAL_PAGE_SLUGS, true ) ) {
 				$path = (string) wp_parse_url( get_permalink( $post ), PHP_URL_PATH );
-				return array( 'fa' => home_url( $path ), 'en' => home_url( '/en' . $path ) );
+				return array(
+					'fa' => home_url( $path ),
+					'en' => home_url( '/en' . $path ),
+				);
 			}
 
 			$own_lang = get_post_meta( $post->ID, 'shcore_language', true );
@@ -228,7 +231,10 @@ class SEO {
 				return array();
 			}
 			$fa = self::get_term_url_for_lang( $term, 'fa' );
-			return $fa ? array( 'fa' => $fa, 'en' => self::get_term_url_for_lang( $term, 'en' ) ) : array();
+			return $fa ? array(
+				'fa' => $fa,
+				'en' => self::get_term_url_for_lang( $term, 'en' ),
+			) : array();
 		}
 
 		if ( is_post_type_archive() ) {
@@ -237,7 +243,10 @@ class SEO {
 				return array();
 			}
 			$path = (string) wp_parse_url( $fa, PHP_URL_PATH );
-			return array( 'fa' => $fa, 'en' => home_url( '/en' . $path ) );
+			return array(
+				'fa' => $fa,
+				'en' => home_url( '/en' . $path ),
+			);
 		}
 
 		if ( is_search() ) {
@@ -245,11 +254,17 @@ class SEO {
 			$path  = (string) wp_parse_url( $fa, PHP_URL_PATH );
 			$query = (string) wp_parse_url( $fa, PHP_URL_QUERY );
 			$en    = home_url( '/en' . $path ) . ( $query ? '?' . $query : '' );
-			return array( 'fa' => $fa, 'en' => $en );
+			return array(
+				'fa' => $fa,
+				'en' => $en,
+			);
 		}
 
 		if ( is_front_page() || is_home() ) {
-			return array( 'fa' => home_url( '/' ), 'en' => home_url( '/en/' ) );
+			return array(
+				'fa' => home_url( '/' ),
+				'en' => home_url( '/en/' ),
+			);
 		}
 
 		return array();

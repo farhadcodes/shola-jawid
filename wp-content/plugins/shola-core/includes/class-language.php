@@ -513,6 +513,14 @@ class Language {
 			return;
 		}
 
-		$query->set( 'meta_query', array( array( 'key' => 'shcore_language', 'value' => $choice ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list screen, same small per-type post counts as every other meta_query in this plugin.
+		$query->set(
+			'meta_query', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list screen, same small per-type post counts as every other meta_query in this plugin.
+			array(
+				array(
+					'key'   => 'shcore_language',
+					'value' => $choice,
+				),
+			)
+		);
 	}
 }

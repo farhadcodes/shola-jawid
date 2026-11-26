@@ -46,7 +46,7 @@ if ( 'document' === $card_type ) {
 	$type_icon           = '<svg class="glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1"/></svg>';
 	$on_own_term_archive = $term && is_tax( $term->taxonomy, $term->term_id );
 } else {
-	$permalink   = get_permalink( $card_post );
+	$permalink = get_permalink( $card_post );
 	/*
 	 * shola_get_content_type_label() — fixed 2026-09-25. This used to
 	 * hardcode "مقاله"/"یادداشت" here regardless of content, so a گزارش
@@ -56,11 +56,11 @@ if ( 'document' === $card_type ) {
 	 * from the client. See that function's own docblock (inc/template-
 	 * tags.php) for the full reasoning.
 	 */
-	$type_label  = shola_get_content_type_label( $card_post );
-	$term        = shola_get_primary_topic( $card_post );
-	$term_link   = $term ? shola_build_term_link_for_lang( $term, $shola_card_lang ) : '';
-	$term_link   = ( $term && ! $term_link ) ? get_term_link( $term ) : $term_link;
-	$term_name   = $term ? shola_get_term_label( $term, $shola_card_lang ) : '';
+	$type_label = shola_get_content_type_label( $card_post );
+	$term       = shola_get_primary_topic( $card_post );
+	$term_link  = $term ? shola_build_term_link_for_lang( $term, $shola_card_lang ) : '';
+	$term_link  = ( $term && ! $term_link ) ? get_term_link( $term ) : $term_link;
+	$term_name  = $term ? shola_get_term_label( $term, $shola_card_lang ) : '';
 
 	/*
 	 * v6 uses two different glyph SVGs for article-type cards, and it's a

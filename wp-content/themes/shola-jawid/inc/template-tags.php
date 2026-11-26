@@ -185,7 +185,7 @@ function shola_get_jalali_year( $post = null ) {
 		'۸' => '8',
 		'۹' => '9',
 	);
-	$jalali_year = wp_date( 'Y', $datetime->getTimestamp() );
+	$jalali_year                    = wp_date( 'Y', $datetime->getTimestamp() );
 	return (int) strtr( $jalali_year, $persian_to_ascii_digits );
 }
 
@@ -516,11 +516,11 @@ function shola_get_featured_image( $post = null, $size = 'post-thumbnail', $attr
  */
 function shola_topic_color_class( $slug ) {
 	$map = array(
-		'economy'                           => 'menu-topic--c1',
-		'world'                             => 'menu-topic--c2',
-		'afghanistan'                       => 'menu-topic--c3',
-		'women'                             => 'menu-topic--c4',
-		'science-and-art'                   => 'menu-topic--c6',
+		'economy'                          => 'menu-topic--c1',
+		'world'                            => 'menu-topic--c2',
+		'afghanistan'                      => 'menu-topic--c3',
+		'women'                            => 'menu-topic--c4',
+		'science-and-art'                  => 'menu-topic--c6',
 		// Phase C topic migration (2026-08-24, docs/CHANGELOG.md): c5
 		// was orphaned when its old owner, international-movement, was
 		// deleted — reassigned here to politics rather than adding a
@@ -532,9 +532,9 @@ function shola_topic_color_class( $slug ) {
 		// primary identifier (topic name text is), so this reuse is
 		// low-risk. afghanistan-left-movement (0 posts) intentionally
 		// left unmapped — falls back to c1 until it has content.
-		'politics'                          => 'menu-topic--c5',
-		'international-communist-movement'  => 'menu-topic--c7',
-		'labor'                             => 'menu-topic--c1',
+		'politics'                         => 'menu-topic--c5',
+		'international-communist-movement' => 'menu-topic--c7',
+		'labor'                            => 'menu-topic--c1',
 	);
 	return isset( $map[ $slug ] ) ? $map[ $slug ] : 'menu-topic--c1';
 }
@@ -1165,19 +1165,19 @@ function shola_get_label( $key ) {
 	}
 
 	$fallback_defaults = array(
-		'home_articles_section_aria'  => __( 'تازه‌ها مقالات', 'shola-jawid' ),
-		'home_latest_heading'         => __( 'تازه‌ها', 'shola-jawid' ),
-		'home_topics_link_more'       => __( 'همهٔ موضوعات', 'shola-jawid' ),
-		'home_topics_section_heading' => __( 'همهٔ موضوعات', 'shola-jawid' ),
-		'latest_documents_heading'    => __( 'تازه‌ترین اسناد', 'shola-jawid' ),
+		'home_articles_section_aria'    => __( 'تازه‌ها مقالات', 'shola-jawid' ),
+		'home_latest_heading'           => __( 'تازه‌ها', 'shola-jawid' ),
+		'home_topics_link_more'         => __( 'همهٔ موضوعات', 'shola-jawid' ),
+		'home_topics_section_heading'   => __( 'همهٔ موضوعات', 'shola-jawid' ),
+		'latest_documents_heading'      => __( 'تازه‌ترین اسناد', 'shola-jawid' ),
 		'home_latest_documents_heading' => __( 'اسناد حزب', 'shola-jawid' ),
-		'home_reports_heading'        => __( 'گزارش', 'shola-jawid' ),
-		'nav_topics_label'            => __( 'موضوعات', 'shola-jawid' ),
-		'nav_more_label'              => __( 'بیشتر', 'shola-jawid' ),
-		'breadcrumb_topics_label'     => __( 'موضوعات', 'shola-jawid' ),
-		'topic_tab_latest'            => __( 'تازه‌ها', 'shola-jawid' ),
-		'topic_tab_most_read'         => __( 'پرخواننده‌ترین', 'shola-jawid' ),
-		'topics_page_title'           => __( 'موضوعات', 'shola-jawid' ),
+		'home_reports_heading'          => __( 'گزارش', 'shola-jawid' ),
+		'nav_topics_label'              => __( 'موضوعات', 'shola-jawid' ),
+		'nav_more_label'                => __( 'بیشتر', 'shola-jawid' ),
+		'breadcrumb_topics_label'       => __( 'موضوعات', 'shola-jawid' ),
+		'topic_tab_latest'              => __( 'تازه‌ها', 'shola-jawid' ),
+		'topic_tab_most_read'           => __( 'پرخواننده‌ترین', 'shola-jawid' ),
+		'topics_page_title'             => __( 'موضوعات', 'shola-jawid' ),
 	);
 
 	return isset( $fallback_defaults[ $key ] ) ? $fallback_defaults[ $key ] : '';
@@ -1570,8 +1570,8 @@ function shola_render_hero_publication_card( $issue, $pub_term, $args = array() 
 	$show_button  = isset( $args['show_button'] ) ? (bool) $args['show_button'] : true;
 	// href fixed 2026-10-02 (spec-audit gap #33) — see front-page.php's
 	// matching "دریافت شماره" button comment for the full reasoning.
-	$pdf_id       = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
-	$pdf_url      = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
+	$pdf_id  = (int) get_post_meta( $issue->ID, 'shcore_pdf_id', true );
+	$pdf_url = $pdf_id ? wp_get_attachment_url( $pdf_id ) : '';
 	/*
 	 * .hero-pub-card-kicker ("شمارهٔ جاری") removed site-wide, 2026-09-15,
 	 * per the client's explicit ask (relayed by Farhad) — this was the

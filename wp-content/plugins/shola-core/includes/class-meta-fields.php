@@ -1338,9 +1338,9 @@ class Meta_Fields {
 	 */
 	public static function render_selected_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$is_selected      = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
-		$original_author  = get_post_meta( $post->ID, 'shcore_translation_original_author', true );
-		$translator       = get_post_meta( $post->ID, 'shcore_translation_translator', true );
+		$is_selected     = (bool) get_post_meta( $post->ID, 'shcore_is_selected', true );
+		$original_author = get_post_meta( $post->ID, 'shcore_translation_original_author', true );
+		$translator      = get_post_meta( $post->ID, 'shcore_translation_translator', true );
 		?>
 		<p>
 			<label for="shcore_translation_original_author"><strong><?php esc_html_e( 'نویسنده اصلی', 'shola-core' ); ?></strong></label><br>
@@ -1380,9 +1380,9 @@ class Meta_Fields {
 	 */
 	public static function render_hero_metabox( $post ) {
 		wp_nonce_field( 'shcore_save_meta', 'shcore_meta_nonce' );
-		$is_active         = (bool) get_post_meta( $post->ID, 'shcore_hero_active', true );
-		$layout            = get_post_meta( $post->ID, 'shcore_hero_layout', true );
-		$rail_publication  = get_post_meta( $post->ID, 'shcore_hero_rail_publication', true );
+		$is_active        = (bool) get_post_meta( $post->ID, 'shcore_hero_active', true );
+		$layout           = get_post_meta( $post->ID, 'shcore_hero_layout', true );
+		$rail_publication = get_post_meta( $post->ID, 'shcore_hero_rail_publication', true );
 		$layout           = $layout ? $layout : 'single';
 		$rail_publication = $rail_publication ? $rail_publication : 'shola-jawid';
 
@@ -1597,10 +1597,10 @@ class Meta_Fields {
 	 * @return void
 	 */
 	private static function render_translation_pairing_field( $post_id, $post_type ) {
-		$language  = get_post_meta( $post_id, 'shcore_language', true );
-		$language  = $language ? $language : 'fa';
-		$other     = ( 'en' === $language ) ? 'fa' : 'en';
-		$current   = (int) get_post_meta( $post_id, 'shcore_translation_id', true );
+		$language   = get_post_meta( $post_id, 'shcore_language', true );
+		$language   = $language ? $language : 'fa';
+		$other      = ( 'en' === $language ) ? 'fa' : 'en';
+		$current    = (int) get_post_meta( $post_id, 'shcore_translation_id', true );
 		$candidates = get_posts(
 			array(
 				'post_type'      => $post_type,

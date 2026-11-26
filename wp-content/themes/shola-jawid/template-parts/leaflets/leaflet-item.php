@@ -61,7 +61,14 @@ $leaflet_full  = wp_get_attachment_image_url( get_post_thumbnail_id( $leaflet_po
 		 * $leaflet_post reaching this partial is guaranteed to have a
 		 * real one.
 		 */
-		echo shola_get_featured_image( $leaflet_post, 'full', array( 'loading' => 'lazy', 'class' => 'leaflet-item-image' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally.
+		echo shola_get_featured_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally.
+			$leaflet_post,
+			'full',
+			array(
+				'loading' => 'lazy',
+				'class'   => 'leaflet-item-image',
+			)
+		);
 		?>
 	</a>
 	<div class="leaflet-item-meta">

@@ -66,27 +66,27 @@ $hero_query = new WP_Query(
 			'posts_per_page'      => 1,
 			'orderby'             => 'date',
 			'order'               => 'DESC',
-		/*
-		 * ignore_sticky_posts => true — added 2026-09-25, per Farhad
-		 * relaying a client report of "confusion between the three
-		 * homepage sections" and articles disappearing after marking one
-		 * گزیده‌ها. Without this, WP_Query force-prepends whatever post
-		 * carries WordPress's own native "Stick to the front page" flag
-		 * ahead of true date order — silently overriding "the hero is
-		 * always whichever of the three is genuinely latest" with a stale
-		 * sticky post instead. That native checkbox is a completely
-		 * separate WordPress feature from this site's own hero_section CPT
-		 * and گزیده‌ها flag, and (per shola_get_selected_query()'s own
-		 * docblock) is only visible to مدیر/سردبیر-level accounts able to
-		 * edit other users' posts — exactly the accounts most likely to be
-		 * the client's own login, and exactly the reported symptom shape:
-		 * one post checked, others pushed out of a capped result set.
-		 */
-		'ignore_sticky_posts' => true,
+			/*
+			 * ignore_sticky_posts => true — added 2026-09-25, per Farhad
+			 * relaying a client report of "confusion between the three
+			 * homepage sections" and articles disappearing after marking one
+			 * گزیده‌ها. Without this, WP_Query force-prepends whatever post
+			 * carries WordPress's own native "Stick to the front page" flag
+			 * ahead of true date order — silently overriding "the hero is
+			 * always whichever of the three is genuinely latest" with a stale
+			 * sticky post instead. That native checkbox is a completely
+			 * separate WordPress feature from this site's own hero_section CPT
+			 * and گزیده‌ها flag, and (per shola_get_selected_query()'s own
+			 * docblock) is only visible to مدیر/سردبیر-level accounts able to
+			 * edit other users' posts — exactly the accounts most likely to be
+			 * the client's own login, and exactly the reported symptom shape:
+			 * one post checked, others pushed out of a capped result set.
+			 */
+			'ignore_sticky_posts' => true,
 		)
 	)
 );
-$hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
+$hero       = $hero_query->have_posts() ? $hero_query->posts[0] : null;
 
 /*
  * Active hero_section lookup (2026-09-10). No active entry (e.g. the
@@ -95,7 +95,7 @@ $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
  * see class-post-types.php's hero_section docblock for why this CPT
  * never controls *which* article leads, only the layout around it.
  */
-$active_hero_query = new WP_Query(
+$active_hero_query  = new WP_Query(
 	array(
 		'post_type'      => 'hero_section',
 		'posts_per_page' => 1,
@@ -114,12 +114,12 @@ $hero_rail_issue    = null;
 $hero_rail_pub_term = null;
 
 if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full', 'minimal_cover', 'feature_card' ), true ) ) {
-	$rail_pub_slug = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
-	$rail_pub_slug = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
+	$rail_pub_slug      = get_post_meta( $active_hero->ID, 'shcore_hero_rail_publication', true );
+	$rail_pub_slug      = $rail_pub_slug ? $rail_pub_slug : 'shola-jawid';
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
 
 	if ( $hero_rail_pub_term && ! is_wp_error( $hero_rail_pub_term ) ) {
-		$hero_rail_args = array(
+		$hero_rail_args  = array(
 			'post_type'      => 'issue',
 			'posts_per_page' => 1,
 			'orderby'        => 'date',
@@ -411,7 +411,16 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
 				</div>
 			</div>
 			<aside class="hero-rail hero-feature-card-rail" aria-label="<?php esc_attr_e( 'شمارهٔ جاری', 'shola-jawid' ); ?>">
-				<?php shola_render_hero_publication_card_minimal( $hero_rail_issue, $hero_rail_pub_term, array( 'show_title' => false, 'filled_icon' => true ) ); ?>
+				<?php
+				shola_render_hero_publication_card_minimal(
+					$hero_rail_issue,
+					$hero_rail_pub_term,
+					array(
+						'show_title'  => false,
+						'filled_icon' => true,
+					)
+				);
+				?>
 			</aside>
 		</div>
 	</section>
@@ -465,7 +474,7 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
  * 6 cells instead of 2, so 5 articles (not 4) fill the rest with no
  * gap.
  */
-$announcement_args = array(
+$announcement_args  = array(
 	'post_type'      => 'announcement',
 	/*
 	 * 3 -> 5, 2026-09-21: client feedback (relayed by Farhad,
@@ -479,7 +488,7 @@ $announcement_args = array(
 	'order'          => 'DESC',
 );
 $announcement_query = new WP_Query( \SholaCore\Language::add_language_filter( $announcement_args ) );
-$has_spotlight = $announcement_query->have_posts();
+$has_spotlight      = $announcement_query->have_posts();
 
 /*
  * گزیده‌ها (Editor's Picks) panel — replaces پربازدیدترین (Most Viewed)
@@ -502,7 +511,7 @@ $editors_picks_args  = array(
 	'no_found_rows'       => true,
 );
 $editors_picks_query = new WP_Query( \SholaCore\Language::add_language_filter( $editors_picks_args ) );
-$has_editorspicks = $editors_picks_query->have_posts();
+$has_editorspicks    = $editors_picks_query->have_posts();
 
 /*
  * 6 -> 4, 2026-09-26: Farhad's explicit ask. No longer tied to the
@@ -512,53 +521,53 @@ $has_editorspicks = $editors_picks_query->have_posts();
 $articles_count = 4;
 
 $articles_args = array(
-		'post_type'           => 'post',
-		'posts_per_page'      => $articles_count,
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-		/*
-		 * ignore_sticky_posts => true — added 2026-09-25 (see $hero_query's
-		 * own comment above for the full reasoning). Matters even more here
-		 * than for the hero: WP_Query's native sticky-post handling
-		 * force-prepends sticky posts *before* this query's own tax_query
-		 * exclusion is applied to them, so a گزارش post marked sticky could
-		 * bypass the "no reports here" rule entirely and appear in تازه‌ترین
-		 * مقاله‌ها — exactly the kind of cross-section mixing Farhad relayed
-		 * as client-reported "confusion between the sections."
-		 */
-		'ignore_sticky_posts' => true,
-		'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
-			array(
-				'taxonomy' => 'report',
-				'field'    => 'slug',
-				'terms'    => 'reports',
-				'operator' => 'NOT IN',
-			),
+	'post_type'           => 'post',
+	'posts_per_page'      => $articles_count,
+	'orderby'             => 'date',
+	'order'               => 'DESC',
+	/*
+	 * ignore_sticky_posts => true — added 2026-09-25 (see $hero_query's
+	 * own comment above for the full reasoning). Matters even more here
+	 * than for the hero: WP_Query's native sticky-post handling
+	 * force-prepends sticky posts *before* this query's own tax_query
+	 * exclusion is applied to them, so a گزارش post marked sticky could
+	 * bypass the "no reports here" rule entirely and appear in تازه‌ترین
+	 * مقاله‌ها — exactly the kind of cross-section mixing Farhad relayed
+	 * as client-reported "confusion between the sections."
+	 */
+	'ignore_sticky_posts' => true,
+	'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+		array(
+			'taxonomy' => 'report',
+			'field'    => 'slug',
+			'terms'    => 'reports',
+			'operator' => 'NOT IN',
 		),
-		/*
-		 * Exclude ترجمه-flagged posts, 2026-09-27: Farhad reported a post
-		 * marked "نمایش در ترجمه" showing in both مقالات and ترجمه at once
-		 * — same "two homepage sections showing the same post" confusion
-		 * گزارش's own exclusion above already solves, just never applied
-		 * to this newer flag. Scoped to this section only, per Farhad's
-		 * explicit confirmation — topic archives, search, and Most Viewed
-		 * are untouched. `NOT EXISTS OR != '1'` (not a plain `!=`) because
-		 * a post that never had this checkbox touched at all has no
-		 * `shcore_is_selected` row yet; a plain `!=` would wrongly exclude
-		 * those too.
-		 */
-		'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- small, bounded flag, same pattern as shola_get_selected_query()'s own meta_key query.
-			'relation' => 'OR',
-			array(
-				'key'     => 'shcore_is_selected',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => 'shcore_is_selected',
-				'value'   => '1',
-				'compare' => '!=',
-			),
+	),
+	/*
+	 * Exclude ترجمه-flagged posts, 2026-09-27: Farhad reported a post
+	 * marked "نمایش در ترجمه" showing in both مقالات and ترجمه at once
+	 * — same "two homepage sections showing the same post" confusion
+	 * گزارش's own exclusion above already solves, just never applied
+	 * to this newer flag. Scoped to this section only, per Farhad's
+	 * explicit confirmation — topic archives, search, and Most Viewed
+	 * are untouched. `NOT EXISTS OR != '1'` (not a plain `!=`) because
+	 * a post that never had this checkbox touched at all has no
+	 * `shcore_is_selected` row yet; a plain `!=` would wrongly exclude
+	 * those too.
+	 */
+	'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- small, bounded flag, same pattern as shola_get_selected_query()'s own meta_key query.
+		'relation' => 'OR',
+		array(
+			'key'     => 'shcore_is_selected',
+			'compare' => 'NOT EXISTS',
 		),
+		array(
+			'key'     => 'shcore_is_selected',
+			'value'   => '1',
+			'compare' => '!=',
+		),
+	),
 );
 $articles_query = new WP_Query( \SholaCore\Language::add_language_filter( $articles_args ) );
 
@@ -675,8 +684,8 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 	$leaflet_teaser_query->the_post();
 	$leaflet_teaser_thumb_id = get_post_thumbnail_id();
 	$leaflet_teaser_full     = wp_get_attachment_image_url( $leaflet_teaser_thumb_id, 'full' );
-	$leaflet_teaser_caption     = get_the_title();
-	$leaflet_teaser_alt         = get_post_meta( $leaflet_teaser_thumb_id, '_wp_attachment_image_alt', true ) ?: $leaflet_teaser_caption;
+	$leaflet_teaser_caption  = get_the_title();
+	$leaflet_teaser_alt      = get_post_meta( $leaflet_teaser_thumb_id, '_wp_attachment_image_alt', true ) ?: $leaflet_teaser_caption;
 	// توضیحات — see page-leaflets.php's matching comment on $leaflet_description.
 	$leaflet_teaser_description = trim( wp_strip_all_tags( get_the_content() ) );
 	?>
@@ -764,7 +773,7 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
  * concern no longer applies, and Farhad asked directly for at least 6
  * cards in the rotation.
  */
-$reports_args = array(
+$reports_args  = array(
 	'post_type'           => 'post',
 	'posts_per_page'      => 6,
 	'orderby'             => 'date',
@@ -779,7 +788,7 @@ $reports_args = array(
 	),
 );
 $reports_query = new WP_Query( \SholaCore\Language::add_language_filter( $reports_args ) );
-$has_reports = $reports_query->have_posts();
+$has_reports   = $reports_query->have_posts();
 ?>
 <?php if ( $has_reports ) : ?>
 	<?php
@@ -1030,9 +1039,9 @@ foreach ( $publication_terms as $pub_term ) {
 					 * it'd just repeat $pub_term->name from the heading
 					 * above.
 					 */
-					$period_terms = get_the_terms( $issue->ID, 'publication' );
-					$period_term  = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
-					$volume       = ( $period_term && $period_term->parent ) ? shola_get_term_label( $period_term, $shola_current_issues_lang ) : '';
+					$period_terms  = get_the_terms( $issue->ID, 'publication' );
+					$period_term   = ( $period_terms && ! is_wp_error( $period_terms ) ) ? reset( $period_terms ) : false;
+					$volume        = ( $period_term && $period_term->parent ) ? shola_get_term_label( $period_term, $shola_current_issues_lang ) : '';
 					$pub_term_link = shola_build_term_link_for_lang( $pub_term, $shola_current_issues_lang );
 					$pub_term_link = $pub_term_link ? $pub_term_link : get_term_link( $pub_term );
 					?>

@@ -111,8 +111,8 @@ $filters = array(
 			);
 			if ( $raw_links ) {
 				foreach ( $raw_links as $raw_link ) {
-					$raw_link            = shola_persian_digits_pagination_link( $raw_link );
-					$pagination_links[]  = str_replace( 'page-numbers', 'page-num', $raw_link );
+					$raw_link           = shola_persian_digits_pagination_link( $raw_link );
+					$pagination_links[] = str_replace( 'page-numbers', 'page-num', $raw_link );
 				}
 			}
 		}

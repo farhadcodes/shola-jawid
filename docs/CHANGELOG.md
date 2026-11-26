@@ -15837,3 +15837,52 @@ pre-existing technical debt independent of this rollout, not something
 this rollout introduced — fixing the pre-existing 33 findings and/or
 running `phpcbf` for the cosmetic 166 is a separate, explicit decision
 for Farhad to make, not assumed as part of this round.
+
+## 2026-11-28 (continued, 9) — English-version Phase 7: phpcbf run for the cosmetic findings — a real `phpcbf` bug caught and worked around
+
+Ran `phpcbf` restricted to exactly the cosmetic sniff categories
+identified in the previous entry (array/statement alignment and
+spacing — `Generic.Formatting.MultipleStatementAlignment`,
+`WordPress.Arrays.MultipleStatementAlignment`,
+`WordPress.Arrays.ArrayDeclarationSpacing`,
+`WordPress.Arrays.ArrayIndentation`, `PEAR.Functions.
+FunctionCallSignature`), deliberately not a blanket `phpcbf` run.
+
+**Bug caught live, not assumed fixed**: the first pass (including
+`PEAR.Functions.FunctionCallSignature`) left several files with
+literal **space indentation mixed into this codebase's tab-indented
+style** — confirmed via `git diff` showing 4/8/12-space-indented lines
+inside otherwise tab-indented functions, a real formatting break, not
+cosmetic noise. Reverted the whole pass (`git checkout -- wp-content/`,
+nothing had been committed yet) and re-ran excluding
+`PEAR.Functions.FunctionCallSignature` specifically — confirmed clean
+on re-diff (no space-only indented lines anywhere in the result).
+
+That second pass still left a few partially-reformatted spots where an
+array sniff had split a function's array argument onto multiple lines
+without the matching function-call reformatting `PEAR.Functions.
+FunctionCallSignature` would have done (since it was excluded) —
+`front-page.php`'s `shola_render_hero_publication_card_minimal()` call
+and `inc/login-screen.php`'s two `add_filter()` closures were left
+visibly broken (wrong indentation, a `phpcs:ignore` comment silently
+orphaned onto a line it no longer protected in one case). Fixed all of
+these by hand instead of trusting another automated pass, along with a
+handful of missing-trailing-comma findings `phpcbf` didn't touch
+(`class-seo.php`, `leaflet-item.php`) and one already-stale `phpcs:
+ignore` comment in `class-taxonomies.php` (the alignment issue it once
+suppressed no longer exists — removed, not left as dead weight).
+
+**Verified live, not assumed**, specifically because this round's
+risk was real breakage, not just a style change: the Persian
+homepage's `feature_card` hero layout (the exact code path
+`front-page.php`'s manual fix touches — the English homepage doesn't
+currently reach it, due to its own real "no English issue yet, fall
+back to single layout" behavior, confirmed as existing, correct logic,
+not a bug) — rail renders correctly; `wp-login.php`'s header link
+still resolves correctly; `/leaflets/` still renders all 3 real
+leaflet images.
+
+**Final state**: re-ran the full `phpcs` scan — zero cosmetic/
+auto-fixable findings remain (0 auto-fixable markers in the report),
+down from the original 166. The 32 remaining findings are exactly the
+pre-existing, out-of-scope substantive ones already documented above.

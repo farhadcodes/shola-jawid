@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class View_Counter {
 
-	const META_KEY        = 'shcore_view_count';
+	const META_KEY = 'shcore_view_count';
 	/*
 	 * `announcement` added 2026-09-15 for front-page.php's پربازدیدترین
 	 * (Most Viewed) panel — client-requested ranking across articles,
@@ -39,9 +39,9 @@ class View_Counter {
 	 * need their own one-time seed — see maybe_backfill_announcements()
 	 * below.
 	 */
-	const POST_TYPES      = array( 'post', 'document', 'issue', 'announcement' );
-	const COOKIE_PREFIX   = 'shcore_viewed_';
-	const DEDUPE_WINDOW   = DAY_IN_SECONDS;
+	const POST_TYPES                   = array( 'post', 'document', 'issue', 'announcement' );
+	const COOKIE_PREFIX                = 'shcore_viewed_';
+	const DEDUPE_WINDOW                = DAY_IN_SECONDS;
 	const BACKFILL_OPTION              = 'shcore_view_counter_backfilled';
 	const BACKFILL_OPTION_ANNOUNCEMENT = 'shcore_view_counter_backfilled_announcement';
 
