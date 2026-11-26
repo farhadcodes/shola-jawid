@@ -42,19 +42,21 @@ $paged = max( 1, get_query_var( 'paged' ) );
 $subsections = shola_get_party_document_subsections();
 
 $archive_query = new WP_Query(
-	array(
-		'post_type'      => 'party_document',
-		'posts_per_page' => 20,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-			array(
-				'taxonomy' => 'party_document_category',
-				'field'    => 'term_id',
-				'terms'    => $term->term_id,
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'      => 'party_document',
+			'posts_per_page' => 20,
+			'paged'          => $paged,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'party_document_category',
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
 			),
-		),
+		)
 	)
 );
 ?>

@@ -1367,6 +1367,8 @@ function shola_get_selected_query( $extra_args = array() ) {
 		'ignore_sticky_posts' => true,
 	);
 
+	$args = \SholaCore\Language::add_language_filter( $args );
+
 	return new WP_Query( array_merge( $args, $extra_args ) );
 }
 
@@ -1398,6 +1400,8 @@ function shola_get_leaflets_query( $extra_args = array() ) {
 			),
 		),
 	);
+
+	$args = \SholaCore\Language::add_language_filter( $args );
 
 	return new WP_Query( array_merge( $args, $extra_args ) );
 }

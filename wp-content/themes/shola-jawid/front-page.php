@@ -60,11 +60,12 @@ get_header();
  * rail alongside it depend on the active hero_section entry.
  */
 $hero_query = new WP_Query(
-	array(
-		'post_type'           => 'post',
-		'posts_per_page'      => 1,
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'           => 'post',
+			'posts_per_page'      => 1,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
 		/*
 		 * ignore_sticky_posts => true — added 2026-09-25, per Farhad
 		 * relaying a client report of "confusion between the three
@@ -82,6 +83,7 @@ $hero_query = new WP_Query(
 		 * one post checked, others pushed out of a capped result set.
 		 */
 		'ignore_sticky_posts' => true,
+		)
 	)
 );
 $hero = $hero_query->have_posts() ? $hero_query->posts[0] : null;
@@ -117,21 +119,20 @@ if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full'
 	$hero_rail_pub_term = get_term_by( 'slug', $rail_pub_slug, 'publication' );
 
 	if ( $hero_rail_pub_term && ! is_wp_error( $hero_rail_pub_term ) ) {
-		$hero_rail_query = new WP_Query(
-			array(
-				'post_type'      => 'issue',
-				'posts_per_page' => 1,
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, one row.
-					array(
-						'taxonomy' => 'publication',
-						'field'    => 'term_id',
-						'terms'    => $hero_rail_pub_term->term_id,
-					),
+		$hero_rail_args = array(
+			'post_type'      => 'issue',
+			'posts_per_page' => 1,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, fixed-vocabulary taxonomy, one row.
+				array(
+					'taxonomy' => 'publication',
+					'field'    => 'term_id',
+					'terms'    => $hero_rail_pub_term->term_id,
 				),
-			)
+			),
 		);
+		$hero_rail_query = new WP_Query( \SholaCore\Language::add_language_filter( $hero_rail_args ) );
 		$hero_rail_issue = $hero_rail_query->have_posts() ? $hero_rail_query->posts[0] : null;
 	}
 
@@ -156,16 +157,15 @@ if ( $hero && in_array( $hero_layout, array( 'lead_rail', 'overlay', 'rail_full'
  */
 $hero_filmstrip_posts = array();
 if ( $hero && 'filmstrip' === $hero_layout ) {
-	$hero_filmstrip_query = new WP_Query(
-		array(
-			'post_type'           => 'post',
-			'posts_per_page'      => 10,
-			'orderby'             => 'date',
-			'order'               => 'DESC',
-			'post__not_in'        => array( $hero->ID ),
-			'ignore_sticky_posts' => true, // See $hero_query's own comment above for why.
-		)
+	$hero_filmstrip_args  = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => 10,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'post__not_in'        => array( $hero->ID ),
+		'ignore_sticky_posts' => true, // See $hero_query's own comment above for why.
 	);
+	$hero_filmstrip_query = new WP_Query( \SholaCore\Language::add_language_filter( $hero_filmstrip_args ) );
 	$hero_filmstrip_posts = $hero_filmstrip_query->posts;
 
 	// No other articles to show yet — fall back to the plain single
@@ -465,21 +465,20 @@ if ( $hero && 'filmstrip' === $hero_layout ) {
  * 6 cells instead of 2, so 5 articles (not 4) fill the rest with no
  * gap.
  */
-$announcement_query = new WP_Query(
-	array(
-		'post_type'      => 'announcement',
-		/*
-		 * 3 -> 5, 2026-09-21: client feedback (relayed by Farhad,
-		 * annotated screenshot) that the tile looked "a little empty" —
-		 * visible leftover space below the 3rd item. announcement-
-		 * spotlight.php's own $rest slice raised 2 -> 4 to match (1
-		 * featured + 4 compact = 5 total).
-		 */
-		'posts_per_page' => 5,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
+$announcement_args = array(
+	'post_type'      => 'announcement',
+	/*
+	 * 3 -> 5, 2026-09-21: client feedback (relayed by Farhad,
+	 * annotated screenshot) that the tile looked "a little empty" —
+	 * visible leftover space below the 3rd item. announcement-
+	 * spotlight.php's own $rest slice raised 2 -> 4 to match (1
+	 * featured + 4 compact = 5 total).
+	 */
+	'posts_per_page' => 5,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
 );
+$announcement_query = new WP_Query( \SholaCore\Language::add_language_filter( $announcement_args ) );
 $has_spotlight = $announcement_query->have_posts();
 
 /*
@@ -494,16 +493,15 @@ $has_spotlight = $announcement_query->have_posts();
  * SholaCore\Post_Types' `editors_pick` CPT registration docblock for
  * the full feature history.
  */
-$editors_picks_query = new WP_Query(
-	array(
-		'post_type'           => 'editors_pick',
-		'posts_per_page'      => 5,
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-		'ignore_sticky_posts' => true,
-		'no_found_rows'       => true,
-	)
+$editors_picks_args  = array(
+	'post_type'           => 'editors_pick',
+	'posts_per_page'      => 5,
+	'orderby'             => 'date',
+	'order'               => 'DESC',
+	'ignore_sticky_posts' => true,
+	'no_found_rows'       => true,
 );
+$editors_picks_query = new WP_Query( \SholaCore\Language::add_language_filter( $editors_picks_args ) );
 $has_editorspicks = $editors_picks_query->have_posts();
 
 /*
@@ -513,8 +511,7 @@ $has_editorspicks = $editors_picks_query->have_posts();
  */
 $articles_count = 4;
 
-$articles_query = new WP_Query(
-	array(
+$articles_args = array(
 		'post_type'           => 'post',
 		'posts_per_page'      => $articles_count,
 		'orderby'             => 'date',
@@ -562,8 +559,8 @@ $articles_query = new WP_Query(
 				'compare' => '!=',
 			),
 		),
-	)
 );
+$articles_query = new WP_Query( \SholaCore\Language::add_language_filter( $articles_args ) );
 
 $grid_cards_classes = 'grid-cards';
 if ( $has_spotlight ) {
@@ -767,22 +764,21 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
  * concern no longer applies, and Farhad asked directly for at least 6
  * cards in the rotation.
  */
-$reports_query = new WP_Query(
-	array(
-		'post_type'           => 'post',
-		'posts_per_page'      => 6,
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-		'ignore_sticky_posts' => true, // See $articles_query's own comment above for why.
-		'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
-			array(
-				'taxonomy' => 'report',
-				'field'    => 'slug',
-				'terms'    => 'reports',
-			),
+$reports_args = array(
+	'post_type'           => 'post',
+	'posts_per_page'      => 6,
+	'orderby'             => 'date',
+	'order'               => 'DESC',
+	'ignore_sticky_posts' => true, // See $articles_query's own comment above for why.
+	'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+		array(
+			'taxonomy' => 'report',
+			'field'    => 'slug',
+			'terms'    => 'reports',
 		),
-	)
+	),
 );
+$reports_query = new WP_Query( \SholaCore\Language::add_language_filter( $reports_args ) );
 $has_reports = $reports_query->have_posts();
 ?>
 <?php if ( $has_reports ) : ?>
@@ -946,21 +942,20 @@ usort(
 
 $current_issues = array();
 foreach ( $publication_terms as $pub_term ) {
-	$pub_issue_query = new WP_Query(
-		array(
-			'post_type'      => 'issue',
-			'posts_per_page' => 1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'tax_query'      => array(
-				array(
-					'taxonomy' => 'publication',
-					'field'    => 'term_id',
-					'terms'    => $pub_term->term_id,
-				),
+	$pub_issue_args  = array(
+		'post_type'      => 'issue',
+		'posts_per_page' => 1,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'tax_query'      => array(
+			array(
+				'taxonomy' => 'publication',
+				'field'    => 'term_id',
+				'terms'    => $pub_term->term_id,
 			),
-		)
+		),
 	);
+	$pub_issue_query = new WP_Query( \SholaCore\Language::add_language_filter( $pub_issue_args ) );
 	if ( $pub_issue_query->have_posts() ) {
 		$current_issues[] = array(
 			'term'  => $pub_term,
@@ -1199,14 +1194,13 @@ $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
  * /party-publications/ is unaffected — this only limits the homepage
  * teaser.
  */
-$party_publications_query = new WP_Query(
-	array(
-		'post_type'      => 'party_publication',
-		'posts_per_page' => 6,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
+$party_publications_args  = array(
+	'post_type'      => 'party_publication',
+	'posts_per_page' => 6,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
 );
+$party_publications_query = new WP_Query( \SholaCore\Language::add_language_filter( $party_publications_args ) );
 ?>
 <?php if ( $party_publications_query->have_posts() ) : ?>
 	<section class="sect-tint sect" aria-label="<?php esc_attr_e( 'انتشارات حزب', 'shola-jawid' ); ?>">
@@ -1267,14 +1261,13 @@ $party_publications_query = new WP_Query(
  * section isn't a wrapping grid anymore), so a higher count is safe —
  * انتشارات حزب/اسناد حزب keep their own 6-card grid cap unchanged.
  */
-$library_documents_query = new WP_Query(
-	array(
-		'post_type'      => 'document',
-		'posts_per_page' => 10,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
+$library_documents_args  = array(
+	'post_type'      => 'document',
+	'posts_per_page' => 10,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
 );
+$library_documents_query = new WP_Query( \SholaCore\Language::add_language_filter( $library_documents_args ) );
 ?>
 <?php if ( $library_documents_query->have_posts() ) : ?>
 	<?php
@@ -1344,14 +1337,13 @@ $library_documents_query = new WP_Query(
  * full reasoning (fixed 6-column desktop grid, hard query cap so this
  * row can never overflow past 6 cards).
  */
-$party_documents_query = new WP_Query(
-	array(
-		'post_type'      => 'party_document',
-		'posts_per_page' => 6,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
+$party_documents_args  = array(
+	'post_type'      => 'party_document',
+	'posts_per_page' => 6,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
 );
+$party_documents_query = new WP_Query( \SholaCore\Language::add_language_filter( $party_documents_args ) );
 ?>
 <?php if ( $party_documents_query->have_posts() ) : ?>
 	<section class="sect-tint sect" aria-label="<?php echo esc_attr( shola_get_label( 'home_latest_documents_heading' ) ); ?>">

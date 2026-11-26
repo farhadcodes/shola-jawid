@@ -127,18 +127,20 @@ $latest_issue = null;
 $exclude_ids  = array();
 if ( $is_current ) {
 	$latest = get_posts(
-		array(
-			'post_type'      => 'issue',
-			'posts_per_page' => 1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'publication',
-					'field'    => 'term_id',
-					'terms'    => $term->term_id,
+		\SholaCore\Language::add_language_filter(
+			array(
+				'post_type'      => 'issue',
+				'posts_per_page' => 1,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy' => 'publication',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
 				),
-			),
+			)
 		)
 	);
 	if ( $latest ) {
@@ -149,20 +151,22 @@ if ( $is_current ) {
 
 $paged         = max( 1, get_query_var( 'paged' ) );
 $archive_query = new WP_Query(
-	array(
-		'post_type'      => 'issue',
-		'posts_per_page' => 9,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'post__not_in'   => $exclude_ids,
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-			array(
-				'taxonomy' => 'publication',
-				'field'    => 'term_id',
-				'terms'    => $term->term_id,
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'      => 'issue',
+			'posts_per_page' => 9,
+			'paged'          => $paged,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'post__not_in'   => $exclude_ids,
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'publication',
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
 			),
-		),
+		)
 	)
 );
 ?>

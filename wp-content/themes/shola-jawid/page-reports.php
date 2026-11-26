@@ -33,19 +33,21 @@ get_header();
 $paged = max( 1, get_query_var( 'paged' ) );
 
 $reports_query = new WP_Query(
-	array(
-		'post_type'      => 'post',
-		'posts_per_page' => 6,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
-			array(
-				'taxonomy' => 'report',
-				'field'    => 'slug',
-				'terms'    => 'reports',
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'      => 'post',
+			'posts_per_page' => 6,
+			'paged'          => $paged,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- small, single-term taxonomy, not a scale concern.
+				array(
+					'taxonomy' => 'report',
+					'field'    => 'slug',
+					'terms'    => 'reports',
+				),
 			),
-		),
+		)
 	)
 );
 ?>

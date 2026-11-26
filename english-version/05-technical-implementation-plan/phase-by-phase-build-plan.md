@@ -26,7 +26,18 @@ entry if any rule was newly applied.
   across `Category_Manager::MANAGED` the same way ترتیب already was.
 - Build the `/en/` rewrite rule, the `shola_lang` query var, and the central
   language-context function (`url-structure-and-routing.md`).
-- Add the `pre_get_posts` language filter to every archive/search query.
+- ✅ Add the language filter to every archive/search/homepage-panel query
+  — done 2026-11-27. `pre_get_posts` covers the 3 templates using
+  WordPress's own main query (search, announcement/editors_pick
+  archives); every other listing template (14 files: every
+  `taxonomy-*.php`, `page-reports.php`, `page-party-publications.php`,
+  all 12 of `front-page.php`'s panel queries, plus the two shared query
+  functions `shola_get_selected_query()`/`shola_get_leaflets_query()`)
+  now calls `Language::add_language_filter()` directly on its own query
+  args. Verified live: Persian homepage unchanged byte-for-byte in
+  substance; English homepage correctly shows every content panel empty
+  (no English content exists yet) with zero Persian content leaking
+  through anywhere.
 - Build `shola_lang_has_content()` — the one shared "does this section have
   real English content yet" helper, per
   `03-content-architecture/complete-mirror-and-empty-state-rule.md`. Every

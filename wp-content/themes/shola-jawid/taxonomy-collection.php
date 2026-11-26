@@ -46,19 +46,21 @@ $paged = max( 1, get_query_var( 'paged' ) );
 $collections = shola_get_library_collections();
 
 $archive_query = new WP_Query(
-	array(
-		'post_type'      => 'document',
-		'posts_per_page' => 20,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-			array(
-				'taxonomy' => 'collection',
-				'field'    => 'term_id',
-				'terms'    => $term->term_id,
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'      => 'document',
+			'posts_per_page' => 20,
+			'paged'          => $paged,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'collection',
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
 			),
-		),
+		)
 	)
 );
 ?>

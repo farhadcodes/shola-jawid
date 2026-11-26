@@ -26,12 +26,14 @@ get_header();
 $paged = max( 1, get_query_var( 'paged' ) );
 
 $party_publications_query = new WP_Query(
-	array(
-		'post_type'      => 'party_publication',
-		'posts_per_page' => 20,
-		'paged'          => $paged,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
+	\SholaCore\Language::add_language_filter(
+		array(
+			'post_type'      => 'party_publication',
+			'posts_per_page' => 20,
+			'paged'          => $paged,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		)
 	)
 );
 ?>

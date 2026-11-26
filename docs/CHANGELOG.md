@@ -15187,3 +15187,49 @@ admin's working language is English, and to Persian otherwise (confirmed
 from the raw rendered HTML, not just a loose string match). Test
 preference changes made to the real `SJ_manager` account during
 verification were reset back to the default afterward.
+
+## 2026-11-27 (continued) — English-version Phase 1, step 3 finished: every listing query now language-filtered
+
+Completed the remaining work flagged at the end of the previous entry —
+every one of this site's listing/archive templates now calls
+`SholaCore\Language::add_language_filter()` on its own query, not just
+`taxonomy-topic.php`:
+
+- `taxonomy-publication.php` (2 queries: current issue + archive grid),
+  `taxonomy-collection.php`, `taxonomy-party_document_category.php`,
+  `page-reports.php`, `page-party-publications.php`.
+- `front-page.php` — 12 separate queries: the hero article, the hero
+  rail's latest issue, the filmstrip's other recent articles, the
+  announcement spotlight, Editor's Picks, تازه‌ترین مقالات, گزارش, each
+  publication's current-issue lookup, انتشارات حزب, کتابخانه, and اسناد
+  حزب. The one query deliberately left untouched —
+  `$active_hero_query` (which `hero_section` entry is active) — has no
+  language concept at all; it's an admin-only layout-config singleton,
+  not content.
+- Two shared query functions in `inc/template-tags.php` —
+  `shola_get_selected_query()` (ترجمه) and `shola_get_leaflets_query()`
+  (تراکت) — fixed once each, covering every template that calls them
+  (`page-selected.php`, `page-leaflets.php`, and front-page.php's own
+  teasers for both).
+- `page-library.php`, `page-publications.php`, `page-party-documents.php`,
+  `page-topics.php` confirmed to need no change — each only lists
+  taxonomy *terms* (which are shared across both languages by design,
+  per `taxonomy-translation.md`), not language-specific post content.
+
+Verified live, not just read from the code: Persian homepage renders
+with no change in substance (every section, every real item, in the
+same order as before this change); English homepage
+(`/en/?`) now correctly shows every content panel empty — hero,
+announcements, Editor's Picks, articles, reports, both publications'
+current-issue cards, انتشارات حزب, کتابخانه, اسناد حزب — with zero
+Persian content leaking through on any of them. The one thing that
+still shows on the English homepage right now (the موضوعات/Topics
+widget's term list with Persian article counts) is expected and
+already-noted: that widget lists taxonomy terms, which aren't
+per-language content, not a bug.
+
+This completes Phase 1 infrastructure in full (language field + pairing,
+taxonomy translation, `/en/` routing, every query now language-aware).
+Remaining Phase 1 item per the plan: the `shola_lang_has_content()`
+hide-if-empty helper, so the nav/homepage sections that are now
+correctly *filtered* also correctly *hide* instead of showing empty.
