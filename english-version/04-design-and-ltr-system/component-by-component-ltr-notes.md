@@ -38,8 +38,13 @@ practice (seen throughout `docs/CHANGELOG.md`).
 - [x] Library shelf section — checked live, correct.
 - [x] Most Viewed panel — N/A on the homepage itself (that panel lives on
       `single.php`, see below); homepage has no separate instance.
-- [ ] Editor's Picks panel
-- [ ] Translation ("ترجمه") row section
+- [x] Editor's Picks panel — checked live, correct (demo editors_pick
+      item shows; this CPT carries no taxonomy, so no term-display bug
+      was possible here).
+- [x] Translation ("ترجمه") row section — checked live: correctly
+      hidden (hide-if-empty), since no English post is `shcore_is_selected`-
+      flagged yet; `/en/selected/` itself also confirmed correctly empty,
+      not a bug.
 - [x] Announcement spotlight tiles — checked live, correct (demo
       announcement shows correctly, card.php's own fix applies).
 - [x] «نشریات» current-issue panel (not in the original checklist, found
@@ -50,8 +55,10 @@ practice (seen throughout `docs/CHANGELOG.md`).
 ## Cards and shared partials
 
 - [x] `template-parts/cards/card.php` — term badge was hardcoded Persian, fixed (Phase 4).
-- [ ] `template-parts/cards/issue-card.php`
-- [ ] `template-parts/cards/hero-strip-card.php`
+- [x] `template-parts/cards/issue-card.php` — grep-audited for the two
+      recurring bugs (raw term display, unfiltered query); neither
+      applies here (no term display, no query of its own).
+- [x] `template-parts/cards/hero-strip-card.php` — same audit, same result.
 - [x] `template-parts/rows/document-row.php` — collection-name label was
       hardcoded Persian, fixed.
 - [x] `template-parts/breadcrumb.php` — home-link `/en/` prefix was missing, fixed (Phase 4).
@@ -84,12 +91,12 @@ practice (seen throughout `docs/CHANGELOG.md`).
       `taxonomy-collection.php` / `taxonomy-party_document_category.php`
       — all checked live in both languages (Phase 4); term name/link/
       count all fixed to be language-aware.
-- [x] `page-library.php` / `page-publications.php` / `page-topics.php` —
-      checked live, fixed (Phase 4). `page-party-publications.php` /
-      `page-party-documents.php` / `page-reports.php` / `page-selected.php`
-      — only HTTP-200 checked, not a full visual pass; `page-party-
-      documents.php` was fixed (Phase 4), the other three not yet
-      individually confirmed.
+- [x] `page-library.php` / `page-publications.php` / `page-topics.php` /
+      `page-party-publications.php` / `page-party-documents.php` —
+      checked live, fixed. `page-reports.php` / `page-selected.php` —
+      checked live, no fix needed (neither CPT/query involved carries a
+      taxonomy term-display bug; both correctly show their real
+      hide-if-empty "nothing published yet" state in English).
 - [x] `archive-announcement.php` / `archive-editors_pick.php` — content
       checked live in English, correctly filtered and displayed.
 - [x] Pagination controls — arrow characters made direction-aware
@@ -97,10 +104,14 @@ practice (seen throughout `docs/CHANGELOG.md`).
 
 ## Forms and interactive elements
 
-- [ ] `page-contact.php` — CF7 form field alignment, the one existing
-      `dir="ltr"` email-address span (already correct, just confirm it
-      still reads right next to English body copy)
-- [ ] Search form/icon
+- [x] `page-contact.php` — checked live in English: template itself has
+      no raw-term/unfiltered-query bugs, renders correctly, email span
+      still correct. The CF7 form's own field labels (نام, نشانی ایمیل,
+      ...) are configured inside the CF7 form itself, not the template —
+      making that bilingual is a separate, later decision (a second
+      form, or dynamic-tag text), not a bug this pass can fix.
+- [x] Search form/icon — language-aware href fixed as part of the
+      masthead quick-nav work; icon direction unaffected (symmetric glyph).
 - [x] Leaflet lightbox viewer — chevron icons needed `scaleX(-1)`
       mirroring beyond the logical-property position flip, fixed
       (Phase 3); demo leaflet confirmed to display correctly in English.
