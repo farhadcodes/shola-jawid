@@ -30,6 +30,9 @@ $query_args = array(
 		),
 	),
 );
+// Only this page's language's articles — see english-version/03-content-
+// architecture/url-structure-and-routing.md.
+$query_args = \SholaCore\Language::add_language_filter( $query_args );
 
 if ( 'views' === $sort && class_exists( '\SholaCore\View_Counter' ) ) {
 	// meta_value_num ordering only matches posts that already carry the

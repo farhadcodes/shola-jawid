@@ -63,6 +63,7 @@ spl_autoload_register( 'shcore_autoload' );
 \SholaCore\Image_Optimizer::init();
 \SholaCore\Login_Security_Settings::init();
 \SholaCore\Db_Housekeeping::init();
+\SholaCore\Language::init();
 
 /**
  * On activation: register post types, taxonomies, and the

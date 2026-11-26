@@ -15082,3 +15082,69 @@ languages; a second term with no English value set correctly fell back
 to its Persian name/slug; the admin field-renderer functions produce
 real output with no fatal. All test meta values removed from real data
 afterward — nothing left behind.
+
+## 2026-11-27 — English-version Phase 1, step 3: /en/ routing + query filtering
+
+Third Phase 1 piece. New `wp-content/plugins/shola-core/includes/class-language.php`
+(`\SholaCore\Language`):
+
+- `/en/` URL prefix: mirrors every existing rewrite rule under an `en/`
+  prefix via the `rewrite_rules_array` filter (skipping REST/sitemap/
+  feed/embed rules, which have no meaningful "English version"), plus an
+  explicit rule for the homepage itself (`^en/?$`, which has no regular
+  rule to mirror). Persian URLs are completely unchanged.
+- `shola_lang` query var tracks which language space a request is in;
+  `Language::current()` is the one place everything else (templates,
+  later the language switcher) asks, instead of each re-deriving it from
+  the URL.
+- `Language::add_language_filter( $query_args )` — the shared helper any
+  template's own `new WP_Query()`/`get_posts()` call merges in, adding a
+  `shcore_language` condition without clobbering any `meta_query` already
+  there. `Language::filter_main_query_by_language()` does the same thing
+  automatically via `pre_get_posts`, but only for the few templates that
+  actually use WordPress's own main query directly (search.php,
+  archive-announcement.php, archive-editors_pick.php) — confirmed by
+  reading each template, not assumed, that most of this site's listing
+  pages (`taxonomy-*.php`, `page-*.php`, `front-page.php`'s panels) build
+  their own separate query instead, so `pre_get_posts` alone never
+  reaches them.
+
+**Two real bugs caught by testing against the live site, not assumed
+correct from the code:**
+
+1. The first version of `add_english_prefixed_rules()` prefixed `en/`
+   directly in front of each existing regex — which all start with `^`,
+   so the anchor ended up buried mid-string instead of at the start,
+   silently breaking every single mirrored rule (confirmed: 0 working
+   English rules after a real flush, despite the filter visibly running).
+   Fixed by stripping the leading `^` and re-adding it in front of `en/`.
+2. Bigger one: the moment `filter_main_query_by_language()` went live,
+   the *Persian* اطلاعیه‌ها archive dropped from 8 real announcements to
+   zero — not just the English one. Root cause: `register_post_meta()`'s
+   `default` only affects what `get_post_meta()` *returns* for a post
+   with no row; it never actually writes one. Every pre-existing post
+   across every content type had **no real `shcore_language` row at
+   all** (confirmed directly via `metadata_exists()`), so an exact-match
+   `meta_query` excluded them from both languages at once. Fixed with
+   `Language::backfill_legacy_language_meta()` — a one-time migration
+   (same `admin_init` + persisted-flag pattern as every other migration
+   already in this plugin) that sets `shcore_language = fa` on every
+   existing post with no row yet.
+
+`taxonomy-topic.php` updated to call `add_language_filter()` on its own
+query, as the first concrete template-level fix — verified live:
+Persian `/topics/economy/` still shows all 8 real articles (no
+regression), English `/en/topics/economy/` correctly shows zero (no
+English articles exist yet). The remaining listing templates
+(`taxonomy-publication.php`, `taxonomy-collection.php`,
+`taxonomy-party_document_category.php`, `front-page.php`'s panels,
+`page-reports.php`, `page-party-publications.php`, `page-library.php`,
+`page-publications.php`, `page-party-documents.php`, `page-selected.php`,
+`page-topics.php`, `page-leaflets.php`) still need the same one-line
+addition — tracked as the explicit next step, not silently incomplete.
+
+Verified via a real flush + live HTTP requests throughout (not just read
+from the code): `/en/` and `/en/announcements/` both return `200`; rule
+count confirmed correct after the regex fix; Persian/English content
+split confirmed correct on both `archive-announcement.php` and
+`taxonomy-topic.php` after the backfill fix.
