@@ -54,6 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
+$shola_quick_nav        = shola_get_masthead_quick_nav_items();
 ?>
 <div class="wrap mast-two-tier-inner">
 
@@ -73,7 +74,7 @@ $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
 			?>
 		<?php endif; ?>
 		<span class="mast-two-tier-flag-glow" aria-hidden="true"></span>
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>" class="mast-two-tier-brand">
+		<a href="<?php echo esc_url( $shola_quick_nav['home']['url'] ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>" class="mast-two-tier-brand">
 			<span class="mast-nameplate"><?php bloginfo( 'name' ); ?></span>
 			<span class="mast-runner" lang="en"><?php echo esc_html( shola_get_masthead_runner() ); ?></span>
 		</a>
@@ -83,19 +84,19 @@ $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
 		<button type="button" id="menu-open" class="mast-btn" aria-expanded="false" aria-controls="menu-panel" aria-label="<?php esc_attr_e( 'باز کردن منو', 'shola-jawid' ); ?>">
 			<svg width="22" height="14" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M0 1h16M0 5h16M0 9h16"/></svg>
 		</button>
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'صفحهٔ نخست', 'shola-jawid' ); ?></a>
+		<a href="<?php echo esc_url( $shola_quick_nav['home']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['home']['label'] ); ?></a>
 		<nav class="mast-two-tier-util-nav" aria-label="<?php esc_attr_e( 'پیوندهای کمکی', 'shola-jawid' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'نشریات', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['publications']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['publications']['label'] ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>
-			<a href="<?php echo esc_url( home_url( '/topics/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'موضوعات', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['topics']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['topics']['label'] ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>
-			<a href="<?php echo esc_url( home_url( '/library/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['library']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['library']['label'] ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>
-			<a href="<?php echo esc_url( home_url( '/about/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'دربارهٔ ما', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['about']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['about']['label'] ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>
-			<a href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['announcements']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['announcements']['label'] ); ?></a>
 			<span aria-hidden="true" class="mast-slash-light">/</span>
-			<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="mast-btn"><?php esc_html_e( 'تماس', 'shola-jawid' ); ?></a>
+			<a href="<?php echo esc_url( $shola_quick_nav['contact']['url'] ); ?>" class="mast-btn"><?php echo esc_html( $shola_quick_nav['contact']['label'] ); ?></a>
 		</nav>
 		<?php
 		/*
@@ -115,7 +116,7 @@ $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
 		 * animation doesn't need hand-computed pixel lengths for either.
 		 */
 		?>
-		<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
+		<a href="<?php echo esc_url( $shola_quick_nav['search']['url'] ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><circle cx="9.5" cy="9.5" r="8" pathLength="1"/><path d="m16 16 3 3" pathLength="1"/></svg>
 		</a>
 		<?php shola_render_language_switch_link(); ?>

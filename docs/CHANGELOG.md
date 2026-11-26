@@ -15697,3 +15697,44 @@ Verified live: grepped both regenerated files for a cross-section of
 recent strings (تغییر زبان, گزیده‌ها, the demo-content admin notice,
 اسناد حزب) to confirm they're actually present, not just that the file
 got bigger.
+
+## 2026-11-28 (continued, 6) — English-version Phase 7: the masthead/footer nav was never actually localized
+
+Phase 7 QA's own visual-check step (screenshot every template, not just
+curl status codes) caught the single biggest remaining gap in this
+entire rollout: the site's main masthead nav, the popup menu's Topics/
+Publications sub-lists, and the whole footer were **not** built from
+`wp_nav_menu()` the way the already-fixed popup "بخش‌ها"/"بیشتر" lists
+are — they're plain hardcoded HTML in `header.php`, `template-parts/
+masthead/two-tier.php` (the site's actual active layout), and
+`footer.php`, each with literal Persian hrefs/labels. Every earlier fix
+to `shola_hide_empty_language_nav_items()` never touched any of this,
+so an English page's main visible nav — Home/Publications/Topics/
+Library/About/Announcements/Contact — was still 100% Persian, in both
+URL and label, on every single page of the English site.
+
+Fixed with one new shared helper, `shola_get_masthead_quick_nav_items()`
+(`inc/template-tags.php`), returning the correct URL+label for all 8
+fixed targets in the current language (About/Contact resolve through
+the real pairing, same as the switcher) — wired into both masthead
+layouts and the popup menu's nameplate link. Persian output is
+byte-for-byte unchanged (verified live, not assumed): the `fa` branch
+of every conditional is the exact original hardcoded string.
+
+Two more, smaller instances of the identical bug found right after,
+checking the popup menu's own Topics/Publications sub-lists and the
+footer: `header.php`'s موضوعات/نشرات submenus and `footer.php`'s own
+publications list all called `$term->name`/`get_term_link()` directly;
+`footer.php`'s `footer_topics`/`footer_site` locations have no real
+menu assigned, so they render through `shola_fallback_footer_topics()`/
+`shola_fallback_footer_site()` (`inc/template-tags.php`) instead of
+`wp_nav_menu()` — entirely invisible to the nav-menu-item filter
+mechanism. Both fallbacks rewritten to be language-aware, reusing
+`shola_get_masthead_quick_nav_items()` where the targets overlap.
+
+Verified live on both languages after every fix, not assumed: the
+English homepage's masthead now reads "HOME / PUBLICATIONS / ALL
+TOPICS / LIBRARY / ABOUT US", every link pointing at its real `/en/`
+destination (paired pages resolve to their own slug, e.g.
+`/en/about-en/`); the Persian homepage's masthead and footer are
+pixel/byte-identical to before this fix.

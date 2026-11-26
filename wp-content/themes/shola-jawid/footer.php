@@ -39,8 +39,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				 * which the first pass (a bare `<img>`) didn't have.
 				 */
 				$shola_footer_logo_id = get_theme_mod( 'custom_logo' );
+				$shola_footer_lang    = \SholaCore\Language::current();
+				$shola_footer_home    = ( 'en' === $shola_footer_lang ) ? home_url( '/en/' ) : home_url( '/' );
 				?>
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer-logo-link" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>">
+				<a href="<?php echo esc_url( $shola_footer_home ); ?>" class="footer-logo-link" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>">
 					<?php
 					if ( $shola_footer_logo_id ) {
 						echo wp_get_attachment_image(
@@ -87,10 +89,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 						if ( ! $term ) {
 							continue;
 						}
+						$term_link = shola_build_term_link_for_lang( $term, $shola_footer_lang );
+						$term_link = $term_link ? $term_link : get_term_link( $term );
 						?>
-						<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></li>
+						<li><a href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( shola_get_term_label( $term, $shola_footer_lang ) ); ?></a></li>
 					<?php endforeach; ?>
-					<li><a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>"><?php esc_html_e( 'همهٔ شماره‌ها', 'shola-jawid' ); ?></a></li>
+					<li><a href="<?php echo esc_url( ( 'en' === $shola_footer_lang ) ? home_url( '/en/publications/' ) : home_url( '/publications/' ) ); ?>"><?php echo esc_html( ( 'en' === $shola_footer_lang ) ? 'All Issues' : __( 'همهٔ شماره‌ها', 'shola-jawid' ) ); ?></a></li>
 				</ul>
 			</nav>
 

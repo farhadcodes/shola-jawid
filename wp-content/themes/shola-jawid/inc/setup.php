@@ -516,9 +516,9 @@ add_action( 'admin_init', 'shola_maybe_add_party_documents_menu_item' );
 
 /**
  * On an English page: removes popup-menu items with no published
- * English content yet, and rewrites the URL of every item that stays
- * (they're all seeded with hardcoded Persian URLs otherwise). Persian
- * pages are untouched.
+ * English content yet, and rewrites the URL and label of every item
+ * that stays (they're all seeded once as hardcoded Persian WP posts,
+ * never re-evaluated per request). Persian pages are untouched.
  *
  * @param \WP_Post[] $items Menu item objects.
  * @param object     $args  wp_nav_menu()'s own args object (has ->theme_location).
@@ -531,6 +531,19 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 	if ( 'en' !== \SholaCore\Language::current() ) {
 		return $items;
 	}
+
+	// English labels for every seeded nav item's path — the stored title is permanent Persian text otherwise.
+	$english_labels = array(
+		'/'                => 'Home',
+		'/topics/'         => 'All Topics',
+		'/search/'         => 'Search the Archive',
+		'/publications/'   => 'Publications',
+		'/library/'        => 'Library',
+		'/party-documents/' => 'Party Documents',
+		'/announcements/'  => 'Announcements',
+		'/about/'          => 'About Us',
+		'/contact/'        => 'Contact the Party',
+	);
 
 	$always_show = array( '/', '/topics/', '/search/' );
 
@@ -562,6 +575,10 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 	foreach ( $items as $key => $item ) {
 		$path = untrailingslashit( (string) wp_parse_url( $item->url, PHP_URL_PATH ) );
 		$path = $path ? $path . '/' : '/';
+
+		if ( isset( $english_labels[ $path ] ) ) {
+			$item->title = $english_labels[ $path ];
+		}
 
 		if ( in_array( $path, $always_show, true ) ) {
 			// Fixed-path structural targets (home, موضوعات, جست‌وجو) — never

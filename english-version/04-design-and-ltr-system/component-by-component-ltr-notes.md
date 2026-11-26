@@ -11,11 +11,20 @@ practice (seen throughout `docs/CHANGELOG.md`).
 
 ## Global chrome
 
-- [ ] `header.php` masthead — logo position, search icon, menu icon,
-      masthead-runner text, date display
-- [ ] Popup/slide-out menu
-- [ ] `footer.php` — all columns, credit line, any social icons with
-      directional meaning
+- [x] `header.php` masthead — checked live on both languages, both
+      masthead layouts (`default` and `two-tier`, the site's actually-
+      active one). Found and fixed a real bug this round: the whole
+      quick-nav row (Home/Publications/Topics/Library/About/
+      Announcements/Contact) was hardcoded Persian HTML, untouched by
+      every earlier nav fix — see `docs/CHANGELOG.md` 2026-11-28
+      (continued, 6). Persian masthead confirmed byte-identical
+      afterward.
+- [x] Popup/slide-out menu — the بخش‌ها/بیشتر lists were already correct
+      (Phase 1/4); the Topics/Publications sub-lists inside it had the
+      same hardcoded-term bug as the quick-nav row, fixed the same round.
+- [x] `footer.php` — all columns checked live; same hardcoded-term/
+      hardcoded-fallback-menu bug found and fixed in the publications
+      list and the `footer_topics`/`footer_site` fallback functions.
 
 ## Homepage (`front-page.php`)
 
@@ -30,11 +39,11 @@ practice (seen throughout `docs/CHANGELOG.md`).
 
 ## Cards and shared partials
 
-- [ ] `template-parts/cards/card.php`
+- [x] `template-parts/cards/card.php` — term badge was hardcoded Persian, fixed (Phase 4).
 - [ ] `template-parts/cards/issue-card.php`
 - [ ] `template-parts/cards/hero-strip-card.php`
 - [ ] `template-parts/rows/document-row.php`
-- [ ] `template-parts/breadcrumb.php` — separator character/icon direction
+- [x] `template-parts/breadcrumb.php` — home-link `/en/` prefix was missing, fixed (Phase 4).
 - [ ] `template-parts/search/result.php`
 
 ## Single views
@@ -48,14 +57,20 @@ practice (seen throughout `docs/CHANGELOG.md`).
 
 ## Archives and listings
 
-- [ ] `taxonomy-topic.php` / `taxonomy-publication.php` /
+- [x] `taxonomy-topic.php` / `taxonomy-publication.php` /
       `taxonomy-collection.php` / `taxonomy-party_document_category.php`
-- [ ] `page-library.php` / `page-publications.php` /
-      `page-party-publications.php` / `page-party-documents.php` /
-      `page-reports.php` / `page-selected.php` / `page-topics.php`
-- [ ] `archive-announcement.php` / `archive-editors_pick.php`
-- [ ] Pagination controls — arrow direction (flagged generally in the CSS
-      audit; confirm per-listing here)
+      — all checked live in both languages (Phase 4); term name/link/
+      count all fixed to be language-aware.
+- [x] `page-library.php` / `page-publications.php` / `page-topics.php` —
+      checked live, fixed (Phase 4). `page-party-publications.php` /
+      `page-party-documents.php` / `page-reports.php` / `page-selected.php`
+      — only HTTP-200 checked, not a full visual pass; `page-party-
+      documents.php` was fixed (Phase 4), the other three not yet
+      individually confirmed.
+- [x] `archive-announcement.php` / `archive-editors_pick.php` — content
+      checked live in English, correctly filtered and displayed.
+- [x] Pagination controls — arrow characters made direction-aware
+      (Phase 3); confirmed live on Persian and English archives.
 
 ## Forms and interactive elements
 
@@ -63,8 +78,9 @@ practice (seen throughout `docs/CHANGELOG.md`).
       `dir="ltr"` email-address span (already correct, just confirm it
       still reads right next to English body copy)
 - [ ] Search form/icon
-- [ ] Leaflet lightbox viewer (if leaflets get an English version — see
-      open decisions)
+- [x] Leaflet lightbox viewer — chevron icons needed `scaleX(-1)`
+      mirroring beyond the logical-property position flip, fixed
+      (Phase 3); demo leaflet confirmed to display correctly in English.
 
 ## Login screen
 

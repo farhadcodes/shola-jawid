@@ -1029,30 +1029,36 @@ function shola_fallback_menu_more() {
  * @return void
  */
 function shola_fallback_footer_topics() {
+	$lang  = \SholaCore\Language::current();
 	$slugs = array( 'economy', 'afghanistan', 'women' );
 	echo '<ul>';
 	foreach ( $slugs as $slug ) {
 		$term = get_term_by( 'slug', $slug, 'topic' );
 		if ( $term ) {
-			printf( '<li><a href="%s">%s</a></li>', esc_url( get_term_link( $term ) ), esc_html( $term->name ) );
+			$link = shola_build_term_link_for_lang( $term, $lang );
+			printf( '<li><a href="%s">%s</a></li>', esc_url( $link ? $link : get_term_link( $term ) ), esc_html( shola_get_term_label( $term, $lang ) ) );
 		}
 	}
-	printf( '<li><a href="%s">%s</a></li>', esc_url( home_url( '/topics/' ) ), esc_html__( 'همهٔ موضوعات', 'shola-jawid' ) );
+	$all_topics_url   = ( 'en' === $lang ) ? home_url( '/en/topics/' ) : home_url( '/topics/' );
+	$all_topics_label = ( 'en' === $lang ) ? 'All Topics' : __( 'همهٔ موضوعات', 'shola-jawid' );
+	printf( '<li><a href="%s">%s</a></li>', esc_url( $all_topics_url ), esc_html( $all_topics_label ) );
 	echo '</ul>';
 }
 
 /**
  * Fallback for the `footer_site` nav location, matching v6's defaults.
+ * Language-aware via the same quick-nav items the masthead itself uses.
  *
  * @return void
  */
 function shola_fallback_footer_site() {
+	$quick_nav = shola_get_masthead_quick_nav_items();
 	?>
 	<ul>
-		<li><a href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'کتابخانه', 'shola-jawid' ); ?></a></li>
-		<li><a href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'اطلاعیه‌ها', 'shola-jawid' ); ?></a></li>
-		<li><a href="<?php echo esc_url( home_url( '/about/' ) ); ?>"><?php esc_html_e( 'دربارهٔ ما', 'shola-jawid' ); ?></a></li>
-		<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'ارتباط با حزب', 'shola-jawid' ); ?></a></li>
+		<li><a href="<?php echo esc_url( $quick_nav['library']['url'] ); ?>"><?php echo esc_html( $quick_nav['library']['label'] ); ?></a></li>
+		<li><a href="<?php echo esc_url( $quick_nav['announcements']['url'] ); ?>"><?php echo esc_html( $quick_nav['announcements']['label'] ); ?></a></li>
+		<li><a href="<?php echo esc_url( $quick_nav['about']['url'] ); ?>"><?php echo esc_html( $quick_nav['about']['label'] ); ?></a></li>
+		<li><a href="<?php echo esc_url( $quick_nav['contact']['url'] ); ?>"><?php echo esc_html( 'en' === \SholaCore\Language::current() ? $quick_nav['contact']['label'] : __( 'ارتباط با حزب', 'shola-jawid' ) ); ?></a></li>
 	</ul>
 	<?php
 }
@@ -1966,6 +1972,55 @@ function shola_lang_has_content( $args ) {
 	$args = \SholaCore\Language::add_language_filter( $args );
 
 	return (bool) get_posts( $args );
+}
+
+/**
+ * The masthead's hardcoded "quick nav" links (نشریات/موضوعات/کتابخانه/
+ * دربارهٔ ما/اطلاعیه‌ها/تماس) — both header.php's default layout and
+ * two-tier.php hardcode these same six targets as plain HTML, not a
+ * wp_nav_menu(), so they need their own language-aware source instead
+ * of just falling back to the stored Persian href/label on English pages.
+ *
+ * @return array<string,array{url:string,label:string}>
+ */
+function shola_get_masthead_quick_nav_items() {
+	$is_en        = ( 'en' === \SholaCore\Language::current() );
+	$about_page   = get_page_by_path( 'about' );
+	$contact_page = get_page_by_path( 'contact' );
+
+	return array(
+		'home'          => array(
+			'url'   => $is_en ? home_url( '/en/' ) : home_url( '/' ),
+			'label' => $is_en ? 'Home' : __( 'صفحهٔ نخست', 'shola-jawid' ),
+		),
+		'search'        => array(
+			'url' => $is_en ? home_url( '/en/search/' ) : home_url( '/?s=' ),
+		),
+		'publications'  => array(
+			'url'   => $is_en ? home_url( '/en/publications/' ) : home_url( '/publications/' ),
+			'label' => $is_en ? 'Publications' : __( 'نشریات', 'shola-jawid' ),
+		),
+		'topics'        => array(
+			'url'   => $is_en ? home_url( '/en/topics/' ) : home_url( '/topics/' ),
+			'label' => $is_en ? 'All Topics' : __( 'موضوعات', 'shola-jawid' ),
+		),
+		'library'       => array(
+			'url'   => $is_en ? home_url( '/en/library/' ) : home_url( '/library/' ),
+			'label' => $is_en ? 'Library' : __( 'کتابخانه', 'shola-jawid' ),
+		),
+		'about'         => array(
+			'url'   => $is_en ? shola_get_paired_url_or_fallback( $about_page, 'en', home_url( '/en/' ) ) : home_url( '/about/' ),
+			'label' => $is_en ? 'About Us' : __( 'دربارهٔ ما', 'shola-jawid' ),
+		),
+		'announcements' => array(
+			'url'   => $is_en ? home_url( '/en/announcements/' ) : home_url( '/announcements/' ),
+			'label' => $is_en ? 'Announcements' : __( 'اطلاعیه‌ها', 'shola-jawid' ),
+		),
+		'contact'       => array(
+			'url'   => $is_en ? shola_get_paired_url_or_fallback( $contact_page, 'en', home_url( '/en/' ) ) : home_url( '/contact/' ),
+			'label' => $is_en ? 'Contact the Party' : __( 'تماس', 'shola-jawid' ),
+		),
+	);
 }
 
 /**
