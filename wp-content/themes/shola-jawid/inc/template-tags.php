@@ -1674,6 +1674,12 @@ function shola_render_hero_filmstrip( $posts ) {
 		 * a literal copy of the reference screenshot's arrow shapes.
 		 * Grouped together in one cluster (not one per end) per Farhad's
 		 * explicit instruction, sitting at the track's faded (far) edge.
+		 *
+		 * Under LTR (main.css, English-version rollout), both icons are
+		 * mirrored with a CSS transform rather than swapping which SVG
+		 * goes in which button — the --prev/--next classes (and their
+		 * data-filmstrip-dir/click behavior in main.js) stay tied to their
+		 * real meaning; only which way the arrow glyph *points* flips.
 		 */
 		?>
 		<div class="hero-filmstrip-controls">

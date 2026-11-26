@@ -846,7 +846,13 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
    */
   overflow: hidden;
 }
-[dir="ltr"] .masthead--two-tier {
+/* Selector corrected 2026-11-28 (English-version rollout): was
+   `[dir="ltr"]`, which — confirmed live — never actually matched
+   anything, since WordPress core's own language_attributes() never
+   prints dir="ltr" explicitly (LTR is the HTML default). This rule had
+   been dormant since it was written; `html:not([dir="rtl"])` is the
+   selector that actually reaches English pages. */
+html:not([dir="rtl"]) .masthead--two-tier {
   background-image: linear-gradient(to right, var(--winston-red) 0%, var(--winston-red-deep) 100%);
 }
 .mast-two-tier-inner {
@@ -3246,6 +3252,15 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
 }
 .hero-filmstrip-arrow svg { width: 16px; height: 16px; }
 .hero-filmstrip-arrow:hover { border-color: var(--winston-red); color: var(--winston-red); }
+/* Icon mirroring, English-version rollout (english-version/04-design-and-
+   ltr-system/rtl-to-ltr-css-audit.md) — the arrow glyphs themselves point
+   a visual direction logical properties can't flip on their own.
+   `:not([dir="rtl"])`, not `[dir="ltr"]` — WordPress core's own
+   language_attributes() never prints dir="ltr" explicitly (LTR is the
+   HTML default, confirmed live: an English page's <html> here has lang
+   set but no dir attribute at all), so a `[dir="ltr"]` selector would
+   never actually match anything. */
+html:not([dir="rtl"]) .hero-filmstrip-arrow svg { transform: scaleX(-1); }
 
 @media (max-width: 640px) {
   :root { --filmstrip-overlap: 85px; }

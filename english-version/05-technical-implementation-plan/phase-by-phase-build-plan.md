@@ -114,14 +114,47 @@ entry if any rule was newly applied.
   all** — see `typography-for-english.md`'s rewrite. This replaces the
   originally-planned `html[lang="en"] body`/`.ui` font-switch rules,
   which are no longer part of this plan.
-- Work through `component-by-component-ltr-notes.md` top to bottom, fixing
-  each flagged exception (icon mirroring, drop-cap float, number
-  formatting) as found — this requires Phase 1's language context to exist,
-  since it needs real `lang="en"`/`dir="ltr"` pages to check against.
-- Wire the Gregorian-vs-Jalali date decision (open decision #6, resolved —
-  Gregorian for English) into the existing `is_rtl()`-gated date logic in
-  `inc/template-tags.php`, now checking the language context instead of
-  `is_rtl()` alone.
+- ✅ **Foundational fix, done 2026-11-28, found before anything else in
+  this phase could matter:** `is_rtl()` (which `language_attributes()`'s
+  `<html dir="...">` output, Persian Calendar's Jalali-date/Persian-digit
+  conversion, and potentially other code all branch on) is a global,
+  whole-site-locale check — not request-aware. Without a fix, every
+  English page would still render `dir="rtl"` and still show Jalali
+  dates. Fixed in `class-language.php` with WordPress's native
+  `switch_to_locale('en_US')` for `/en/`-prefixed requests. Real bug
+  caught live, not assumed fixed: a single switch at `plugins_loaded` was
+  silently undone by a WordPress-core locale reload between
+  `setup_theme` and `after_setup_theme` (traced precisely with a
+  temporary debug probe) — fixed by reapplying the switch a second time
+  at `after_setup_theme` priority 999. Verified at every bootstrap hook
+  from `plugins_loaded` through `wp_loaded`; confirmed `date_i18n()`
+  returns real Gregorian English dates on `/en/` and real Jalali dates
+  unchanged on Persian pages; wp-admin unaffected. See
+  `04-design-and-ltr-system/rtl-to-ltr-css-audit.md` for the full story,
+  including one separate finding this doesn't reach (the masthead's
+  REST-polled "live date" widget) flagged as its own follow-up.
+- ✅ This same fix **resolved two of the three remaining
+  `component-by-component-ltr-notes.md` items for free**: number
+  formatting (Persian-digit conversion is gated on the same `is_rtl()`
+  check) and drop-caps (the original audit had mis-attributed this to
+  `main.css` — it's actually WordPress core's own already-RTL-aware
+  block-library CSS, now reached correctly once `is_rtl()` is correct).
+- ✅ Icon mirroring — done 2026-11-28: the hero filmstrip's prev/next SVG
+  arrows, plus one other real finding along the way — an existing
+  `[dir="ltr"] .masthead--two-tier` rule from an earlier session turned
+  out to have been dead code the whole time (WordPress core never prints
+  `dir="ltr"` explicitly, only omits `dir` for LTR), fixed to
+  `html:not([dir="rtl"])`, the selector that actually reaches English
+  pages — same fix applied to the new filmstrip-arrow rule.
+- Still open: pagination's `prev_text`/`next_text` arrow *characters*
+  (`→`/`←`, used in `paginate_links()` across ~8 templates) need the
+  same prev/next direction swap, but as a PHP-level choice (they're text
+  glyphs, not stylable icons) — not yet done.
+- ✅ Gregorian-vs-Jalali date decision (open decision #6, resolved —
+  Gregorian for English) — **resolved by the foundational fix above, not
+  a separate task.** Persian Calendar's own date conversion is gated on
+  the exact same `is_rtl()` check that fix already corrects; no
+  additional code needed beyond it.
 
 ## Phase 4 — Demo content, then real English content population
 

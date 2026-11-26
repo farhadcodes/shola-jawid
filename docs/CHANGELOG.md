@@ -15370,3 +15370,72 @@ Inter/Newsreader/JetBrains Mono remain self-hosted and untouched,
 still used only where they already were (the pre-existing
 `[lang="en"]`/`.latin` masthead-runner detail, unrelated to this
 rollout).
+
+## 2026-11-28 (continued) — English-version Phase 3: the real foundational fix
+
+Before anything else in Phase 3 could matter, a much more basic problem
+surfaced while starting the LTR CSS pass: `is_rtl()` — which WordPress
+core's own `language_attributes()` (the `<html dir="...">` attribute
+itself), Persian Calendar's Jalali-date and Persian-digit conversion,
+and potentially other code all branch on — is a **global, whole-site-
+locale check**, not aware of which request is in the `/en/` URL space.
+Without a fix, every English page would still render `dir="rtl"` and
+still show Jalali dates, making the rest of the LTR pass pointless.
+
+Fixed in `class-language.php` with WordPress's own native
+`switch_to_locale( 'en_US' )`, triggered for any `/en/`-prefixed
+request. Needed no installed English translation files — this site's
+Persian strings are hardcoded Persian text in source, not pulled
+through a `.mo` file this could disturb.
+
+**A real, nontrivial bug was found and fixed getting this right, not
+assumed correct from reading the code.** Traced live with a temporary
+debug mu-plugin logging `is_rtl()` at every single bootstrap hook (not
+guessed): switching the locale once, at `plugins_loaded`, worked in the
+moment — but was silently reset by a WordPress-core locale/text-domain
+reload that happens somewhere between the `setup_theme` and
+`after_setup_theme` actions (confirmed precisely: correctly switched at
+`setup_theme`, reverted by `after_setup_theme`). Fixed by reapplying the
+exact same switch a second time, at `after_setup_theme` priority 999 —
+late enough to survive that reset, still well before Persian Calendar's
+own `init` (priority 10) check. Re-verified correct at every bootstrap
+hook from `plugins_loaded` through `wp_loaded` afterward, not just the
+one point that happened to look right the first time.
+
+Verified against real output, not just internal state: `/en/` pages
+render `<html lang="en-US">` with no `dir="rtl"` attribute and no `rtl`
+body class; `date_i18n()` returns real Gregorian English dates
+("Thursday 26 November 2026") there; Persian pages completely
+unaffected (still `dir="rtl"`, still real Jalali dates, confirmed via
+the same direct test); wp-admin loads clean (the fix explicitly
+excludes `is_admin()` requests).
+
+**One separate, real finding, deliberately not folded into this fix:**
+the masthead's "live" date widget is fetched via its own REST endpoint
+(`/wp-json/shola/v1/masthead-date`, confirmed in `inc/enqueue.php`/
+`main.js`) — a completely different request with no `/en/` in its own
+URL, so it still shows a Jalali date regardless of which page displays
+it. Flagged as its own distinct follow-up, not silently left broken or
+wrongly claimed fixed.
+
+This one fix also resolved two more `component-by-component-ltr-notes.md`
+items for free: number formatting (Persian-digit conversion is gated on
+the same check) and drop-caps (the original LTR audit had actually
+mis-attributed this to `main.css` — a direct grep found zero matches
+there; it's WordPress core's own already-RTL-aware block-library CSS,
+now reached correctly).
+
+Also done: icon mirroring for the hero filmstrip's prev/next SVG arrows
+(`main.css`), plus a related real finding — an existing
+`[dir="ltr"] .masthead--two-tier` rule from an earlier session (2026-09-18)
+turned out to have been **dead code the whole time**: WordPress core
+never prints `dir="ltr"` explicitly (LTR is the HTML default, confirmed
+live), so that selector could never have matched anything. Corrected to
+`html:not([dir="rtl"])` — the selector that actually reaches English
+pages — and the same corrected pattern used for the new filmstrip-arrow
+rule.
+
+Still open for a later round: pagination's `prev_text`/`next_text` arrow
+*characters* (`→`/`←` in `paginate_links()`, across ~8 templates) need
+the same prev/next swap, but as a PHP-level choice since they're text
+glyphs, not stylable icons — not yet done.

@@ -66,6 +66,46 @@ class Language {
 		add_action( 'admin_init', array( __CLASS__, 'backfill_legacy_language_meta' ) );
 
 		/*
+		 * Root-cause fix, found while building the LTR CSS pass (Phase 3,
+		 * english-version/04-design-and-ltr-system/): `is_rtl()` — which
+		 * WordPress core's own `language_attributes()` (the `<html dir=
+		 * "...">` attribute itself), the Persian Calendar plugin's Jalali-
+		 * date conversion, and potentially other code all branch on — is a
+		 * GLOBAL, whole-site-locale check, not aware of which request is
+		 * in the /en/ URL space. Without this, an English page would still
+		 * render dir="rtl" and still show Jalali dates, defeating the
+		 * entire point of this rollout. `switch_to_locale()` is
+		 * WordPress's own real, native mechanism for exactly this —
+		 * correctly updates `$wp_locale` (so `is_rtl()` and `dir`/`lang`
+		 * output become request-aware) without touching this site's
+		 * actual Persian strings, which are hardcoded Persian text in
+		 * source, not pulled through a .mo translation file that this
+		 * could disturb.
+		 *
+		 * Hooked on `plugins_loaded` specifically — has to run before
+		 * Persian Calendar's own `init` (priority 10) checks `is_rtl()` to
+		 * decide whether to register its date filters at all, so this
+		 * can't wait for parse_request (too late) or even `init` itself.
+		 * Reads the raw request path directly rather than waiting for
+		 * this class's own query-var-based detection (set_language_context()
+		 * above) for the same reason — that only resolves at parse_request.
+		 */
+		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_switch_locale_for_english_request' ), 1 );
+		/*
+		 * Caught live, not assumed: WordPress core reloads locale data for
+		 * its own purposes somewhere between `setup_theme` and
+		 * `after_setup_theme` (traced with a temporary debug probe logging
+		 * is_rtl() at every bootstrap hook — it read correctly switched at
+		 * `setup_theme`, reverted by `after_setup_theme`), which silently
+		 * undoes a `plugins_loaded`-time switch_to_locale() before Persian
+		 * Calendar's own `init` (priority 10) ever checks it. Reapplying at
+		 * `after_setup_theme` priority 999 — after whatever resets it,
+		 * still well before `init` priority 10 — is what actually survives
+		 * to reach that check.
+		 */
+		add_action( 'after_setup_theme', array( __CLASS__, 'maybe_switch_locale_for_english_request' ), 999 );
+
+		/*
 		 * These three templates run WordPress's own main query directly
 		 * (have_posts()/the_post(), no `new WP_Query()` of their own), so
 		 * pre_get_posts actually reaches them — same pattern already used
@@ -91,6 +131,39 @@ class Language {
 		foreach ( self::MANAGED_POST_TYPES as $post_type ) {
 			add_filter( "manage_{$post_type}_posts_columns", array( __CLASS__, 'add_admin_language_column' ) );
 			add_action( "manage_{$post_type}_posts_custom_column", array( __CLASS__, 'render_admin_language_column' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Switches WordPress's active locale to English, very early, for any
+	 * front-end request whose path starts with `/en/` (or is exactly
+	 * `/en`) — see the `plugins_loaded` registration above for why this
+	 * has to happen this early, and why a raw path check is used instead
+	 * of this class's own later, more careful query-var-based detection.
+	 * `en_US` needs no installed translation files to work correctly here
+	 * — WordPress's own fallback for a locale with no .mo file is simply
+	 * the original (Persian) source string, unchanged; only `is_rtl()`/
+	 * `$wp_locale`'s text-direction actually changes, which is the whole
+	 * point.
+	 *
+	 * Admin requests are explicitly excluded — wp-admin's own interface
+	 * language is a separate, per-user WordPress setting (Profile →
+	 * Language), untouched by this; nothing under `/en/` is an admin URL
+	 * anyway (this plugin's own rewrite rules never prefix wp-admin), but
+	 * the check is kept explicit rather than relying on that alone.
+	 *
+	 * @return void
+	 */
+	public static function maybe_switch_locale_for_english_request() {
+		if ( is_admin() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_cron() ) {
+			return;
+		}
+
+		$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH );
+		$path = untrailingslashit( $path );
+
+		if ( '/en' === $path || 0 === strpos( $path, '/en/' ) ) {
+			switch_to_locale( 'en_US' );
 		}
 	}
 
