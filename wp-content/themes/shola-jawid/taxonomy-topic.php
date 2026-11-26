@@ -50,19 +50,11 @@ if ( 'views' === $sort && class_exists( '\SholaCore\View_Counter' ) ) {
 }
 
 $archive_query = new WP_Query( $query_args );
-/*
- * English term label/link — added 2026-11-28, English-version rollout.
- * $term->name/get_term_link() are the raw Persian values regardless of
- * request language; every place this template shows or links to a term
- * (this one, or a sibling one in the topic-nav pills) needs the
- * language-aware helpers from Phase 1's taxonomy-translation work
- * instead, or an English page would show Persian headings/breadcrumbs
- * around an otherwise-correct English article list.
- */
-$shola_lang      = \SholaCore\Language::current();
-$term_label      = shola_get_term_label( $term, $shola_lang );
-$term_link       = shola_build_term_link_for_lang( $term, $shola_lang );
-$term_link       = $term_link ? $term_link : get_term_link( $term );
+// Language-aware term name/link, not the raw Persian-only values.
+$shola_lang = \SholaCore\Language::current();
+$term_label = shola_get_term_label( $term, $shola_lang );
+$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
+$term_link  = $term_link ? $term_link : get_term_link( $term );
 ?>
 	<section class="wrap section-top">
 

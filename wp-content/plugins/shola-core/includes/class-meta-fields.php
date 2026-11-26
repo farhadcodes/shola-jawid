@@ -64,14 +64,7 @@ class Meta_Fields {
 		add_action( 'admin_action_shcore_set_active_masthead', array( __CLASS__, 'handle_set_active_masthead' ) );
 		add_action( 'admin_init', array( __CLASS__, 'seed_default_masthead_section' ) );
 
-		/*
-		 * Demo-content admin UX (2026-11-28, English-version rollout --
-		 * english-version/03-content-architecture/demo-content-policy.md).
-		 * A demo-flag list column (same generalized-column pattern as
-		 * hero_section/masthead_section's status column above) and an
-		 * edit-screen notice, both generalized across every content type
-		 * that can carry shcore_is_demo_content, not one hook per type.
-		 */
+		// Demo-content list column + edit-screen notice, one loop for every post type that can carry the flag.
 		foreach ( array_merge( Language::MANAGED_POST_TYPES, array( 'page' ) ) as $demo_flag_post_type ) {
 			add_filter( "manage_{$demo_flag_post_type}_posts_columns", array( __CLASS__, 'add_demo_content_column' ) );
 			add_action( "manage_{$demo_flag_post_type}_posts_custom_column", array( __CLASS__, 'render_demo_content_column' ), 10, 2 );
@@ -762,19 +755,7 @@ class Meta_Fields {
 			)
 		);
 
-		/*
-		 * shcore_is_demo_content (2026-11-28, English-version rollout —
-		 * english-version/03-content-architecture/demo-content-policy.md).
-		 * Marks a post as placeholder English content Claude added so the
-		 * site looks genuinely full while the client writes real content.
-		 * Registered on every content type that carries shcore_language
-		 * (Language::MANAGED_POST_TYPES, plus `page`) so one query
-		 * (`get_posts( array( 'meta_key' => 'shcore_is_demo_content' ) )`)
-		 * finds every demo post site-wide, regardless of type — see
-		 * add_demo_content_column()/render_demo_content_column() and
-		 * add_demo_content_notice() below for where this flag surfaces in
-		 * the admin.
-		 */
+		// Marks placeholder English content, same post types as shcore_language above.
 		$demo_flag_post_types = array_merge( Language::MANAGED_POST_TYPES, array( 'page' ) );
 		foreach ( $demo_flag_post_types as $demo_flag_post_type ) {
 			register_post_meta(
@@ -1870,11 +1851,7 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Add a "نمونه" (Demo) column to any content type's list table, right
-	 * after the title — english-version/03-content-architecture/demo-
-	 * content-policy.md. Same insertion pattern as add_hero_status_column()
-	 * above, registered generically for every post type in
-	 * init()'s demo-content-UX loop rather than once per type.
+	 * Adds a "نمونه" (Demo) column right after the title.
 	 *
 	 * @param array<string, string> $columns Default columns.
 	 * @return array<string, string>
@@ -1891,9 +1868,7 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Render the "نمونه" column's value for one row — a plain badge, no
-	 * link/action needed; Farhad removes demo posts manually from
-	 * wp-admin once real content replaces them (see demo-content-policy.md).
+	 * Renders the "نمونه" column's value for one row.
 	 *
 	 * @param string $column Column key being rendered.
 	 * @param int    $post_id Post ID for this row.
@@ -1911,10 +1886,7 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Show a plain, impossible-to-miss notice at the top of the edit
-	 * screen for demo content, per demo-content-policy.md. Fires on every
-	 * post type's edit screen (edit_form_top isn't type-specific) but only
-	 * prints anything when the current post actually carries the flag.
+	 * Shows a warning notice at the top of the edit screen for demo content.
 	 *
 	 * @param \WP_Post $post Post object for the screen being edited.
 	 * @return void

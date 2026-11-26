@@ -160,13 +160,7 @@ class Category_Manager {
 			add_filter( "manage_{$taxonomy}_custom_column", array( __CLASS__, 'render_term_order_column' ), 10, 3 );
 		}
 
-		/*
-		 * English name + slug term meta (2026-11-26, English-version
-		 * rollout — english-version/03-content-architecture/taxonomy-
-		 * translation.md). Same generalized pattern as ترتیب above: one
-		 * shared pair of fields on every managed taxonomy's Add/Edit term
-		 * screens, instead of a second, parallel English taxonomy tree.
-		 */
+		// English name/slug fields, one shared pair per term, not a second parallel taxonomy.
 		add_action( 'init', array( __CLASS__, 'register_term_translation_meta' ) );
 		foreach ( array_keys( self::MANAGED ) as $taxonomy ) {
 			add_action( "{$taxonomy}_add_form_fields", array( __CLASS__, 'render_term_translation_add_fields' ) );

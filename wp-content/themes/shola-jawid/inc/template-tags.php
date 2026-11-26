@@ -566,14 +566,8 @@ function shola_get_topic_slugs_ordered() {
 }
 
 /**
- * Counts published posts of one type tagged with a given term, in one
- * language — added 2026-11-28, English-version rollout. `$term->count`
- * (WordPress's own cached term count) counts every language together,
- * which is wrong once Persian and English content shares the same term
- * vocabulary (CLAUDE.md §1: one shared term per category, not parallel
- * taxonomies) — every "N مقاله"/"N شماره"-style count next to a term
- * name needs a per-language number instead, same as every content query
- * on the site already gets via Language::add_language_filter().
+ * Counts published posts of one type tagged with a term, in one
+ * language — $term->count mixes both languages together, which is wrong.
  *
  * @param \WP_Term $term      Term to count posts for.
  * @param string   $lang      'fa' or 'en'.
@@ -786,21 +780,15 @@ function shola_get_party_document_subsections() {
 		}
 	);
 
-	/*
-	 * Language-aware name/link — added 2026-11-28, English-version
-	 * rollout, same reasoning as every other term-display fix this round:
-	 * $term->name/get_term_link() are always the raw Persian values.
-	 */
+	// Language-aware name/link/count, not the raw Persian-only values.
 	$lang  = \SholaCore\Language::current();
 	$items = array();
 	foreach ( $ordinary as $term ) {
-		$link = shola_build_term_link_for_lang( $term, $lang );
+		$link    = shola_build_term_link_for_lang( $term, $lang );
 		$items[] = array(
 			'term'  => $term,
 			'name'  => shola_get_term_label( $term, $lang ),
 			'link'  => $link ? $link : get_term_link( $term ),
-			// Per-language count, not $term->count's combined total — see
-			// shola_get_term_post_count()'s own docblock for why.
 			'count' => shola_get_term_post_count( $term, $lang, 'party_document' ),
 		);
 	}
@@ -1225,26 +1213,12 @@ function shola_get_publication_meta_line( $term ) {
 
 	$years = array();
 	foreach ( $issues as $issue ) {
-		// shola_get_jalali_year() is already request-aware (via wp_date(),
-		// gated on is_rtl() — Phase 3's foundational locale fix): it
-		// returns a real Gregorian year on English pages, despite its name.
+		// Already request-aware via is_rtl() — returns Gregorian on English pages despite its name.
 		$years[] = shola_get_jalali_year( $issue );
 	}
 	sort( $years );
 
-	/*
-	 * Bug fix, 2026-09-10: this was literal hardcoded English ("N ISSUE"/
-	 * "N ISSUES"), caught live by Farhad. No _n() singular/plural split
-	 * needed for the Persian replacement — Persian nouns don't inflect
-	 * for count the way English does, so "%1$s شماره" already reads
-	 * correctly whether %1$s is ۱ or ۳۲.
-	 *
-	 * English branch added 2026-11-28, English-version rollout, plus the
-	 * `add_language_filter()` added above this function — without both,
-	 * an English page's "N issues" count silently included every Persian
-	 * issue sharing that publication term too (found live: جهان برای فتح
-	 * showed ۴ شماره when only ۳ were actually Persian).
-	 */
+	// Persian doesn't inflect for count, so one string covers both ۱ and ۳۲.
 	if ( 'en' === \SholaCore\Language::current() ) {
 		$year_range = ( end( $years ) === $years[0] )
 			? (string) $years[0]
@@ -1787,14 +1761,8 @@ function shola_render_hero_filmstrip( $posts ) {
 }
 
 /**
- * Gets a term's name in a given language. Falls back to the term's own
- * (Persian) name if no English name was ever set for it — so an editor
- * forgetting to fill in the English field never breaks a page, it just
- * shows Persian there until someone does.
- *
- * English name comes from term-meta, not a second taxonomy — see
- * english-version/03-content-architecture/taxonomy-translation.md for why:
- * one real-world category, one term, two labels.
+ * Gets a term's name in a given language, from term-meta (one term,
+ * two labels, not a second taxonomy). Falls back to the Persian name.
  *
  * @param \WP_Term $term Term object.
  * @param string   $lang 'fa' or 'en'.
@@ -1828,14 +1796,8 @@ function shola_get_term_slug( $term, $lang ) {
 }
 
 /**
- * Builds a term's archive link in a given language — the Persian link
- * WordPress already knows how to build, with the term's own slug
- * segment swapped for its English one (english-version/03-content-
- * architecture/taxonomy-translation.md) and `/en/` added in front. Works
- * generically for every taxonomy (topic, publication, collection,
- * party_document_category) since English URLs always mirror the exact
- * same rewrite shape as Persian, just prefixed — see url-structure-and-
- * routing.md.
+ * Builds a term's archive link in a given language — swaps the term's
+ * slug segment for its English one and adds the `/en/` prefix.
  *
  * @param \WP_Term $term Term object.
  * @param string   $lang 'fa' or 'en'.
@@ -1889,28 +1851,14 @@ function shola_get_paired_url_or_fallback( $post, $target_lang, $fallback_url ) 
 		return $fallback_url;
 	}
 
-	/*
-	 * get_permalink() alone isn't enough here — caught live: it returns a
-	 * post's bare native URL with no /en/ prefix regardless of its
-	 * shcore_language value (the prefix is a routing layer this function
-	 * doesn't know about), which would otherwise send a reader to an
-	 * English post's address but in the *Persian* language context (no
-	 * `shola_lang=en`), with every language-aware thing on that page
-	 * (this same switcher included) then reading it backwards. Rebuilt
-	 * explicitly with the correct prefix instead of trusting the bare
-	 * permalink, same as every other branch in this function.
-	 */
+	// get_permalink() alone has no /en/ prefix — add it explicitly.
 	$path = (string) wp_parse_url( get_permalink( $paired_id ), PHP_URL_PATH );
 	return ( 'en' === $target_lang ) ? home_url( '/en' . $path ) : home_url( $path );
 }
 
 /**
- * The language switcher's actual destination for the current page —
- * english-version/03-content-architecture/language-field-and-pairing.md's
- * "what happens when you click EN/FA" rules, in one shared place so no
- * template has to work this out on its own. Never returns a dead link —
- * every branch that can't find a direct match falls back to the target
- * language's homepage.
+ * The language switcher's actual destination for the current page.
+ * Never a dead link — falls back to the target language's homepage.
  *
  * @param string $target_lang 'fa' or 'en' — the language to switch TO.
  * @return string
@@ -1923,14 +1871,7 @@ function shola_get_language_switch_url( $target_lang ) {
 		return $homepage;
 	}
 
-	/*
-	 * Structural listing Pages (نشرات/کتابخانه/گزارش/اسناد حزب/انتشارات
-	 * حزب/موضوعات/ترجمه/تراکت‌ها) always exist at the same fixed path in
-	 * both languages — they're landing pages for a content type, not
-	 * individually-authored content, so switching language is just
-	 * adding/removing the /en/ prefix on the same path, never a pairing
-	 * lookup.
-	 */
+	// Landing pages for a content type exist at the same path in both languages — just add/remove /en/.
 	$structural_templates = array(
 		'page-publications.php',
 		'page-library.php',
@@ -1944,18 +1885,7 @@ function shola_get_language_switch_url( $target_lang ) {
 
 	if ( is_page() ) {
 		$post = get_queried_object();
-		/*
-		 * get_page_template_slug() only reflects a template explicitly
-		 * picked from the Page Attributes dropdown (a `Template Name:`
-		 * header) — found live, not assumed: every page-*.php file in this
-		 * theme is matched automatically by WordPress's own page-{slug}.php
-		 * naming convention instead, with no such header and no dropdown
-		 * selection ever made, so that function returned '' for every one
-		 * of them, silently falling through to the pairing-check branch
-		 * below instead of the fixed-path one. get_page_template() returns
-		 * the actual resolved template file regardless of which of the two
-		 * mechanisms matched it — the fix.
-		 */
+		// get_page_template(), not get_page_template_slug() — the latter is empty for the naming-convention match every page-*.php here uses.
 		$template = basename( (string) get_page_template() );
 
 		if ( in_array( $template, $structural_templates, true ) ) {

@@ -347,18 +347,7 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 				<?php endforeach; ?>
 			</div>
 
-			<?php
-			/*
-			 * Language switcher, also always reachable from here (2026-11-27,
-			 * English-version rollout) — the top masthead bar's own copy of
-			 * this same link (shola_render_language_switch_link()) hides
-			 * below ~1300px (main.css, caught live: it pushed off-screen on
-			 * narrower desktop/tablet widths otherwise), so this popup-menu
-			 * copy is what keeps it reachable at every screen size, same
-			 * "narrow screens still get a reachable equivalent in the full
-			 * menu" pattern as every other masthead-right link here.
-			 */
-			?>
+			<?php // Masthead's own copy hides below 1400px — this keeps it always reachable. ?>
 			<nav class="menu-lang-switch" aria-label="<?php esc_attr_e( 'تغییر زبان', 'shola-jawid' ); ?>">
 				<?php shola_render_language_switch_link( 'menu-list-small' ); ?>
 			</nav>

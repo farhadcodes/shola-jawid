@@ -32,14 +32,7 @@ if ( ! $card_post ) {
 	return;
 }
 
-/*
- * English term label/link — added 2026-11-28, English-version rollout,
- * same reasoning as every other term-display fix this round: $term->name/
- * get_term_link() are always the raw Persian values, and this one shared
- * card is used across nearly every listing on the site, so without this
- * every card's topic/collection badge would show Persian regardless of
- * the page's own language.
- */
+// Language-aware term name/link for the card's topic/collection badge.
 $shola_card_lang = \SholaCore\Language::current();
 
 if ( 'document' === $card_type ) {

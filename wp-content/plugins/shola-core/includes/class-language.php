@@ -65,72 +65,23 @@ class Language {
 		add_action( 'parse_request', array( __CLASS__, 'set_language_context' ) );
 		add_action( 'admin_init', array( __CLASS__, 'backfill_legacy_language_meta' ) );
 
-		/*
-		 * Root-cause fix, found while building the LTR CSS pass (Phase 3,
-		 * english-version/04-design-and-ltr-system/): `is_rtl()` — which
-		 * WordPress core's own `language_attributes()` (the `<html dir=
-		 * "...">` attribute itself), the Persian Calendar plugin's Jalali-
-		 * date conversion, and potentially other code all branch on — is a
-		 * GLOBAL, whole-site-locale check, not aware of which request is
-		 * in the /en/ URL space. Without this, an English page would still
-		 * render dir="rtl" and still show Jalali dates, defeating the
-		 * entire point of this rollout. `switch_to_locale()` is
-		 * WordPress's own real, native mechanism for exactly this —
-		 * correctly updates `$wp_locale` (so `is_rtl()` and `dir`/`lang`
-		 * output become request-aware) without touching this site's
-		 * actual Persian strings, which are hardcoded Persian text in
-		 * source, not pulled through a .mo translation file that this
-		 * could disturb.
-		 *
-		 * Hooked on `plugins_loaded` specifically — has to run before
-		 * Persian Calendar's own `init` (priority 10) checks `is_rtl()` to
-		 * decide whether to register its date filters at all, so this
-		 * can't wait for parse_request (too late) or even `init` itself.
-		 * Reads the raw request path directly rather than waiting for
-		 * this class's own query-var-based detection (set_language_context()
-		 * above) for the same reason — that only resolves at parse_request.
-		 */
+		// Switches locale to English early, so is_rtl()/dir/dates are
+		// correct before Persian Calendar's own init check runs. Full
+		// story: docs/CHANGELOG.md 2026-11-28.
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_switch_locale_for_english_request' ), 1 );
-		/*
-		 * Caught live, not assumed: WordPress core reloads locale data for
-		 * its own purposes somewhere between `setup_theme` and
-		 * `after_setup_theme` (traced with a temporary debug probe logging
-		 * is_rtl() at every bootstrap hook — it read correctly switched at
-		 * `setup_theme`, reverted by `after_setup_theme`), which silently
-		 * undoes a `plugins_loaded`-time switch_to_locale() before Persian
-		 * Calendar's own `init` (priority 10) ever checks it. Reapplying at
-		 * `after_setup_theme` priority 999 — after whatever resets it,
-		 * still well before `init` priority 10 — is what actually survives
-		 * to reach that check.
-		 */
+		// WP core resets the locale again after plugins_loaded, so this
+		// has to run a second time, later, to actually stick.
 		add_action( 'after_setup_theme', array( __CLASS__, 'maybe_switch_locale_for_english_request' ), 999 );
 
-		/*
-		 * These three templates run WordPress's own main query directly
-		 * (have_posts()/the_post(), no `new WP_Query()` of their own), so
-		 * pre_get_posts actually reaches them — same pattern already used
-		 * by Post_Types::include_cpts_in_search() and its two per-page
-		 * siblings. Every other listing template (taxonomy-*.php,
-		 * page-*.php, front-page.php's panels) builds its own query and
-		 * needs maybe_add_language_meta_query() called directly on its
-		 * own $args instead — see that method's docblock.
-		 */
+		// search.php/archive-announcement.php/archive-editors_pick.php use
+		// WP's main query directly, so pre_get_posts reaches them. Every
+		// other listing template calls add_language_filter() on its own
+		// query args instead.
 		add_action( 'pre_get_posts', array( __CLASS__, 'filter_main_query_by_language' ) );
 
-		/*
-		 * Canonical-URL enforcement for singular content, found 2026-11-28
-		 * while verifying Phase 4/5's work live: because the English
-		 * rewrite rules only ever ADD an /en/-prefixed mirror of every
-		 * existing rule, never remove the original, every single post/Page
-		 * is reachable at BOTH its bare URL and its /en/-prefixed one,
-		 * regardless of that post's own actual shcore_language — confirmed
-		 * live: `/en/about/` rendered the Persian About page with
-		 * lang="en-US"/no dir="rtl", and `/about-en/` (no prefix) rendered
-		 * the English About page with dir="rtl"/lang="fa-IR". Real
-		 * duplicate-content URLs, and actively wrong direction/locale on
-		 * whichever one doesn't match the content's real language. See
-		 * redirect_mismatched_singular_language() below for the fix.
-		 */
+		// Every post was reachable at both its bare URL and its /en/
+		// mirror regardless of its real language — redirects to the one
+		// correct URL. See docs/CHANGELOG.md 2026-11-28.
 		add_action( 'template_redirect', array( __CLASS__, 'redirect_mismatched_singular_language' ) );
 
 		/*
@@ -151,22 +102,8 @@ class Language {
 	}
 
 	/**
-	 * Switches WordPress's active locale to English, very early, for any
-	 * front-end request whose path starts with `/en/` (or is exactly
-	 * `/en`) — see the `plugins_loaded` registration above for why this
-	 * has to happen this early, and why a raw path check is used instead
-	 * of this class's own later, more careful query-var-based detection.
-	 * `en_US` needs no installed translation files to work correctly here
-	 * — WordPress's own fallback for a locale with no .mo file is simply
-	 * the original (Persian) source string, unchanged; only `is_rtl()`/
-	 * `$wp_locale`'s text-direction actually changes, which is the whole
-	 * point.
-	 *
-	 * Admin requests are explicitly excluded — wp-admin's own interface
-	 * language is a separate, per-user WordPress setting (Profile →
-	 * Language), untouched by this; nothing under `/en/` is an admin URL
-	 * anyway (this plugin's own rewrite rules never prefix wp-admin), but
-	 * the check is kept explicit rather than relying on that alone.
+	 * Switches the active locale to English for any front-end /en/
+	 * request, so is_rtl()/dir/dates become correct for it.
 	 *
 	 * @return void
 	 */
@@ -196,22 +133,15 @@ class Language {
 	}
 
 	/**
-	 * Mirrors every existing rewrite rule under an `en/` prefix, each one
-	 * additionally setting `shola_lang=en` — so any URL that already
-	 * works today (an article, a taxonomy archive, a PDF permalink...)
-	 * also works with `en/` in front, with no per-URL-pattern list to
-	 * hand-maintain. English-prefixed rules go first, so they're matched
-	 * before their un-prefixed Persian equivalents.
+	 * Mirrors every existing rewrite rule under an `en/` prefix, so any
+	 * URL that works today also works with `en/` in front.
 	 *
 	 * @param string[] $rules Existing rewrite rules (regex => query string).
 	 * @return string[]
 	 */
 	public static function add_english_prefixed_rules( $rules ) {
-		// Rule types with no real "English version" to speak of — mirroring
-		// these would just double the rewrite table for nothing.
-		// `rest_route=`: the REST API isn't a page with a language. `sitemap`:
-		// handled deliberately in Phase 5, not by blind prefixing here.
-		// `feed=`/`embed=true`: out of scope for now, not asked for.
+		// No real "English version" to mirror: REST, sitemap (handled
+		// separately), feeds, embeds.
 		$skip_if_contains = array( 'rest_route=', 'sitemap', 'feed=', 'embed=true' );
 
 		$english_rules = array();
@@ -222,12 +152,7 @@ class Language {
 				}
 			}
 
-			// Every existing regex starts with `^` (an anchor, not a
-			// literal character) — putting "en/" in front of the whole
-			// string would bury that anchor in the middle of the regex
-			// instead of at the start, breaking every single one of
-			// these silently. Strip it and put it back at the very
-			// front, now in front of "en/" instead of behind it.
+			// Keep the ^ anchor at the actual start, now before "en/".
 			$en_regex                   = '^en/' . ltrim( $regex, '^' );
 			$english_rules[ $en_regex ] = $query . '&' . self::QUERY_VAR . '=en';
 		}
@@ -269,38 +194,16 @@ class Language {
 	}
 
 	/**
-	 * `page` slugs that are structural content-type landing pages
-	 * (نشرات, کتابخانه, موضوعات, ...) — one single Page row renders at
-	 * the *same* path in both languages, filtered by content, not a
-	 * pairing. Same set the theme's own `shola_get_language_switch_url()`
-	 * (inc/template-tags.php) recognizes by template file rather than
-	 * slug; kept as a slug list here instead of calling that function,
-	 * same CLAUDE.md §2 reasoning as every other theme-logic duplication
-	 * in this class/class-seo.php. Checked by
-	 * redirect_mismatched_singular_language() below — these pages never
-	 * have a real `shcore_translation_id` pairing (there's nothing to
-	 * pair, it's the same Page either way), so without this exclusion
-	 * they'd be wrongly treated as "always Persian" and bounced away
-	 * from their own `/en/` URL.
+	 * Landing-page slugs (نشرات, کتابخانه, ...) that render the same one
+	 * Page at the same path in both languages — not a translation pair.
 	 *
 	 * @var string[]
 	 */
 	const STRUCTURAL_PAGE_SLUGS = array( 'publications', 'library', 'reports', 'party-documents', 'party-publications', 'topics', 'selected', 'leaflets' );
 
 	/**
-	 * 301-redirects a singular post/Page to its one correct canonical
-	 * URL whenever the URL's own language (the /en/ prefix or its
-	 * absence) disagrees with that specific post's real
-	 * `shcore_language` value — see init()'s registration above for the
-	 * live bug this fixes. Never touches archives/search/the front page:
-	 * those aren't tied to one fixed language the way a single post is
-	 * (Language::add_language_filter() already makes them show the
-	 * correct per-language results at either URL, which is correct,
-	 * not a bug), and a mismatch there has no one "right" URL to redirect
-	 * to. Also never touches the structural listing Pages in
-	 * STRUCTURAL_PAGE_SLUGS above, for the same reason — found live
-	 * (`/en/leaflets/` was being wrongly redirected back to `/leaflets/`)
-	 * right after shipping the first version of this fix.
+	 * Redirects a singular post/Page to its one correct URL when the
+	 * /en/ prefix disagrees with that post's real language.
 	 *
 	 * @return void
 	 */
@@ -373,13 +276,8 @@ class Language {
 	}
 
 	/**
-	 * Same condition as add_language_filter() above, applied to
-	 * WordPress's own main query — for the handful of templates
-	 * (search.php, archive-announcement.php, archive-editors_pick.php)
-	 * that use have_posts()/the_post() directly instead of building
-	 * their own WP_Query. Single posts/pages are left alone — a single
-	 * item resolves by its own unique slug regardless of language, same
-	 * as every other post type already works.
+	 * Same condition as add_language_filter(), applied to WP's own main
+	 * query (search.php and the two archive templates that use it directly).
 	 *
 	 * @param \WP_Query $query The query being filtered.
 	 * @return void
@@ -395,39 +293,15 @@ class Language {
 	}
 
 	/**
-	 * One-time fix for a real bug caught live, not assumed: every piece of
-	 * content that existed before this field did has NO actual
-	 * `shcore_language` postmeta row at all — `register_post_meta()`'s
-	 * `default` only affects what `get_post_meta()` *returns* for a post
-	 * with no row, it never writes one. A meta_query exact-match (which is
-	 * what every language filter in this class does) only matches a real
-	 * stored value, so every pre-existing post was silently excluded from
-	 * BOTH the Persian and English queries — confirmed live: the Persian
-	 * اطلاعیه‌ها archive dropped from 5 real announcements to 0 the moment
-	 * filter_main_query_by_language() went live, not just the English one.
-	 *
-	 * Fixes it the same way every other one-time content migration in this
-	 * plugin does (see Taxonomies::migrate_legacy_party_documents() for the
-	 * original pattern this follows): find every post with no row yet, set
-	 * it to `fa` explicitly (every pre-existing post actually is Persian),
-	 * hooked on admin_init with a persisted flag rather than plugin
-	 * activation (a code-only redeploy to an already-active plugin never
-	 * re-fires activation).
+	 * One-time fix: posts that existed before shcore_language did have no
+	 * real meta row at all (the default only affects reads, not writes),
+	 * so they matched neither language's filter. Sets them all to `fa`.
 	 *
 	 * @return void
 	 */
 	public static function backfill_legacy_language_meta() {
-		/*
-		 * Tracked per post type (an array option), not one single flag —
-		 * added 2026-11-27 when `page` joined the list after the first
-		 * version of this migration had already run and marked itself
-		 * fully done: a single boolean would have left `page` silently
-		 * never backfilled, since the function would return before ever
-		 * reaching it. Same per-item-tracking pattern as
-		 * Taxonomies::seed_publication_periods()'s own `$seeded` array,
-		 * for the same reason — this list is expected to grow again
-		 * later as more types get `shcore_language`.
-		 */
+		// Tracked per post type, not one flag, so adding a new type later
+		// (e.g. `page`) doesn't get silently skipped by an already-done flag.
 		$post_types = array( 'post', 'page', 'issue', 'document', 'party_publication', 'party_document', 'leaflet', 'editors_pick', 'announcement' );
 		$done       = get_option( 'shcore_language_meta_backfilled', array() );
 

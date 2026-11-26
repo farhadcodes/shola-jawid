@@ -1392,15 +1392,7 @@ $party_documents_query = new WP_Query( \SholaCore\Language::add_language_filter(
 			}
 			$term_link  = shola_build_term_link_for_lang( $term, $shola_topics_lang );
 			$term_label = shola_get_term_label( $term, $shola_topics_lang );
-			/*
-			 * Always per-language, not just on English — found 2026-11-28
-			 * while verifying the first real English article: $term->count
-			 * is WordPress's own combined count across both languages, so
-			 * once an English article shares a term with Persian ones, the
-			 * PERSIAN count must also be filtered, or it silently inflates
-			 * too (confirmed live: جهان jumped from 3 to 4 the moment one
-			 * English demo article was tagged with it).
-			 */
+			// Per-language on both sides — $term->count mixes languages together.
 			$term_count = shola_get_term_post_count( $term, $shola_topics_lang );
 			?>
 			<li><a href="<?php echo esc_url( $term_link ? $term_link : get_term_link( $term ) ); ?>">

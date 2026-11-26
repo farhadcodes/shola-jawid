@@ -46,14 +46,7 @@ get_header();
 
 $term = get_queried_object();
 
-/*
- * English term label/link — added 2026-11-28, English-version rollout,
- * same reasoning/pattern as taxonomy-topic.php's own fix: $term->name
- * and get_term_link() are always the raw Persian values, so every place
- * this template shows or links to a publication/دوره term needs the
- * language-aware helpers instead, or an English page would show Persian
- * headings/breadcrumbs/tiles around an otherwise-correct issue list.
- */
+// Language-aware term name/link, not the raw Persian-only values.
 $shola_lang = \SholaCore\Language::current();
 $term_label = shola_get_term_label( $term, $shola_lang );
 $term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
@@ -124,13 +117,7 @@ if ( $period_terms ) {
 				$period_term_link = $period_term_link ? $period_term_link : get_term_link( $period_term );
 				?>
 				<?php
-				/*
-				 * Always per-language, not just on English — see front-
-				 * page.php's موضوعات panel for the full reasoning
-				 * (2026-11-28): $period_term->count mixes both languages
-				 * together, so the PERSIAN count needs filtering too once
-				 * any English issue shares a دوره term with Persian ones.
-				 */
+				// Per-language on both sides — $period_term->count mixes languages together.
 				$period_term_count = shola_get_term_post_count( $period_term, $shola_lang, 'issue' );
 				?>
 				<li><a href="<?php echo esc_url( $period_term_link ); ?>">

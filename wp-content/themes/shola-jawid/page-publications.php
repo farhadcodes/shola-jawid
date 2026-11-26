@@ -12,10 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-/*
- * English term label/link — added 2026-11-28, English-version rollout,
- * same reasoning/pattern as taxonomy-publication.php's own fix.
- */
+// Language-aware term name/link, not the raw Persian-only values.
 $shola_lang = \SholaCore\Language::current();
 ?>
 	<section class="wrap section-top">

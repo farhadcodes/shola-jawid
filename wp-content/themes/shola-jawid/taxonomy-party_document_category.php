@@ -39,10 +39,7 @@ get_header();
 $term  = get_queried_object();
 $paged = max( 1, get_query_var( 'paged' ) );
 
-/*
- * English term label/link — added 2026-11-28, English-version rollout,
- * same reasoning/pattern as taxonomy-topic.php's own fix.
- */
+// Language-aware term name/link, not the raw Persian-only values.
 $shola_lang = \SholaCore\Language::current();
 $term_label = shola_get_term_label( $term, $shola_lang );
 $term_link  = shola_build_term_link_for_lang( $term, $shola_lang );

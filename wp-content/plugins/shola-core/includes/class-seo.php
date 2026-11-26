@@ -3,8 +3,8 @@
  * Custom SEO — meta description, Open Graph tags, canonical URL for
  * non-singular views (WP core already outputs rel_canonical for
  * singular content by default — verified live before writing this,
- * not assumed), inert self-referential hreflang scaffolding, and
- * sitemap.xml theming. No SEO plugin, per CLAUDE.md §3.
+ * not assumed), real hreflang tags, and sitemap.xml theming. No SEO
+ * plugin, per CLAUDE.md §3.
  *
  * @package SholaCore
  */
@@ -29,45 +29,16 @@ class SEO {
 		add_action( 'wp_head', array( __CLASS__, 'output_meta_tags' ), 1 );
 		add_filter( 'wp_sitemaps_add_provider', array( __CLASS__, 'remove_unwanted_sitemap_providers' ), 10, 2 );
 		add_filter( 'wp_sitemaps_taxonomies', array( __CLASS__, 'remove_unwanted_sitemap_taxonomies' ) );
-
-		/*
-		 * English-version rollout, 2026-11-28 — core's own rel_canonical()
-		 * (singular content only) builds its URL from get_permalink(),
-		 * which never carries the `/en/` prefix on its own (confirmed live:
-		 * nothing in this codebase filters post permalinks to add it — the
-		 * prefix is purely a rewrite-rule mirror, not a stored part of any
-		 * post's real permalink). Without this filter, an English single
-		 * post's own canonical tag would point at its bare, un-prefixed
-		 * URL — which Language::redirect_mismatched_singular_language()
-		 * then immediately 301s away from, so the "canonical" URL a search
-		 * engine would be told about isn't even the URL it resolves to.
-		 */
+		// Core's own canonical tag for singular content never carries
+		// the /en/ prefix on its own — fixes that.
 		add_filter( 'get_canonical_url', array( __CLASS__, 'filter_singular_canonical_url' ) );
-
-		/*
-		 * Checked live, not assumed (per this plan's own instruction):
-		 * does wp_sitemap.xml already include English URLs correctly
-		 * once English posts exist? No — every post's sitemap entry uses
-		 * `get_permalink()` internally, same bare (never /en/-prefixed)
-		 * URL get_canonical_url() had the same problem with above, so an
-		 * English post's own listing in wp-sitemap-posts-{type}-N.xml
-		 * pointed at the URL that Language::
-		 * redirect_mismatched_singular_language() now 301s away from —
-		 * confirmed by curling wp-sitemap-posts-post-1.xml directly and
-		 * finding the one real English demo article listed without /en/.
-		 * Taxonomy-archive sitemap entries are a smaller, deliberately
-		 * deferred gap: each term gets one entry regardless of language
-		 * today, same as before this fix — adding a second, English
-		 * entry per term would mean injecting new sitemap rows, not just
-		 * correcting existing ones, a larger change left for a later
-		 * round if Farhad wants it.
-		 */
+		// Checked live: core's sitemap doesn't add /en/ either. Fixes it
+		// per entry.
 		add_filter( 'wp_sitemaps_posts_entry', array( __CLASS__, 'filter_sitemap_post_entry' ), 10, 2 );
 	}
 
 	/**
-	 * Prefixes an English post's own sitemap entry with `/en/` — see
-	 * init()'s registration above for the live bug this fixes.
+	 * Prefixes an English post's own sitemap entry with `/en/`.
 	 *
 	 * @param array    $sitemap_entry Entry data (at least a 'loc' key).
 	 * @param \WP_Post $post          The post this entry is for.
@@ -85,9 +56,7 @@ class SEO {
 	}
 
 	/**
-	 * Adds the `/en/` prefix to core's own singular canonical URL when
-	 * the current request is in the English language context — see
-	 * init()'s registration above for why this is needed at all.
+	 * Adds the `/en/` prefix to core's own singular canonical URL.
 	 *
 	 * @param string $canonical_url Core's own computed canonical URL.
 	 * @return string
@@ -136,20 +105,9 @@ class SEO {
 	}
 
 	/**
-	 * The current page's canonical URL. WP core already outputs
-	 * `<link rel="canonical">` via `rel_canonical()` on `wp_head` for
-	 * singular content by default (confirmed live, not assumed) — this
-	 * covers the gap core leaves open (archives, search, the front
-	 * page) and is also reused for og:url everywhere, singular included,
-	 * so og:url and the canonical link always agree.
-	 *
-	 * Real bug caught during live verification: an earlier version
-	 * built this from `$wp->request`, which holds only the matched
-	 * rewrite *path* — empty for a query-string-only view like search
-	 * (`?s=...`), which made every search page's canonical silently
-	 * resolve to the front page instead of the search URL. Fixed by
-	 * using WP's own per-context URL functions instead of reconstructing
-	 * one generically.
+	 * The current page's canonical URL, language-prefixed. Covers the
+	 * gap core's own rel_canonical() leaves open (archives, search,
+	 * front page); also reused for og:url everywhere.
 	 *
 	 * @return string
 	 */
@@ -173,19 +131,13 @@ class SEO {
 			return ( 'en' === \SholaCore\Language::current() ) ? home_url( '/en/' ) : home_url( '/' );
 		}
 
-		// 404 and any other context this doesn't special-case: fall back
-		// to the raw request URL rather than guessing a "real" page it
-		// should canonicalize to — there isn't one for a genuine 404.
+		// 404 and anything else: fall back to the raw request URL, there's no "real" page to canonicalize to.
 		return home_url( add_query_arg( array(), $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL reconstruction, output through esc_url() at every call site, never used for a redirect or query.
 	}
 
 	/**
-	 * Adds the `/en/` prefix to a bare (Persian-shaped) URL when the
-	 * current request is in the English language context — added
-	 * 2026-11-28, English-version rollout. Shared by every
-	 * get_canonical_url() branch that calls a core/theme function
-	 * returning the bare URL (search, post-type archive): those
-	 * functions have no language awareness of their own.
+	 * Adds the `/en/` prefix to a bare URL, only when the current
+	 * request is in the English language context.
 	 *
 	 * @param string $url Bare URL.
 	 * @return string
@@ -199,17 +151,10 @@ class SEO {
 	}
 
 	/**
-	 * A taxonomy term's URL in a given (explicit, not "current request")
-	 * language — the term's own slug segment swapped for its English one
-	 * (`shcore_term_slug_en` term-meta) plus the `/en/` prefix. Same
-	 * logic as the theme's own `shola_build_term_link_for_lang()`
-	 * (inc/template-tags.php), deliberately duplicated rather than
-	 * called: CLAUDE.md §2 — this plugin must never call a theme
-	 * function, since it has to keep working if the active theme is
-	 * ever something other than Shola Jawid. Takes an explicit `$lang`
-	 * (rather than always reading `Language::current()`) so
-	 * get_hreflang_urls() below can ask for both languages' URLs
-	 * regardless of which one the current request is actually in.
+	 * A taxonomy term's URL in an explicitly given language (not
+	 * necessarily the current request's). Duplicates the theme's own
+	 * shola_build_term_link_for_lang() rather than calling it — a
+	 * plugin must not depend on a theme function (CLAUDE.md §2).
 	 *
 	 * @param \WP_Term $term Term object.
 	 * @param string   $lang 'fa' or 'en'.
@@ -239,23 +184,11 @@ class SEO {
 	}
 
 	/**
-	 * This page's real hreflang targets — english-version/05-technical-
-	 * implementation-plan/seo-and-sitemap-updates.md's "from inert to
-	 * real" fix. Returns an associative array with up to two keys
-	 * ('fa'/'en'), each the real URL for that language, or an empty
-	 * array if this context has no sensible hreflang pair at all (404
-	 * and anything else get_canonical_url() falls through to generically).
-	 *
-	 * Singular content only gets a second language's URL when a real,
-	 * *published* pairing actually exists (`shcore_translation_id`) —
-	 * hreflang means "this exact page, translated," never "related
-	 * content in another language," so an untranslated post gets only
-	 * its own one real tag, not a guessed/fallback URL. Every
-	 * non-singular context (archives, search, the front page) always
-	 * gets both: the `/en/` URL space structurally mirrors every one of
-	 * these regardless of whether English content exists there yet (the
-	 * page itself still exists and is reachable, just possibly showing
-	 * zero results — a legitimate state, not a missing page).
+	 * This page's real hreflang targets, as an array with up to two keys
+	 * ('fa'/'en'). Singular content gets a second language only with a
+	 * real, published shcore_translation_id pairing; every archive/
+	 * search/front-page context always gets both (the /en/ space always
+	 * structurally exists there).
 	 *
 	 * @return array{fa?: string, en?: string}
 	 */
@@ -266,13 +199,7 @@ class SEO {
 				return array();
 			}
 
-			/*
-			 * Structural listing Pages (نشرات, کتابخانه, ...) -- same
-			 * Language::STRUCTURAL_PAGE_SLUGS exclusion as
-			 * redirect_mismatched_singular_language(): one Page row
-			 * renders at the same path in both languages, so both
-			 * hreflang URLs always exist, same as a post-type archive.
-			 */
+			// Structural listing Pages render the same Page at the same path in both languages.
 			if ( 'page' === $post->post_type && in_array( $post->post_name, \SholaCore\Language::STRUCTURAL_PAGE_SLUGS, true ) ) {
 				$path = (string) wp_parse_url( get_permalink( $post ), PHP_URL_PATH );
 				return array( 'fa' => home_url( $path ), 'en' => home_url( '/en' . $path ) );
@@ -360,17 +287,8 @@ class SEO {
 
 	/**
 	 * Outputs the meta description, Open Graph tags, the canonical link
-	 * for the non-singular contexts core doesn't cover, and real hreflang
-	 * tags. Skipped entirely in wp-admin (this hook only ever fires
-	 * front-end via wp_head, but the explicit is_admin() guard costs
-	 * nothing and documents the intent).
-	 *
-	 * hreflang changed 2026-11-28, English-version rollout, from inert
-	 * self-referential scaffolding (both tags pointing at the same self
-	 * URL — correct for that phase, since English didn't exist yet) to
-	 * real fa/en pairs via get_hreflang_urls() — see that method's own
-	 * docblock and english-version/05-technical-implementation-plan/
-	 * seo-and-sitemap-updates.md for the full reasoning.
+	 * for the non-singular contexts core doesn't cover, and real
+	 * hreflang tags. Skipped entirely in wp-admin.
 	 *
 	 * @return void
 	 */
@@ -391,21 +309,11 @@ class SEO {
 		printf( '<meta name="description" content="%s" />' . "\n", esc_attr( $description ) );
 
 		if ( ! is_singular() ) {
-			// Singular already gets rel_canonical() from core (filtered
-			// to carry the /en/ prefix via filter_singular_canonical_url()
-			// above); this fills the gap for archives/search/front page
-			// only, so we never print two canonical tags on the same
-			// response.
+			// Singular already gets rel_canonical() from core; this fills the gap for everything else.
 			printf( '<link rel="canonical" href="%s" />' . "\n", esc_url( $canonical ) );
 		}
 
-		/*
-		 * x-default stays pointing at the Persian version when it exists
-		 * — Persian is the site's primary/default language (CLAUDE.md
-		 * §1) — falling back to whichever single language actually has a
-		 * URL here (an English-only context has no Persian URL to point
-		 * x-default at instead).
-		 */
+		// x-default stays on the Persian URL when one exists — Persian is the site's default language.
 		if ( isset( $hreflang_urls['fa'] ) ) {
 			printf( '<link rel="alternate" hreflang="fa" href="%s" />' . "\n", esc_url( $hreflang_urls['fa'] ) );
 		}
@@ -426,10 +334,7 @@ class SEO {
 		printf( '<meta property="og:image" content="%s" />' . "\n", esc_url( $image_url ) );
 
 		if ( ! $is_singular ) {
-			// Only the dedicated site-wide image has known, fixed
-			// dimensions worth hinting — a post's real featured image
-			// varies per upload, and platforms fetch it to measure
-			// anyway.
+			// Only the dedicated site-wide image has fixed, known dimensions worth hinting.
 			printf( '<meta property="og:image:width" content="1200" />' . "\n" );
 			printf( '<meta property="og:image:height" content="630" />' . "\n" );
 		}

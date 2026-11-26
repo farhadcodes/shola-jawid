@@ -73,17 +73,7 @@ $leaflet_lightbox_nav = ! isset( $args['nav'] ) || (bool) $args['nav'];
 	</button>
 	<?php if ( $leaflet_lightbox_nav ) : ?>
 		<?php
-		/*
-		 * Arrow direction confirmed against page-selected.php's own real
-		 * pagination (shola_pagination_prev_text()/shola_pagination_next_text())
-		 * rather than assumed: in this site's RTL layout, "next"
-		 * (chronologically older) is the left-pointing arrow at the
-		 * reading-end side; "previous" (newer) is right-pointing at the
-		 * reading-start side. Button position flips automatically under
-		 * dir="ltr" via inset-inline-start/-end, but the chevron SVG shape
-		 * itself does not — main.css mirrors it with scaleX(-1) so it still
-		 * points the right way under LTR, same fix as the filmstrip arrows.
-		 */
+		// Position flips via inset-inline-start/-end, but the chevron shape needs main.css's scaleX(-1) mirroring too.
 		?>
 		<button type="button" class="leaflet-lightbox-nav leaflet-lightbox-prev" aria-label="<?php esc_attr_e( 'تراکت قبلی، جدیدتر', 'shola-jawid' ); ?>">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>

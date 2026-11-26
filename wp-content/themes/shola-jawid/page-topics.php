@@ -12,10 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-/*
- * English term label/link/count — added 2026-11-28, English-version
- * rollout, same reasoning/pattern as front-page.php's موضوعات panel fix.
- */
+// Language-aware term name/link/count, not the raw Persian-only values.
 $shola_lang = \SholaCore\Language::current();
 ?>
 	<section class="wrap section-top">
@@ -52,7 +49,6 @@ $shola_lang = \SholaCore\Language::current();
 				}
 				$term_link  = shola_build_term_link_for_lang( $term, $shola_lang );
 				$term_link  = $term_link ? $term_link : get_term_link( $term );
-				// Always per-language — see front-page.php's موضوعات panel for the full reasoning (2026-11-28).
 				$term_count = shola_get_term_post_count( $term, $shola_lang );
 				?>
 				<li><a href="<?php echo esc_url( $term_link ); ?>">

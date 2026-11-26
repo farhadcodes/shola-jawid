@@ -515,26 +515,10 @@ function shola_maybe_add_party_documents_menu_item() {
 add_action( 'admin_init', 'shola_maybe_add_party_documents_menu_item' );
 
 /**
- * Hide-if-empty AND URL-localization for the popup menu's two real nav
- * locations (2026-11-27, English-version rollout — english-version/03-
- * content-architecture/complete-mirror-and-empty-state-rule.md): on an
- * English page, a nav item pointing at a content type with zero
- * published English items yet is removed from the menu entirely, rather
- * than shown linking to an empty page. Every item that stays also gets
- * its URL rewritten to the actual English target (added 2026-11-28,
- * found while building the first real paired English content) — every
- * item here is a plain WP menu-item post with a hardcoded Persian URL
- * (shola_maybe_add_*_menu_item()'s one-time seeding), so without this a
- * reader on an English page clicking any nav item would silently land
- * back on the Persian site. Persian pages are completely untouched —
- * every item always shows exactly as configured in Appearance → Menus.
- *
- * `$path_content_checks` only covers paths that are themselves content
- * *listings* (an archive/landing page backed by a CPT) — anything else
- * pointing at a plain Page (دربارهٔ ما, ارتباط با حزب, ...) falls through
- * to shola_page_has_english_version()'s pairing check instead, and
- * anything structural (home, موضوعات, جست‌وجو) is never checked at all —
- * those aren't tied to one content type's translation progress.
+ * On an English page: removes popup-menu items with no published
+ * English content yet, and rewrites the URL of every item that stays
+ * (they're all seeded with hardcoded Persian URLs otherwise). Persian
+ * pages are untouched.
  *
  * @param \WP_Post[] $items Menu item objects.
  * @param object     $args  wp_nav_menu()'s own args object (has ->theme_location).
@@ -592,14 +576,7 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 				unset( $items[ $key ] );
 				continue;
 			}
-			// Same reasoning as $always_show above: these menu items are
-			// plain WP menu-item posts with a hardcoded Persian URL
-			// (shola_maybe_add_*_menu_item()'s one-time seeding) — found
-			// 2026-11-28 while building the first real paired English
-			// content: nothing had ever rewritten this URL for English
-			// pages, so every nav click would have silently dropped the
-			// reader back into Persian even once real English content
-			// existed to link to.
+			// Same reasoning as $always_show above — the stored URL is Persian regardless.
 			$item->url = home_url( '/en' . $path );
 			continue;
 		}
@@ -610,11 +587,7 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 				unset( $items[ $key ] );
 				continue;
 			}
-			// Genuine editorial Page (دربارهٔ ما, ارتباط با حزب) — same
-			// pairing-based resolution the language switcher itself uses,
-			// not just an /en/ prefix, since its English counterpart is a
-			// separate Page with its own slug, not the same Page rendered
-			// twice.
+			// Genuine editorial Page — resolve via its real pairing, not just an /en/ prefix.
 			$item->url = shola_get_paired_url_or_fallback( $page, 'en', home_url( '/en/' ) );
 		}
 	}

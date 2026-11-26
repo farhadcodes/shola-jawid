@@ -51,14 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-/*
- * English home/breadcrumb link + count wording — added 2026-11-28,
- * English-version rollout, same reasoning/pattern as page-library.php's
- * own fix. $subsection['name']/['link'] are already language-aware
- * (shola_get_party_document_subsections()), and its 'count' is now
- * per-language too — only this template's own static links/wording
- * needed a direct fix.
- */
+// Language-aware home/breadcrumb link + count wording.
 $shola_lang  = \SholaCore\Language::current();
 $subsections = shola_get_party_document_subsections();
 ?>
