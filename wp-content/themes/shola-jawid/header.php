@@ -286,6 +286,8 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 			<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link mast-icon-link--lg hide-mobile" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 				<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
 			</a>
+			<span aria-hidden="true" class="mast-slash-light">/</span>
+			<?php shola_render_language_switch_link(); ?>
 			<?php if ( $shola_is_logo_layout ) : ?>
 				<?php
 				/*
@@ -344,6 +346,22 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 					<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><?php echo $social['icon']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static, trusted inline SVG defined in shola_get_social_links(), not user input. ?></svg></a>
 				<?php endforeach; ?>
 			</div>
+
+			<?php
+			/*
+			 * Language switcher, also always reachable from here (2026-11-27,
+			 * English-version rollout) — the top masthead bar's own copy of
+			 * this same link (shola_render_language_switch_link()) hides
+			 * below ~1300px (main.css, caught live: it pushed off-screen on
+			 * narrower desktop/tablet widths otherwise), so this popup-menu
+			 * copy is what keeps it reachable at every screen size, same
+			 * "narrow screens still get a reachable equivalent in the full
+			 * menu" pattern as every other masthead-right link here.
+			 */
+			?>
+			<nav class="menu-lang-switch" aria-label="<?php esc_attr_e( 'تغییر زبان', 'shola-jawid' ); ?>">
+				<?php shola_render_language_switch_link( 'menu-list-small' ); ?>
+			</nav>
 
 			<nav aria-label="<?php esc_attr_e( 'بخش‌های سایت', 'shola-jawid' ); ?>">
 				<p class="menu-section-title"><?php esc_html_e( 'بخش‌ها', 'shola-jawid' ); ?></p>

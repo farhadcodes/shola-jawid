@@ -60,23 +60,48 @@ entry if any rule was newly applied.
   function calls: `/en/`'s popup menu correctly shows only Home/Topics/
   Search; Persian nav shows every item unchanged.
 
-## Phase 2 — Language switcher
+## Phase 2 — Language switcher ✅ done 2026-11-27
 
-- Build `shola_get_language_switch_url()` (the fallback logic from
-  `language-field-and-pairing.md`) and wire it into `header.php`'s masthead,
-  replacing nothing (this UI never existed in the live build — see the
-  bilingual-readiness audit) but adding it fresh, in the same visual spot
-  the v6 prototype had it.
-- Verify the switcher resolves correctly on every page type listed in
-  `04-design-and-ltr-system/component-by-component-ltr-notes.md`, even
-  before any real English content exists (every path should correctly fall
-  back to an English archive/homepage, never 404).
-- Wire `shola_lang_has_content()` into the primary nav menu builder and
-  every `front-page.php` panel, so the hide-if-empty rule is live before
-  any real English content exists — verify by checking the English site
-  looks clean/complete with zero English content published yet (an empty
-  nav except About/Contact once those exist, an empty-but-not-broken
-  homepage), not just after content starts appearing.
+- ✅ Built `shola_get_language_switch_url()` (`inc/template-tags.php`) —
+  covers every page type: homepage, structural listing Pages (fixed-path
+  mirror), genuine editorial Pages/single posts (pairing-based, via
+  `shola_get_paired_url_or_fallback()`), taxonomy archives (slug-swap via
+  `shola_build_term_link_for_lang()`), CPT archives, and search — every
+  branch falls back to the target language's homepage rather than a dead
+  link. Wired into both real masthead layouts (`header.php`'s shared row,
+  `template-parts/masthead/two-tier.php`) via one shared renderer,
+  `shola_render_language_switch_link()`.
+- ✅ Verified live against the real site, not just read from the code —
+  and two real bugs were caught doing that, not assumed fixed:
+  1. `is_page()`'s structural-vs-editorial detection used
+     `get_page_template_slug()`, which only reflects a template chosen
+     from the Page Attributes dropdown — every `page-*.php` file in this
+     theme is matched by WordPress's automatic `page-{slug}.php` naming
+     convention instead, so that function returned empty for all of
+     them, silently misrouting نشرات/کتابخانه/etc. through the pairing
+     branch instead of the fixed-path one. Fixed with `get_page_template()`
+     (the actually-resolved file), confirmed live on `/publications/`.
+  2. The pairing branch returned a paired post's bare `get_permalink()`,
+     with no `/en/` prefix — meaning a reader sent to an English post
+     this way would land in the *Persian* language context (no
+     `shola_lang=en`), making that same page's own switcher then offer
+     the wrong direction. Fixed by rebuilding the URL with the correct
+     prefix explicitly, same as every other branch. Verified end-to-end
+     with real throwaway paired posts: FA→EN and EN→FA both landed on
+     the correct post, in the correct language context, confirmed by
+     re-reading the switcher's own link on the destination page.
+  3. (Caught during visual QA, not function testing) the new masthead
+     link overflowed off-screen entirely on real, common desktop widths
+     (confirmed via `getBoundingClientRect()`, not a guess) — and the
+     site's actually-active masthead layout turned out to be `two-tier`,
+     not the `default` layout assumed at first glance, confirmed via
+     `document.querySelector('header.masthead').className` rather than
+     assumed. Fixed with a CSS rule (`main.css`) hiding the in-masthead
+     link below 1400px, plus a second, always-visible copy added to the
+     popup menu (`#menu-panel`) so the switcher is reachable at every
+     screen width regardless.
+- Hide-if-empty for nav and homepage panels was already done in Phase 1
+  (confirmed there, not repeated here).
 
 ## Phase 3 — LTR CSS pass
 

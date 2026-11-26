@@ -118,6 +118,7 @@ $shola_two_tier_logo_id = get_theme_mod( 'custom_logo' );
 		<a href="<?php echo esc_url( home_url( '/?s=' ) ); ?>" class="link-quiet mast-icon-link" aria-label="<?php esc_attr_e( 'جست‌وجو', 'shola-jawid' ); ?>">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><circle cx="9.5" cy="9.5" r="8" pathLength="1"/><path d="m16 16 3 3" pathLength="1"/></svg>
 		</a>
+		<?php shola_render_language_switch_link(); ?>
 	</div>
 
 </div>

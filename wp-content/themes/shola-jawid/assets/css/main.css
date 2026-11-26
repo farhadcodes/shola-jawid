@@ -5742,3 +5742,24 @@ nav.mast-pub-nav { display: inline-flex; align-items: center; gap: calc(.5rem * 
   width: 1px;
   word-wrap: normal !important;
 }
+
+/* .mast-lang-switch (2026-11-27, English-version rollout) — the EN/فارسی
+   masthead link added one more item to an already-tight row, in every
+   masthead layout (`.masthead-right` for default/logo/logo-light/
+   logo-radial, `.mast-two-tier-utility` for two-tier). Caught live, not
+   assumed: checked both real layouts (the site's actually-active one
+   turned out to be two-tier, not default — confirmed via
+   document.querySelector('header.masthead').className rather than
+   guessed) at several widths; both pushed the link off the left edge of
+   the viewport entirely (getBoundingClientRect().x went negative)
+   somewhere in the ~1024-1300px band, safe again by 1400px for the
+   more-crowded two-tier row. `.masthead` wraps both layouts' markup
+   (confirmed in header.php) without wrapping the separate #menu-panel
+   popup, so this one selector/breakpoint hides both in-masthead copies
+   together; the popup-menu copy (header.php, inside #menu-panel) is
+   always reachable regardless of width, same "narrow screens still get
+   a reachable equivalent in the full menu" pattern this masthead's other
+   hide-mobile links already rely on. */
+@media (max-width: 1400px) {
+  .masthead .mast-lang-switch { display: none; }
+}

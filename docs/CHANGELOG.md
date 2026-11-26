@@ -15285,3 +15285,61 @@ menu now shows only Home/Topics/Search; the same page's Persian version
 pairing, taxonomy translation, `/en/` routing, every listing query
 filtered, and hide-if-empty all verified working together, live. Next:
 Phase 2, the actual language-switcher button.
+
+## 2026-11-27 (continued) — English-version Phase 2: the language switcher
+
+New functions in `inc/template-tags.php`:
+`shola_get_language_switch_url( $target_lang )` (the real destination for
+every page type — homepage, structural listing Pages, editorial Pages/
+single posts via pairing, taxonomy archives via slug-swap, CPT archives,
+search — every branch falls back to the target language's homepage
+rather than ever producing a dead link), `shola_build_term_link_for_lang()`,
+`shola_get_paired_url_or_fallback()`, and
+`shola_render_language_switch_link()` (the one shared renderer used by
+both real masthead layouts).
+
+Three real bugs caught by live testing, not assumed correct from reading
+the code:
+
+1. **Structural-page detection was silently broken.** `is_page()`'s
+   check for "is this a landing page like نشرات/کتابخانه, not an
+   editorial page like دربارهٔ ما" used `get_page_template_slug()` —
+   which only reflects a template explicitly chosen from the Page
+   Attributes dropdown. Every `page-*.php` file in this theme is
+   actually matched by WordPress's own automatic `page-{slug}.php`
+   naming convention, with no dropdown selection ever made, so that
+   function returned `''` for every one of them — confirmed live:
+   visiting `/publications/` and clicking the switcher landed on the
+   homepage instead of `/en/publications/`. Fixed with
+   `get_page_template()` (the actually-resolved file regardless of
+   which mechanism matched it); re-verified live, now correct.
+2. **The pairing branch's URL had no `/en/` prefix.** It returned a
+   paired post's bare `get_permalink()` — which carries no language
+   prefix at all, since that's a routing-layer concept `get_permalink()`
+   doesn't know about. A reader sent to an English post this way would
+   land in the *Persian* language context (no `shola_lang=en` present),
+   so that same destination page's own switcher would then read
+   backwards. Caught by creating two real, throwaway paired test posts
+   and actually clicking through both directions — fixed by rebuilding
+   the URL with the correct prefix explicitly, same pattern as every
+   other branch in the function. Re-verified: FA→EN and EN→FA both now
+   land on the correct post, in the correct language context.
+3. **The masthead link overflowed off-screen on real common desktop
+   widths.** Found via `getBoundingClientRect()` during visual QA (not
+   a function-level test) — at ~1024-1300px the new link's x-position
+   went negative, pushed off the left edge entirely. Also discovered
+   while investigating: the site's actually-active masthead layout is
+   `two-tier`, not `default` — confirmed via
+   `document.querySelector('header.masthead').className` rather than
+   assumed from a first glance at the code. Both real masthead layouts
+   were checked at several widths; fixed with one CSS rule (`main.css`)
+   hiding the in-masthead link below 1400px (the width both layouts were
+   confirmed safe at), plus a second, always-reachable copy added to the
+   popup menu (`#menu-panel`) — same "narrow screens still get a
+   reachable equivalent in the full menu" pattern this masthead's other
+   links already use.
+
+All throwaway test posts created during verification were deleted
+afterward. **Phase 2 is now complete** — the language switcher is real
+and working on every page type, in both masthead layouts, at every
+screen width.

@@ -1730,6 +1730,192 @@ function shola_get_term_slug( $term, $lang ) {
 }
 
 /**
+ * Builds a term's archive link in a given language — the Persian link
+ * WordPress already knows how to build, with the term's own slug
+ * segment swapped for its English one (english-version/03-content-
+ * architecture/taxonomy-translation.md) and `/en/` added in front. Works
+ * generically for every taxonomy (topic, publication, collection,
+ * party_document_category) since English URLs always mirror the exact
+ * same rewrite shape as Persian, just prefixed — see url-structure-and-
+ * routing.md.
+ *
+ * @param \WP_Term $term Term object.
+ * @param string   $lang 'fa' or 'en'.
+ * @return string|false False if the term has no real link at all.
+ */
+function shola_build_term_link_for_lang( $term, $lang ) {
+	$fa_link = get_term_link( $term );
+	if ( is_wp_error( $fa_link ) ) {
+		return false;
+	}
+	if ( 'en' !== $lang ) {
+		return $fa_link;
+	}
+
+	$slug_en  = shola_get_term_slug( $term, 'en' );
+	$path     = (string) wp_parse_url( $fa_link, PHP_URL_PATH );
+	$segments = array_values( array_filter( explode( '/', $path ) ) );
+	foreach ( $segments as $i => $segment ) {
+		if ( $segment === $term->slug ) {
+			$segments[ $i ] = $slug_en;
+		}
+	}
+
+	return home_url( '/en/' . implode( '/', $segments ) . '/' );
+}
+
+/**
+ * Resolves a single post's language-switch destination: its paired
+ * post's URL if a real, published pairing exists in the target
+ * language; the given fallback otherwise. Shared by every single-post/
+ * page branch of shola_get_language_switch_url() below.
+ *
+ * @param \WP_Post $post         Current post.
+ * @param string   $target_lang  'fa' or 'en'.
+ * @param string   $fallback_url Used when there's no usable pairing.
+ * @return string
+ */
+function shola_get_paired_url_or_fallback( $post, $target_lang, $fallback_url ) {
+	if ( ! ( $post instanceof WP_Post ) ) {
+		return $fallback_url;
+	}
+
+	$paired_id = (int) get_post_meta( $post->ID, 'shcore_translation_id', true );
+	if ( ! $paired_id || 'publish' !== get_post_status( $paired_id ) ) {
+		return $fallback_url;
+	}
+
+	$paired_lang = get_post_meta( $paired_id, 'shcore_language', true );
+	$paired_lang = $paired_lang ? $paired_lang : 'fa';
+	if ( $paired_lang !== $target_lang ) {
+		return $fallback_url;
+	}
+
+	/*
+	 * get_permalink() alone isn't enough here — caught live: it returns a
+	 * post's bare native URL with no /en/ prefix regardless of its
+	 * shcore_language value (the prefix is a routing layer this function
+	 * doesn't know about), which would otherwise send a reader to an
+	 * English post's address but in the *Persian* language context (no
+	 * `shola_lang=en`), with every language-aware thing on that page
+	 * (this same switcher included) then reading it backwards. Rebuilt
+	 * explicitly with the correct prefix instead of trusting the bare
+	 * permalink, same as every other branch in this function.
+	 */
+	$path = (string) wp_parse_url( get_permalink( $paired_id ), PHP_URL_PATH );
+	return ( 'en' === $target_lang ) ? home_url( '/en' . $path ) : home_url( $path );
+}
+
+/**
+ * The language switcher's actual destination for the current page —
+ * english-version/03-content-architecture/language-field-and-pairing.md's
+ * "what happens when you click EN/FA" rules, in one shared place so no
+ * template has to work this out on its own. Never returns a dead link —
+ * every branch that can't find a direct match falls back to the target
+ * language's homepage.
+ *
+ * @param string $target_lang 'fa' or 'en' — the language to switch TO.
+ * @return string
+ */
+function shola_get_language_switch_url( $target_lang ) {
+	$target_lang = ( 'en' === $target_lang ) ? 'en' : 'fa';
+	$homepage    = ( 'en' === $target_lang ) ? home_url( '/en/' ) : home_url( '/' );
+
+	if ( is_front_page() ) {
+		return $homepage;
+	}
+
+	/*
+	 * Structural listing Pages (نشرات/کتابخانه/گزارش/اسناد حزب/انتشارات
+	 * حزب/موضوعات/ترجمه/تراکت‌ها) always exist at the same fixed path in
+	 * both languages — they're landing pages for a content type, not
+	 * individually-authored content, so switching language is just
+	 * adding/removing the /en/ prefix on the same path, never a pairing
+	 * lookup.
+	 */
+	$structural_templates = array(
+		'page-publications.php',
+		'page-library.php',
+		'page-reports.php',
+		'page-party-documents.php',
+		'page-party-publications.php',
+		'page-topics.php',
+		'page-selected.php',
+		'page-leaflets.php',
+	);
+
+	if ( is_page() ) {
+		$post = get_queried_object();
+		/*
+		 * get_page_template_slug() only reflects a template explicitly
+		 * picked from the Page Attributes dropdown (a `Template Name:`
+		 * header) — found live, not assumed: every page-*.php file in this
+		 * theme is matched automatically by WordPress's own page-{slug}.php
+		 * naming convention instead, with no such header and no dropdown
+		 * selection ever made, so that function returned '' for every one
+		 * of them, silently falling through to the pairing-check branch
+		 * below instead of the fixed-path one. get_page_template() returns
+		 * the actual resolved template file regardless of which of the two
+		 * mechanisms matched it — the fix.
+		 */
+		$template = basename( (string) get_page_template() );
+
+		if ( in_array( $template, $structural_templates, true ) ) {
+			$path = (string) wp_parse_url( get_permalink( $post ), PHP_URL_PATH );
+			return ( 'en' === $target_lang ) ? home_url( '/en' . $path ) : home_url( $path );
+		}
+
+		// A genuine editorial Page (دربارهٔ ما, ارتباط با حزب, ...).
+		return shola_get_paired_url_or_fallback( $post, $target_lang, $homepage );
+	}
+
+	if ( is_singular() ) {
+		return shola_get_paired_url_or_fallback( get_queried_object(), $target_lang, $homepage );
+	}
+
+	if ( is_tax() || is_category() || is_tag() ) {
+		$term = get_queried_object();
+		$link = ( $term instanceof WP_Term ) ? shola_build_term_link_for_lang( $term, $target_lang ) : false;
+		return $link ? $link : $homepage;
+	}
+
+	if ( is_post_type_archive() ) {
+		// اطلاعیه‌ها/گزیده‌ها archives — fixed path, same reasoning as the
+		// structural Pages above, just a real CPT archive instead of a Page.
+		$archive_link = get_post_type_archive_link( get_query_var( 'post_type' ) );
+		if ( $archive_link ) {
+			$path = (string) wp_parse_url( $archive_link, PHP_URL_PATH );
+			return ( 'en' === $target_lang ) ? home_url( '/en' . $path ) : home_url( $path );
+		}
+	}
+
+	if ( is_search() ) {
+		return ( 'en' === $target_lang ) ? home_url( '/en/search/' ) : home_url( '/search/' );
+	}
+
+	// 404, or anything not explicitly handled above — never a dead link.
+	return $homepage;
+}
+
+/**
+ * Prints the EN/فارسی switcher link — one shared render used from every
+ * masthead layout (header.php's shared row, template-parts/masthead/
+ * two-tier.php), so the URL-resolution logic above is never duplicated
+ * per template, only this one small markup call is.
+ *
+ * @param string $extra_classes Additional CSS classes for this masthead layout's own spacing.
+ * @return void
+ */
+function shola_render_language_switch_link( $extra_classes = '' ) {
+	$target_lang = ( 'en' === \SholaCore\Language::current() ) ? 'fa' : 'en';
+	$label       = ( 'en' === $target_lang ) ? 'EN' : __( 'فارسی', 'shola-jawid' );
+	$url         = shola_get_language_switch_url( $target_lang );
+	?>
+	<a href="<?php echo esc_url( $url ); ?>" class="mast-btn mast-lang-switch <?php echo esc_attr( $extra_classes ); ?>" lang="<?php echo esc_attr( $target_lang ); ?>" hreflang="<?php echo esc_attr( $target_lang ); ?>"><?php echo esc_html( $label ); ?></a>
+	<?php
+}
+
+/**
  * Does at least one real, published item matching these args exist in
  * the current page's language? The one shared check every hide-if-empty
  * decision uses — nav items, homepage panels, term links — per
