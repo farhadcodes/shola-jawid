@@ -36,6 +36,17 @@ English name and English web-address version of each existing category.
 After that one-time setup, every article just gets tagged the same way
 regardless of which language it's written in.
 
+## About the demo content you'll see at first
+
+Before the client writes any real English content, the site won't look
+empty — Claude fills in clearly-marked placeholder content ("[نمونه]"
+in the title, plus an unmissable notice on the post's own edit screen)
+so there's something real to look at in every section. Replacing it is
+simple: open wp-admin, every demo post is visibly flagged, delete it as
+you publish the real version in its place. Nothing technical is needed
+to "turn off" demo mode — a demo post behaves exactly like any other
+post. Full policy: `../03-content-architecture/demo-content-policy.md`.
+
 ## What this project does NOT include
 
 Translating the existing library of Persian articles, issues, and documents

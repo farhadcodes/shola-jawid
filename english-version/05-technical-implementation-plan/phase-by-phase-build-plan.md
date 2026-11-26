@@ -55,22 +55,44 @@ entry if any rule was newly applied.
 
 ## Phase 3 — LTR CSS pass
 
+- **Decision checkpoint, raised here, not before:** ModamPro's Latin
+  glyph coverage (open decision #5) gets decided right at the start of
+  this phase, since this is the first point it actually matters (the
+  nav/masthead font choice for English pages is implemented here) —
+  Claude raises it again at that point rather than deciding it earlier
+  or leaving it unresolved past the point it's needed.
 - Add the `html[lang="en"] body`/`.ui` font rules from
   `typography-for-english.md`.
 - Work through `component-by-component-ltr-notes.md` top to bottom, fixing
   each flagged exception (icon mirroring, drop-cap float, number
   formatting) as found — this requires Phase 1's language context to exist,
   since it needs real `lang="en"`/`dir="ltr"` pages to check against.
+- Wire the Gregorian-vs-Jalali date decision (open decision #6, resolved —
+  Gregorian for English) into the existing `is_rtl()`-gated date logic in
+  `inc/template-tags.php`, now checking the language context instead of
+  `is_rtl()` alone.
 
-## Phase 4 — English content population begins
+## Phase 4 — Demo content, then real English content population
 
-- Translate and publish the About and Contact pages first (lowest
-  complexity, highest visibility).
-- Translate a small initial batch of articles and the most recent issue(s),
-  pairing each to its Persian original.
-- Add English term labels/slugs to every taxonomy term in scope.
-- This phase has no fixed end date — it's the start of an ongoing editorial
-  process, covered in `06-editorial-workflow/`.
+- **Demo content first** (resolved 2026-11-27 —
+  `03-content-architecture/demo-content-policy.md`): Claude populates
+  clearly-marked placeholder English content across every content type,
+  so the site looks genuininely full for visual review and so the
+  hide-if-empty infrastructure from Phase 1-2 can actually be seen
+  working, not just verified empty. Every demo post is flagged
+  (`shcore_is_demo_content`) and titled with a `[نمونه]` prefix — see
+  that file for the full marking convention and how it gets cleaned up
+  later.
+- Once the client is ready, they write the real English content
+  themselves (this is their own ongoing editorial process, covered in
+  `06-editorial-workflow/`) — About and Contact pages first (lowest
+  complexity, highest visibility), then articles/issues, pairing each to
+  its Persian original, replacing demo posts as real ones go up.
+- Add English term labels/slugs to every taxonomy term in scope (this part
+  Claude also does now, alongside the demo content, since it's structural
+  setup, not editorial writing).
+- This phase has no fixed end date past the demo-content step — real
+  content population is an ongoing editorial process.
 
 ## Phase 5 — SEO and sitemap
 

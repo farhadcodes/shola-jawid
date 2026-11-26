@@ -27,31 +27,36 @@ Yes, exactly mirrors the Persian homepage's structure (same hero-layout
 mechanism, same panel set) — each panel individually hidden/shown per the
 same rule.
 
-## 4. Who writes the English content, and on what timeline?
+## 4. ~~Who writes the English content, and on what timeline?~~ — RESOLVED 2026-11-27
 
-This plan covers making English content *possible* to add and *correctly
-displayed* once added — it does not cover the translation work itself
-(who translates articles, how quickly, whether every new Persian article
-also gets an English version going forward or only selected ones). That's
-an editorial/staffing decision for Farhad and the client, covered at a
-process level in `06-editorial-workflow/`, not a technical one.
+**Answer:** the client will write the real English content themselves,
+once the site is built. Until then, Claude populates **clearly-marked demo
+content** in every content type — enough that the site looks genuinely
+full and finished for visual review, not empty/broken — using the
+hide-if-empty infrastructure itself to prove it works (a section
+appearing the moment *any* English content exists, demo or real). Full
+policy, including exactly how demo content is marked so it's trivial to
+find and remove later: `demo-content-policy.md` in this same folder.
 
-## 5. ModamPro's Latin character coverage
+## 5. ModamPro's Latin character coverage — DEFERRED, Claude flags when it actually matters
 
-`--font-nav` (the stylized font used for brand/nav wordmarks) falls back to
-`"ModamPro", "Farhang2", ui-sans-serif, sans-serif` — **needs verification**
-whether ModamPro's font file actually includes Latin glyphs at all, or
-whether it's Persian-script-only (common for decorative branded fonts).
-If it has no Latin coverage, the browser already falls through to the next
-font in that stack automatically (no bug), but it's worth confirming on
-purpose rather than discovering it by accident — a 10-minute check, not a
-blocking decision.
+**Answer:** decide later, not now. Per Farhad's instruction: Claude will
+raise this again right before it actually becomes a blocking decision —
+specifically, at the start of Phase 3 (the LTR CSS pass,
+`04-design-and-ltr-system/`), where the nav/masthead font choice for
+English pages is actually implemented — rather than deciding it
+unprompted now or letting it block anything in the meantime. Until then,
+English pages simply use the font stack's own existing fallback
+(ModamPro → Farhang2 → system sans-serif), which already degrades
+gracefully either way.
 
-## 6. Date format for English readers
+## 6. ~~Date format for English readers~~ — RESOLVED 2026-11-27
 
-The Persian site shows dates in the Jalali (Persian) calendar via the
-Persian Calendar plugin (`CLAUDE.md` §3 whitelist). **Open question:**
-should English pages show Gregorian dates instead (more legible to an
-English-speaking, non-Afghan audience) or keep Jalali dates for
-consistency/authenticity? Either is a reasonable editorial choice — this
-needs the client's preference, not an assumption either way.
+**Answer: Gregorian dates on English pages** — more legible to an
+English-speaking, non-Afghan audience, which is the whole point of the
+English version existing. Persian pages are completely unaffected and
+keep Jalali dates exactly as today. Implementation detail: the existing
+`is_rtl()`-gated Jalali-date logic (`inc/template-tags.php`) needs to
+additionally check the page's language context (not just `is_rtl()`
+alone) once that context exists — see
+`url-structure-and-routing.md`.
