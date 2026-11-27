@@ -16210,3 +16210,63 @@ clearance is ~26px at both, the sticky bar's computed gaps are unchanged
 (10.88px / 6.528px, exactly the pre-existing 1rem/.6rem × 0.68 formula),
 and English's own gap values (10.4px / 6.4px, the earlier English-only
 fix) are untouched.
+## 2026-11-27 (continued, 5) — Footer search + language switch, mobile masthead swap
+
+Farhad's ask, after noticing the language switcher is invisible on mobile
+(it hides below 1400px with no equally-prominent alternative): add a
+search entry point and a language switcher to the footer at every
+breakpoint, and on mobile specifically, replace the masthead's search
+icon with the language switcher (moving search itself into the popup
+menu instead, so it's still one tap away).
+
+**New reusable helper**: `shola_render_compact_search_form( $extra_classes,
+$id_suffix )` (inc/template-tags.php) — a minimal icon-plus-input search
+form, language-aware the same way search.php's own fuller form now is
+(see the bug fixes below). `$id_suffix` exists because this renders twice
+on one page (footer + popup menu) and an input `id` can't repeat.
+
+**Footer** (footer.php, every breakpoint): added a `.footer-utility` row
+inside the existing `.footer-base` bar, opposite the copyright line
+(already `justify-content: space-between`) — the compact search form plus
+`shola_render_language_switch_link()` (already handles the admin's "hide
+the EN link" setting on its own, so no extra check needed here).
+
+**Mobile masthead** (main.css, ≤1000px — the same width the two-tier
+masthead's full nav already collapses at): `.mast-two-tier-utility
+.mast-icon-link` (the search icon) now hides and `.mast-two-tier-utility
+.mast-lang-switch` shows in its place, overriding the existing ≤1400px
+hide-switcher rule by appearing later in the cascade at equal
+specificity. Tablet (1000-1400px) and desktop (≥1400px) are both
+unchanged — verified live at 1200px and 1500px, exactly matching
+pre-existing behavior at each.
+
+**Search moved into the popup menu** (header.php's `#menu-panel`): a new
+`.menu-search-row` right under the topbar, full-width, using the same
+compact-search-form helper — this is the replacement for the mobile
+masthead's now-hidden search icon, verified reachable and functional at
+both mobile (375px) and tablet (900px) widths.
+
+**Two real, pre-existing bugs found and fixed while wiring the language-
+aware search action**, both affecting the *existing* search feature, not
+something newly introduced:
+1. The masthead search icon's English URL (`shola_get_masthead_quick_nav_
+   items()`, inc/template-tags.php) pointed at `/en/search/` — no such
+   rewrite rule exists, so it 404'd. Fixed to `/en/?s=` (matching the
+   Persian `/?s=` pattern exactly, including the "ask for a term" empty-
+   query guard search.php already has).
+2. search.php's own search form `action` and filter-tab links were
+   hardcoded to `home_url( '/' )` regardless of language — confirmed live
+   by actually submitting the form from an English results page: it
+   silently dropped the visitor onto the *Persian* results page, since
+   the resulting URL no longer carried `/en/`. Fixed with a shared
+   `$shola_search_base` language-aware base URL, used by the form action,
+   the filter-tab links, and the same logic `shola_render_compact_search_
+   form()` now also follows — all three places that build a search URL
+   on this site agree on the same rule in one place.
+
+Verified live in both directions: Persian footer/menu/masthead
+unchanged in appearance and behavior aside from the intentional mobile
+icon swap; English footer search submits and stays on `/en/?s=...`
+(tested both the footer form and the popup-menu form); the masthead
+search icon's English link now returns the real search page instead of
+a 404.

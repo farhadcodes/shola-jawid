@@ -324,6 +324,18 @@ if ( 'logo-light' === $shola_masthead_layout ) {
 		<a href="<?php echo esc_url( $shola_quick_nav['home']['url'] ); ?>" class="mast-nameplate mast-nameplate--menu" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) . ' — ' . __( 'صفحهٔ اصلی', 'shola-jawid' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
 	</div>
 
+	<?php
+	/*
+	 * Moved into the popup menu, 2026-11-27 — the mobile masthead's own
+	 * search icon now shows the language switcher in its place (main.css,
+	 * ≤1000px), so this is mobile's only remaining one-tap way to search.
+	 * Wrapped in .wrap to match .menu-topbar's own side padding.
+	 */
+	?>
+	<div class="wrap menu-search-row">
+		<?php shola_render_compact_search_form( 'menu-search', 'menu' ); ?>
+	</div>
+
 	<div class="menu-grid">
 
 		<nav aria-label="<?php echo esc_attr( shola_get_label( 'nav_topics_label' ) ); ?>">

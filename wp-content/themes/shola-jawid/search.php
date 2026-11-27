@@ -23,6 +23,16 @@ $search_query = get_search_query();
 $paged        = max( 1, get_query_var( 'paged' ) );
 $result_type  = sanitize_key( get_query_var( 'result_type' ) );
 
+/*
+ * Language-aware search base URL — found live, 2026-11-27: this form's
+ * action (and the filter-tab links below) used to hardcode
+ * `home_url( '/' )` regardless of language, so submitting a new search
+ * (or clicking a filter tab) from an English results page silently
+ * dropped the visitor back onto the Persian results page, since the
+ * resulting URL no longer carried the /en/ prefix at all.
+ */
+$shola_search_base = ( class_exists( '\SholaCore\Language' ) && 'en' === \SholaCore\Language::current() ) ? home_url( '/en/' ) : home_url( '/' );
+
 $filters = array(
 	''                  => __( 'همه', 'shola-jawid' ),
 	'article'           => __( 'مقاله', 'shola-jawid' ),
@@ -61,7 +71,7 @@ $filters = array(
 			<p class="dek"><?php esc_html_e( 'در مقالات، شماره‌ها، اسناد کتابخانه و انتشارات حزب — به فارسی یا انگلیسی.', 'shola-jawid' ); ?></p>
 		</header>
 
-		<form class="search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" role="search">
+		<form class="search-form" action="<?php echo esc_url( $shola_search_base ); ?>" method="get" role="search">
 			<label class="label search-form-label" for="q"><?php esc_html_e( 'عبارت جست‌وجو', 'shola-jawid' ); ?></label>
 			<div class="search-form-row">
 				<input class="field" type="search" id="q" name="s" placeholder="<?php esc_attr_e( 'مثلاً: تورم، دهقان، آب', 'shola-jawid' ); ?>" value="<?php echo esc_attr( $search_query ); ?>">
@@ -81,7 +91,7 @@ $filters = array(
 										'result_type' => $value,
 									)
 								),
-								home_url( '/' )
+								$shola_search_base
 							)
 						);
 						?>

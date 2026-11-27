@@ -1273,6 +1273,16 @@ html:not([dir="rtl"]) .mast-two-tier-utility { gap: calc(.65rem * var(--mast-sca
 .menu-topbar { display: flex; justify-content: space-between; align-items: center; }
 .mast-nameplate--menu { font-size: 1.6rem; }
 
+/*
+ * Search moved into the popup menu, 2026-11-27 (see header.php) — sits
+ * right under the topbar, full-width, so it reads as the menu's own
+ * search field rather than a cramped icon squeezed in next to the
+ * close button.
+ */
+.menu-search-row { margin-top: 1.5rem; }
+.menu-search-row .search-form-compact { width: 100%; }
+.menu-search-row .search-form-compact .field { flex: 1 1 auto; width: auto; }
+
 .menu-grid {
   margin-top: 3rem;
   display: grid;
@@ -4974,6 +4984,47 @@ html:not([dir="rtl"]) .hero-filmstrip-arrow svg { transform: scaleX(-1); }
   letter-spacing: .08em;
   color: var(--stone);
 }
+/*
+ * Footer search + language switch, 2026-11-27 — Farhad's explicit ask:
+ * a search entry point reachable from every page at every breakpoint
+ * (the footer had none before), plus a language switcher that's always
+ * visible regardless of the masthead's own `.mast-lang-switch` hiding
+ * below 1400px. `.footer-base` is already `justify-content: space-
+ * between`, so this sits as its own flex child, opposite the copyright
+ * line, wrapping onto its own row on narrow screens same as that line
+ * already does.
+ */
+.footer-utility { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.search-form-compact { display: flex; align-items: center; gap: .4rem; }
+.search-form-compact .field {
+  width: 11rem;
+  padding: .45rem .7rem;
+  font-size: var(--t-small);
+}
+.search-form-compact-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.1rem; height: 2.1rem; flex-shrink: 0;
+  color: var(--stone);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.search-form-compact-btn:hover { color: var(--winston-red); border-color: var(--stone); }
+/*
+ * Reuses .mast-btn's shape/weight, re-colored for this light background
+ * instead of the masthead's own dark-red one. font-size/padding set
+ * explicitly rather than left to .mast-btn's own `calc(... *
+ * var(--mast-scale))` values — --mast-scale is only ever defined inside
+ * `.masthead`, so outside it those calc()s are invalid and would fall
+ * back to inherited/initial values instead of the intended sizing.
+ */
+.footer-lang-switch {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: var(--t-small);
+  padding: .4rem .75rem;
+}
+.footer-lang-switch:hover { color: var(--winston-red); border-color: var(--stone); }
 
 /*
  * Mobile footer text size (2026-08-08, Farhad): .footer-tagline/.footer-col
@@ -5824,4 +5875,18 @@ html:not([dir="rtl"]) .leaflet-lightbox-next svg {
 /* Lang-switch link overflows below 1400px — hide it here, the popup-menu copy stays reachable. */
 @media (max-width: 1400px) {
   .masthead .mast-lang-switch { display: none; }
+}
+/*
+ * Mobile only (≤1000px, the same breakpoint the two-tier masthead's own
+ * full nav already collapses at — main.css §… .mast-two-tier-util-nav):
+ * swap the search icon for the language switcher instead of hiding both.
+ * Farhad's explicit ask, 2026-11-27 — the masthead had no visible way to
+ * switch languages below 1400px at all; search moves into the popup
+ * menu instead (header.php's #menu-panel) so it's still one tap away.
+ * Higher-specificity-tie-breaks-on-source-order override of the
+ * ≤1400px rule just above — this rule comes later, so it wins at ≤1000px.
+ */
+@media (max-width: 1000px) {
+  .mast-two-tier-utility .mast-icon-link { display: none; }
+  .mast-two-tier-utility .mast-lang-switch { display: inline-flex; }
 }

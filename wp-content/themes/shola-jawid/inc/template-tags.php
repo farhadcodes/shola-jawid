@@ -1997,6 +1997,40 @@ function shola_render_language_switch_link( $extra_classes = '' ) {
 }
 
 /**
+ * A small, icon-plus-input search form — added 2026-11-27 for the
+ * footer (every breakpoint) and the mobile popup menu, neither of which
+ * had any way to search before. Not a duplicate implementation of
+ * search.php's own fuller form (term field + filter tabs): this is
+ * deliberately minimal, matching the compact spaces it renders in.
+ * Same language-aware base URL fix as search.php's own form — submits
+ * to `/en/` on an English page, `/` on a Persian one, so the result
+ * page's language always matches the page the visitor searched from.
+ *
+ * @param string $extra_classes Additional CSS classes for the <form>.
+ * @param string $id_suffix     Appended to the input's id, so this can
+ *                               render more than once on one page (the
+ *                               footer and the menu panel both do)
+ *                               without two elements sharing one id.
+ * @return void
+ */
+function shola_render_compact_search_form( $extra_classes = '', $id_suffix = '' ) {
+	$is_en       = ( class_exists( '\SholaCore\Language' ) && 'en' === \SholaCore\Language::current() );
+	$action      = $is_en ? home_url( '/en/' ) : home_url( '/' );
+	$input_id    = 'q-compact' . ( $id_suffix ? '-' . $id_suffix : '' );
+	$placeholder = __( 'مثلاً: تورم، دهقان، آب', 'shola-jawid' );
+	$label       = __( 'جست‌وجو', 'shola-jawid' );
+	?>
+	<form class="search-form-compact <?php echo esc_attr( $extra_classes ); ?>" action="<?php echo esc_url( $action ); ?>" method="get" role="search">
+		<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		<input class="field" type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" placeholder="<?php echo esc_attr( $placeholder ); ?>">
+		<button type="submit" class="search-form-compact-btn" aria-label="<?php echo esc_attr( $label ); ?>">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><circle cx="9.5" cy="9.5" r="8" pathLength="1"></circle><path d="m16 16 3 3" pathLength="1"></path></svg>
+		</button>
+	</form>
+	<?php
+}
+
+/**
  * Does at least one real, published item matching these args exist in
  * the current page's language? The one shared check every hide-if-empty
  * decision uses — nav items, homepage panels, term links — per
@@ -2041,7 +2075,14 @@ function shola_get_masthead_quick_nav_items() {
 			'label' => $is_en ? 'Home' : __( 'صفحهٔ نخست', 'shola-jawid' ),
 		),
 		'search'        => array(
-			'url' => $is_en ? home_url( '/en/search/' ) : home_url( '/?s=' ),
+			/*
+			 * `/en/search/` (no such rewrite rule exists) 404'd — found
+			 * live, 2026-11-27. `/en/?s=` matches the Persian `/?s=`
+			 * pattern exactly (an empty-but-present query string, which
+			 * search.php already treats as "ask for a term", not "show
+			 * everything" — see its own empty-query guard).
+			 */
+			'url' => $is_en ? home_url( '/en/?s=' ) : home_url( '/?s=' ),
 		),
 		'publications'  => array(
 			'url'   => $is_en ? home_url( '/en/publications/' ) : home_url( '/publications/' ),

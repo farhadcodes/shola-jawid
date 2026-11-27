@@ -137,6 +137,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 			 */
 			?>
 			<p><?php echo esc_html( sprintf( /* translators: 1: Jalali year, 2: site name. */ __( '© %1$s · %2$s · بازنشر با ذکر منبع آزاد است', 'shola-jawid' ), wp_date( 'Y' ), get_bloginfo( 'name' ) ) ); ?></p>
+			<?php
+			/*
+			 * Search + language switcher, every breakpoint — added
+			 * 2026-11-27, Farhad's explicit ask: the masthead's own
+			 * switcher link disappears below 1400px with no equally
+			 * prominent alternative, and the footer had no search entry
+			 * point at all before this. shola_render_language_switch_link()
+			 * already handles the admin's "hide the EN link" setting on
+			 * its own, so this needs no extra check here.
+			 */
+			?>
+			<div class="footer-utility">
+				<?php
+				shola_render_compact_search_form( 'footer-search', 'footer' );
+				shola_render_language_switch_link( 'footer-lang-switch' );
+				?>
+			</div>
 		</div>
 	</div>
 </footer>
