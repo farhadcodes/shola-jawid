@@ -22,7 +22,7 @@ get_header();
 
 		<div class="kicker-row">
 			<p class="section-marker"></p>
-			<h1 class="h-display">۴۰۴</h1>
+			<h1 class="h-display"><?php echo esc_html( shola_to_persian_digits( 404 ) ); ?></h1>
 		</div>
 		<p class="dek"><?php esc_html_e( 'صفحه‌ای که به دنبال آن هستید یافت نشد. ممکن است نشانی اشتباه باشد یا این صفحه جابه‌جا یا حذف شده باشد.', 'shola-jawid' ); ?></p>
 

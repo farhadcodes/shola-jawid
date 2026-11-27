@@ -38,6 +38,17 @@ class Contact_Settings {
 	const EMAIL_OPTION_NAME = 'shcore_contact_email';
 
 	/**
+	 * Option name storing the English topic list — added 2026-11-27: the
+	 * dropdown used to always show the Persian list on the English
+	 * contact page too, since CF7's `data:contact_topics` tag had no
+	 * language concept at all. Falls back to the English default topics
+	 * (not the Persian ones) when empty.
+	 *
+	 * @var string
+	 */
+	const OPTION_NAME_EN = 'shcore_contact_topics_en';
+
+	/**
 	 * Default/fallback email — the same address page-contact.php had
 	 * hardcoded before this setting existed, so an un-configured site
 	 * keeps showing the same real address rather than a placeholder.
@@ -55,6 +66,7 @@ class Contact_Settings {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_email_setting' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_english_setting' ) );
 		add_filter( 'wpcf7_form_tag_data_option', array( __CLASS__, 'filter_data_option' ), 10, 2 );
 	}
 
@@ -76,15 +88,51 @@ class Contact_Settings {
 	}
 
 	/**
-	 * Read the current topic list.
+	 * English default topic list — plain English equivalents of
+	 * get_default_topics(), used the same way for the English contact form.
+	 *
+	 * @return string[]
+	 */
+	public static function get_default_topics_en() {
+		return array(
+			'Article pitch',
+			'Editorial question',
+			'Translation collaboration',
+			'Report a site error',
+			'Other',
+		);
+	}
+
+	/**
+	 * Read the current topic list — Persian or English, by the request's
+	 * actual language.
 	 *
 	 * @return string[]
 	 */
 	public static function get_topics() {
+		if ( class_exists( '\SholaCore\Language' ) && 'en' === \SholaCore\Language::current() ) {
+			return self::get_topics_en();
+		}
+
 		$topics = get_option( self::OPTION_NAME, self::get_default_topics() );
 
 		if ( empty( $topics ) || ! is_array( $topics ) ) {
 			return self::get_default_topics();
+		}
+
+		return $topics;
+	}
+
+	/**
+	 * Read the current English topic list.
+	 *
+	 * @return string[]
+	 */
+	public static function get_topics_en() {
+		$topics = get_option( self::OPTION_NAME_EN, self::get_default_topics_en() );
+
+		if ( empty( $topics ) || ! is_array( $topics ) ) {
+			return self::get_default_topics_en();
 		}
 
 		return $topics;
@@ -192,6 +240,44 @@ class Contact_Settings {
 	}
 
 	/**
+	 * Register the English topics option and its sanitize callback.
+	 *
+	 * @return void
+	 */
+	public static function register_english_setting() {
+		register_setting(
+			'shcore_contact_settings',
+			self::OPTION_NAME_EN,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_topics_en' ),
+				'default'           => self::get_default_topics_en(),
+			)
+		);
+	}
+
+	/**
+	 * Same line-per-topic sanitizing as sanitize_topics(), falling back to
+	 * the English defaults instead of the Persian ones.
+	 *
+	 * @param string $raw Raw textarea value from the settings form.
+	 * @return string[]
+	 */
+	public static function sanitize_topics_en( $raw ) {
+		$lines  = explode( "\n", (string) $raw );
+		$topics = array();
+
+		foreach ( $lines as $line ) {
+			$line = sanitize_text_field( trim( $line ) );
+			if ( '' !== $line ) {
+				$topics[] = $line;
+			}
+		}
+
+		return empty( $topics ) ? self::get_default_topics_en() : $topics;
+	}
+
+	/**
 	 * Register the settings page under Settings → Contact Topics.
 	 *
 	 * @return void
@@ -216,8 +302,9 @@ class Contact_Settings {
 			return;
 		}
 
-		$topics = self::get_topics();
-		$email  = self::get_email();
+		$topics    = self::get_topics();
+		$topics_en = self::get_topics_en();
+		$email     = self::get_email();
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'موضوعات فرم تماس', 'shola-core' ); ?></h1>
@@ -241,6 +328,15 @@ class Contact_Settings {
 					class="large-text"
 					dir="rtl"
 				><?php echo esc_textarea( implode( "\n", $topics ) ); ?></textarea>
+				<h2><?php esc_html_e( 'موضوعات فرم تماس — نسخهٔ انگلیسی', 'shola-core' ); ?></h2>
+				<p><?php esc_html_e( 'همان فهرست بالا، برای فرم تماس در نسخهٔ انگلیسی سایت. هر سطر یک گزینه.', 'shola-core' ); ?></p>
+				<textarea
+					name="<?php echo esc_attr( self::OPTION_NAME_EN ); ?>"
+					rows="8"
+					cols="50"
+					class="large-text"
+					dir="ltr"
+				><?php echo esc_textarea( implode( "\n", $topics_en ) ); ?></textarea>
 				<?php submit_button(); ?>
 			</form>
 		</div>

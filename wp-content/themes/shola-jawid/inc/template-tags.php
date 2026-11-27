@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Convert ASCII digits (0-9) to Persian digits (۰-۹).
+ * Convert ASCII digits (0-9) to Persian digits (۰-۹) — Persian pages only.
  *
  * WordPress's number_format_i18n() does NOT do this on this install —
  * confirmed empirically (site locale fa_AF): it only handles thousands
@@ -20,10 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * number_format_i18n() alone — anywhere a count, year, or other
  * content-facing number is displayed.
  *
+ * On an English (/en/) page this must stay Latin digits instead — added
+ * 2026-11-27 after the English-rollout QA pass found every call-site
+ * (card numbering badges) still showing Persian digits regardless of
+ * language, since this function used to convert unconditionally.
+ *
  * @param int|string $number Value to convert.
  * @return string
  */
 function shola_to_persian_digits( $number ) {
+	if ( ! is_rtl() ) {
+		return (string) $number;
+	}
+
 	static $map = array(
 		'0' => '۰',
 		'1' => '۱',
@@ -1946,6 +1955,9 @@ function shola_get_language_switch_url( $target_lang ) {
  * @return void
  */
 function shola_render_language_switch_link( $extra_classes = '' ) {
+	if ( class_exists( '\SholaCore\Language' ) && \SholaCore\Language::is_switcher_hidden() ) {
+		return;
+	}
 	$target_lang = ( 'en' === \SholaCore\Language::current() ) ? 'fa' : 'en';
 	$label       = ( 'en' === $target_lang ) ? 'EN' : __( 'فارسی', 'shola-jawid' );
 	$url         = shola_get_language_switch_url( $target_lang );

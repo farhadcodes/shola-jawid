@@ -54,7 +54,13 @@ if ( ! $shola_contact_dek ) {
 		<div class="contact-grid">
 			<div class="contact-inner">
 
-				<?php echo do_shortcode( '[contact-form-7 id="71"]' ); ?>
+				<?php
+				// English pages get their own CF7 form (id 308, English
+				// labels/messages) — added 2026-11-27, the Persian form had
+				// no language variant at all.
+				$shola_contact_form_id = ( class_exists( '\SholaCore\Language' ) && 'en' === \SholaCore\Language::current() ) ? 308 : 71;
+				echo do_shortcode( '[contact-form-7 id="' . (int) $shola_contact_form_id . '"]' );
+				?>
 
 				<?php
 				// shola-core is inactive — degrade to the same real address

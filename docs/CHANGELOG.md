@@ -15886,3 +15886,148 @@ leaflet images.
 auto-fixable findings remain (0 auto-fixable markers in the report),
 down from the original 166. The 32 remaining findings are exactly the
 pre-existing, out-of-scope substantive ones already documented above.
+
+## 2026-11-27 — New setting: hide the public English link
+
+Farhad asked for a dashboard option to hide the English-version link from
+the menu, in case the client doesn't want to show it publicly yet. Added
+`shcore_hide_language_switcher` (boolean option, default off), a new
+Settings → نسخهٔ انگلیسی سایت page (`SholaCore\Language::add_settings_
+page()`/`render_settings_page()`), and a guard at the top of
+`shola_render_language_switch_link()` (the one function every "EN /
+فارسی" link in the masthead and popup menu already goes through) that
+returns early when the option is on. The `/en/` URLs themselves are
+untouched either way — this only hides the link to them, exactly as
+Farhad described it. Verified live: with the option on,
+`.mast-lang-switch` elements are gone from the page but `/en/` still
+returns 200; reverted the option back to its default (off) afterward.
+
+## 2026-11-27 — English-independence QA pass: i18n pipeline fix + language-bleed fixes
+
+Farhad asked for a thorough review before client sign-off: confirm the two
+languages are fully independent of each other (no crashes, no cross-language
+leakage) and that every label on every page is completely in its own
+language, plus a new setting to let the client hide the public EN link. This
+entry covers everything found and fixed in that pass.
+
+**Root cause found and fixed — the theme's own translations were never
+loading at all.** A single test string (`دریافت PDF` → `Download PDF`)
+compiled to `shola-jawid-en_US.mo` and placed in the theme's own
+`languages/` folder did not take effect, even though `switch_to_locale(
+'en_US' )` (built in an earlier phase) was switching the locale correctly.
+Traced via a direct bootstrap script, not assumed: WordPress's own
+`load_theme_textdomain()` (confirmed by reading `wp-includes/l10n.php`
+directly for this exact WP version) only *registers* a custom path for
+just-in-time loading — it does not load the `.mo` file itself. And
+critically, WordPress's JIT loader (`_load_textdomain_just_in_time()`) uses
+a different filename convention for a theme's *own* `languages/` folder
+than for the central `wp-content/languages/themes/` folder: inside the
+theme's own folder, it expects **`{locale}.mo` (e.g. `en_US.mo`), not
+`{domain}-{locale}.mo`**. The theme had no `load_theme_textdomain()` call at
+all (confirmed via grep) and the test file was named the wrong way for its
+location — both had to be fixed:
+1. Added `load_theme_textdomain( 'shola-jawid', get_template_directory() .
+   '/languages' )` and the matching `load_plugin_textdomain()` for
+   `shola-core`, called from `SholaCore\Language::maybe_switch_locale_for_
+   english_request()` right after `switch_to_locale()` (same function,
+   already run twice per request for the existing locale-switch fix — see
+   the 2026-11-28 entries above — so the textdomain load now rides along
+   with it both times).
+2. Built the real `shola-jawid/languages/en_US.mo` (197 strings from
+   `shola-jawid.pot`, every one translated) and
+   `shola-core/languages/shola-core-en_US.mo` (the 14 front-end-reaching
+   default label strings from `class-label-settings.php`'s
+   `get_defaults()` — the rest of `shola-core.pot`'s 346 strings are
+   wp-admin-only UI, out of scope per the existing admin-language-switcher
+   design, same scoping decision as earlier phases).
+3. Verified live, not assumed: a single-document page's "دریافت PDF"
+   button, the homepage's "کتابخانه"/"اسناد حزب" section headings, and a
+   fresh direct-bootstrap check of `is_textdomain_loaded()` all confirmed
+   working before moving on to translating the full string set.
+
+**Digit-locale bleed, found by browsing, not by code review.** Four card
+badge partials (`announcement-spotlight.php`, `editors-picks-panel.php`,
+`most-viewed-panel.php`) and `404.php`'s error-page heading were still
+showing Persian digits (۱, ۴۰۴) on English pages. `shola_to_persian_digits()`
+(`inc/template-tags.php`) converted unconditionally, with no language
+check at all — fixed by making it return the number untouched when
+`! is_rtl()`, which fixes all 12 of its call-sites across the theme in one
+place. `404.php` also had a *second*, separate bug: a hardcoded literal
+`۴۰۴` in the markup that never went through the digit-conversion function
+at all — fixed by routing it through `shola_to_persian_digits( 404 )` like
+everywhere else.
+
+**Site identity (name/tagline) had no English variant at all** —
+`get_bloginfo( 'name' )`/`get_bloginfo( 'description' )` fed the `<title>`
+tag (via core's own `document_title_parts`), the meta-description fallback,
+and `og:site_name`, all showing the Persian site name/tagline on every
+single `/en/` page. Added two new options (`shcore_site_name_en`,
+`shcore_site_tagline_en`), a `bloginfo` filter in `SholaCore\Language` that
+swaps them in on an `/en/` request and falls back to the real Persian value
+when empty, and two new fields on the existing Settings → نسخهٔ انگلیسی
+سایت page. Left empty for Farhad to fill in himself (not guessed/hardcoded
+by Claude) — verified the swap and the fallback both work via a temporary
+test value, then reset the options back to empty before finishing.
+
+**Term archive `<title>` tag disagreed with its own page.** A taxonomy
+term's English label override (`shcore_term_name_en`, built in an earlier
+phase) was already used by the archive page's own H1/breadcrumb, but core's
+document title still used the raw Persian `$term->name` — e.g. `/en/
+topics/world/` showed "World" as the H1 but "جهان" in the browser tab.
+Fixed with a `document_title_parts` filter in `SholaCore\Language` that
+swaps in `shcore_term_name_en` when set. Confirmed every existing term
+across all 4 taxonomies already has an English name set from earlier work
+— this was purely a missing filter, not a missing-data problem.
+
+**The 8 "structural" shared Pages (کتابخانه/library, نشرات/publications,
+etc. — one Page rendered at the same URL in both languages, per the
+existing `STRUCTURAL_PAGE_SLUGS` design) had the same `<title>`-tag problem,
+but with no existing field to fix it from** — a shared Page has exactly one
+`post_title`, so it can't hold both a Persian and an English title. Added a
+new `shcore_page_title_en` post-meta field (optional, only meaningful for a
+Page shown at the same URL in both languages — a Page with its own real
+English pair, like about-en, already has its own real English title and
+doesn't need this), a new field on the Page edit screen's existing
+"زبان و نسخهٔ ترجمه" metabox, and extended the same `document_title_parts`
+filter above to also check it for a singular `WP_Post`. Filled in all 8
+structural pages' English titles (Publications, Library, Reports, Party
+Documents, Party Publications, Topics, Translations, Leaflets) since these
+are plain, unambiguous direct labels, not an editorial judgment call.
+
+**The contact form itself was 100% unmirrored — a real content-model gap,
+not just a missing translation.** `page-contact.php` hardcoded Contact Form
+7 form ID 71 regardless of language, so `/en/contact-en/` rendered the
+exact same Persian-labeled form (نام, نشانی ایمیل, موضوع پیام, and its
+dropdown options) as the Persian page. Two parts to the fix:
+1. Created a second CF7 form (id 308, English labels/messages/mail
+   template, same recipient address) and made `page-contact.php` choose the
+   form ID by `SholaCore\Language::current()`.
+2. The dropdown's options come from `SholaCore\Contact_Settings::
+   get_topics()` via CF7's `data:contact_topics` tag, which also had zero
+   language awareness — its default values weren't even wrapped in `__()`.
+   Added a parallel `shcore_contact_topics_en` option, a
+   `get_default_topics_en()`/`get_topics_en()` pair, a second textarea on
+   the existing Settings → موضوعات فرم تماس page, and made `get_topics()`
+   itself language-aware (checks `Language::current()` first). The settings
+   page itself stays Persian-only in the admin, as intended — only the
+   front-end-facing value changes by request language.
+
+**Verified independence in both directions for every fix above**, not just
+the English side: re-checked `/contact/`, `/library/`, `/topics/world/`,
+and `/404-test/` on the Persian side after each change to confirm Persian
+output was byte-identical to before (Persian digits still render as
+Persian, Persian site title/tagline/page titles untouched, the original
+6-option Persian contact-topics list — including Farhad's own
+previously-added 6th option — still intact).
+
+**Known, deliberately out-of-scope gap, flagged rather than silently
+left**: a taxonomy term's *description* text (e.g. "جهان" topic's one-line
+summary, shown in the archive page's dek and used as the SEO meta-
+description fallback) still has no English field at all — unlike the
+term's *name*, which already has `shcore_term_name_en`. This is editorial
+prose, not a short UI label, so writing an English version is real
+editorial work for Farhad/the editorial team to do deliberately, not
+something to auto-fill — flagged here rather than built as a guessed
+value. If this becomes a priority, the fix is structurally identical to
+`shcore_page_title_en` above (a new term-meta field + the existing
+`SEO::get_description()` fallback checking it first).

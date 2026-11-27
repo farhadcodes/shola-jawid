@@ -44,6 +44,27 @@ class Language {
 	const MANAGED_POST_TYPES = array( 'post', 'issue', 'document', 'party_publication', 'party_document', 'leaflet', 'editors_pick', 'announcement' );
 
 	/**
+	 * Option name for "hide the English switcher link" — lets Farhad turn
+	 * off the public EN link (masthead + popup menu) without touching
+	 * the /en/ URLs themselves, which stay reachable either way.
+	 *
+	 * @var string
+	 */
+	const HIDE_SWITCHER_OPTION = 'shcore_hide_language_switcher';
+
+	/**
+	 * Option names for the English site name/tagline — without these, the
+	 * <title> tag, meta description fallback, and og:site_name on every
+	 * /en/ page show the Persian site identity (get_bloginfo() has no
+	 * language variant of its own). Both fall back to the real Persian
+	 * value when left empty. Full story: docs/CHANGELOG.md 2026-11-27.
+	 *
+	 * @var string
+	 */
+	const SITE_NAME_EN_OPTION    = 'shcore_site_name_en';
+	const SITE_TAGLINE_EN_OPTION = 'shcore_site_tagline_en';
+
+	/**
 	 * This request's language, resolved once per request by
 	 * set_language_context() and read by current() everywhere else —
 	 * one source of truth instead of every piece of code re-deriving it
@@ -99,6 +120,187 @@ class Language {
 			add_filter( "manage_{$post_type}_posts_columns", array( __CLASS__, 'add_admin_language_column' ) );
 			add_action( "manage_{$post_type}_posts_custom_column", array( __CLASS__, 'render_admin_language_column' ), 10, 2 );
 		}
+
+		// Settings → English Version: the one public on/off switch for the EN link.
+		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_hide_switcher_setting' ) );
+
+		// Swaps the site name/tagline for their English versions on /en/
+		// pages — fixes <title>, the meta-description fallback, and
+		// og:site_name all at once, since all three read get_bloginfo().
+		add_filter( 'bloginfo', array( __CLASS__, 'filter_bloginfo_for_english' ), 10, 2 );
+
+		// A term archive's <title> tag used core's own term name (always
+		// Persian) even on /en/ pages, while the page's own H1 already
+		// used the term's shcore_term_name_en override — this makes the
+		// <title> tag agree with what the page itself shows.
+		add_filter( 'document_title_parts', array( __CLASS__, 'filter_document_title_for_english_term' ) );
+	}
+
+	/**
+	 * Whether the public EN/فارسی switcher link should be hidden right
+	 * now. The /en/ URLs themselves keep working either way — this only
+	 * controls whether the link to them is shown.
+	 *
+	 * @return bool
+	 */
+	public static function is_switcher_hidden() {
+		return (bool) get_option( self::HIDE_SWITCHER_OPTION, false );
+	}
+
+	/**
+	 * Registers the hide-switcher option and the English site-identity
+	 * overrides.
+	 *
+	 * @return void
+	 */
+	public static function register_hide_switcher_setting() {
+		register_setting(
+			'shcore_language_settings',
+			self::HIDE_SWITCHER_OPTION,
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+		register_setting(
+			'shcore_language_settings',
+			self::SITE_NAME_EN_OPTION,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+		register_setting(
+			'shcore_language_settings',
+			self::SITE_TAGLINE_EN_OPTION,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+	}
+
+	/**
+	 * Swaps `get_bloginfo( 'name' )`/`get_bloginfo( 'description' )` for
+	 * their English-override option on an /en/ request, falling back to
+	 * the real Persian value when no override is saved. Every other
+	 * `$show` value (e.g. 'version', 'charset') passes through untouched.
+	 *
+	 * @param string $output The value get_bloginfo() is about to return.
+	 * @param string $show   Which bloginfo field this is.
+	 * @return string
+	 */
+	public static function filter_bloginfo_for_english( $output, $show ) {
+		if ( 'en' !== self::current() ) {
+			return $output;
+		}
+
+		if ( 'name' === $show ) {
+			$override = get_option( self::SITE_NAME_EN_OPTION, '' );
+		} elseif ( 'description' === $show ) {
+			$override = get_option( self::SITE_TAGLINE_EN_OPTION, '' );
+		} else {
+			return $output;
+		}
+
+		return $override ? $override : $output;
+	}
+
+	/**
+	 * Swaps the 'title' part of a document title for its English override
+	 * on an /en/ request — a term archive's `shcore_term_name_en` (same
+	 * override the page's own H1 already uses), or a shared/structural
+	 * Page's `shcore_page_title_en` (e.g. کتابخانه shown at the same URL
+	 * in both languages, so its one title field can't hold both).
+	 *
+	 * @param array $title_parts Core's own document title parts.
+	 * @return array
+	 */
+	public static function filter_document_title_for_english_term( $title_parts ) {
+		if ( 'en' !== self::current() || empty( $title_parts['title'] ) ) {
+			return $title_parts;
+		}
+
+		$queried_object = get_queried_object();
+
+		if ( $queried_object instanceof \WP_Term ) {
+			$name_en = get_term_meta( $queried_object->term_id, 'shcore_term_name_en', true );
+			if ( $name_en ) {
+				$title_parts['title'] = $name_en;
+			}
+		} elseif ( $queried_object instanceof \WP_Post ) {
+			$title_en = get_post_meta( $queried_object->ID, 'shcore_page_title_en', true );
+			if ( $title_en ) {
+				$title_parts['title'] = $title_en;
+			}
+		}
+
+		return $title_parts;
+	}
+
+	/**
+	 * Registers the settings page under Settings → نسخهٔ انگلیسی.
+	 *
+	 * @return void
+	 */
+	public static function add_settings_page() {
+		add_options_page(
+			__( 'نسخهٔ انگلیسی سایت', 'shola-core' ),
+			__( 'نسخهٔ انگلیسی سایت', 'shola-core' ),
+			'manage_options',
+			'shcore-english-version',
+			array( __CLASS__, 'render_settings_page' )
+		);
+	}
+
+	/**
+	 * Renders the settings page: one checkbox.
+	 *
+	 * @return void
+	 */
+	public static function render_settings_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'نسخهٔ انگلیسی سایت', 'shola-core' ); ?></h1>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'shcore_language_settings' ); ?>
+				<table class="form-table">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'نمایش لینک تغییر زبان', 'shola-core' ); ?></th>
+						<td>
+							<label>
+								<input type="checkbox" name="<?php echo esc_attr( self::HIDE_SWITCHER_OPTION ); ?>" value="1" <?php checked( self::is_switcher_hidden() ); ?>>
+								<?php esc_html_e( 'لینک «EN / فارسی» را از سربرگ و منوی سایت پنهان کن', 'shola-core' ); ?>
+							</label>
+							<p class="description"><?php esc_html_e( 'نسخهٔ انگلیسی سایت همچنان در آدرس /en/ در دسترس می‌ماند؛ این گزینه فقط لینک آن را از نوار بالا و منو پنهان می‌کند.', 'shola-core' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'نام سایت به انگلیسی', 'shola-core' ); ?></th>
+						<td>
+							<input type="text" class="regular-text" dir="ltr" name="<?php echo esc_attr( self::SITE_NAME_EN_OPTION ); ?>" value="<?php echo esc_attr( get_option( self::SITE_NAME_EN_OPTION, '' ) ); ?>">
+							<p class="description"><?php esc_html_e( 'در عنوان تب مرورگر و اطلاعات اشتراک‌گذاری صفحات انگلیسی استفاده می‌شود. اگر خالی بماند، همان نام فارسی سایت نشان داده می‌شود.', 'shola-core' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'شعار سایت به انگلیسی', 'shola-core' ); ?></th>
+						<td>
+							<input type="text" class="regular-text" dir="ltr" name="<?php echo esc_attr( self::SITE_TAGLINE_EN_OPTION ); ?>" value="<?php echo esc_attr( get_option( self::SITE_TAGLINE_EN_OPTION, '' ) ); ?>">
+							<p class="description"><?php esc_html_e( 'در توضیح متای صفحات انگلیسی که چکیدهٔ خاص خود را ندارند (مانند صفحهٔ اصلی) استفاده می‌شود. اگر خالی بماند، همان شعار فارسی سایت نشان داده می‌شود.', 'shola-core' ); ?></p>
+						</td>
+					</tr>
+				</table>
+				<?php submit_button(); ?>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
@@ -117,7 +319,22 @@ class Language {
 
 		if ( '/en' === $path || 0 === strpos( $path, '/en/' ) ) {
 			switch_to_locale( 'en_US' );
+			self::load_translation_files();
 		}
+	}
+
+	/**
+	 * WordPress only auto-finds a plugin's own .mo files, not a theme's —
+	 * themes need this explicit call or their English strings never load.
+	 * Called right after switch_to_locale() above (not on plugins_loaded's
+	 * own, so it re-reads the now-English locale, not the default one),
+	 * and again safe to repeat since this function itself runs twice.
+	 *
+	 * @return void
+	 */
+	private static function load_translation_files() {
+		load_theme_textdomain( 'shola-jawid', get_template_directory() . '/languages' );
+		load_plugin_textdomain( 'shola-core', false, dirname( plugin_basename( SHCORE_PATH . 'shola-core.php' ) ) . '/languages' );
 	}
 
 	/**

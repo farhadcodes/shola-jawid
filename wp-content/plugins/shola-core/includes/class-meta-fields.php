@@ -1515,11 +1515,16 @@ class Meta_Fields {
 	}
 
 	/**
-	 * Render the page metabox: language + translation pairing only
-	 * (2026-11-27, English-version rollout) — same reasoning as
-	 * render_leaflet_metabox() above. This is what lets
-	 * shola_lang_has_content() tell whether a specific Page (دربارهٔ ما,
-	 * ارتباط با حزب, ...) has a published English version.
+	 * Render the page metabox: language + translation pairing, plus an
+	 * English title override (2026-11-27, English-version rollout QA pass)
+	 * — same reasoning as render_leaflet_metabox() above. This is what
+	 * lets shola_lang_has_content() tell whether a specific Page (دربارهٔ
+	 * ما, ارتباط با حزب, ...) has a published English version.
+	 *
+	 * The title override only matters for a Page shown at the SAME URL in
+	 * both languages (e.g. کتابخانه/library) — a Page with its own
+	 * separate English pair (e.g. about-en) already has a real English
+	 * title in its own title field and doesn't need this.
 	 *
 	 * @param \WP_Post $post Post object.
 	 * @return void
@@ -1529,6 +1534,15 @@ class Meta_Fields {
 		$language = get_post_meta( $post->ID, 'shcore_language', true );
 		self::render_language_field( $language );
 		self::render_translation_pairing_field( $post->ID, 'page' );
+
+		$title_en = get_post_meta( $post->ID, 'shcore_page_title_en', true );
+		?>
+		<p>
+			<label for="shcore_page_title_en"><strong><?php esc_html_e( 'عنوان صفحه به انگلیسی (اختیاری)', 'shola-core' ); ?></strong></label><br>
+			<input type="text" class="widefat" dir="ltr" name="shcore_page_title_en" id="shcore_page_title_en" value="<?php echo esc_attr( $title_en ); ?>">
+			<span class="description"><?php esc_html_e( 'فقط برای صفحاتی لازم است که در هر دو زبان روی یک نشانی یکسان نمایش داده می‌شوند (مانند کتابخانه). اگر خالی بماند، همان عنوان فارسی در تب مرورگر نشان داده می‌شود.', 'shola-core' ); ?></span>
+		</p>
+		<?php
 	}
 
 	/**
@@ -1693,7 +1707,7 @@ class Meta_Fields {
 			'leaflet'           => array( 'shcore_language', 'shcore_translation_id' ),
 			'editors_pick'      => array( 'shcore_language', 'shcore_translation_id' ),
 			'announcement'      => array( 'shcore_language', 'shcore_translation_id' ),
-			'page'              => array( 'shcore_language', 'shcore_translation_id' ),
+			'page'              => array( 'shcore_language', 'shcore_translation_id', 'shcore_page_title_en' ),
 		);
 
 		if ( ! isset( $fields_by_type[ $post->post_type ] ) ) {
@@ -1750,6 +1764,12 @@ class Meta_Fields {
 					? array_values( wp_unslash( $_POST['shcore_contents'] ) )
 					: array();
 				update_post_meta( $post_id, 'shcore_contents', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+				continue;
+			}
+			if ( 'shcore_page_title_en' === $field ) {
+				if ( isset( $_POST['shcore_page_title_en'] ) ) {
+					update_post_meta( $post_id, 'shcore_page_title_en', sanitize_text_field( wp_unslash( $_POST['shcore_page_title_en'] ) ) );
+				}
 				continue;
 			}
 			if ( isset( $_POST[ $field ] ) ) {
