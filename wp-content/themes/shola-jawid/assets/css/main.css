@@ -859,18 +859,38 @@ html:not([dir="rtl"]) .masthead--two-tier {
   transition: padding-block var(--dur) var(--ease);
 }
 /*
- * Persian-only, non-scrolled-only extra gap, 2026-11-27: adding the EN/
- * فارسی language-switcher link widened this row enough that the
- * hamburger button (`.mast-two-tier-utility`'s first child) ended up
- * sitting underneath the absolutely-positioned flag graphic, which
- * extends outward past the identity block's own edge — found live, not
- * assumed, by measuring both elements' rendered rects. The sticky
- * (`.is-scrolled`) bar already has enough room at its own smaller
- * `--mast-scale` and isn't touched; English isn't touched either, since
- * its nameplate ("CMP Afghanistan") is short enough that this never
- * happens there.
+ * Persian-only, non-scrolled-only tighter internal nav spacing,
+ * 2026-11-27: adding the EN/فارسی language-switcher link widened this
+ * row enough that the hamburger button (`.mast-two-tier-utility`'s
+ * first child) ended up sitting underneath the absolutely-positioned
+ * flag graphic, which always paints above static content regardless of
+ * DOM order — found live, not assumed, by measuring both elements'
+ * rendered rects.
+ *
+ * First attempt added extra `gap` to `.mast-two-tier-inner` instead
+ * (between the identity cluster and the utility block) — wrong fix,
+ * caught by Farhad: `.mast-two-tier-identity`/`.mast-two-tier-utility`
+ * are edge-anchored to `.wrap`'s own padding via `justify-content:
+ * space-between` (confirmed live: both already sit flush with that
+ * padding at baseline, with only ~28px of natural free space between
+ * them), so adding to `gap` beyond that free space pushes the whole
+ * utility block— hamburger, nav, search icon, switcher link—past the
+ * wrap's own edge, out of alignment with the page's content column
+ * below. Reverted that.
+ *
+ * Correct fix: shrink the utility block's own total width instead, by
+ * tightening the gaps *between* its items (hamburger/home/nav/search/
+ * switcher, and the six nav items within that nav) — utility's left
+ * edge stays anchored exactly where it was (same alignment as the
+ * content column below), and its right edge (where the hamburger sits,
+ * closest to the flag) moves away from it by exactly the width saved.
+ * The sticky (`.is-scrolled`) bar already has enough room at its own
+ * smaller `--mast-scale` and isn't touched; English isn't touched
+ * either, since its nameplate ("CMP Afghanistan") is short enough that
+ * this never happens there.
  */
-html[dir="rtl"] .masthead--two-tier:not(.is-scrolled) .mast-two-tier-inner { gap: calc(1.5rem * var(--mast-scale) + 5rem); }
+html[dir="rtl"] .masthead--two-tier:not(.is-scrolled) .mast-two-tier-utility { gap: calc(.5rem * var(--mast-scale)); }
+html[dir="rtl"] .masthead--two-tier:not(.is-scrolled) .mast-two-tier-util-nav { gap: calc(.3rem * var(--mast-scale)); }
 /*
  * Identity cluster: title, then date beneath it, right-aligned, with
  * the flag as a large tilted graphic behind both (position: absolute,

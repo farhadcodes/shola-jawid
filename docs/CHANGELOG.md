@@ -16173,3 +16173,40 @@ pass left only ~6px, not enough; settled on an extra 5rem of gap, giving
 Verified at 1920px and 1440px: hamburger clearly visible at both widths,
 Persian sticky bar's computed gap unchanged (16.32px, exactly
 1.5rem × 0.68 as before), English's non-scrolled gap unchanged (24px).
+## 2026-11-27 (continued, 4) — Correction: previous hamburger fix misaligned the masthead
+
+Farhad caught this immediately after the previous entry's fix: adding
+extra `gap` to `.mast-two-tier-inner` did clear the hamburger from under
+the flag, but it also pushed the whole utility block (hamburger, nav,
+search icon, switcher link) left of the page's own content column below,
+visibly out of alignment — not what he asked for. He asked specifically
+to keep the row's overall alignment and instead tighten the spacing
+*between* the menu's own items.
+
+Root cause of the wrong first attempt: `.mast-two-tier-identity` and
+`.mast-two-tier-utility` are edge-anchored to `.wrap`'s own inline
+padding via `justify-content: space-between` — confirmed live, both sit
+flush with that padding at baseline, with only ~28px of natural free
+space between them. `gap` only has visible effect once it's pushed
+*past* that natural free space, and past it, it does so by moving the
+*whole* utility block past the wrap's own edge, not by making room
+within it.
+
+Reverted that rule and replaced it with the fix Farhad actually asked
+for: tighter gaps *within* the utility block itself —
+`.mast-two-tier-utility` (between the hamburger/home/nav/search/switcher)
+and `.mast-two-tier-util-nav` (between the six nav items) — both scoped
+the same way as before (`html[dir="rtl"] .masthead--two-tier:
+not(.is-scrolled)`, Persian non-scrolled only). This shrinks the utility
+block's own width while its left edge stays anchored exactly where it
+was, so its right edge (where the hamburger sits, closest to the flag)
+moves away from it by exactly the width saved — the row's overall
+alignment with the content column below is preserved.
+
+Verified live at 1920px and 1440px: utility's left edge is pixel-exact
+with the wrap's padding boundary at both widths (same alignment as
+before any of this session's masthead changes), hamburger-to-flag
+clearance is ~26px at both, the sticky bar's computed gaps are unchanged
+(10.88px / 6.528px, exactly the pre-existing 1rem/.6rem × 0.68 formula),
+and English's own gap values (10.4px / 6.4px, the earlier English-only
+fix) are untouched.
