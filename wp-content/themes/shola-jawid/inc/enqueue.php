@@ -28,11 +28,23 @@ function shola_enqueue_assets() {
 	 * long as a page sits in cache. rest_url(), not a hardcoded
 	 * '/wp-json/' path — correct even if the site's permalink structure
 	 * or REST API prefix is ever non-default.
+	 *
+	 * ?lang= added 2026-11-27: a bare REST request carries no /en/ prefix
+	 * at all, so without this the endpoint always computed the date in
+	 * the site's default (Persian) locale — found live, the masthead was
+	 * showing the Jalali date on English pages even though the original
+	 * server-rendered HTML had the correct Gregorian one, because this
+	 * client-side overwrite replaced it a moment after load. The endpoint
+	 * now reads this param and switches locale to match before computing
+	 * the date — see shola_register_masthead_date_route().
 	 */
+	$shola_masthead_lang = class_exists( '\SholaCore\Language' ) ? \SholaCore\Language::current() : 'fa';
 	wp_localize_script(
 		'shola-jawid-main',
 		'sholaMastheadDate',
-		array( 'endpoint' => esc_url_raw( rest_url( 'shola/v1/masthead-date' ) ) )
+		array(
+			'endpoint' => esc_url_raw( add_query_arg( 'lang', $shola_masthead_lang, rest_url( 'shola/v1/masthead-date' ) ) ),
+		)
 	);
 }
 add_action( 'wp_enqueue_scripts', 'shola_enqueue_assets' );

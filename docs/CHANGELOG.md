@@ -16031,3 +16031,80 @@ something to auto-fill — flagged here rather than built as a guessed
 value. If this becomes a priority, the fix is structurally identical to
 `shcore_page_title_en` above (a new term-meta field + the existing
 `SEO::get_description()` fallback checking it first).
+
+## 2026-11-27 (continued) — English masthead: overflow, site name, "Contact Us", Gregorian date
+
+Farhad reviewed the live English site and reported four things from two
+screenshots: the main (non-sticky) masthead's nav overflowing off the right
+edge, the nameplate needing a short English name ("CMP Afghanistan") instead
+of the full Persian name, "Contact the Party" needing to read "Contact Us",
+and the masthead date still showing the Jalali calendar on English pages.
+
+**Masthead overflow — root cause wasn't a breakpoint, found by measuring
+rendered widths, not guessing.** `.mast-two-tier-inner`'s own `.wrap` caps
+at 1200px regardless of viewport width, so this wasn't a "narrow screen"
+bug — it was overflowing on a 1920px-wide screen too. The identity cluster
+(nameplate + date) plus the six-item utility nav's combined natural width
+(~1284px with the full Persian site name) simply didn't fit in that fixed
+1200px, because `.mast-btn`'s shared `letter-spacing: .14em` +
+`text-transform: uppercase` (tuned for short Latin abbreviations appearing
+inside Persian text, not a run of six full English words) made the English
+labels noticeably wider than their Persian equivalents. Fixed with three
+new rules scoped to `html:not([dir="rtl"])` and to this one nav only (the
+shared `.mast-btn` rule everything else uses, and the Persian site's own
+layout, are untouched): tighter letter-spacing (`.14em` → `.03em`) and
+slightly smaller gaps on the utility nav and its container. Verified at
+1920px and 1440px — full nav fits with room to spare at both; re-verified
+Persian at 1920px afterward, byte-identical nav width to before.
+
+**Site nameplate.** The masthead's `<span class="mast-nameplate">` already
+called `bloginfo( 'name' )` directly, so it was already wired to the
+`shcore_site_name_en` option added in the previous entry — just needed a
+real value. Set to "CMP Afghanistan" via Settings → نسخهٔ انگلیسی سایت
+(this is a real, permanent value Farhad asked for, unlike the earlier
+entry's temporary test value, which was reverted). This incidentally also
+did most of the work fixing the overflow above, since the full Persian
+name was by far the widest single piece of the identity cluster.
+
+**"Contact the Party" → "Contact Us".** This label turned out to come
+from three different places, not one — all three had to change together or
+the site would've shown a mix of the two names depending on which nav a
+visitor was looking at:
+1. `shola_get_masthead_quick_nav_items()`'s hardcoded English literal
+   (`inc/template-tags.php`) — the actual source for both `header.php`'s
+   default layout and the two-tier masthead's utility nav/popup-menu.
+2. `shola_hide_empty_language_nav_items()`'s separate hardcoded English-
+   labels map (`inc/setup.php`) — a second, independent source for the
+   real `wp_nav_menu()`-based `menu_sections`/`menu_more` locations.
+3. The `contact-en` Page's own title (`[نمونه] Contact the Party` →
+   `[Sample] Contact Us`) — otherwise the nav would've said "Contact Us"
+   while the page's own H1 and `<title>` tag still said "Contact the
+   Party" right below it.
+Also updated the `.po`/`.mo` translation for `ارتباط با حزب` to match, for
+every other spot that string is used.
+
+**Masthead date still Jalali on English pages — a second, separate bug
+from the translation-pipeline one, found live.** The visible masthead date
+is a two-stage render: PHP outputs `shola_get_masthead_runner()`'s value
+first, then `assets/js/main.js` immediately re-fetches it from a REST
+endpoint (`shola_register_masthead_date_route()`, added 2026-09-15 to
+defeat full-page caching) and overwrites it — and that REST request
+carries no `/en/` URL prefix at all, so it always computed the date in the
+site's default Persian locale regardless of what page asked for it. Two
+parts:
+1. `inc/enqueue.php` now appends `?lang=<current language>` to the
+   endpoint URL it localizes, reading it from `SholaCore\Language::
+   current()` (guarded by `class_exists()`, per CLAUDE.md §2 — the theme
+   must not fatal-error if the plugin is inactive).
+2. `SholaCore\Language::maybe_switch_locale_for_english_request()` (the
+   same function that already switches locale for `/en/` page requests,
+   at `plugins_loaded` priority 1) now also recognizes this specific REST
+   path + `lang=en` and switches locale the same way. This timing turned
+   out to matter: an earlier version of this fix called
+   `switch_to_locale()` from inside the REST callback itself, which runs
+   much later — Persian Calendar's own Jalali-conversion gate had already
+   decided by then, so the endpoint kept returning the Jalali date even
+   with that switch in place. Verified live before settling on the fix:
+   the REST response and the rendered masthead both now read e.g.
+   "Friday 27 November 2026" on an English page, and the Persian site's
+   own masthead date is unchanged.

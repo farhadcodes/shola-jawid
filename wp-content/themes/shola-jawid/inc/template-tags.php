@@ -944,6 +944,20 @@ function shola_get_masthead_runner() {
  * anything sensitive or user-specific, so no nonce/permission check
  * adds real protection here, only friction.
  *
+ * `?lang=en` added 2026-11-27: a bare REST request carries no /en/ URL
+ * prefix, so without this the endpoint always computed the date in the
+ * site's default (Persian) locale — the English masthead was showing a
+ * correct Gregorian date on first paint, then this client-side refresh
+ * silently replaced it with the Jalali one a moment later. The actual
+ * locale switch for this param happens early, in SholaCore\Language::
+ * maybe_switch_locale_for_english_request() (plugins_loaded priority 1)
+ * — same function and timing the /en/ page case already uses, and for
+ * the same reason: Persian Calendar's own Jalali-conversion gate decides
+ * once, early in the request, so switching locale from inside this
+ * callback (which runs much later) was too late — found live, not
+ * assumed, when an earlier version of this fix still returned the
+ * Jalali date.
+ *
  * @return void
  */
 function shola_register_masthead_date_route() {
@@ -2035,7 +2049,7 @@ function shola_get_masthead_quick_nav_items() {
 		),
 		'contact'       => array(
 			'url'   => $is_en ? shola_get_paired_url_or_fallback( $contact_page, 'en', home_url( '/en/' ) ) : home_url( '/contact/' ),
-			'label' => $is_en ? 'Contact the Party' : __( 'تماس', 'shola-jawid' ),
+			'label' => $is_en ? 'Contact Us' : __( 'تماس', 'shola-jawid' ),
 		),
 	);
 }

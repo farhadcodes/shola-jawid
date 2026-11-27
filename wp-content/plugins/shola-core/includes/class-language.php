@@ -317,7 +317,23 @@ class Language {
 		$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH );
 		$path = untrailingslashit( $path );
 
-		if ( '/en' === $path || 0 === strpos( $path, '/en/' ) ) {
+		/*
+		 * The masthead-date REST endpoint (inc/template-tags.php,
+		 * shola_register_masthead_date_route()) carries no /en/ URL
+		 * prefix at all — it's `/wp-json/shola/v1/masthead-date?lang=en`
+		 * — so it needs its own, separate match here. Checked this early
+		 * (plugins_loaded priority 1, same as the /en/ page case above)
+		 * because Persian Calendar's own Jalali-conversion gate decides
+		 * once, early in the request, same reason the page case below
+		 * needs its *second* switch at after_setup_theme: waiting until
+		 * inside the REST callback itself was too late — found live, not
+		 * assumed, when the endpoint kept returning the Jalali date even
+		 * with switch_to_locale() called there.
+		 */
+		$is_english_masthead_date_request = false !== strpos( $path, '/masthead-date' )
+			&& isset( $_GET['lang'] ) && 'en' === $_GET['lang']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only route match, not a form submission.
+
+		if ( '/en' === $path || 0 === strpos( $path, '/en/' ) || $is_english_masthead_date_request ) {
 			switch_to_locale( 'en_US' );
 			self::load_translation_files();
 		}

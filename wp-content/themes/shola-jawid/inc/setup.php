@@ -542,7 +542,7 @@ function shola_hide_empty_language_nav_items( $items, $args ) {
 		'/party-documents/' => 'Party Documents',
 		'/announcements/'   => 'Announcements',
 		'/about/'           => 'About Us',
-		'/contact/'         => 'Contact the Party',
+		'/contact/'         => 'Contact Us',
 	);
 
 	$always_show = array( '/', '/topics/', '/search/' );

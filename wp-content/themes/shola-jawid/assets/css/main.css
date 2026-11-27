@@ -964,6 +964,24 @@ html:not([dir="rtl"]) .masthead--two-tier {
   transition: gap var(--dur) var(--ease);
 }
 .mast-two-tier-util-nav .mast-btn { white-space: nowrap; }
+/*
+ * English-only fix, 2026-11-27: this six-item nav plus the identity
+ * cluster was overflowing past the 1200px .wrap on every desktop width,
+ * even very wide ones — found live, not assumed, by measuring each
+ * element's rendered width. Root cause isn't a breakpoint (the 1000px
+ * cutoff above already exists for "doesn't fit") — the Persian labels
+ * this was tuned for are simply narrower than their English equivalents
+ * ("اطلاعیه‌ها" vs "Announcements"), and `.mast-btn`'s shared
+ * letter-spacing/uppercase styling (meant for short Latin abbreviations
+ * appearing inside Persian text, not a run of six full English words)
+ * makes that gap worse. Scoped to `:not([dir="rtl"])` and to this one
+ * nav specifically — the shared `.mast-btn` rule other languages/
+ * contexts use is untouched, so nothing about the Persian site (or any
+ * other English UI element) changes.
+ */
+html:not([dir="rtl"]) .mast-two-tier-util-nav .mast-btn { letter-spacing: .03em; }
+html:not([dir="rtl"]) .mast-two-tier-util-nav { gap: calc(.4rem * var(--mast-scale)); }
+html:not([dir="rtl"]) .mast-two-tier-utility { gap: calc(.65rem * var(--mast-scale)); }
 
 /*
  * 1000px, not this masthead's other 720px breakpoint — found live in
