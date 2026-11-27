@@ -16142,3 +16142,34 @@ reads "←" (9 of them — two more than English, because two sections
 hide-if-empty on the demo English content, not a regression), and both
 computed hover-transform rules are present with the correct, mirrored
 pixel values.
+## 2026-11-27 (continued, 3) — Persian masthead hamburger hidden under the flag
+
+Farhad reported this after reviewing the live site further: on the
+Persian (non-sticky) masthead only, the hamburger menu button had ended
+up sitting underneath the flag graphic — not visible at all in a normal
+screenshot. The sticky/scrolled bar was unaffected and the English
+masthead was fine; he asked for a subtle spacing adjustment, Persian
+only, non-sticky only.
+
+Root cause, confirmed by measuring rendered rects live rather than
+guessing: adding the EN/فارسی language-switcher link to the utility nav
+(an earlier fix this session) widened that row enough that the hamburger
+button — `.mast-two-tier-utility`'s first child, and a plain
+`position: static` element — ended up directly underneath
+`.mast-two-tier-flag`, which is `position: absolute` and therefore always
+paints above static content in the same stacking context, regardless of
+DOM order. This is a pure CSS stacking rule (static elements always paint
+below positioned ones), not something z-index on the hamburger alone
+could fix without also touching the flag's own stacking.
+
+Fixed by widening the gap between the identity cluster and the utility
+block specifically — `html[dir="rtl"] .masthead--two-tier:not(.is-scrolled)
+.mast-two-tier-inner`, so the English masthead and the sticky/scrolled bar
+(which already has enough room at its own smaller `--mast-scale`) are both
+untouched. Tuned live by measuring the actual clearance between the
+hamburger's right edge and the flag's left edge after each change (first
+pass left only ~6px, not enough; settled on an extra 5rem of gap, giving
+~22px of clearance) rather than guessing a value and eyeballing it.
+Verified at 1920px and 1440px: hamburger clearly visible at both widths,
+Persian sticky bar's computed gap unchanged (16.32px, exactly
+1.5rem × 0.68 as before), English's non-scrolled gap unchanged (24px).

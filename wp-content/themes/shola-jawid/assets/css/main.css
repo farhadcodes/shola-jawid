@@ -859,6 +859,19 @@ html:not([dir="rtl"]) .masthead--two-tier {
   transition: padding-block var(--dur) var(--ease);
 }
 /*
+ * Persian-only, non-scrolled-only extra gap, 2026-11-27: adding the EN/
+ * فارسی language-switcher link widened this row enough that the
+ * hamburger button (`.mast-two-tier-utility`'s first child) ended up
+ * sitting underneath the absolutely-positioned flag graphic, which
+ * extends outward past the identity block's own edge — found live, not
+ * assumed, by measuring both elements' rendered rects. The sticky
+ * (`.is-scrolled`) bar already has enough room at its own smaller
+ * `--mast-scale` and isn't touched; English isn't touched either, since
+ * its nameplate ("CMP Afghanistan") is short enough that this never
+ * happens there.
+ */
+html[dir="rtl"] .masthead--two-tier:not(.is-scrolled) .mast-two-tier-inner { gap: calc(1.5rem * var(--mast-scale) + 5rem); }
+/*
  * Identity cluster: title, then date beneath it, right-aligned, with
  * the flag as a large tilted graphic behind both (position: absolute,
  * below) rather than a third stacked line — corrected 2026-09-18
