@@ -88,5 +88,5 @@ $rest     = array_slice( $announcements, 0, 4 );
 			</ul>
 		<?php endif; ?>
 	</div>
-	<a class="link-more" href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'همهٔ اطلاعیه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+	<a class="link-more" href="<?php echo esc_url( home_url( '/announcements/' ) ); ?>"><?php esc_html_e( 'همهٔ اطلاعیه‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 </article>

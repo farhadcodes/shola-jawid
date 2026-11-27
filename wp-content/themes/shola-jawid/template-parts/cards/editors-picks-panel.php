@@ -67,5 +67,5 @@ if ( ! $editors_picks ) {
 		<?php endforeach; ?>
 	</ol>
 
-	<a class="link-more" href="<?php echo esc_url( home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو گزیده‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+	<a class="link-more" href="<?php echo esc_url( home_url( '/editors-picks/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو گزیده‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 </div>

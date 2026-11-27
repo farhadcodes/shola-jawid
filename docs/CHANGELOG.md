@@ -16108,3 +16108,37 @@ parts:
    the REST response and the rendered masthead both now read e.g.
    "Friday 27 November 2026" on an English page, and the Persian site's
    own masthead date is unchanged.
+
+## 2026-11-27 (continued, 2) — "See more" link arrows pointed the wrong way in English
+
+Farhad spotted this across several screenshots: every "ALL ARTICLES ←" /
+"VIEW THE EDITOR'S PICKS ARCHIVE ←" style link on the English site still
+showed a leftward arrow — correct for Persian (pointing further along the
+reading direction) but backward once mirrored to an LTR page, where it
+should point right.
+
+Root cause: the arrow was a literal ← character hardcoded directly into
+9 separate `<span class="arr">` call sites (front-page.php ×7,
+announcement-spotlight.php, editors-picks-panel.php) — unlike
+`shola_pagination_prev_text()`/`next_text()` (inc/template-tags.php),
+which already solved this exact problem for pagination years ago, nothing
+here ever checked `is_rtl()`. Added a new `shola_link_more_arrow()`
+helper, same pattern as those two (← for RTL, → for LTR), and replaced
+all 9 hardcoded literals with a call to it.
+
+The hover animation had the same bug one layer down, in CSS rather than
+PHP: `.link-more:hover .arr` nudges the arrow 4px further in its pointing
+direction on hover, via a physical `translateX(-4px)` — and its own
+comment claimed "direction must stay literally leftward regardless of
+RTL," written before the English rollout existed. Added an
+`html:not([dir="rtl"])` override with the mirrored `translateX(4px)`,
+matching this project's own established convention for a physical-
+direction CSS exception (main.css already uses this same selector
+elsewhere, e.g. the masthead's background gradient).
+
+Verified live on both languages after the fix: every `.link-more .arr` on
+the English homepage reads "→", every one on the Persian homepage still
+reads "←" (9 of them — two more than English, because two sections
+hide-if-empty on the demo English content, not a regression), and both
+computed hover-transform rules are present with the correct, mirrored
+pixel values.

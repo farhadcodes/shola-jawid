@@ -71,6 +71,22 @@ function shola_pagination_next_text() {
 }
 
 /**
+ * The trailing arrow on every "see more" link (.link-more .arr — "همهٔ
+ * مقالات ←" and the like, front-page.php and several template-parts).
+ * Direction-aware for the same reason shola_pagination_prev_text()/
+ * next_text() above already are: it was hardcoded as a literal `←`
+ * everywhere, which reads correctly in RTL (pointing further along the
+ * reading direction) but pointed backward once the English rollout put
+ * the same markup on an LTR page — found live, 2026-11-27. Mirror this
+ * exactly: `←` for RTL, `→` for LTR.
+ *
+ * @return string
+ */
+function shola_link_more_arrow() {
+	return is_rtl() ? '←' : '→';
+}
+
+/**
  * Renders a paginate_links() page numbers strip safely — Persian digits
  * in the visible label, ASCII digits (untouched) inside every href.
  *

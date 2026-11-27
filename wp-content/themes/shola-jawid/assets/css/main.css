@@ -1554,8 +1554,20 @@ html:not([dir="rtl"]) .mast-two-tier-utility { gap: calc(.65rem * var(--mast-sca
 /* Underline-on-hover removed sitewide, replaced by the arrow nudge below. */
 .link-more:hover { color: var(--winston-red-deep); }
 .link-more .arr { display: inline-block; transform: translateY(-1px); transition: transform var(--dur) var(--ease); }
-/* Arrow nudges further in its own pointing direction on hover (physical transform, not logical -- direction must stay literally leftward regardless of RTL). */
+/*
+ * Arrow nudges further in its own pointing direction on hover — written
+ * for Persian only, before the English rollout existed, as a physical
+ * `translateX(-4px)` (left) with a comment claiming that direction never
+ * changes "regardless of RTL." That was wrong once an LTR page used the
+ * same markup: the arrow character itself is already direction-aware
+ * (shola_link_more_arrow(), inc/template-tags.php — `←` for RTL, `→` for
+ * LTR), so the hover nudge has to mirror too, or it visibly nudges toward
+ * the wrong arrowhead. Found live, 2026-11-27. `html:not([dir="rtl"])`,
+ * matching this project's own established convention for a physical-
+ * direction exception (main.css, search the file for other examples).
+ */
 .link-more:hover .arr { transform: translateY(-1px) translateX(-4px); }
+html:not([dir="rtl"]) .link-more:hover .arr { transform: translateY(-1px) translateX(4px); }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;

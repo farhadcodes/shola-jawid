@@ -591,7 +591,7 @@ if ( $has_editorspicks ) {
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'مقالات', 'shola-jawid' ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/topics/' ) ); ?>"><?php esc_html_e( 'همهٔ مقالات', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 			</div>
 			<div class="<?php echo esc_attr( $grid_cards_classes ); ?>">
 				<?php
@@ -720,7 +720,7 @@ $leaflet_teaser_query = shola_get_leaflets_query( array( 'posts_per_page' => 1 )
 				echo shola_get_featured_image( get_post(), 'full', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shola_get_featured_image() escapes internally.
 				?>
 			</a>
-			<a class="link-more" href="<?php echo esc_url( home_url( '/leaflets/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو تراکت‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+			<a class="link-more" href="<?php echo esc_url( home_url( '/leaflets/' ) ); ?>"><?php esc_html_e( 'مشاهدهٔ آرشیو تراکت‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 		</div>
 	</section>
 	<?php
@@ -841,7 +841,7 @@ $has_reports   = $reports_query->have_posts();
 				 */
 				?>
 				<div class="section-head-actions">
-					<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+					<a class="link-more" href="<?php echo esc_url( home_url( '/reports/' ) ); ?>"><?php esc_html_e( 'همهٔ گزارش‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 					<div class="carousel-nav" role="group" aria-label="<?php esc_attr_e( 'پیمایش گزارش‌ها', 'shola-jawid' ); ?>">
 						<button type="button" class="carousel-nav-btn" data-reports-dir="1" aria-label="<?php esc_attr_e( 'گزارش‌های قدیمی‌تر', 'shola-jawid' ); ?>">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
@@ -1142,7 +1142,7 @@ $selected_query = shola_get_selected_query( array( 'posts_per_page' => 6 ) );
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'ترجمه', 'shola-jawid' ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'همهٔ ترجمه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/selected/' ) ); ?>"><?php esc_html_e( 'همهٔ ترجمه‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 			</div>
 			<div class="selected-list">
 				<?php
@@ -1222,7 +1222,7 @@ $party_publications_query = new WP_Query( \SholaCore\Language::add_language_filt
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php esc_html_e( 'انتشارات حزب', 'shola-jawid' ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/party-publications/' ) ); ?>"><?php esc_html_e( 'همهٔ آثار', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/party-publications/' ) ); ?>"><?php esc_html_e( 'همهٔ آثار', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 			</div>
 			<div class="issue-grid">
 				<?php
@@ -1302,7 +1302,7 @@ $library_documents_query = new WP_Query( \SholaCore\Language::add_language_filte
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_library_heading' ) ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/library/' ) ); ?>"><?php esc_html_e( 'همهٔ مجموعه‌ها', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 			</div>
 			<div class="library-shelf">
 				<div class="library-shelf-track">
@@ -1365,7 +1365,7 @@ $party_documents_query = new WP_Query( \SholaCore\Language::add_language_filter(
 					<p class="section-marker"></p>
 					<h2 class="h-section"><?php echo esc_html( shola_get_label( 'home_latest_documents_heading' ) ); ?></h2>
 				</div>
-				<a class="link-more" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'همهٔ اسناد', 'shola-jawid' ); ?> <span class="arr">←</span></a>
+				<a class="link-more" href="<?php echo esc_url( home_url( '/party-documents/' ) ); ?>"><?php esc_html_e( 'همهٔ اسناد', 'shola-jawid' ); ?> <span class="arr"><?php echo esc_html( shola_link_more_arrow() ); ?></span></a>
 			</div>
 			<div class="issue-grid">
 				<?php
