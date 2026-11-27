@@ -16270,3 +16270,40 @@ icon swap; English footer search submits and stays on `/en/?s=...`
 (tested both the footer form and the popup-menu form); the masthead
 search icon's English link now returns the real search page instead of
 a 404.
+## 2026-11-27 (continued, 6) — "Hide the English switcher" now actually hides it
+
+Found while discussing go-live readiness: the existing hide-switcher
+setting (Settings → نسخهٔ انگلیسی سایت) only ever removed the visible
+"EN / فارسی" link — the `/en/` pages themselves stayed fully reachable by
+direct URL, and were still listed in the sitemap. Farhad confirmed he
+wants "hidden" to mean actually not public to real visitors, with
+editors/admins still able to preview while logged in.
+
+Two additions to `SholaCore\Language`, both gated on the same
+`is_switcher_hidden()` check the link itself already uses:
+
+1. `block_english_request_while_hidden()` (`template_redirect`): while
+   the setting is on, any `/en/` request from a visitor who can't
+   `edit_posts` gets a 302 to the Persian home page instead of the real
+   page. Deliberately a redirect, not a 404 — the content is real and
+   temporarily non-public, not missing.
+2. `exclude_english_posts_from_sitemap_while_hidden()`
+   (`wp_sitemaps_posts_query_args`): adds a `meta_query` excluding
+   `shcore_language = en` from every post-type sitemap while hidden. Not
+   done via the simpler-looking `wp_sitemaps_posts_entry` filter — traced
+   through core's own `class-wp-sitemaps-posts.php` first and confirmed
+   that filter's return value is pushed into the URL list unconditionally
+   regardless of what's returned, so there's no way to drop an entry from
+   there; the exclusion has to happen in the query itself, earlier.
+   Verified the `!=` meta-query operator's actual SQL behavior in core
+   (`class-wp-meta-query.php`) before relying on it — confirmed it also
+   matches posts with no `shcore_language` meta at all (every pre-English
+   Persian post), not just posts explicitly set to something other than
+   `en`, so no real Persian content is ever accidentally excluded.
+
+Verified live end-to-end with the setting switched on: `curl` (no
+cookies, i.e. as a real anonymous visitor) on both `/en/` and a deep
+English single-post URL both returned `302` to the Persian home; the
+post-type and page sitemaps were re-fetched and contained zero `/en/`
+URLs. Reverted the setting back off afterward — turning it on for the
+real launch is Farhad's own step to take on the production site.

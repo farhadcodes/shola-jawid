@@ -135,17 +135,80 @@ class Language {
 		// used the term's shcore_term_name_en override — this makes the
 		// <title> tag agree with what the page itself shows.
 		add_filter( 'document_title_parts', array( __CLASS__, 'filter_document_title_for_english_term' ) );
+
+		// While the switcher is hidden, actually block public access to
+		// /en/ pages (redirect visitors home) and drop them from the
+		// sitemap — added 2026-11-27, per Farhad: "hidden" previously only
+		// meant "no visible link," but the /en/ pages themselves stayed
+		// reachable by direct URL and were still in the sitemap, so a
+		// search engine or a shared link could still reach them.
+		add_action( 'template_redirect', array( __CLASS__, 'block_english_request_while_hidden' ) );
+		add_filter( 'wp_sitemaps_posts_query_args', array( __CLASS__, 'exclude_english_posts_from_sitemap_while_hidden' ) );
 	}
 
 	/**
 	 * Whether the public EN/فارسی switcher link should be hidden right
-	 * now. The /en/ URLs themselves keep working either way — this only
-	 * controls whether the link to them is shown.
+	 * now. While hidden, /en/ pages are also blocked for ordinary
+	 * visitors (see block_english_request_while_hidden()) and dropped
+	 * from the sitemap — this setting now means "actually not public,"
+	 * not just "no visible link."
 	 *
 	 * @return bool
 	 */
 	public static function is_switcher_hidden() {
 		return (bool) get_option( self::HIDE_SWITCHER_OPTION, false );
+	}
+
+	/**
+	 * Redirects an ordinary visitor away from any /en/ page while the
+	 * switcher is hidden — home_url( '/' ), the same safe fallback
+	 * already used elsewhere when there's no better specific target.
+	 * Logged-in users who can edit posts (editors/admins) are let
+	 * through, so the editorial team can keep previewing/building the
+	 * English version while it's hidden from the public. A redirect, not
+	 * a 404, since this is deliberately temporary — the content is real
+	 * and will go public once this setting is turned off.
+	 *
+	 * @return void
+	 */
+	public static function block_english_request_while_hidden() {
+		if ( 'en' !== self::current() || ! self::is_switcher_hidden() ) {
+			return;
+		}
+		if ( current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+		wp_safe_redirect( home_url( '/' ), 302 );
+		exit;
+	}
+
+	/**
+	 * Excludes English posts from the sitemap's own query while the
+	 * switcher is hidden — pairs with block_english_request_while_hidden()
+	 * above, so a search engine can't discover (or keep indexing) a page
+	 * real visitors are being redirected away from. A meta_query here,
+	 * not a post-hoc per-entry filter (`wp_sitemaps_posts_entry`): that
+	 * filter's return value is pushed into the URL list unconditionally
+	 * by core regardless of what's returned, so there's no way to drop an
+	 * entry from there — it has to happen earlier, in the query itself.
+	 *
+	 * @param array $args WP_Query args the sitemap provider is about to run.
+	 * @return array
+	 */
+	public static function exclude_english_posts_from_sitemap_while_hidden( $args ) {
+		if ( ! self::is_switcher_hidden() ) {
+			return $args;
+		}
+
+		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- small sitemap batches, not a front-end-traffic query.
+			array(
+				'key'     => 'shcore_language',
+				'value'   => 'en',
+				'compare' => '!=',
+			),
+		);
+
+		return $args;
 	}
 
 	/**
@@ -279,7 +342,7 @@ class Language {
 								<input type="checkbox" name="<?php echo esc_attr( self::HIDE_SWITCHER_OPTION ); ?>" value="1" <?php checked( self::is_switcher_hidden() ); ?>>
 								<?php esc_html_e( 'لینک «EN / فارسی» را از سربرگ و منوی سایت پنهان کن', 'shola-core' ); ?>
 							</label>
-							<p class="description"><?php esc_html_e( 'نسخهٔ انگلیسی سایت همچنان در آدرس /en/ در دسترس می‌ماند؛ این گزینه فقط لینک آن را از نوار بالا و منو پنهان می‌کند.', 'shola-core' ); ?></p>
+							<p class="description"><?php esc_html_e( 'با فعال‌کردن این گزینه، لینک «EN / فارسی» پنهان می‌شود و نسخهٔ انگلیسی سایت برای بازدیدکنندگان واقعی در دسترس نخواهد بود (درخواست مستقیم به /en/ به صفحهٔ اصلی فارسی هدایت می‌شود و از نقشهٔ سایت هم حذف می‌شود)؛ اعضای تیم که وارد حساب کاربری خود شده‌اند همچنان می‌توانند نسخهٔ انگلیسی را برای بررسی مشاهده کنند.', 'shola-core' ); ?></p>
 						</td>
 					</tr>
 					<tr>
